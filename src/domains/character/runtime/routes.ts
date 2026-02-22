@@ -55,4 +55,103 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		}
 		return reply.status(204).send();
 	});
+
+	// --- Action routes ---
+
+	app.post<{ Params: { id: string } }>("/api/characters/:id/damage", async (request, reply) => {
+		const { amount } = request.body as { amount: number };
+		const character = await characterService.dealDamage(request.params.id, amount);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.post<{ Params: { id: string } }>("/api/characters/:id/heal", async (request, reply) => {
+		const { amount } = request.body as { amount: number };
+		const character = await characterService.healCharacter(request.params.id, amount);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.post<{ Params: { id: string; name: string } }>(
+		"/api/characters/:id/skills/:name/toggle",
+		async (request, reply) => {
+			const character = await characterService.toggleSkillProficiency(
+				request.params.id,
+				request.params.name,
+			);
+			if (!character) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return character;
+		},
+	);
+
+	app.post<{ Params: { id: string } }>("/api/characters/:id/equipment", async (request, reply) => {
+		const character = await characterService.addEquipment(
+			request.params.id,
+			request.body as { name: string; weight: number; quantity: number },
+		);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.delete<{ Params: { id: string; itemId: string } }>(
+		"/api/characters/:id/equipment/:itemId",
+		async (request, reply) => {
+			const character = await characterService.removeEquipment(
+				request.params.id,
+				request.params.itemId,
+			);
+			if (!character) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return character;
+		},
+	);
+
+	app.post<{ Params: { id: string; level: string } }>(
+		"/api/characters/:id/spells/:level/use",
+		async (request, reply) => {
+			try {
+				const character = await characterService.useSpellSlot(
+					request.params.id,
+					Number(request.params.level),
+				);
+				if (!character) {
+					return reply.status(404).send({ error: "Character not found" });
+				}
+				return character;
+			} catch (err) {
+				return reply.status(400).send({ error: (err as Error).message });
+			}
+		},
+	);
+
+	app.post<{ Params: { id: string; level: string } }>(
+		"/api/characters/:id/spells/:level/restore",
+		async (request, reply) => {
+			const character = await characterService.restoreSpellSlot(
+				request.params.id,
+				Number(request.params.level),
+			);
+			if (!character) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return character;
+		},
+	);
+
+	app.post<{ Params: { id: string } }>("/api/characters/:id/long-rest", async (request, reply) => {
+		const character = await characterService.longRest(request.params.id);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
 }
