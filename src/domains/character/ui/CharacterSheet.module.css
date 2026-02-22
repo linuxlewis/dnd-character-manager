@@ -159,3 +159,64 @@
 	width: 2.5rem;
 	text-align: right;
 }
+
+.spellSlotRow {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+	min-height: 44px;
+}
+
+.spellSlotLevel {
+	font-size: 0.9rem;
+	font-weight: 600;
+	width: 4rem;
+	flex-shrink: 0;
+}
+
+.spellSlotCircles {
+	display: flex;
+	gap: 0.5rem;
+	flex: 1;
+	flex-wrap: wrap;
+}
+
+.spellSlotCircle {
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	border: 2px solid #6366f1;
+	cursor: pointer;
+	padding: 0;
+	background: none;
+}
+
+.spellSlotAvailable {
+	background: #6366f1;
+}
+
+.spellSlotUsed {
+	background: transparent;
+}
+
+.spellSlotCount {
+	font-size: 0.85rem;
+	color: #666;
+	width: 2.5rem;
+	text-align: right;
+	flex-shrink: 0;
+}
+
+.longRestButton {
+	margin-top: 0.75rem;
+	width: 100%;
+	padding: 0.75rem;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	background: #e0e7ff;
+	color: #4338ca;
+}

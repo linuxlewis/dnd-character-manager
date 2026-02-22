@@ -59,6 +59,33 @@ export function CharacterSheet({ id }: { id: string }) {
 			.catch(() => {});
 	};
 
+	const handleUseSpellSlot = (level: number) => {
+		fetch(`/api/characters/${id}/spells/${level}/use`, { method: "POST" })
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
+	const handleRestoreSpellSlot = (level: number) => {
+		fetch(`/api/characters/${id}/spells/${level}/restore`, { method: "POST" })
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
+	const handleLongRest = () => {
+		fetch(`/api/characters/${id}/long-rest`, { method: "POST" })
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
 	const handleToggleSkill = (skillName: string) => {
 		fetch(`/api/characters/${id}/skills/toggle`, {
 			method: "POST",
@@ -153,6 +180,39 @@ export function CharacterSheet({ id }: { id: string }) {
 					})}
 				</div>
 			</div>
+
+			{character.spellSlots && character.spellSlots.length > 0 && (
+				<div className={styles.section}>
+					<h2 className={styles.sectionTitle}>Spell Slots</h2>
+					{character.spellSlots.map((slot) => (
+						<div key={slot.level} className={styles.spellSlotRow}>
+							<span className={styles.spellSlotLevel}>Level {slot.level}</span>
+							<div className={styles.spellSlotCircles}>
+								{Array.from({ length: slot.available }, (_, i) => {
+									const isUsed = i < slot.used;
+									return (
+										<button
+											key={`slot-${slot.level}-${i}`}
+											type="button"
+											className={`${styles.spellSlotCircle} ${isUsed ? styles.spellSlotUsed : styles.spellSlotAvailable}`}
+											onClick={() =>
+												isUsed ? handleRestoreSpellSlot(slot.level) : handleUseSpellSlot(slot.level)
+											}
+											aria-label={`Level ${slot.level} slot ${i + 1} - ${isUsed ? "used" : "available"}`}
+										/>
+									);
+								})}
+							</div>
+							<span className={styles.spellSlotCount}>
+								{slot.available - slot.used}/{slot.available}
+							</span>
+						</div>
+					))}
+					<button type="button" className={styles.longRestButton} onClick={handleLongRest}>
+						Long Rest
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

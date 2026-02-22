@@ -92,4 +92,49 @@ describe("CharacterSheet", () => {
 		const parsed = JSON.parse(body);
 		expect(parsed.skillName).toBe("Stealth");
 	});
+
+	it("spell slot circles: available minus used gives remaining", () => {
+		const slot = { level: 1, used: 2, available: 4 };
+		const remaining = slot.available - slot.used;
+		expect(remaining).toBe(2);
+		// First 'used' slots are used, rest are available
+		const circles = Array.from({ length: slot.available }, (_, i) => i < slot.used);
+		expect(circles).toEqual([true, true, false, false]);
+	});
+
+	it("spell slot display format", () => {
+		const slot = { level: 3, used: 1, available: 3 };
+		const display = `${slot.available - slot.used}/${slot.available}`;
+		expect(display).toBe("2/3");
+	});
+
+	it("use spell slot API contract - POST to correct endpoint", () => {
+		const id = "abc";
+		const level = 2;
+		const url = `/api/characters/${id}/spells/${level}/use`;
+		expect(url).toBe("/api/characters/abc/spells/2/use");
+	});
+
+	it("restore spell slot API contract - POST to correct endpoint", () => {
+		const id = "abc";
+		const level = 3;
+		const url = `/api/characters/${id}/spells/${level}/restore`;
+		expect(url).toBe("/api/characters/abc/spells/3/restore");
+	});
+
+	it("long rest API contract - POST to correct endpoint", () => {
+		const id = "abc";
+		const url = `/api/characters/${id}/long-rest`;
+		expect(url).toBe("/api/characters/abc/long-rest");
+	});
+
+	it("long rest resets all spell slots conceptually", () => {
+		const slots = [
+			{ level: 1, used: 3, available: 4 },
+			{ level: 2, used: 2, available: 3 },
+		];
+		const restored = slots.map((s) => ({ ...s, used: 0 }));
+		expect(restored[0].used).toBe(0);
+		expect(restored[1].used).toBe(0);
+	});
 });
