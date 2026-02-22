@@ -152,3 +152,14 @@
 - All 173 tests pass, lint and typecheck pass
 - **Learnings:** Extract components when file exceeds 300-line max-file-size lint rule
 ---
+
+### story-19: Notes section and character deletion
+- Added notes textarea to CharacterSheet with auto-save on blur via PUT /api/characters/:id
+- Added delete character button with window.confirm confirmation dialog, navigates to "/" on success
+- Added CSS styles for notesTextarea and deleteButton
+- Added 3 tests: notes update API contract, delete API contract, notes default empty string
+- Added 1 route integration test: PUT updates notes field
+- Split routes.test.ts into routes.test.ts (CRUD) + action-routes.test.ts (actions) to stay under 300-line limit
+- All 177 tests pass, lint and typecheck pass
+- **Learnings:** check-deps.ts enforces 300-line max per file; split test files when adding tests to large files
+---
