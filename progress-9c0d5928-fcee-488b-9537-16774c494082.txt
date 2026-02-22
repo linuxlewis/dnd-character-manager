@@ -115,3 +115,13 @@
 - Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
 - All 157 tests pass, lint and typecheck pass
 ---
+
+### story-16: Skills list UI
+- Added skills section to CharacterSheet: lists all 18 D&D 5e skills with proficiency toggle checkboxes
+- Each skill shows name, ability abbreviation, and calculated bonus (modifier + proficiency if proficient)
+- Checkbox toggle calls POST /api/characters/:id/skills/toggle, UI updates via setCharacter without page refresh
+- Added mobile-friendly CSS: 44px min-height rows, touch-friendly checkboxes
+- Added 5 tests: all 18 skills present, ability abbreviations valid, bonus calc without/with proficiency, toggle API contract
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+- All 162 tests pass, lint and typecheck pass
+---
