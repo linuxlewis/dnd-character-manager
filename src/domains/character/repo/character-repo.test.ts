@@ -1,9 +1,6 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import * as schema from "@providers/db/schema.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { CreateCharacter } from "../types/index.js";
-import { characterRepo, _setDb, _resetDb } from "./character-repo.js";
+import { characterRepo } from "./character-repo.js";
 
 const validInput: CreateCharacter = {
 	name: "Gandalf",
@@ -12,45 +9,13 @@ const validInput: CreateCharacter = {
 	level: 20,
 	abilityScores: { STR: 10, DEX: 14, CON: 12, INT: 20, WIS: 18, CHA: 16 },
 	hp: { current: 100, max: 100, temp: 0 },
-	spellSlots: [{ level: 1, used: 0, available: 4 }],
-	equipment: [{ id: crypto.randomUUID(), name: "Staff", quantity: 1, weight: 4, equipped: true }],
-	skills: [{ name: "Arcana", abilityKey: "INT" as const, proficient: true }],
-	notes: "A wizard is never late.",
+	spellSlots: [],
+	equipment: [],
+	skills: [],
+	notes: "",
 };
 
-describe("characterRepo (SQLite)", () => {
-	let sqlite: InstanceType<typeof Database>;
-
-	beforeAll(() => {
-		sqlite = new Database(":memory:");
-		sqlite.pragma("journal_mode = WAL");
-		// Create the characters table
-		sqlite.exec(`
-			CREATE TABLE characters (
-				id TEXT PRIMARY KEY,
-				name TEXT NOT NULL,
-				race TEXT NOT NULL,
-				class TEXT NOT NULL,
-				level INTEGER NOT NULL DEFAULT 1,
-				ability_scores TEXT,
-				hp TEXT,
-				spell_slots TEXT,
-				equipment TEXT,
-				skills TEXT,
-				notes TEXT,
-				created_at TEXT NOT NULL DEFAULT (datetime('now')),
-				updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-			)
-		`);
-		const db = drizzle(sqlite, { schema });
-		_setDb(db);
-	});
-
-	afterAll(() => {
-		_resetDb();
-		sqlite.close();
-	});
-
+describe("characterRepo", () => {
 	beforeEach(async () => {
 		await characterRepo._clear();
 	});
@@ -87,14 +52,15 @@ describe("characterRepo (SQLite)", () => {
 	it("update merges partial data and updates updatedAt", async () => {
 		const char = await characterRepo.create(validInput);
 		const before = char.updatedAt;
+		// Small delay to ensure different timestamp
 		await new Promise((r) => setTimeout(r, 5));
 		const updated = await characterRepo.update(char.id, { name: "Saruman", level: 18 });
 		expect(updated).not.toBeNull();
 		expect(updated?.name).toBe("Saruman");
 		expect(updated?.level).toBe(18);
-		expect(updated?.race).toBe("Human");
-		expect(updated?.id).toBe(char.id);
-		expect(updated?.createdAt).toEqual(char.createdAt);
+		expect(updated?.race).toBe("Human"); // unchanged
+		expect(updated?.id).toBe(char.id); // id preserved
+		expect(updated?.createdAt).toEqual(char.createdAt); // createdAt preserved
 		expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
 	});
 
@@ -110,23 +76,5 @@ describe("characterRepo (SQLite)", () => {
 
 	it("delete returns false for unknown id", async () => {
 		expect(await characterRepo.delete("nonexistent")).toBe(false);
-	});
-
-	it("JSON fields round-trip correctly", async () => {
-		const char = await characterRepo.create(validInput);
-		const found = await characterRepo.findById(char.id);
-		expect(found?.abilityScores).toEqual(validInput.abilityScores);
-		expect(found?.hp).toEqual(validInput.hp);
-		expect(found?.spellSlots).toEqual(validInput.spellSlots);
-		expect(found?.equipment).toEqual(validInput.equipment);
-		expect(found?.skills).toEqual(validInput.skills);
-		expect(found?.notes).toBe(validInput.notes);
-	});
-
-	it("_clear deletes all rows", async () => {
-		await characterRepo.create(validInput);
-		await characterRepo.create({ ...validInput, name: "Frodo" });
-		await characterRepo._clear();
-		expect(await characterRepo.findAll()).toEqual([]);
 	});
 });

@@ -207,8 +207,6 @@ describe("CharacterSheet themed styles", () => {
 			const trimmed = line.trim();
 			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) return false;
 			if (hexColorRegex.test(trimmed)) {
-				// Allow #eab308 in the warning class (single non-token color for yellow)
-				if (trimmed.includes("eab308")) return false;
 				return true;
 			}
 			return false;

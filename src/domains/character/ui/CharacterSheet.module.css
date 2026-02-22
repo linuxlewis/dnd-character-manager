@@ -112,7 +112,7 @@
 }
 
 .hpBarFillWarning {
-	background-color: #eab308;
+	background-color: var(--color-warning);
 }
 
 .hpBarFillDanger {
