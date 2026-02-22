@@ -50,3 +50,12 @@
 - Both return null for missing characters
 - Added 6 tests: damage reduces HP, damage floors at 0, damage null for missing, heal increases HP, heal caps at max, heal null for missing
 - All 93 tests pass, lint and typecheck pass
+
+### story-08: Skill toggle and equipment service methods
+- Added `skills` field to CharacterSchema (array of {name, abilityKey, proficient}, default [])
+- Added `toggleSkillProficiency(id, skillName)` — finds skill by name, flips proficient boolean
+- Added `addEquipment(id, item)` — validates via EquipmentItemSchema, generates UUID, appends to array
+- Added `removeEquipment(id, itemId)` — filters equipment array by ID
+- All three return null for missing character
+- Added 5 tests covering all methods and null cases
+- All 99 tests pass, lint and typecheck pass
