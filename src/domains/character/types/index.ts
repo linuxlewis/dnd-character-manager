@@ -13,3 +13,12 @@ export {
 	type AbilityScores,
 	type Hp,
 } from "./character.js";
+
+export {
+	SkillSchema,
+	AbilityKey,
+	SKILLS,
+	getProficiencyBonus,
+	calculateSkillBonus,
+	type Skill,
+} from "./skills.js";
