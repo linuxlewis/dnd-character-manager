@@ -106,3 +106,12 @@
 - All 150 tests pass, lint and typecheck pass
 - **Learnings:** biome requires tabs in CSS files; use `biome check --write` to auto-fix formatting
 ---
+
+### story-15: Character sheet - ability scores and HP
+- Enhanced CharacterSheet with HP bar (color-coded: green >50%, yellow >25%, red ≤25%)
+- Added damage/heal buttons that prompt for amount and call POST /api/characters/:id/damage and /heal
+- UI updates via setCharacter after API response (no full page refresh)
+- Added 7 tests: component export, modifier calculation, modifier formatting, HP percentage, HP color thresholds, damage/heal API contracts
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+- All 157 tests pass, lint and typecheck pass
+---
