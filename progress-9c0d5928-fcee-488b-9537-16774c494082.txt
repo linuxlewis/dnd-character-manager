@@ -138,3 +138,17 @@
 - Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
 - All 168 tests pass, lint and typecheck pass
 ---
+
+### story-18: Equipment/inventory UI
+- Created EquipmentSection component (extracted from CharacterSheet to stay under 300-line limit)
+- Equipment list shows items with name, quantity (×N), and calculated weight (qty × weight)
+- Total weight displayed at top using calculateTotalWeight helper
+- Add item form with name, quantity, weight fields + Add button
+- Remove button (✕) per item calls DELETE /api/characters/:id/equipment/:itemId
+- Empty state shows "No equipment yet."
+- Mobile-friendly: 44px min-height rows, touch-friendly inputs
+- Added 5 tests: total weight calc, empty weight, add API contract, remove API contract, row weight display
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts, EquipmentSection.tsx (new)
+- All 173 tests pass, lint and typecheck pass
+- **Learnings:** Extract components when file exceeds 300-line max-file-size lint rule
+---

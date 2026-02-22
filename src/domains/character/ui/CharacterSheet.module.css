@@ -315,3 +315,28 @@
 	font-weight: 600;
 	cursor: pointer;
 }
+
+.notesTextarea {
+	width: 100%;
+	min-height: 120px;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-family: inherit;
+	resize: vertical;
+	box-sizing: border-box;
+}
+
+.deleteButton {
+	width: 100%;
+	min-height: 44px;
+	padding: 0.75rem;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}

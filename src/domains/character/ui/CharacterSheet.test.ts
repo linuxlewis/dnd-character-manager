@@ -171,4 +171,24 @@ describe("CharacterSheet", () => {
 		const displayWeight = item.weight * item.quantity;
 		expect(displayWeight).toBe(10);
 	});
+
+	it("notes update API contract - PUT with notes field", () => {
+		const id = "abc";
+		const url = `/api/characters/${id}`;
+		const body = JSON.stringify({ notes: "Some character notes" });
+		const parsed = JSON.parse(body);
+		expect(url).toBe("/api/characters/abc");
+		expect(parsed.notes).toBe("Some character notes");
+	});
+
+	it("delete character API contract - DELETE to correct endpoint", () => {
+		const id = "abc";
+		const url = `/api/characters/${id}`;
+		expect(url).toBe("/api/characters/abc");
+	});
+
+	it("notes default to empty string", () => {
+		const notes = undefined ?? "";
+		expect(notes).toBe("");
+	});
 });

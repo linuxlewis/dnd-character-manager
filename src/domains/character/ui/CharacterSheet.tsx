@@ -17,11 +17,15 @@ export function CharacterSheet({ id }: { id: string }) {
 	const navigate = useNavigate();
 	const [character, setCharacter] = useState<Character | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [notes, setNotes] = useState("");
 
 	useEffect(() => {
 		fetch(`/api/characters/${id}`)
 			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => setCharacter(data))
+			.then((data) => {
+				setCharacter(data);
+				if (data) setNotes(data.notes ?? "");
+			})
 			.catch(() => {})
 			.finally(() => setLoading(false));
 	}, [id]);
@@ -96,6 +100,30 @@ export function CharacterSheet({ id }: { id: string }) {
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
 				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
+	const handleNotesBlur = () => {
+		if (!character) return;
+		fetch(`/api/characters/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ notes }),
+		})
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
+	const handleDelete = () => {
+		if (!window.confirm(`Delete ${character?.name ?? "this character"}? This cannot be undone.`))
+			return;
+		fetch(`/api/characters/${id}`, { method: "DELETE" })
+			.then((r) => {
+				if (r.ok) navigate("/");
 			})
 			.catch(() => {});
 	};
@@ -220,6 +248,24 @@ export function CharacterSheet({ id }: { id: string }) {
 				equipment={character.equipment ?? []}
 				onUpdate={setCharacter}
 			/>
+
+			<div className={styles.section}>
+				<h2 className={styles.sectionTitle}>Notes</h2>
+				<textarea
+					className={styles.notesTextarea}
+					value={notes}
+					onChange={(e) => setNotes(e.target.value)}
+					onBlur={handleNotesBlur}
+					placeholder="Add notes about your character..."
+					rows={6}
+				/>
+			</div>
+
+			<div className={styles.section}>
+				<button type="button" className={styles.deleteButton} onClick={handleDelete}>
+					Delete Character
+				</button>
+			</div>
 		</div>
 	);
 }
