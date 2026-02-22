@@ -95,3 +95,14 @@
 - **Learnings:** biome enforces no div[role=button] — use semantic <button> instead; biome format prefers single-line short JSX text
 - All 142 tests pass, lint and typecheck pass
 ---
+
+### story-14: Create/edit character form
+- Created CharacterForm component with name, race, class, level, and 6 ability score fields
+- Form validates with CreateCharacterSchema (Zod) before submission
+- Create mode POSTs to /api/characters, edit mode PUTs to /api/characters/:id
+- Mobile-friendly: min-height 44px inputs, 48px submit button, 2-col ability grid
+- Added routes: /character/new and /character/:id/edit in app.tsx
+- 8 tests: component export, schema validation (valid, empty name, level bounds, ability score bounds, all 6 abilities)
+- All 150 tests pass, lint and typecheck pass
+- **Learnings:** biome requires tabs in CSS files; use `biome check --write` to auto-fix formatting
+---
