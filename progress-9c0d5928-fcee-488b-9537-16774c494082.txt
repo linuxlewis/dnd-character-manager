@@ -1,0 +1,19 @@
+# Progress — Run 9c0d5928-fcee-488b-9537-16774c494082
+
+## Completed Stories
+
+### story-01: Character core types and Zod schemas
+- Created `src/domains/character/types/character.ts` with CharacterSchema, CreateCharacterSchema, UpdateCharacterSchema, AbilityScoresSchema, getAbilityModifier
+- Created `src/domains/character/types/index.ts` re-exporting all types
+- Created `src/domains/character/types/character.test.ts` with 17 passing tests
+- All lints and typecheck pass
+
+## Codebase Patterns
+
+- **Domain structure**: `src/domains/<name>/types/` contains Zod schemas, type exports, and tests
+- **Schema pattern**: Main schema → CreateSchema (omit id/timestamps) → UpdateSchema (partial of Create)
+- **File naming**: `<entity>.ts` for schemas, `<entity>.test.ts` for tests, `index.ts` for re-exports
+- **Imports**: Use `.js` extension in imports (ESM)
+- **Linting**: biome check + custom `check-deps.ts` for architecture violations
+- **Test runner**: vitest
+- **Package manager**: pnpm

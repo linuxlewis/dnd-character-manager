@@ -28,6 +28,50 @@ export function getAbilityModifier(score: number): number {
 	return Math.floor((score - 10) / 2);
 }
 
+export const HpSchema = z.object({
+	current: z.number().int().min(0),
+	max: z.number().int().min(1),
+	temp: z.number().int().min(0),
+});
+
+export type Hp = z.infer<typeof HpSchema>;
+
+/**
+ * Apply damage to HP. Temp HP absorbs damage first, then current HP.
+ * Current HP floors at 0.
+ */
+export function applyDamage(hp: Hp, damage: number): Hp {
+	if (damage <= 0) return hp;
+	let remaining = damage;
+	let temp = hp.temp;
+	let current = hp.current;
+
+	if (temp > 0) {
+		if (remaining >= temp) {
+			remaining -= temp;
+			temp = 0;
+		} else {
+			temp -= remaining;
+			remaining = 0;
+		}
+	}
+
+	current = Math.max(0, current - remaining);
+	return { current, max: hp.max, temp };
+}
+
+/**
+ * Apply healing to HP. Current HP caps at max HP. Temp HP is unaffected.
+ */
+export function applyHealing(hp: Hp, healing: number): Hp {
+	if (healing <= 0) return hp;
+	return {
+		current: Math.min(hp.max, hp.current + healing),
+		max: hp.max,
+		temp: hp.temp,
+	};
+}
+
 export const CharacterSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string().min(1).max(255),
@@ -35,6 +79,7 @@ export const CharacterSchema = z.object({
 	class: z.string().min(1).max(100),
 	level: z.number().int().min(1).max(20),
 	abilityScores: AbilityScoresSchema,
+	hp: HpSchema,
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });

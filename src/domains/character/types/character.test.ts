@@ -3,7 +3,10 @@ import {
 	AbilityScoresSchema,
 	CharacterSchema,
 	CreateCharacterSchema,
+	HpSchema,
 	UpdateCharacterSchema,
+	applyDamage,
+	applyHealing,
 	getAbilityModifier,
 } from "./character.js";
 
@@ -16,6 +19,8 @@ const validAbilityScores = {
 	CHA: 13,
 };
 
+const validHp = { current: 30, max: 45, temp: 5 };
+
 const validCharacter = {
 	id: "550e8400-e29b-41d4-a716-446655440000",
 	name: "Gandalf",
@@ -23,6 +28,7 @@ const validCharacter = {
 	class: "Wizard",
 	level: 5,
 	abilityScores: validAbilityScores,
+	hp: validHp,
 	createdAt: "2025-01-01T00:00:00Z",
 	updatedAt: "2025-01-01T00:00:00Z",
 };
@@ -105,6 +111,7 @@ describe("CreateCharacterSchema", () => {
 			class: "Ranger",
 			level: 10,
 			abilityScores: validAbilityScores,
+			hp: validHp,
 		});
 		expect(result.success).toBe(true);
 	});
@@ -119,5 +126,82 @@ describe("UpdateCharacterSchema", () => {
 	it("allows empty object", () => {
 		const result = UpdateCharacterSchema.safeParse({});
 		expect(result.success).toBe(true);
+	});
+});
+
+describe("HpSchema", () => {
+	it("parses valid HP", () => {
+		expect(HpSchema.safeParse({ current: 10, max: 20, temp: 0 }).success).toBe(true);
+	});
+
+	it("rejects negative current", () => {
+		expect(HpSchema.safeParse({ current: -1, max: 20, temp: 0 }).success).toBe(false);
+	});
+
+	it("rejects max below 1", () => {
+		expect(HpSchema.safeParse({ current: 0, max: 0, temp: 0 }).success).toBe(false);
+	});
+
+	it("rejects negative temp", () => {
+		expect(HpSchema.safeParse({ current: 5, max: 10, temp: -1 }).success).toBe(false);
+	});
+});
+
+describe("applyDamage", () => {
+	it("reduces temp HP first", () => {
+		const result = applyDamage({ current: 20, max: 20, temp: 5 }, 3);
+		expect(result).toEqual({ current: 20, max: 20, temp: 2 });
+	});
+
+	it("spills over from temp to current", () => {
+		const result = applyDamage({ current: 20, max: 20, temp: 5 }, 8);
+		expect(result).toEqual({ current: 17, max: 20, temp: 0 });
+	});
+
+	it("floors current at 0 (overkill)", () => {
+		const result = applyDamage({ current: 10, max: 20, temp: 0 }, 999);
+		expect(result).toEqual({ current: 0, max: 20, temp: 0 });
+	});
+
+	it("handles zero damage", () => {
+		const hp = { current: 10, max: 20, temp: 5 };
+		expect(applyDamage(hp, 0)).toEqual(hp);
+	});
+
+	it("handles negative damage (no-op)", () => {
+		const hp = { current: 10, max: 20, temp: 5 };
+		expect(applyDamage(hp, -5)).toEqual(hp);
+	});
+
+	it("handles damage with no temp HP", () => {
+		const result = applyDamage({ current: 15, max: 20, temp: 0 }, 5);
+		expect(result).toEqual({ current: 10, max: 20, temp: 0 });
+	});
+});
+
+describe("applyHealing", () => {
+	it("increases current HP", () => {
+		const result = applyHealing({ current: 10, max: 20, temp: 0 }, 5);
+		expect(result).toEqual({ current: 15, max: 20, temp: 0 });
+	});
+
+	it("caps at max HP (overheal)", () => {
+		const result = applyHealing({ current: 18, max: 20, temp: 0 }, 10);
+		expect(result).toEqual({ current: 20, max: 20, temp: 0 });
+	});
+
+	it("does not affect temp HP", () => {
+		const result = applyHealing({ current: 10, max: 20, temp: 5 }, 3);
+		expect(result).toEqual({ current: 13, max: 20, temp: 5 });
+	});
+
+	it("handles zero healing", () => {
+		const hp = { current: 10, max: 20, temp: 0 };
+		expect(applyHealing(hp, 0)).toEqual(hp);
+	});
+
+	it("handles healing at full HP", () => {
+		const result = applyHealing({ current: 20, max: 20, temp: 0 }, 5);
+		expect(result).toEqual({ current: 20, max: 20, temp: 0 });
 	});
 });

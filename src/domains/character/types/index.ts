@@ -3,9 +3,13 @@ export {
 	CreateCharacterSchema,
 	UpdateCharacterSchema,
 	AbilityScoresSchema,
+	HpSchema,
 	getAbilityModifier,
+	applyDamage,
+	applyHealing,
 	type Character,
 	type CreateCharacter,
 	type UpdateCharacter,
 	type AbilityScores,
+	type Hp,
 } from "./character.js";
