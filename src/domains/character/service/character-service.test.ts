@@ -87,4 +87,49 @@ describe("characterService", () => {
 		const deleted = await characterService.deleteCharacter("00000000-0000-0000-0000-000000000000");
 		expect(deleted).toBe(false);
 	});
+
+	// HP service methods (story-07)
+
+	it("dealDamage reduces character HP and persists", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const damaged = await characterService.dealDamage(char.id, 30);
+		expect(damaged).not.toBeNull();
+		expect(damaged?.hp.current).toBe(70);
+		// Verify persisted
+		const fetched = await characterService.getCharacter(char.id);
+		expect(fetched?.hp.current).toBe(70);
+	});
+
+	it("dealDamage returns null for missing character", async () => {
+		const result = await characterService.dealDamage("nonexistent", 10);
+		expect(result).toBeNull();
+	});
+
+	it("dealDamage floors HP at 0", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const damaged = await characterService.dealDamage(char.id, 999);
+		expect(damaged?.hp.current).toBe(0);
+	});
+
+	it("healCharacter increases character HP and persists", async () => {
+		const char = await characterService.createCharacter(validInput);
+		await characterService.dealDamage(char.id, 50);
+		const healed = await characterService.healCharacter(char.id, 20);
+		expect(healed).not.toBeNull();
+		expect(healed?.hp.current).toBe(70);
+		// Verify persisted
+		const fetched = await characterService.getCharacter(char.id);
+		expect(fetched?.hp.current).toBe(70);
+	});
+
+	it("healCharacter returns null for missing character", async () => {
+		const result = await characterService.healCharacter("nonexistent", 10);
+		expect(result).toBeNull();
+	});
+
+	it("healCharacter caps HP at max", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const healed = await characterService.healCharacter(char.id, 50);
+		expect(healed?.hp.current).toBe(100);
+	});
 });

@@ -13,6 +13,8 @@ import {
 	CreateCharacterSchema,
 	type UpdateCharacter,
 	UpdateCharacterSchema,
+	applyDamage,
+	applyHealing,
 } from "../types/index.js";
 
 const log = createLogger("character-service");
@@ -52,6 +54,32 @@ export const characterService = {
 			log.info({ id }, "Character updated");
 		}
 		return character;
+	},
+
+	async dealDamage(id: string, amount: number): Promise<Character | null> {
+		log.info({ id, amount }, "Dealing damage");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for damage");
+			return null;
+		}
+		const newHp = applyDamage(character.hp, amount);
+		const updated = await characterRepo.update(id, { hp: newHp });
+		log.info({ id, hp: newHp }, "Damage applied");
+		return updated;
+	},
+
+	async healCharacter(id: string, amount: number): Promise<Character | null> {
+		log.info({ id, amount }, "Healing character");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for healing");
+			return null;
+		}
+		const newHp = applyHealing(character.hp, amount);
+		const updated = await characterRepo.update(id, { hp: newHp });
+		log.info({ id, hp: newHp }, "Healing applied");
+		return updated;
 	},
 
 	async deleteCharacter(id: string): Promise<boolean> {
