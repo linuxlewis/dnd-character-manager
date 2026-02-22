@@ -59,3 +59,11 @@
 - All three return null for missing character
 - Added 5 tests covering all methods and null cases
 - All 99 tests pass, lint and typecheck pass
+
+### story-09: Spell slot service methods
+- Added `useSpellSlot(id, level)` — finds slot by level, throws if used >= available, increments used
+- Added `restoreSpellSlot(id, level)` — decrements used for given level, floors at 0
+- Added `longRest(id)` — resets all spell slots (used = 0)
+- All three return null for missing characters
+- Added 8 tests covering all methods, edge cases, and null returns
+- All 107 tests pass, lint and typecheck pass
