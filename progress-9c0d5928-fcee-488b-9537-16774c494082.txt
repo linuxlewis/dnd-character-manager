@@ -73,3 +73,15 @@
 - Added 16 tests in `routes.test.ts` covering all action routes + 404 cases
 - All 133 tests pass, lint and typecheck pass
 - **Learnings:** EquipmentItemSchema requires `equipped` boolean field; biome auto-fix with `--write` flag
+
+### story-12: React app shell and routing
+- Created `src/app/router.tsx` — simple client-side router using History API + useSyncExternalStore
+- Created `src/app/router.test.ts` — 5 tests for createRoute pattern matching and param extraction
+- Created `src/domains/character/ui/CharacterList.tsx` with CSS module — lists characters, navigates to sheet
+- Created `src/domains/character/ui/CharacterSheet.tsx` with CSS module — shows character details with ability scores
+- Updated `src/app/app.tsx` to use Router with two routes: / and /character/:id
+- Added `host: "0.0.0.0"` to vite config
+- Added `src/css-modules.d.ts` for CSS module type declarations
+- All 138 tests pass, lint and typecheck pass
+- **Learnings:** AbilityScores keys are UPPERCASE (STR, DEX, etc.); biome --fix --unsafe for auto-organizing imports
+---
