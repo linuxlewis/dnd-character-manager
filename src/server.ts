@@ -6,11 +6,17 @@
  */
 
 import { createLogger } from "@providers/telemetry/index.js";
+import { getDb, migrate } from "@providers/db/index.js";
 import Fastify from "fastify";
 import { registerCharacterRoutes } from "./domains/character/runtime/routes.js";
 import { registerItemRoutes } from "./domains/example/runtime/routes.js";
 
 const log = createLogger("server");
+
+// Initialize database and run migrations before starting
+const db = getDb();
+migrate(db);
+log.info("Database migrations applied");
 
 const app = Fastify({ logger: false });
 
