@@ -12,6 +12,7 @@ const validInput: CreateCharacter = {
 	hp: { current: 100, max: 100, temp: 0 },
 	spellSlots: [],
 	equipment: [],
+	skills: [],
 	notes: "",
 };
 
