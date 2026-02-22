@@ -27,5 +27,10 @@ export function getDb(): ReturnType<typeof createDb> {
 	return _db;
 }
 
+/** Override the singleton — used by tests to inject an in-memory DB. */
+export function _setDb(db: ReturnType<typeof createDb>) {
+	_db = db;
+}
+
 export { DB_PATH };
 export type AppDatabase = ReturnType<typeof createDb>;
