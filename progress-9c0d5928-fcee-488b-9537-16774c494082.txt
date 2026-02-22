@@ -17,3 +17,10 @@
 - **Linting**: biome check + custom `check-deps.ts` for architecture violations
 - **Test runner**: vitest
 - **Package manager**: pnpm
+
+### story-02: HP and combat types
+- Added HpSchema (current min 0, max min 1, temp min 0) to character.ts
+- Added hp field to CharacterSchema (and by extension Create/Update schemas)
+- Implemented applyDamage (temp HP absorbs first, floors at 0) and applyHealing (caps at max)
+- Added 15 new tests covering HpSchema validation, applyDamage, applyHealing with edge cases
+- All 36 tests pass, lint and typecheck pass
