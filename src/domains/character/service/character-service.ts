@@ -129,6 +129,53 @@ export const characterService = {
 		return updated;
 	},
 
+	async useSpellSlot(id: string, level: number): Promise<Character | null> {
+		log.info({ id, level }, "Using spell slot");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for spell slot use");
+			return null;
+		}
+		const slot = character.spellSlots.find((s) => s.level === level);
+		if (!slot || slot.used >= slot.available) {
+			throw new Error(`No available spell slots at level ${level}`);
+		}
+		const spellSlots = character.spellSlots.map((s) =>
+			s.level === level ? { ...s, used: s.used + 1 } : s,
+		);
+		const updated = await characterRepo.update(id, { spellSlots });
+		log.info({ id, level }, "Spell slot used");
+		return updated;
+	},
+
+	async restoreSpellSlot(id: string, level: number): Promise<Character | null> {
+		log.info({ id, level }, "Restoring spell slot");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for spell slot restore");
+			return null;
+		}
+		const spellSlots = character.spellSlots.map((s) =>
+			s.level === level ? { ...s, used: Math.max(0, s.used - 1) } : s,
+		);
+		const updated = await characterRepo.update(id, { spellSlots });
+		log.info({ id, level }, "Spell slot restored");
+		return updated;
+	},
+
+	async longRest(id: string): Promise<Character | null> {
+		log.info({ id }, "Long rest");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for long rest");
+			return null;
+		}
+		const spellSlots = character.spellSlots.map((s) => ({ ...s, used: 0 }));
+		const updated = await characterRepo.update(id, { spellSlots });
+		log.info({ id }, "Long rest completed");
+		return updated;
+	},
+
 	async deleteCharacter(id: string): Promise<boolean> {
 		log.info({ id }, "Deleting character");
 		const deleted = await characterRepo.delete(id);

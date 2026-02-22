@@ -197,4 +197,70 @@ describe("characterService", () => {
 		const result = await characterService.removeEquipment("nonexistent", "some-id");
 		expect(result).toBeNull();
 	});
+
+	// Spell slot service methods
+	const inputWithSlots: CreateCharacter = {
+		...validInput,
+		spellSlots: [
+			{ level: 1, used: 0, available: 4 },
+			{ level: 2, used: 1, available: 3 },
+			{ level: 3, used: 2, available: 2 },
+		],
+	};
+
+	it("useSpellSlot increments used for given level", async () => {
+		const char = await characterService.createCharacter(inputWithSlots);
+		const updated = await characterService.useSpellSlot(char.id, 1);
+		expect(updated).not.toBeNull();
+		const slot = updated?.spellSlots.find((s) => s.level === 1);
+		expect(slot?.used).toBe(1);
+	});
+
+	it("useSpellSlot throws if no slots available", async () => {
+		const char = await characterService.createCharacter(inputWithSlots);
+		// level 3 has used=2, available=2 — already full
+		await expect(characterService.useSpellSlot(char.id, 3)).rejects.toThrow(
+			"No available spell slots at level 3",
+		);
+	});
+
+	it("useSpellSlot returns null for missing character", async () => {
+		const result = await characterService.useSpellSlot("nonexistent", 1);
+		expect(result).toBeNull();
+	});
+
+	it("restoreSpellSlot decrements used for given level", async () => {
+		const char = await characterService.createCharacter(inputWithSlots);
+		const updated = await characterService.restoreSpellSlot(char.id, 2);
+		expect(updated).not.toBeNull();
+		const slot = updated?.spellSlots.find((s) => s.level === 2);
+		expect(slot?.used).toBe(0);
+	});
+
+	it("restoreSpellSlot floors used at 0", async () => {
+		const char = await characterService.createCharacter(inputWithSlots);
+		// level 1 has used=0 already
+		const updated = await characterService.restoreSpellSlot(char.id, 1);
+		const slot = updated?.spellSlots.find((s) => s.level === 1);
+		expect(slot?.used).toBe(0);
+	});
+
+	it("restoreSpellSlot returns null for missing character", async () => {
+		const result = await characterService.restoreSpellSlot("nonexistent", 1);
+		expect(result).toBeNull();
+	});
+
+	it("longRest resets all spell slots to used=0", async () => {
+		const char = await characterService.createCharacter(inputWithSlots);
+		const updated = await characterService.longRest(char.id);
+		expect(updated).not.toBeNull();
+		for (const slot of updated?.spellSlots ?? []) {
+			expect(slot.used).toBe(0);
+		}
+	});
+
+	it("longRest returns null for missing character", async () => {
+		const result = await characterService.longRest("nonexistent");
+		expect(result).toBeNull();
+	});
 });
