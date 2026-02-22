@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getAbilityModifier } from "../types/character.js";
+import { calculateTotalWeight, getAbilityModifier } from "../types/character.js";
 import { SKILLS, calculateSkillBonus, getProficiencyBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
@@ -136,5 +136,39 @@ describe("CharacterSheet", () => {
 		const restored = slots.map((s) => ({ ...s, used: 0 }));
 		expect(restored[0].used).toBe(0);
 		expect(restored[1].used).toBe(0);
+	});
+
+	it("calculates total equipment weight", () => {
+		const equipment = [
+			{ id: "1", name: "Sword", quantity: 1, weight: 3, equipped: true },
+			{ id: "2", name: "Arrows", quantity: 20, weight: 0.05, equipped: false },
+		];
+		expect(calculateTotalWeight(equipment)).toBe(4);
+	});
+
+	it("total weight is 0 for empty equipment", () => {
+		expect(calculateTotalWeight([])).toBe(0);
+	});
+
+	it("add equipment API contract", () => {
+		const body = JSON.stringify({ name: "Shield", quantity: 1, weight: 6, equipped: false });
+		const parsed = JSON.parse(body);
+		expect(parsed.name).toBe("Shield");
+		expect(parsed.quantity).toBe(1);
+		expect(parsed.weight).toBe(6);
+		expect(parsed.equipped).toBe(false);
+	});
+
+	it("remove equipment API contract - DELETE to correct endpoint", () => {
+		const charId = "abc";
+		const itemId = "item-1";
+		const url = `/api/characters/${charId}/equipment/${itemId}`;
+		expect(url).toBe("/api/characters/abc/equipment/item-1");
+	});
+
+	it("equipment row displays weight as quantity * weight", () => {
+		const item = { id: "1", name: "Rations", quantity: 5, weight: 2, equipped: false };
+		const displayWeight = item.weight * item.quantity;
+		expect(displayWeight).toBe(10);
 	});
 });

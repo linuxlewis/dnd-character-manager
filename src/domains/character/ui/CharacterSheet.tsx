@@ -4,6 +4,7 @@ import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import styles from "./CharacterSheet.module.css";
+import { EquipmentSection } from "./EquipmentSection.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -213,6 +214,12 @@ export function CharacterSheet({ id }: { id: string }) {
 					</button>
 				</div>
 			)}
+
+			<EquipmentSection
+				characterId={id}
+				equipment={character.equipment ?? []}
+				onUpdate={setCharacter}
+			/>
 		</div>
 	);
 }

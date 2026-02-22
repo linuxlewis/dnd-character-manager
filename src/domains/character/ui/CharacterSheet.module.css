@@ -220,3 +220,98 @@
 	background: #e0e7ff;
 	color: #4338ca;
 }
+
+.totalWeight {
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: #374151;
+}
+
+.equipmentList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-bottom: 0.75rem;
+}
+
+.equipmentRow {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-height: 44px;
+	padding: 0.25rem 0.5rem;
+	background: #f9fafb;
+	border-radius: 6px;
+}
+
+.equipmentName {
+	flex: 1;
+	font-weight: 500;
+}
+
+.equipmentQty {
+	color: #6b7280;
+	min-width: 2rem;
+	text-align: center;
+}
+
+.equipmentWeight {
+	color: #6b7280;
+	min-width: 4rem;
+	text-align: right;
+}
+
+.equipmentRemove {
+	background: #fee2e2;
+	color: #dc2626;
+	border: none;
+	border-radius: 4px;
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	font-size: 0.875rem;
+}
+
+.emptyText {
+	color: #9ca3af;
+	font-style: italic;
+	margin-bottom: 0.75rem;
+}
+
+.equipmentForm {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.equipmentInput {
+	flex: 1;
+	min-width: 120px;
+	min-height: 44px;
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.equipmentInputSmall {
+	width: 70px;
+	min-height: 44px;
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.equipmentAddButton {
+	min-height: 44px;
+	padding: 0.5rem 1rem;
+	background: #10b981;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}
