@@ -1,0 +1,92 @@
+.container {
+	padding: 1rem;
+	max-width: 960px;
+	margin: 0 auto;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.title {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.newButton {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+	background: #4a90d9;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: 600;
+	touch-action: manipulation;
+}
+
+.newButton:active {
+	background: #357abd;
+}
+
+.empty {
+	text-align: center;
+	color: #888;
+	padding: 3rem 1rem;
+	font-size: 1.1rem;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.75rem;
+}
+
+@media (min-width: 600px) {
+	.grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media (min-width: 900px) {
+	.grid {
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+}
+
+.card {
+	background: #1e1e2e;
+	border: 1px solid #333;
+	border-radius: 10px;
+	padding: 1rem;
+	cursor: pointer;
+	transition: border-color 0.15s;
+	touch-action: manipulation;
+}
+
+.card:hover,
+.card:focus {
+	border-color: #4a90d9;
+	outline: none;
+}
+
+.cardName {
+	font-size: 1.15rem;
+	font-weight: 700;
+	margin-bottom: 0.25rem;
+}
+
+.cardMeta {
+	font-size: 0.9rem;
+	color: #aaa;
+	margin-bottom: 0.5rem;
+}
+
+.cardHp {
+	font-size: 0.9rem;
+	color: #e05050;
+	font-weight: 600;
+}

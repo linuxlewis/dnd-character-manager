@@ -1,0 +1,342 @@
+.container {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+.backButton {
+	background: none;
+	border: none;
+	color: #0066cc;
+	font-size: 1rem;
+	cursor: pointer;
+	padding: 0.5rem 0;
+	margin-bottom: 1rem;
+}
+
+.name {
+	font-size: 1.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.meta {
+	color: #666;
+	margin-bottom: 1rem;
+}
+
+.section {
+	margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	border-bottom: 1px solid #eee;
+	padding-bottom: 0.25rem;
+}
+
+.statGrid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.5rem;
+}
+
+.stat {
+	text-align: center;
+	padding: 0.5rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+}
+
+.statLabel {
+	font-size: 0.75rem;
+	color: #666;
+	text-transform: uppercase;
+}
+
+.statValue {
+	font-size: 1.25rem;
+	font-weight: 700;
+}
+
+.statMod {
+	font-size: 0.85rem;
+	color: #444;
+}
+
+.hpDisplay {
+	margin-bottom: 0.5rem;
+}
+
+.hpText {
+	font-size: 1.25rem;
+	font-weight: 700;
+}
+
+.hpBarTrack {
+	width: 100%;
+	height: 1rem;
+	background: #e5e7eb;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	margin-bottom: 0.75rem;
+}
+
+.hpBarFill {
+	height: 100%;
+	border-radius: 0.5rem;
+	transition: width 0.3s ease;
+}
+
+.hpActions {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.damageButton,
+.healButton {
+	flex: 1;
+	padding: 0.75rem;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.damageButton {
+	background: #fee2e2;
+	color: #dc2626;
+}
+
+.healButton {
+	background: #dcfce7;
+	color: #16a34a;
+}
+
+.skillsList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.skillRow {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border-radius: 6px;
+	cursor: pointer;
+	min-height: 44px;
+}
+
+.skillRow:active {
+	background: #f3f4f6;
+}
+
+.skillCheckbox {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+
+.skillName {
+	flex: 1;
+	font-size: 0.95rem;
+}
+
+.skillAbility {
+	font-size: 0.75rem;
+	color: #888;
+	width: 2rem;
+	text-align: center;
+}
+
+.skillBonus {
+	font-weight: 700;
+	font-size: 0.95rem;
+	width: 2.5rem;
+	text-align: right;
+}
+
+.spellSlotRow {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+	min-height: 44px;
+}
+
+.spellSlotLevel {
+	font-size: 0.9rem;
+	font-weight: 600;
+	width: 4rem;
+	flex-shrink: 0;
+}
+
+.spellSlotCircles {
+	display: flex;
+	gap: 0.5rem;
+	flex: 1;
+	flex-wrap: wrap;
+}
+
+.spellSlotCircle {
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	border: 2px solid #6366f1;
+	cursor: pointer;
+	padding: 0;
+	background: none;
+}
+
+.spellSlotAvailable {
+	background: #6366f1;
+}
+
+.spellSlotUsed {
+	background: transparent;
+}
+
+.spellSlotCount {
+	font-size: 0.85rem;
+	color: #666;
+	width: 2.5rem;
+	text-align: right;
+	flex-shrink: 0;
+}
+
+.longRestButton {
+	margin-top: 0.75rem;
+	width: 100%;
+	padding: 0.75rem;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	background: #e0e7ff;
+	color: #4338ca;
+}
+
+.totalWeight {
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: #374151;
+}
+
+.equipmentList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-bottom: 0.75rem;
+}
+
+.equipmentRow {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-height: 44px;
+	padding: 0.25rem 0.5rem;
+	background: #f9fafb;
+	border-radius: 6px;
+}
+
+.equipmentName {
+	flex: 1;
+	font-weight: 500;
+}
+
+.equipmentQty {
+	color: #6b7280;
+	min-width: 2rem;
+	text-align: center;
+}
+
+.equipmentWeight {
+	color: #6b7280;
+	min-width: 4rem;
+	text-align: right;
+}
+
+.equipmentRemove {
+	background: #fee2e2;
+	color: #dc2626;
+	border: none;
+	border-radius: 4px;
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	font-size: 0.875rem;
+}
+
+.emptyText {
+	color: #9ca3af;
+	font-style: italic;
+	margin-bottom: 0.75rem;
+}
+
+.equipmentForm {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.equipmentInput {
+	flex: 1;
+	min-width: 120px;
+	min-height: 44px;
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.equipmentInputSmall {
+	width: 70px;
+	min-height: 44px;
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.equipmentAddButton {
+	min-height: 44px;
+	padding: 0.5rem 1rem;
+	background: #10b981;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.notesTextarea {
+	width: 100%;
+	min-height: 120px;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-family: inherit;
+	resize: vertical;
+	box-sizing: border-box;
+}
+
+.deleteButton {
+	width: 100%;
+	min-height: 44px;
+	padding: 0.75rem;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}
