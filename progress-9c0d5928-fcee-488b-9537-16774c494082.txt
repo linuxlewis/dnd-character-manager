@@ -85,3 +85,13 @@
 - All 138 tests pass, lint and typecheck pass
 - **Learnings:** AbilityScores keys are UPPERCASE (STR, DEX, etc.); biome --fix --unsafe for auto-organizing imports
 ---
+
+### story-13: Character list UI
+- Enhanced CharacterList component with HP display (current/max), "New Character" button, empty state message, mobile-first responsive grid
+- Used CSS modules with mobile-first grid (1 col → 2 col → 3 col at breakpoints)
+- Changed card from div[role=button] to <button> for biome a11y compliance
+- Added 4 tests for component export, API contract shape, empty state, card data fields
+- Files changed: CharacterList.tsx, CharacterList.module.css, CharacterList.test.ts
+- **Learnings:** biome enforces no div[role=button] — use semantic <button> instead; biome format prefers single-line short JSX text
+- All 142 tests pass, lint and typecheck pass
+---
