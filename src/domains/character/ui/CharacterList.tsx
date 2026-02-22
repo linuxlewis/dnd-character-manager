@@ -18,29 +18,39 @@ export function CharacterList() {
 
 	return (
 		<div className={styles.container}>
-			<h1 className={styles.title}>Characters</h1>
+			<div className={styles.header}>
+				<h1 className={styles.title}>Characters</h1>
+				<button
+					type="button"
+					className={styles.newButton}
+					onClick={() => navigate("/character/new")}
+				>
+					+ New Character
+				</button>
+			</div>
 			{loading ? (
 				<p>Loading...</p>
 			) : characters.length === 0 ? (
-				<p className={styles.empty}>No characters yet.</p>
+				<p className={styles.empty}>No characters yet. Create your first adventurer!</p>
 			) : (
-				<ul className={styles.list}>
+				<div className={styles.grid}>
 					{characters.map((c) => (
-						<li
+						<button
 							key={c.id}
-							className={styles.listItem}
+							type="button"
+							className={styles.card}
 							onClick={() => navigate(`/character/${c.id}`)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") navigate(`/character/${c.id}`);
-							}}
 						>
-							<div className={styles.charName}>{c.name}</div>
-							<div className={styles.charMeta}>
-								{c.race} {c.class} · Level {c.level}
+							<div className={styles.cardName}>{c.name}</div>
+							<div className={styles.cardMeta}>
+								{c.race} · {c.class} · Level {c.level}
 							</div>
-						</li>
+							<div className={styles.cardHp}>
+								HP: {c.hp.current} / {c.hp.max}
+							</div>
+						</button>
 					))}
-				</ul>
+				</div>
 			)}
 		</div>
 	);
