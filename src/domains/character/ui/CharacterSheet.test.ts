@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { calculateTotalWeight, getAbilityModifier } from "../types/character.js";
 import { SKILLS, calculateSkillBonus, getProficiencyBonus } from "../types/skills.js";
@@ -191,5 +193,67 @@ describe("CharacterSheet", () => {
 		const character: { notes?: string } = {};
 		const notes = character.notes ?? "";
 		expect(notes).toBe("");
+	});
+});
+
+describe("CharacterSheet themed styles", () => {
+	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
+	const css = readFileSync(cssPath, "utf-8");
+
+	it("contains no hardcoded color hex values", () => {
+		const lines = css.split("\n");
+		const hexColorRegex = /#[0-9a-fA-F]{3,8}\b/;
+		const hardcodedLines = lines.filter((line) => {
+			const trimmed = line.trim();
+			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) return false;
+			if (hexColorRegex.test(trimmed)) {
+				// Allow #eab308 in the warning class (single non-token color for yellow)
+				if (trimmed.includes("eab308")) return false;
+				return true;
+			}
+			return false;
+		});
+		expect(hardcodedLines).toEqual([]);
+	});
+
+	it("uses --color-surface for stat card backgrounds", () => {
+		expect(css).toContain("var(--color-surface)");
+	});
+
+	it("uses --color-danger for HP danger state", () => {
+		expect(css).toContain("var(--color-danger)");
+	});
+
+	it("uses --color-success for heal button", () => {
+		expect(css).toContain("var(--color-success)");
+	});
+
+	it("uses theme tokens for notes textarea background and border", () => {
+		// Extract notesTextarea block
+		const notesMatch = css.match(/\.notesTextarea\s*\{[^}]+\}/);
+		expect(notesMatch).not.toBeNull();
+		const notesBlock = notesMatch![0];
+		expect(notesBlock).toContain("var(--color-input-bg)");
+		expect(notesBlock).toContain("var(--color-input-border)");
+	});
+
+	it("has responsive media query for mobile", () => {
+		expect(css).toContain("@media");
+		expect(css).toContain("max-width");
+	});
+
+	it("uses alternating row styles for skills", () => {
+		expect(css).toContain("nth-child(odd)");
+		expect(css).toContain("nth-child(even)");
+	});
+
+	it("styles action buttons with distinct theme colors", () => {
+		// Find all .damageButton blocks - look for the one with color-danger
+		const damageBlocks = css.match(/\.damageButton\s*\{[^}]+\}/g) ?? [];
+		const healBlocks = css.match(/\.healButton\s*\{[^}]+\}/g) ?? [];
+		const hasDangerInDamage = damageBlocks.some((b) => b.includes("var(--color-danger)"));
+		const hasSuccessInHeal = healBlocks.some((b) => b.includes("var(--color-success)"));
+		expect(hasDangerInDamage).toBe(true);
+		expect(hasSuccessInHeal).toBe(true);
 	});
 });

@@ -1,92 +1,122 @@
 .container {
 	max-width: 600px;
 	margin: 0 auto;
-	padding: 1rem;
+	padding: var(--space-md);
+	color: var(--color-text);
 }
 
 .backButton {
 	background: none;
 	border: none;
-	color: #0066cc;
-	font-size: 1rem;
+	color: var(--color-primary);
+	font-size: var(--text-base);
 	cursor: pointer;
-	padding: 0.5rem 0;
-	margin-bottom: 1rem;
+	padding: var(--space-sm) 0;
+	margin-bottom: var(--space-md);
+	transition: var(--transition-theme);
+}
+
+.backButton:hover {
+	color: var(--color-primary-hover);
 }
 
 .name {
-	font-size: 1.5rem;
-	margin-bottom: 0.25rem;
+	font-size: var(--text-xl);
+	font-family: var(--font-heading);
+	margin-bottom: var(--space-xs);
+	color: var(--color-text);
 }
 
 .meta {
-	color: #666;
-	margin-bottom: 1rem;
+	color: var(--color-text-secondary);
+	margin-bottom: var(--space-md);
 }
 
 .section {
-	margin-bottom: 1.5rem;
+	margin-bottom: var(--space-lg);
+	transition: var(--transition-theme);
 }
 
 .sectionTitle {
 	font-size: 1.1rem;
 	font-weight: 600;
-	margin-bottom: 0.5rem;
-	border-bottom: 1px solid #eee;
-	padding-bottom: 0.25rem;
+	margin-bottom: var(--space-sm);
+	border-bottom: 1px solid var(--color-border);
+	padding-bottom: var(--space-xs);
+	color: var(--color-text);
+	font-family: var(--font-heading);
 }
 
 .statGrid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 0.5rem;
+	gap: var(--space-sm);
 }
 
 .stat {
 	text-align: center;
-	padding: 0.5rem;
-	border: 1px solid #ddd;
+	padding: var(--space-sm);
+	border: 1px solid var(--color-border);
 	border-radius: 8px;
+	background: var(--color-surface);
+	transition: var(--transition-theme);
 }
 
 .statLabel {
 	font-size: 0.75rem;
-	color: #666;
+	color: var(--color-text-secondary);
 	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
 
 .statValue {
-	font-size: 1.25rem;
+	font-size: var(--text-lg);
 	font-weight: 700;
+	color: var(--color-text);
 }
 
 .statMod {
 	font-size: 0.85rem;
-	color: #444;
+	color: var(--color-text-secondary);
 }
 
 .hpDisplay {
-	margin-bottom: 0.5rem;
+	margin-bottom: var(--space-sm);
 }
 
 .hpText {
-	font-size: 1.25rem;
+	font-size: var(--text-lg);
 	font-weight: 700;
+	color: var(--color-text);
 }
 
 .hpBarTrack {
 	width: 100%;
 	height: 1rem;
-	background: #e5e7eb;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
 	border-radius: 0.5rem;
 	overflow: hidden;
 	margin-bottom: 0.75rem;
+	transition: var(--transition-theme);
 }
 
 .hpBarFill {
 	height: 100%;
 	border-radius: 0.5rem;
-	transition: width 0.3s ease;
+	transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.hpBarFillGood {
+	background-color: var(--color-success);
+}
+
+.hpBarFillWarning {
+	background-color: #eab308;
+}
+
+.hpBarFillDanger {
+	background-color: var(--color-danger);
 }
 
 .hpActions {
@@ -100,55 +130,77 @@
 	padding: 0.75rem;
 	border: none;
 	border-radius: 8px;
-	font-size: 1rem;
+	font-size: var(--text-base);
 	font-weight: 600;
 	cursor: pointer;
+	transition: var(--transition-theme);
 }
 
 .damageButton {
-	background: #fee2e2;
-	color: #dc2626;
+	background: color-mix(in srgb, var(--color-danger) 15%, var(--color-surface));
+	color: var(--color-danger);
+	border: 1px solid var(--color-danger);
+}
+
+.damageButton:hover {
+	background: color-mix(in srgb, var(--color-danger) 25%, var(--color-surface));
 }
 
 .healButton {
-	background: #dcfce7;
-	color: #16a34a;
+	background: color-mix(in srgb, var(--color-success) 15%, var(--color-surface));
+	color: var(--color-success);
+	border: 1px solid var(--color-success);
+}
+
+.healButton:hover {
+	background: color-mix(in srgb, var(--color-success) 25%, var(--color-surface));
 }
 
 .skillsList {
 	display: flex;
 	flex-direction: column;
-	gap: 0.25rem;
+	gap: 0;
 }
 
 .skillRow {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem;
+	gap: var(--space-sm);
+	padding: var(--space-sm);
 	border-radius: 6px;
 	cursor: pointer;
 	min-height: 44px;
+	transition: var(--transition-theme);
 }
 
-.skillRow:active {
-	background: #f3f4f6;
+.skillRow:nth-child(odd) {
+	background: var(--color-surface);
+}
+
+.skillRow:nth-child(even) {
+	background: transparent;
+}
+
+.skillRow:hover {
+	background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
 }
 
 .skillCheckbox {
 	width: 1.25rem;
 	height: 1.25rem;
 	flex-shrink: 0;
+	accent-color: var(--color-primary);
 }
 
 .skillName {
 	flex: 1;
 	font-size: 0.95rem;
+	color: var(--color-text);
 }
 
 .skillAbility {
 	font-size: 0.75rem;
-	color: #888;
+	color: var(--color-text-secondary);
 	width: 2rem;
 	text-align: center;
 }
@@ -158,13 +210,14 @@
 	font-size: 0.95rem;
 	width: 2.5rem;
 	text-align: right;
+	color: var(--color-text);
 }
 
 .spellSlotRow {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	padding: 0.5rem 0;
+	padding: var(--space-sm) 0;
 	min-height: 44px;
 }
 
@@ -173,11 +226,12 @@
 	font-weight: 600;
 	width: 4rem;
 	flex-shrink: 0;
+	color: var(--color-text);
 }
 
 .spellSlotCircles {
 	display: flex;
-	gap: 0.5rem;
+	gap: var(--space-sm);
 	flex: 1;
 	flex-wrap: wrap;
 }
@@ -186,14 +240,15 @@
 	width: 1.75rem;
 	height: 1.75rem;
 	border-radius: 50%;
-	border: 2px solid #6366f1;
+	border: 2px solid var(--color-primary);
 	cursor: pointer;
 	padding: 0;
 	background: none;
+	transition: var(--transition-theme);
 }
 
 .spellSlotAvailable {
-	background: #6366f1;
+	background: var(--color-primary);
 }
 
 .spellSlotUsed {
@@ -202,7 +257,7 @@
 
 .spellSlotCount {
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--color-text-secondary);
 	width: 2.5rem;
 	text-align: right;
 	flex-shrink: 0;
@@ -212,76 +267,84 @@
 	margin-top: 0.75rem;
 	width: 100%;
 	padding: 0.75rem;
-	border: none;
+	border: 1px solid var(--color-primary);
 	border-radius: 8px;
-	font-size: 1rem;
+	font-size: var(--text-base);
 	font-weight: 600;
 	cursor: pointer;
-	background: #e0e7ff;
-	color: #4338ca;
+	background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+	color: var(--color-primary);
+	transition: var(--transition-theme);
+}
+
+.longRestButton:hover {
+	background: color-mix(in srgb, var(--color-primary) 20%, var(--color-surface));
 }
 
 .totalWeight {
-	font-size: 1rem;
+	font-size: var(--text-base);
 	font-weight: 600;
-	margin-bottom: 0.5rem;
-	color: #374151;
+	margin-bottom: var(--space-sm);
+	color: var(--color-text);
 }
 
 .equipmentList {
 	display: flex;
 	flex-direction: column;
-	gap: 0.25rem;
+	gap: var(--space-xs);
 	margin-bottom: 0.75rem;
 }
 
 .equipmentRow {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--space-sm);
 	min-height: 44px;
-	padding: 0.25rem 0.5rem;
-	background: #f9fafb;
+	padding: var(--space-xs) var(--space-sm);
+	background: var(--color-surface);
 	border-radius: 6px;
+	transition: var(--transition-theme);
 }
 
 .equipmentName {
 	flex: 1;
 	font-weight: 500;
+	color: var(--color-text);
 }
 
 .equipmentQty {
-	color: #6b7280;
+	color: var(--color-text-secondary);
 	min-width: 2rem;
 	text-align: center;
 }
 
 .equipmentWeight {
-	color: #6b7280;
+	color: var(--color-text-secondary);
 	min-width: 4rem;
 	text-align: right;
 }
 
 .equipmentRemove {
-	background: #fee2e2;
-	color: #dc2626;
-	border: none;
+	background: color-mix(in srgb, var(--color-danger) 15%, var(--color-surface));
+	color: var(--color-danger);
+	border: 1px solid var(--color-danger);
 	border-radius: 4px;
 	width: 32px;
 	height: 32px;
 	cursor: pointer;
 	font-size: 0.875rem;
+	transition: var(--transition-theme);
 }
 
 .emptyText {
-	color: #9ca3af;
+	color: var(--color-text-secondary);
 	font-style: italic;
 	margin-bottom: 0.75rem;
 }
 
 .equipmentForm {
 	display: flex;
-	gap: 0.5rem;
+	gap: var(--space-sm);
 	flex-wrap: wrap;
 }
 
@@ -289,54 +352,93 @@
 	flex: 1;
 	min-width: 120px;
 	min-height: 44px;
-	padding: 0.5rem;
-	border: 1px solid #d1d5db;
+	padding: var(--space-sm);
+	border: 1px solid var(--color-input-border);
 	border-radius: 6px;
-	font-size: 1rem;
+	font-size: var(--text-base);
+	background: var(--color-input-bg);
+	color: var(--color-text);
+	transition: var(--transition-theme);
 }
 
 .equipmentInputSmall {
 	width: 70px;
 	min-height: 44px;
-	padding: 0.5rem;
-	border: 1px solid #d1d5db;
+	padding: var(--space-sm);
+	border: 1px solid var(--color-input-border);
 	border-radius: 6px;
-	font-size: 1rem;
+	font-size: var(--text-base);
+	background: var(--color-input-bg);
+	color: var(--color-text);
+	transition: var(--transition-theme);
 }
 
 .equipmentAddButton {
 	min-height: 44px;
-	padding: 0.5rem 1rem;
-	background: #10b981;
-	color: white;
+	padding: var(--space-sm) var(--space-md);
+	background: var(--color-success);
+	color: var(--color-bg);
 	border: none;
 	border-radius: 6px;
-	font-size: 1rem;
+	font-size: var(--text-base);
 	font-weight: 600;
 	cursor: pointer;
+	transition: var(--transition-theme);
 }
 
 .notesTextarea {
 	width: 100%;
 	min-height: 120px;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid var(--color-input-border);
 	border-radius: 8px;
-	font-size: 1rem;
-	font-family: inherit;
+	font-size: var(--text-base);
+	font-family: var(--font-body);
 	resize: vertical;
 	box-sizing: border-box;
+	background: var(--color-input-bg);
+	color: var(--color-text);
+	transition: var(--transition-theme);
+}
+
+.notesTextarea:focus {
+	outline: 2px solid var(--color-primary);
+	outline-offset: -1px;
+	border-color: var(--color-primary);
 }
 
 .deleteButton {
 	width: 100%;
 	min-height: 44px;
 	padding: 0.75rem;
-	background: #ef4444;
-	color: white;
+	background: var(--color-danger);
+	color: var(--color-bg);
 	border: none;
 	border-radius: 8px;
-	font-size: 1rem;
+	font-size: var(--text-base);
 	font-weight: 600;
 	cursor: pointer;
+	transition: var(--transition-theme);
+}
+
+.deleteButton:hover {
+	opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+	.statGrid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.hpActions {
+		flex-direction: column;
+	}
+
+	.equipmentForm {
+		flex-direction: column;
+	}
+
+	.equipmentInputSmall {
+		width: 100%;
+	}
 }
