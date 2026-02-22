@@ -187,8 +187,9 @@ describe("CharacterSheet", () => {
 		expect(url).toBe("/api/characters/abc");
 	});
 
-	it("notes default to empty string", () => {
-		const notes = undefined ?? "";
+	it("notes default to empty string when character has no notes", () => {
+		const character: { notes?: string } = {};
+		const notes = character.notes ?? "";
 		expect(notes).toBe("");
 	});
 });
