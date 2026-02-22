@@ -1,11 +1,24 @@
+# Progress Log
+Run: 2e27aae6-cb48-4abb-a296-23fd4e111978
+Task: Add SQLite persistence for all character data using Drizzle ORM
+Started: 2026-02-22T14:37:00-06:00
 
-## 2026-02-22 15:37 - US-004: Verify service and route tests pass with SQLite repo
-- Verified all 15 test suites (207 tests) pass with SQLite-backed repo
-- character-service.test.ts: PASS
-- routes.test.ts: PASS
-- action-routes.test.ts: PASS
-- e2e.test.ts: PASS
-- Build + typecheck: PASS
-- No changes needed — US-003 already set up test infrastructure correctly (in-memory SQLite via test-setup.ts)
-- **Learnings:** None new — existing test setup was already correct
+## Codebase Patterns
+- Project uses vitest for testing, run with `pnpm test`
+- Path aliases: @domains/* -> src/domains/*, @providers/* -> src/providers/*
+- Build is `tsc --noEmit` + vite build
+- Drizzle JSON text columns use mode: "json" and have columnType "SQLiteTextJson" (not "SQLiteText")
+- better-sqlite3 is the SQLite driver (installed as dependency)
+- data/ directory is gitignored for SQLite DB storage
+- drizzle.config.ts in project root for drizzle-kit commands
+
+---
+
+## 2026-02-22 14:39 - US-001: Add Drizzle SQLite schema for characters table
+- Created src/providers/db/schema.ts with characters table (id, name, race, class, level, ability_scores, hp, spell_slots, equipment, skills, notes, created_at, updated_at)
+- Created src/providers/db/connection.ts with createDb() helper
+- Created drizzle.config.ts pointing to data/app.db
+- data/ already in .gitignore from prior commits
+- Files changed: drizzle.config.ts, src/providers/db/schema.ts, src/providers/db/connection.ts, src/providers/db/schema.test.ts
+- **Learnings:** JSON mode columns in Drizzle SQLite have columnType "SQLiteTextJson", not "SQLiteText"
 ---

@@ -1,0 +1,13 @@
+
+## 2026-02-22 14:33 - US-004: Update CharacterList styles to use theme tokens and improve layout
+- Replaced all hardcoded colors in CharacterList.module.css with CSS custom properties
+- Used spacing tokens (--space-*) and typography tokens (--text-*)
+- Added box-shadow for card depth, improved border-radius to 12px
+- Added transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s to cards
+- Empty state uses --color-text-secondary
+- Hover/focus states use --color-primary
+- Added 8 CSS static analysis tests verifying no hardcoded colors, token usage, transitions
+- Files changed: src/domains/character/ui/CharacterList.module.css, src/domains/character/ui/CharacterList.test.ts
+- All 235 tests pass, build passes
+- **Learnings:** import.meta.dirname works in Vitest for resolving file paths relative to test file
+---
