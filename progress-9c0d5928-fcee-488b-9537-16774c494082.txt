@@ -169,3 +169,12 @@
 - Notes textarea with auto-save on blur and delete with confirmation were already implemented in prior stories
 - All 177 tests pass, lint and typecheck pass
 ---
+
+### story-20: End-to-end polish and network config
+- Verified Fastify binds to 0.0.0.0 (src/server.ts)
+- Verified Vite config has host 0.0.0.0 and /api proxy (src/app/vite.config.ts)
+- Created e2e.test.ts with 13 tests covering full lifecycle: create → edit → damage → heal → add equipment → add spell slots/skills → use spell → restore spell → toggle skill → long rest → delete
+- Added network config verification tests (server.ts and vite.config.ts content checks)
+- All 190 tests pass, lint and typecheck pass
+- **Learnings:** CreateCharacterSchema parses spellSlots/skills but they default to [] — must explicitly set via update for testing
+---
