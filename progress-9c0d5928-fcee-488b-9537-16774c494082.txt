@@ -163,3 +163,9 @@
 - All 177 tests pass, lint and typecheck pass
 - **Learnings:** check-deps.ts enforces 300-line max per file; split test files when adding tests to large files
 ---
+
+### story-19: Notes section and character deletion
+- Fixed TS2871 typecheck error in CharacterSheet.test.ts (replaced `undefined ?? ""` with a properly typed variable)
+- Notes textarea with auto-save on blur and delete with confirmation were already implemented in prior stories
+- All 177 tests pass, lint and typecheck pass
+---
