@@ -7,6 +7,7 @@
 
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
+import { registerCharacterRoutes } from "./domains/character/runtime/routes.js";
 import { registerItemRoutes } from "./domains/example/runtime/routes.js";
 
 const log = createLogger("server");
@@ -15,6 +16,7 @@ const app = Fastify({ logger: false });
 
 // Register domain routes
 await registerItemRoutes(app);
+await registerCharacterRoutes(app);
 
 // Start
 const port = Number(process.env.PORT ?? 4000);
