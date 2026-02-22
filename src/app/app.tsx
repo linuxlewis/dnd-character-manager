@@ -5,15 +5,15 @@
  * This file should stay thin — routing, layout shell, and provider wiring only.
  */
 
-import { ItemList } from "../domains/example/ui/item-list.tsx";
+import { CharacterList } from "../domains/character/ui/CharacterList.tsx";
+import { CharacterSheet } from "../domains/character/ui/CharacterSheet.tsx";
+import { Router, createRoute } from "./router.tsx";
+
+const routes = [
+	createRoute("/", () => <CharacterList />),
+	createRoute("/character/:id", (params) => <CharacterSheet id={params.id} />),
+];
 
 export function App() {
-	return (
-		<div style={{ maxWidth: 800, margin: "0 auto", padding: "2rem" }}>
-			<h1>Agent-First Template</h1>
-			<p style={{ color: "#666" }}>This app was scaffolded for AI agent-driven development.</p>
-			<hr />
-			<ItemList />
-		</div>
-	);
+	return <Router routes={routes} />;
 }

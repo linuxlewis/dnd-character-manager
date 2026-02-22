@@ -1,0 +1,66 @@
+.container {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+.backButton {
+	background: none;
+	border: none;
+	color: #0066cc;
+	font-size: 1rem;
+	cursor: pointer;
+	padding: 0.5rem 0;
+	margin-bottom: 1rem;
+}
+
+.name {
+	font-size: 1.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.meta {
+	color: #666;
+	margin-bottom: 1rem;
+}
+
+.section {
+	margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	border-bottom: 1px solid #eee;
+	padding-bottom: 0.25rem;
+}
+
+.statGrid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.5rem;
+}
+
+.stat {
+	text-align: center;
+	padding: 0.5rem;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+}
+
+.statLabel {
+	font-size: 0.75rem;
+	color: #666;
+	text-transform: uppercase;
+}
+
+.statValue {
+	font-size: 1.25rem;
+	font-weight: 700;
+}
+
+.statMod {
+	font-size: 0.85rem;
+	color: #444;
+}
