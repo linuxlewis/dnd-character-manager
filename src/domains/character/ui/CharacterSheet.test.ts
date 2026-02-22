@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getAbilityModifier } from "../types/character.js";
+import { SKILLS, calculateSkillBonus, getProficiencyBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
 	it("exports CharacterSheet component", async () => {
@@ -56,5 +57,39 @@ describe("CharacterSheet", () => {
 		const body = JSON.stringify({ amount: 3 });
 		const parsed = JSON.parse(body);
 		expect(parsed.amount).toBe(3);
+	});
+
+	it("displays all 18 D&D 5e skills", () => {
+		expect(SKILLS).toHaveLength(18);
+		const names = SKILLS.map((s) => s.name);
+		expect(names).toContain("Acrobatics");
+		expect(names).toContain("Stealth");
+		expect(names).toContain("Perception");
+		expect(names).toContain("Persuasion");
+	});
+
+	it("each skill has an associated ability abbreviation", () => {
+		const validKeys = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
+		for (const skill of SKILLS) {
+			expect(validKeys).toContain(skill.abilityKey);
+		}
+	});
+
+	it("calculates skill bonus without proficiency", () => {
+		// DEX 14 = +2 mod, not proficient => +2
+		expect(calculateSkillBonus(14, false, 1)).toBe(2);
+	});
+
+	it("calculates skill bonus with proficiency", () => {
+		// DEX 14 = +2 mod, proficient at level 1 = +2 prof => +4
+		expect(calculateSkillBonus(14, true, 1)).toBe(4);
+		// Level 5 = +3 prof => +5
+		expect(calculateSkillBonus(14, true, 5)).toBe(5);
+	});
+
+	it("skill toggle API contract", () => {
+		const body = JSON.stringify({ skillName: "Stealth" });
+		const parsed = JSON.parse(body);
+		expect(parsed.skillName).toBe("Stealth");
 	});
 });

@@ -114,3 +114,48 @@
 	background: #dcfce7;
 	color: #16a34a;
 }
+
+.skillsList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.skillRow {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border-radius: 6px;
+	cursor: pointer;
+	min-height: 44px;
+}
+
+.skillRow:active {
+	background: #f3f4f6;
+}
+
+.skillCheckbox {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+
+.skillName {
+	flex: 1;
+	font-size: 0.95rem;
+}
+
+.skillAbility {
+	font-size: 0.75rem;
+	color: #888;
+	width: 2rem;
+	text-align: center;
+}
+
+.skillBonus {
+	font-weight: 700;
+	font-size: 0.95rem;
+	width: 2.5rem;
+	text-align: right;
+}

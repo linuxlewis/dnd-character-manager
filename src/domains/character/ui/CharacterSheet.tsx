@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
+import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import styles from "./CharacterSheet.module.css";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
@@ -50,6 +51,19 @@ export function CharacterSheet({ id }: { id: string }) {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
+		})
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data) setCharacter(data);
+			})
+			.catch(() => {});
+	};
+
+	const handleToggleSkill = (skillName: string) => {
+		fetch(`/api/characters/${id}/skills/toggle`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ skillName }),
 		})
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -108,6 +122,35 @@ export function CharacterSheet({ id }: { id: string }) {
 					<button type="button" className={styles.healButton} onClick={handleHeal}>
 						Heal
 					</button>
+				</div>
+			</div>
+
+			<div className={styles.section}>
+				<h2 className={styles.sectionTitle}>Skills</h2>
+				<div className={styles.skillsList}>
+					{SKILLS.map((skill) => {
+						const charSkill = character.skills?.find((s) => s.name === skill.name);
+						const proficient = charSkill?.proficient ?? false;
+						const bonus = calculateSkillBonus(
+							character.abilityScores[skill.abilityKey],
+							proficient,
+							character.level,
+						);
+						const formatted = bonus >= 0 ? `+${bonus}` : `${bonus}`;
+						return (
+							<label key={skill.name} className={styles.skillRow}>
+								<input
+									type="checkbox"
+									checked={proficient}
+									onChange={() => handleToggleSkill(skill.name)}
+									className={styles.skillCheckbox}
+								/>
+								<span className={styles.skillName}>{skill.name}</span>
+								<span className={styles.skillAbility}>{skill.abilityKey}</span>
+								<span className={styles.skillBonus}>{formatted}</span>
+							</label>
+						);
+					})}
 				</div>
 			</div>
 		</div>
