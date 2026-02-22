@@ -24,3 +24,9 @@
 - Implemented applyDamage (temp HP absorbs first, floors at 0) and applyHealing (caps at max)
 - Added 15 new tests covering HpSchema validation, applyDamage, applyHealing with edge cases
 - All 36 tests pass, lint and typecheck pass
+
+### story-03: Skills types and proficiency calculation
+- Created `src/domains/character/types/skills.ts` with SkillSchema, SKILLS (18 skills), getProficiencyBonus, calculateSkillBonus
+- Created `src/domains/character/types/skills.test.ts` with 20 tests covering schema validation, skill count, ability mappings, proficiency bonus for all tier boundaries, and skill bonus calculations
+- Updated `index.ts` to re-export all skill types
+- All 56 tests pass, lint and typecheck pass
