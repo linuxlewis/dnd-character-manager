@@ -91,10 +91,10 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 	);
 
 	app.post<{ Params: { id: string } }>("/api/characters/:id/equipment", async (request, reply) => {
-		const character = await characterService.addEquipment(
-			request.params.id,
-			request.body as { name: string; weight: number; quantity: number },
-		);
+		const character = await characterService.addEquipment(request.params.id, {
+			...(request.body as { name: string; weight: number; quantity: number }),
+			equipped: false,
+		});
 		if (!character) {
 			return reply.status(404).send({ error: "Character not found" });
 		}

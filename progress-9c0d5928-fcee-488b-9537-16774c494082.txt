@@ -67,3 +67,9 @@
 - All three return null for missing characters
 - Added 8 tests covering all methods, edge cases, and null returns
 - All 107 tests pass, lint and typecheck pass
+
+### story-11: Action API routes (HP, skills, spells, equipment)
+- Added 8 action routes to `src/domains/character/runtime/routes.ts`: damage, heal, skill toggle, add/remove equipment, use/restore spell slot, long-rest
+- Added 16 tests in `routes.test.ts` covering all action routes + 404 cases
+- All 133 tests pass, lint and typecheck pass
+- **Learnings:** EquipmentItemSchema requires `equipped` boolean field; biome auto-fix with `--write` flag
