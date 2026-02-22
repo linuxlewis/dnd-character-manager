@@ -125,3 +125,16 @@
 - Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
 - All 162 tests pass, lint and typecheck pass
 ---
+
+### story-17: Spell slots tracking UI
+- Added spell slots section to CharacterSheet: displays spell slot levels with filled/empty circles
+- Filled circle = available slot, empty circle = used slot
+- Tap available circle → calls POST /api/characters/:id/spells/:level/use
+- Tap used circle → calls POST /api/characters/:id/spells/:level/restore
+- Long Rest button calls POST /api/characters/:id/long-rest, restores all slots
+- UI updates via setCharacter after each API response
+- Mobile-friendly: 44px min-height rows, touch-friendly 1.75rem circles
+- Added 6 tests: circle logic, display format, use/restore/long-rest API contracts, long rest reset logic
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+- All 168 tests pass, lint and typecheck pass
+---
