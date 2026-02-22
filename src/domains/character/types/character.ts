@@ -72,6 +72,35 @@ export function applyHealing(hp: Hp, healing: number): Hp {
 	};
 }
 
+export const SpellSlotSchema = z
+	.object({
+		level: z.number().int().min(1).max(9),
+		used: z.number().int().min(0),
+		available: z.number().int().min(0),
+	})
+	.refine((data) => data.used <= data.available, {
+		message: "used must be <= available",
+	});
+
+export type SpellSlot = z.infer<typeof SpellSlotSchema>;
+
+export const EquipmentItemSchema = z.object({
+	id: z.string().uuid(),
+	name: z.string().min(1),
+	quantity: z.number().int().min(1),
+	weight: z.number().min(0),
+	equipped: z.boolean(),
+});
+
+export type EquipmentItem = z.infer<typeof EquipmentItemSchema>;
+
+/**
+ * Calculate the total weight of equipment (weight * quantity for each item).
+ */
+export function calculateTotalWeight(equipment: EquipmentItem[]): number {
+	return equipment.reduce((sum, item) => sum + item.weight * item.quantity, 0);
+}
+
 export const CharacterSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string().min(1).max(255),
@@ -80,6 +109,9 @@ export const CharacterSchema = z.object({
 	level: z.number().int().min(1).max(20),
 	abilityScores: AbilityScoresSchema,
 	hp: HpSchema,
+	spellSlots: z.array(SpellSlotSchema).default([]),
+	equipment: z.array(EquipmentItemSchema).default([]),
+	notes: z.string().default(""),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });

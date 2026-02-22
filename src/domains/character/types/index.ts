@@ -12,6 +12,11 @@ export {
 	type UpdateCharacter,
 	type AbilityScores,
 	type Hp,
+	SpellSlotSchema,
+	type SpellSlot,
+	EquipmentItemSchema,
+	type EquipmentItem,
+	calculateTotalWeight,
 } from "./character.js";
 
 export {
