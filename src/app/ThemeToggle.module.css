@@ -1,0 +1,18 @@
+.toggleButton {
+	background: var(--color-surface);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--spacing-xs);
+	padding: var(--spacing-xs) var(--spacing-sm);
+	font-size: var(--font-size-lg);
+	cursor: pointer;
+	transition: background var(--transition-speed), color var(--transition-speed);
+	line-height: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.toggleButton:hover {
+	background: var(--color-border);
+}
