@@ -30,3 +30,16 @@
 - Created `src/domains/character/types/skills.test.ts` with 20 tests covering schema validation, skill count, ability mappings, proficiency bonus for all tier boundaries, and skill bonus calculations
 - Updated `index.ts` to re-export all skill types
 - All 56 tests pass, lint and typecheck pass
+
+### story-05: Character repository (in-memory)
+- Created `src/domains/character/repo/character-repo.ts` with in-memory Map store
+- CRUD operations: findAll, findById, create, update, delete (plus _clear for tests)
+- create generates UUID via crypto.randomUUID() and sets createdAt/updatedAt
+- update merges partial data, preserves id/createdAt, refreshes updatedAt
+- Created `src/domains/character/repo/character-repo.test.ts` with 9 tests
+- All 77 tests pass, lint and typecheck pass
+
+## Codebase Patterns (updated)
+
+- **Repo pattern**: `src/domains/<name>/repo/<entity>-repo.ts` — in-memory Map store, async methods, exports `<entity>Repo` object
+- **Repo test cleanup**: Use `_clear()` helper in beforeEach to reset store between tests
