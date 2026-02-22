@@ -11,6 +11,8 @@ import {
 	type Character,
 	type CreateCharacter,
 	CreateCharacterSchema,
+	type EquipmentItem,
+	EquipmentItemSchema,
 	type UpdateCharacter,
 	UpdateCharacterSchema,
 	applyDamage,
@@ -79,6 +81,51 @@ export const characterService = {
 		const newHp = applyHealing(character.hp, amount);
 		const updated = await characterRepo.update(id, { hp: newHp });
 		log.info({ id, hp: newHp }, "Healing applied");
+		return updated;
+	},
+
+	async toggleSkillProficiency(id: string, skillName: string): Promise<Character | null> {
+		log.info({ id, skillName }, "Toggling skill proficiency");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for skill toggle");
+			return null;
+		}
+		const skills = character.skills.map((s) =>
+			s.name === skillName ? { ...s, proficient: !s.proficient } : s,
+		);
+		const updated = await characterRepo.update(id, { skills });
+		log.info({ id, skillName }, "Skill proficiency toggled");
+		return updated;
+	},
+
+	async addEquipment(id: string, item: Omit<EquipmentItem, "id">): Promise<Character | null> {
+		log.info({ id }, "Adding equipment");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for adding equipment");
+			return null;
+		}
+		const newItem = EquipmentItemSchema.parse({
+			...item,
+			id: crypto.randomUUID(),
+		});
+		const equipment = [...character.equipment, newItem];
+		const updated = await characterRepo.update(id, { equipment });
+		log.info({ id, itemName: newItem.name }, "Equipment added");
+		return updated;
+	},
+
+	async removeEquipment(id: string, itemId: string): Promise<Character | null> {
+		log.info({ id, itemId }, "Removing equipment");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for removing equipment");
+			return null;
+		}
+		const equipment = character.equipment.filter((e) => e.id !== itemId);
+		const updated = await characterRepo.update(id, { equipment });
+		log.info({ id, itemId }, "Equipment removed");
 		return updated;
 	},
 

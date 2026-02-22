@@ -43,3 +43,10 @@
 
 - **Repo pattern**: `src/domains/<name>/repo/<entity>-repo.ts` — in-memory Map store, async methods, exports `<entity>Repo` object
 - **Repo test cleanup**: Use `_clear()` helper in beforeEach to reset store between tests
+
+### story-07: HP service methods
+- Added `dealDamage(id, amount)` and `healCharacter(id, amount)` to characterService
+- Both fetch character, apply HP helpers (applyDamage/applyHealing), persist via repo.update
+- Both return null for missing characters
+- Added 6 tests: damage reduces HP, damage floors at 0, damage null for missing, heal increases HP, heal caps at max, heal null for missing
+- All 93 tests pass, lint and typecheck pass

@@ -111,6 +111,15 @@ export const CharacterSchema = z.object({
 	hp: HpSchema,
 	spellSlots: z.array(SpellSlotSchema).default([]),
 	equipment: z.array(EquipmentItemSchema).default([]),
+	skills: z
+		.array(
+			z.object({
+				name: z.string(),
+				abilityKey: z.enum(["STR", "DEX", "CON", "INT", "WIS", "CHA"]),
+				proficient: z.boolean(),
+			}),
+		)
+		.default([]),
 	notes: z.string().default(""),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),

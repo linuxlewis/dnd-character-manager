@@ -132,4 +132,69 @@ describe("characterService", () => {
 		const healed = await characterService.healCharacter(char.id, 50);
 		expect(healed?.hp.current).toBe(100);
 	});
+
+	// Skill toggle (story-08)
+
+	it("toggleSkillProficiency flips proficient boolean", async () => {
+		const char = await characterService.createCharacter({
+			...validInput,
+			skills: [{ name: "Stealth", abilityKey: "DEX", proficient: false }],
+		});
+		const toggled = await characterService.toggleSkillProficiency(char.id, "Stealth");
+		expect(toggled).not.toBeNull();
+		expect(toggled?.skills.find((s) => s.name === "Stealth")?.proficient).toBe(true);
+		// Toggle back
+		const toggled2 = await characterService.toggleSkillProficiency(char.id, "Stealth");
+		expect(toggled2?.skills.find((s) => s.name === "Stealth")?.proficient).toBe(false);
+	});
+
+	it("toggleSkillProficiency returns null for missing character", async () => {
+		const result = await characterService.toggleSkillProficiency("nonexistent", "Stealth");
+		expect(result).toBeNull();
+	});
+
+	// Equipment service methods (story-08)
+
+	it("addEquipment appends validated equipment item", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const updated = await characterService.addEquipment(char.id, {
+			name: "Longsword",
+			quantity: 1,
+			weight: 3,
+			equipped: true,
+		});
+		expect(updated).not.toBeNull();
+		expect(updated?.equipment).toHaveLength(1);
+		expect(updated?.equipment[0].name).toBe("Longsword");
+		expect(updated?.equipment[0].id).toBeDefined();
+	});
+
+	it("addEquipment returns null for missing character", async () => {
+		const result = await characterService.addEquipment("nonexistent", {
+			name: "Shield",
+			quantity: 1,
+			weight: 6,
+			equipped: false,
+		});
+		expect(result).toBeNull();
+	});
+
+	it("removeEquipment removes item by ID", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const withItem = await characterService.addEquipment(char.id, {
+			name: "Longsword",
+			quantity: 1,
+			weight: 3,
+			equipped: true,
+		});
+		const itemId = withItem?.equipment[0].id as string;
+		const removed = await characterService.removeEquipment(char.id, itemId);
+		expect(removed).not.toBeNull();
+		expect(removed?.equipment).toHaveLength(0);
+	});
+
+	it("removeEquipment returns null for missing character", async () => {
+		const result = await characterService.removeEquipment("nonexistent", "some-id");
+		expect(result).toBeNull();
+	});
 });
