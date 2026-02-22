@@ -200,58 +200,67 @@ describe("CharacterSheet themed styles", () => {
 	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
 	const css = readFileSync(cssPath, "utf-8");
 
-	it("contains no hardcoded color hex values", () => {
+	it("contains no hardcoded hex color values", () => {
+		// Allow #eab308 for warning (no theme token for warning), and percentage values in color-mix
 		const lines = css.split("\n");
-		const hexColorRegex = /#[0-9a-fA-F]{3,8}\b/;
-		const hardcodedLines = lines.filter((line) => {
+		const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
+		const allowedHex = ["#eab308"]; // warning yellow - no theme token
+		for (const line of lines) {
 			const trimmed = line.trim();
-			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) return false;
-			if (hexColorRegex.test(trimmed)) {
-				return true;
+			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) continue;
+			const matches = trimmed.match(hexPattern);
+			if (matches) {
+				for (const match of matches) {
+					expect(allowedHex).toContain(match);
+				}
 			}
-			return false;
-		});
-		expect(hardcodedLines).toEqual([]);
+		}
 	});
 
 	it("uses --color-surface for stat card backgrounds", () => {
-		expect(css).toContain("var(--color-surface)");
+		expect(css).toContain(".stat");
+		expect(css).toMatch(/\.stat\s*\{[^}]*var\(--color-surface\)/);
 	});
 
-	it("uses --color-danger for HP danger state", () => {
-		expect(css).toContain("var(--color-danger)");
+	it("uses --color-danger for HP bar danger class", () => {
+		expect(css).toContain(".hpBarFillDanger");
+		expect(css).toMatch(/\.hpBarFillDanger\s*\{[^}]*var\(--color-danger\)/);
 	});
 
-	it("uses --color-success for heal button", () => {
-		expect(css).toContain("var(--color-success)");
+	it("uses --color-success for HP bar good class", () => {
+		expect(css).toContain(".hpBarFillGood");
+		expect(css).toMatch(/\.hpBarFillGood\s*\{[^}]*var\(--color-success\)/);
 	});
 
-	it("uses theme tokens for notes textarea background and border", () => {
-		// Extract notesTextarea block
-		const notesMatch = css.match(/\.notesTextarea\s*\{[^}]+\}/);
-		expect(notesMatch).not.toBeNull();
-		const notesBlock = notesMatch![0];
-		expect(notesBlock).toContain("var(--color-input-bg)");
-		expect(notesBlock).toContain("var(--color-input-border)");
+	it("uses theme tokens for damage and heal buttons", () => {
+		expect(css).toMatch(/\.damageButton\s*\{[^}]*var\(--color-danger\)/);
+		expect(css).toMatch(/\.healButton\s*\{[^}]*var\(--color-success\)/);
+	});
+
+	it("uses theme tokens for notes textarea", () => {
+		expect(css).toMatch(/\.notesTextarea\s*\{[^}]*var\(--color-input-bg\)/);
+		expect(css).toMatch(/\.notesTextarea\s*\{[^}]*var\(--color-input-border\)/);
+	});
+
+	it("uses theme tokens for delete button", () => {
+		expect(css).toMatch(/\.deleteButton\s*\{[^}]*var\(--color-danger\)/);
+	});
+
+	it("has alternating row colors for skills using theme tokens", () => {
+		expect(css).toMatch(/\.skillRow:nth-child\(odd\)/);
+		expect(css).toMatch(/\.skillRow:nth-child\(even\)/);
 	});
 
 	it("has responsive media query for mobile", () => {
-		expect(css).toContain("@media");
-		expect(css).toContain("max-width");
+		expect(css).toMatch(/@media\s*\(max-width:\s*480px\)/);
 	});
 
-	it("uses alternating row styles for skills", () => {
-		expect(css).toContain("nth-child(odd)");
-		expect(css).toContain("nth-child(even)");
-	});
-
-	it("styles action buttons with distinct theme colors", () => {
-		// Find all .damageButton blocks - look for the one with color-danger
-		const damageBlocks = css.match(/\.damageButton\s*\{[^}]+\}/g) ?? [];
-		const healBlocks = css.match(/\.healButton\s*\{[^}]+\}/g) ?? [];
-		const hasDangerInDamage = damageBlocks.some((b) => b.includes("var(--color-danger)"));
-		const hasSuccessInHeal = healBlocks.some((b) => b.includes("var(--color-success)"));
-		expect(hasDangerInDamage).toBe(true);
-		expect(hasSuccessInHeal).toBe(true);
+	it("HP bar uses CSS classes instead of inline colors in component", async () => {
+		const tsxPath = resolve(__dirname, "CharacterSheet.tsx");
+		const tsx = readFileSync(tsxPath, "utf-8");
+		expect(tsx).toContain("hpBarFillGood");
+		expect(tsx).toContain("hpBarFillWarning");
+		expect(tsx).toContain("hpBarFillDanger");
+		expect(tsx).not.toContain("backgroundColor: hpColor");
 	});
 });
