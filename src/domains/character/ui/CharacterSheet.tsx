@@ -132,7 +132,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	if (!character) return <div className={styles.container}>Character not found.</div>;
 
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
-	const hpBarClass = hpPercent > 50 ? styles.hpBarFillGood : hpPercent > 25 ? styles.hpBarFillWarning : styles.hpBarFillDanger;
+	const hpFillClass = hpPercent > 50 ? styles.hpBarFillGood : hpPercent > 25 ? styles.hpBarFillWarning : styles.hpBarFillDanger;
 
 	return (
 		<div className={styles.container}>
@@ -167,7 +167,7 @@ export function CharacterSheet({ id }: { id: string }) {
 				</div>
 				<div className={styles.hpBarTrack}>
 					<div
-						className={`${styles.hpBarFill} ${hpBarClass}`}
+						className={`${styles.hpBarFill} ${hpFillClass}`}
 						style={{ width: `${hpPercent}%` }}
 					/>
 				</div>

@@ -150,7 +150,7 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					/>
 				</div>
 				<fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-					<legend className={styles.label} style={{ marginBottom: 8 }}>
+					<legend className={styles.label} style={{ marginBottom: "var(--space-sm)" }}>
 						Ability Scores
 					</legend>
 					<div className={styles.abilityGrid}>

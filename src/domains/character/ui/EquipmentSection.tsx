@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from "react";
 import { calculateTotalWeight } from "../types/character.js";
 import type { Character, EquipmentItem } from "../types/index.js";
-import styles from "./CharacterSheet.module.css";
+import styles from "./EquipmentSection.module.css";
 
 interface EquipmentSectionProps {
 	characterId: string;

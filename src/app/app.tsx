@@ -9,6 +9,9 @@ import { CharacterForm } from "../domains/character/ui/CharacterForm.tsx";
 import { CharacterList } from "../domains/character/ui/CharacterList.tsx";
 import { CharacterSheet } from "../domains/character/ui/CharacterSheet.tsx";
 import { Router, createRoute } from "./router.tsx";
+import { ThemeProvider } from "./ThemeProvider.tsx";
+import { ThemeToggle } from "./ThemeToggle.tsx";
+import styles from "./layout.module.css";
 
 const routes = [
 	createRoute("/", () => <CharacterList />),
@@ -18,5 +21,17 @@ const routes = [
 ];
 
 export function App() {
-	return <Router routes={routes} />;
+	return (
+		<ThemeProvider>
+			<div className={styles.appShell}>
+				<header className={styles.header}>
+					<h1 className={styles.title}>D&D Character Manager</h1>
+					<ThemeToggle />
+				</header>
+				<main className={styles.main}>
+					<Router routes={routes} />
+				</main>
+			</div>
+		</ThemeProvider>
+	);
 }

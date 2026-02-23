@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CreateCharacterSchema } from "../types/index.js";
+
+const cssPath = resolve(import.meta.dirname, "CharacterForm.module.css");
+const css = readFileSync(cssPath, "utf-8");
 
 describe("CharacterForm", () => {
 	it("exports CharacterForm component", async () => {
@@ -84,6 +89,48 @@ describe("CharacterForm", () => {
 		};
 		const result = CreateCharacterSchema.safeParse(invalid);
 		expect(result.success).toBe(false);
+	});
+
+	it("CSS contains no hardcoded color values", () => {
+		// Match hex colors like #ccc, #d32f2f, but allow inside var() references
+		const lines = css.split("\n");
+		for (const line of lines) {
+			const trimmed = line.trim();
+			// skip comments
+			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) continue;
+			// Check for hex colors not inside var()
+			if (/#[0-9a-fA-F]{3,8}\b/.test(trimmed)) {
+				throw new Error(`Hardcoded color found: ${trimmed}`);
+			}
+			// Check for rgb/rgba not inside var()
+			if (/\brgba?\s*\(/.test(trimmed) && !trimmed.includes("var(")) {
+				throw new Error(`Hardcoded rgb color found: ${trimmed}`);
+			}
+		}
+	});
+
+	it("CSS uses theme tokens for input styling", () => {
+		expect(css).toContain("--color-input-bg");
+		expect(css).toContain("--color-input-border");
+	});
+
+	it("CSS uses --color-primary for focus states", () => {
+		expect(css).toContain(":focus");
+		expect(css).toContain("--color-primary");
+	});
+
+	it("CSS uses --color-danger for error messages", () => {
+		expect(css).toContain("--color-danger");
+	});
+
+	it("CSS uses --color-primary for submit button", () => {
+		const submitSection = css.substring(css.indexOf(".submitButton"));
+		expect(submitSection).toContain("--color-primary");
+		expect(submitSection).toContain("--color-primary-hover");
+	});
+
+	it("inputs have min-height of 44px for touch targets", () => {
+		expect(css).toContain("min-height: 44px");
 	});
 
 	it("form fields cover all 6 ability scores", () => {
