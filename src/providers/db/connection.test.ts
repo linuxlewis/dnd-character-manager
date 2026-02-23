@@ -1,10 +1,10 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 import { createDb } from "./connection.js";
 import { migrate } from "./migrate.js";
 import { characters } from "./schema.js";
-import { join } from "node:path";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 
 describe("database connection", () => {
 	const tempDirs: string[] = [];
@@ -42,17 +42,19 @@ describe("database connection", () => {
 		const db = createDb(dbPath);
 		migrate(db, join(process.cwd(), "drizzle"));
 
-		db.insert(characters).values({
-			id: "test-1",
-			name: "Gandalf",
-			race: "Human",
-			class: "Wizard",
-			level: 20,
-			ability_scores: { str: 10, dex: 14, con: 12, int: 20, wis: 18, cha: 16 },
-			hp: { current: 80, max: 80, temporary: 0 },
-			equipment: [],
-			skills: [],
-		}).run();
+		db.insert(characters)
+			.values({
+				id: "test-1",
+				name: "Gandalf",
+				race: "Human",
+				class: "Wizard",
+				level: 20,
+				ability_scores: { str: 10, dex: 14, con: 12, int: 20, wis: 18, cha: 16 },
+				hp: { current: 80, max: 80, temporary: 0 },
+				equipment: [],
+				skills: [],
+			})
+			.run();
 
 		const result = db.select().from(characters).all();
 		expect(result).toHaveLength(1);

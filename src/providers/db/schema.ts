@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const characters = sqliteTable("characters", {
 	id: text("id").primaryKey(),
@@ -13,12 +13,8 @@ export const characters = sqliteTable("characters", {
 	equipment: text("equipment", { mode: "json" }),
 	skills: text("skills", { mode: "json" }),
 	notes: text("notes"),
-	created_at: text("created_at")
-		.notNull()
-		.default(sql`(datetime('now'))`),
-	updated_at: text("updated_at")
-		.notNull()
-		.default(sql`(datetime('now'))`),
+	created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
+	updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });
 
 export type Character = typeof characters.$inferSelect;

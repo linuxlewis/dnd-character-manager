@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { characters } from "./schema.js";
 import { getTableColumns } from "drizzle-orm";
+import { describe, expect, it } from "vitest";
+import { characters } from "./schema.js";
 
 describe("characters schema", () => {
 	it("exports a characters table", () => {

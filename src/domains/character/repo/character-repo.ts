@@ -5,9 +5,9 @@
  * Must NOT import from: service, runtime, ui
  */
 
-import { eq } from "drizzle-orm";
 import { getDb } from "@providers/db/index.js";
 import { characters } from "@providers/db/schema.js";
+import { eq } from "drizzle-orm";
 import type { Character, CreateCharacter, UpdateCharacter } from "../types/index.js";
 
 /** Map a DB row to the domain Character type. */
@@ -52,11 +52,11 @@ export const characterRepo = {
 			race: input.race,
 			class: input.class,
 			level: input.level,
-			ability_scores: input.abilityScores as any,
-			hp: input.hp as any,
-			spell_slots: input.spellSlots as any,
-			equipment: input.equipment as any,
-			skills: input.skills as any,
+			ability_scores: input.abilityScores as unknown as string,
+			hp: input.hp as unknown as string,
+			spell_slots: input.spellSlots as unknown as string,
+			equipment: input.equipment as unknown as string,
+			skills: input.skills as unknown as string,
 			notes: input.notes ?? "",
 			created_at: now.toISOString(),
 			updated_at: now.toISOString(),
@@ -84,7 +84,7 @@ export const characterRepo = {
 			updatedAt: now,
 		};
 
-		const values: Record<string, any> = { updated_at: now.toISOString() };
+		const values: Record<string, unknown> = { updated_at: now.toISOString() };
 		if (input.name !== undefined) values.name = input.name;
 		if (input.race !== undefined) values.race = input.race;
 		if (input.class !== undefined) values.class = input.class;

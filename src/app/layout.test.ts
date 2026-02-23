@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 
 describe("US-003: App layout integration", () => {
 	const appSource = readFileSync(resolve(__dirname, "app.tsx"), "utf-8");

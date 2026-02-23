@@ -8,10 +8,10 @@
 import { CharacterForm } from "../domains/character/ui/CharacterForm.tsx";
 import { CharacterList } from "../domains/character/ui/CharacterList.tsx";
 import { CharacterSheet } from "../domains/character/ui/CharacterSheet.tsx";
-import { Router, createRoute } from "./router.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
 import styles from "./layout.module.css";
+import { Router, createRoute } from "./router.tsx";
 
 const routes = [
 	createRoute("/", () => <CharacterList />),

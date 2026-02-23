@@ -5,6 +5,7 @@ export function ThemeToggle() {
 	const { theme, toggleTheme } = useTheme();
 	return (
 		<button
+			type="button"
 			className={styles.toggleButton}
 			onClick={toggleTheme}
 			aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}

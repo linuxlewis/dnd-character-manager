@@ -1,5 +1,5 @@
-import { migrate as drizzleMigrate } from "drizzle-orm/better-sqlite3/migrator";
 import { join } from "node:path";
+import { migrate as drizzleMigrate } from "drizzle-orm/better-sqlite3/migrator";
 import type { AppDatabase } from "./connection.js";
 
 /**

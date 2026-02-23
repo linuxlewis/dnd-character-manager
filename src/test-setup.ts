@@ -1,12 +1,12 @@
+import { _setDb } from "@providers/db/connection.js";
+import * as schema from "@providers/db/schema.js";
 /**
  * Global vitest setup — initializes an in-memory SQLite database
  * with the Drizzle schema so all tests use a real DB.
  */
 import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import { sql } from "drizzle-orm";
-import * as schema from "@providers/db/schema.js";
-import { _setDb } from "@providers/db/connection.js";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 
 const sqlite = new Database(":memory:");
 sqlite.pragma("journal_mode = WAL");

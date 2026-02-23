@@ -5,8 +5,8 @@
  * Each domain's runtime layer exports a route registration function.
  */
 
-import { createLogger } from "@providers/telemetry/index.js";
 import { getDb, migrate } from "@providers/db/index.js";
+import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { registerCharacterRoutes } from "./domains/character/runtime/routes.js";
 import { registerItemRoutes } from "./domains/example/runtime/routes.js";

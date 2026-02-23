@@ -1,15 +1,23 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderToString } from "react-dom/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ThemeProvider, useTheme } from "./ThemeProvider.tsx";
 
 // Mock localStorage
 const storage: Record<string, string> = {};
 const localStorageMock = {
 	getItem: vi.fn((key: string) => storage[key] ?? null),
-	setItem: vi.fn((key: string, value: string) => { storage[key] = value; }),
-	removeItem: vi.fn((key: string) => { delete storage[key]; }),
-	clear: vi.fn(() => { for (const k of Object.keys(storage)) delete storage[k]; }),
-	get length() { return Object.keys(storage).length; },
+	setItem: vi.fn((key: string, value: string) => {
+		storage[key] = value;
+	}),
+	removeItem: vi.fn((key: string) => {
+		delete storage[key];
+	}),
+	clear: vi.fn(() => {
+		for (const k of Object.keys(storage)) delete storage[k];
+	}),
+	get length() {
+		return Object.keys(storage).length;
+	},
 	key: vi.fn((_i: number) => null),
 };
 
@@ -18,7 +26,7 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, wri
 // Mock matchMedia
 Object.defineProperty(globalThis, "matchMedia", {
 	value: vi.fn((query: string) => ({
-		matches: query === "(prefers-color-scheme: dark)" ? false : false,
+		matches: false,
 		media: query,
 		addEventListener: vi.fn(),
 		removeEventListener: vi.fn(),
@@ -38,13 +46,15 @@ describe("ThemeProvider", () => {
 	});
 
 	it("reads theme from localStorage", () => {
-		storage["theme"] = "dark";
+		storage.theme = "dark";
 		function TestComponent() {
 			const { theme } = useTheme();
 			return <span data-testid="theme">{theme}</span>;
 		}
 		const html = renderToString(
-			<ThemeProvider><TestComponent /></ThemeProvider>
+			<ThemeProvider>
+				<TestComponent />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("dark");
 	});
@@ -55,7 +65,9 @@ describe("ThemeProvider", () => {
 			return <span>{theme}</span>;
 		}
 		const html = renderToString(
-			<ThemeProvider><TestComponent /></ThemeProvider>
+			<ThemeProvider>
+				<TestComponent />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("light");
 	});
@@ -75,7 +87,9 @@ describe("ThemeProvider", () => {
 			return <span>{theme}</span>;
 		}
 		const html = renderToString(
-			<ThemeProvider><TestComponent /></ThemeProvider>
+			<ThemeProvider>
+				<TestComponent />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("dark");
 	});
@@ -91,20 +105,24 @@ describe("ThemeProvider", () => {
 
 describe("ThemeToggle", () => {
 	it("renders sun icon in dark mode", () => {
-		storage["theme"] = "dark";
+		storage.theme = "dark";
 		// Dynamic import to avoid module-level issues
 		const { ThemeToggle } = require("./ThemeToggle.tsx");
 		const html = renderToString(
-			<ThemeProvider><ThemeToggle /></ThemeProvider>
+			<ThemeProvider>
+				<ThemeToggle />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("☀️");
 	});
 
 	it("renders moon icon in light mode", () => {
-		storage["theme"] = "light";
+		storage.theme = "light";
 		const { ThemeToggle } = require("./ThemeToggle.tsx");
 		const html = renderToString(
-			<ThemeProvider><ThemeToggle /></ThemeProvider>
+			<ThemeProvider>
+				<ThemeToggle />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("🌙");
 	});
@@ -112,7 +130,9 @@ describe("ThemeToggle", () => {
 	it("renders a button element", () => {
 		const { ThemeToggle } = require("./ThemeToggle.tsx");
 		const html = renderToString(
-			<ThemeProvider><ThemeToggle /></ThemeProvider>
+			<ThemeProvider>
+				<ThemeToggle />
+			</ThemeProvider>,
 		);
 		expect(html).toContain("<button");
 	});
