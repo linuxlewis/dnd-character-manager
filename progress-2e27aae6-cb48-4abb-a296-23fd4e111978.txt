@@ -1,0 +1,11 @@
+
+## 2026-02-22 15:37 - US-004: Verify service and route tests pass with SQLite repo
+- Verified all 15 test suites (207 tests) pass with SQLite-backed repo
+- character-service.test.ts: PASS
+- routes.test.ts: PASS
+- action-routes.test.ts: PASS
+- e2e.test.ts: PASS
+- Build + typecheck: PASS
+- No changes needed — US-003 already set up test infrastructure correctly (in-memory SQLite via test-setup.ts)
+- **Learnings:** None new — existing test setup was already correct
+---
