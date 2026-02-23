@@ -80,6 +80,7 @@ a {
   --color-primary-hover: #1d4ed8;
   --color-border: #d1d5db;
   --color-danger: #dc2626;
+  --color-warning: #eab308;
   --color-success: #16a34a;
   --color-input-bg: #ffffff;
   --color-input-border: #9ca3af;
@@ -114,6 +115,7 @@ a {
   --color-primary-hover: #93bbfd;
   --color-border: #3f3f5c;
   --color-danger: #f87171;
+  --color-warning: #facc15;
   --color-success: #4ade80;
   --color-input-bg: #2a2a45;
   --color-input-border: #4f4f6c;
