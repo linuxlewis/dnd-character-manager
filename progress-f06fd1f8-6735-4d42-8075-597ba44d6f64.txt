@@ -11,3 +11,15 @@
 - All 235 tests pass, build passes
 - **Learnings:** import.meta.dirname works in Vitest for resolving file paths relative to test file
 ---
+
+## 2026-02-22 21:19 - US-008: Add EquipmentSection themed styles and final visual polish
+- Created src/domains/character/ui/EquipmentSection.module.css with all theme tokens
+- Updated EquipmentSection.tsx to import its own CSS module instead of CharacterSheet's
+- Added --color-warning token to theme.css (light: #eab308, dark: #facc15)
+- Fixed last hardcoded hex color (#eab308) in CharacterSheet.module.css → var(--color-warning)
+- Added hover states for add/remove buttons, box-shadow on equipment rows
+- Added responsive styles for mobile (stacked form at ≤480px)
+- Wrote tests: EquipmentSection CSS uses theme tokens, no hardcoded colors in any CSS module, warning token exists
+- All 273 tests pass, build passes
+- **Learnings:** Final polish stories are good for catching stray hardcoded values with grep tests
+---
