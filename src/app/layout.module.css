@@ -31,3 +31,18 @@
   max-width: 960px;
   margin: 0 auto;
 }
+
+/* Responsive - small screens */
+@media (max-width: 480px) {
+  .header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .title {
+    font-size: var(--font-size-base, 1rem);
+  }
+
+  .main {
+    padding: var(--spacing-sm);
+  }
+}
