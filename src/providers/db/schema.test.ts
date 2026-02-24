@@ -20,6 +20,8 @@ describe("characters schema", () => {
 			"spell_slots",
 			"equipment",
 			"skills",
+			"armor_class",
+			"saving_throw_proficiencies",
 			"notes",
 			"created_at",
 			"updated_at",
@@ -53,5 +55,15 @@ describe("characters schema", () => {
 		expect(cols.spell_slots.columnType).toBe("SQLiteTextJson");
 		expect(cols.equipment.columnType).toBe("SQLiteTextJson");
 		expect(cols.skills.columnType).toBe("SQLiteTextJson");
+	});
+
+	it("has armor_class as JSON column", () => {
+		const cols = getTableColumns(characters);
+		expect(cols.armor_class.columnType).toBe("SQLiteTextJson");
+	});
+
+	it("has saving_throw_proficiencies as JSON column", () => {
+		const cols = getTableColumns(characters);
+		expect(cols.saving_throw_proficiencies.columnType).toBe("SQLiteTextJson");
 	});
 });

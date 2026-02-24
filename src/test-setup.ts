@@ -25,6 +25,8 @@ db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 	equipment TEXT,
 	skills TEXT,
 	notes TEXT,
+	armor_class TEXT,
+	saving_throw_proficiencies TEXT,
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 )`);
