@@ -1,30 +1,37 @@
 # Progress Log
 Run: 18e4b78d-848c-448a-9e5a-f0bc094234d8
 Task: Add slug-based sharing for characters
-Started: 2026-02-23 18:37 CST
-
-## ⚠️ WORKTREE
-All work MUST happen in: /tmp/feature-slug-based-sharing
-Do NOT work in /Users/sambolgert/Documents/workspace/dnd-character-manager (that's the main repo)
+Started: 2026-02-23
 
 ## Codebase Patterns
-- Test DB is created manually in `src/test-setup.ts` with raw SQL (not migrations). When adding columns to schema, must also update the CREATE TABLE in test-setup.ts.
-- Schema is in `src/providers/db/schema.ts`, uses Drizzle ORM with better-sqlite3
-- Migrations generated via `npx drizzle-kit generate`, output to `drizzle/` folder
-- Tests use vitest, run with `pnpm test`
-- Build includes typecheck: `pnpm run build` runs `tsc --noEmit && vite build`
-- DB singleton via `getDb()`, tests override with `_setDb()` in test-setup.ts
-- Repo maps DB rows to domain types in `toDomain()` function
-- Path aliases: `@providers` → `src/providers`, `@domains` → `src/domains`
+- Tests use vitest (`import { describe, expect, it } from "vitest"`)
+- Build: `tsc --noEmit && vite build` — no node: imports in shared/types code (browser bundle)
+- Use `crypto.getRandomValues` instead of `node:crypto` for browser-compatible code
+- Types exported from `src/domains/character/types/index.ts`
+- Worktree at `/private/tmp/feature-slug-based-sharing`
 
 ---
 
-## 2026-02-23 18:38 - US-001: Add slug column to characters schema and generate migration
-- Added `slug: text('slug').unique()` to characters table in schema.ts
-- Generated migration `drizzle/0001_useful_white_queen.sql` (ALTER TABLE + CREATE UNIQUE INDEX)
-- Updated test-setup.ts to include slug column in the in-memory test DB
-- Added test for slug column existence, nullability, and uniqueness in schema.test.ts
-- Updated expected columns list in existing schema test
-- Files changed: src/providers/db/schema.ts, src/providers/db/schema.test.ts, src/test-setup.ts, drizzle/0001_useful_white_queen.sql, drizzle/meta/*
-- **Learnings:** Test DB setup is manual SQL in test-setup.ts — must keep in sync with schema changes
+## 2026-02-23 18:49 - US-001: Add slug column to characters schema and generate migration
+- (completed in previous session)
+---
+
+## 2026-02-23 18:49 - US-002: Add slug generation utility function
+- Created `src/domains/character/types/slug.ts` with `generateSlug(name)` function
+- Uses `crypto.getRandomValues` for browser compatibility (not node:crypto)
+- Slugifies name: lowercase, strip special chars, hyphens for spaces, 4-char hex suffix
+- Exported from types index
+- 5 tests in `slug.test.ts`: basic slug, special chars, trim, multiple spaces, uniqueness
+- **Learnings:** Vite build externalizes node: modules — use Web Crypto API instead
+---
+
+## 2026-02-23 18:58 - US-003: Update character repo to store and query by slug
+- Added `slug: string` to domain Character type (CharacterSchema), omitted from CreateCharacterSchema
+- Updated `toDomain()` to map slug column
+- Updated `create()` to generate slug via `generateSlug(input.name)` and store/return it
+- Added `findBySlug(slug)` method to characterRepo
+- Added 3 tests: slug generation on create, findBySlug success, findBySlug null
+- Fixed validCharacter in character.test.ts to include slug field
+- Files changed: character.ts, character.test.ts, character-repo.ts, character-repo.test.ts
+- **Learnings:** When adding fields to CharacterSchema, also omit auto-generated ones from CreateCharacterSchema; update test fixtures in character.test.ts
 ---

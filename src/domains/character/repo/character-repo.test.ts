@@ -102,7 +102,6 @@ describe("characterRepo", () => {
 				armorClass: { base: 10, override: 16 },
 			});
 			expect(updated?.armorClass).toEqual({ base: 10, override: 16 });
-			// Verify persisted
 			const found = await characterRepo.findById(char.id);
 			expect(found?.armorClass).toEqual({ base: 10, override: 16 });
 		});
@@ -133,5 +132,23 @@ describe("characterRepo", () => {
 			const found = await characterRepo.findById(char.id);
 			expect(found?.savingThrowProficiencies).toEqual(["STR", "CON"]);
 		});
+	});
+
+	it("create generates a slug from the character name", async () => {
+		const char = await characterRepo.create(validInput);
+		expect(char.slug).toBeDefined();
+		expect(char.slug).toMatch(/^gandalf-[0-9a-f]{4}$/);
+	});
+
+	it("findBySlug returns character after create", async () => {
+		const char = await characterRepo.create(validInput);
+		const found = await characterRepo.findBySlug(char.slug);
+		expect(found).not.toBeNull();
+		expect(found?.id).toBe(char.id);
+		expect(found?.slug).toBe(char.slug);
+	});
+
+	it("findBySlug returns null for unknown slug", async () => {
+		expect(await characterRepo.findBySlug("nonexistent-slug")).toBeNull();
 	});
 });
