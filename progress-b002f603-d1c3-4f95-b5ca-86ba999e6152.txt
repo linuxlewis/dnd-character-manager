@@ -37,3 +37,11 @@ Started: 2026-02-23T19:47:00-06:00
 - Added 3 new tests: create with spells, default empty arrays, update spells
 - **Learnings:** test-setup.ts uses raw SQL CREATE TABLE — must be updated manually when adding columns
 ---
+
+## 2026-02-23 20:18 - US-003: Add spell repository for SRD spell cache CRUD
+- Created `src/domains/spell/repo/spell-repo.ts` with methods: upsertSpells, getAllSpells, getSpellByIndex, searchSpells, clearCache
+- searchSpells supports filtering by name (LIKE), level (exact), school (exact), className (JSON LIKE)
+- Fixed test-setup.ts: srd_spells table used `index_` instead of `"index"` as column name
+- 12 tests covering all CRUD and search operations
+- **Learnings:** SQLite reserved word "index" needs quoting in raw SQL but Drizzle handles it automatically
+---
