@@ -79,4 +79,59 @@ describe("characterRepo", () => {
 	it("delete returns false for unknown id", async () => {
 		expect(await characterRepo.delete("nonexistent")).toBe(false);
 	});
+
+	describe("armor class persistence", () => {
+		it("create persists armorClass and round-trips correctly", async () => {
+			const char = await characterRepo.create({
+				...validInput,
+				armorClass: { base: 15, override: 18 },
+			});
+			const found = await characterRepo.findById(char.id);
+			expect(found?.armorClass).toEqual({ base: 15, override: 18 });
+		});
+
+		it("defaults armorClass to { base: 10, override: null } when column is null", async () => {
+			const char = await characterRepo.create({ ...validInput });
+			const found = await characterRepo.findById(char.id);
+			expect(found?.armorClass).toEqual({ base: 10, override: null });
+		});
+
+		it("update can change armorClass", async () => {
+			const char = await characterRepo.create(validInput);
+			const updated = await characterRepo.update(char.id, {
+				armorClass: { base: 10, override: 16 },
+			});
+			expect(updated?.armorClass).toEqual({ base: 10, override: 16 });
+			// Verify persisted
+			const found = await characterRepo.findById(char.id);
+			expect(found?.armorClass).toEqual({ base: 10, override: 16 });
+		});
+	});
+
+	describe("saving throw proficiencies persistence", () => {
+		it("create persists savingThrowProficiencies and round-trips correctly", async () => {
+			const char = await characterRepo.create({
+				...validInput,
+				savingThrowProficiencies: ["INT", "WIS"],
+			});
+			const found = await characterRepo.findById(char.id);
+			expect(found?.savingThrowProficiencies).toEqual(["INT", "WIS"]);
+		});
+
+		it("defaults savingThrowProficiencies to [] when column is null", async () => {
+			const char = await characterRepo.create({ ...validInput });
+			const found = await characterRepo.findById(char.id);
+			expect(found?.savingThrowProficiencies).toEqual([]);
+		});
+
+		it("update can change savingThrowProficiencies", async () => {
+			const char = await characterRepo.create(validInput);
+			const updated = await characterRepo.update(char.id, {
+				savingThrowProficiencies: ["STR", "CON"],
+			});
+			expect(updated?.savingThrowProficiencies).toEqual(["STR", "CON"]);
+			const found = await characterRepo.findById(char.id);
+			expect(found?.savingThrowProficiencies).toEqual(["STR", "CON"]);
+		});
+	});
 });
