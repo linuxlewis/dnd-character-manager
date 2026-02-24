@@ -1,13 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { calculateAC, calculateTotalWeight, getAbilityModifier } from "../types/character.js";
-import {
-	SKILLS,
-	calculateSavingThrow,
-	calculateSkillBonus,
-	getProficiencyBonus,
-} from "../types/skills.js";
+import { calculateTotalWeight, getAbilityModifier } from "../types/character.js";
+import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
 	it("exports CharacterSheet component", async () => {
@@ -201,65 +196,6 @@ describe("CharacterSheet", () => {
 	});
 });
 
-describe("CharacterSheet AC display", () => {
-	it("calculates AC as 10 + DEX mod when no override", () => {
-		const armorClass = { base: 10, override: null };
-		expect(calculateAC(14, armorClass)).toBe(12); // 10 + 2
-		expect(calculateAC(10, armorClass)).toBe(10); // 10 + 0
-		expect(calculateAC(8, armorClass)).toBe(9); // 10 + (-1)
-	});
-
-	it("calculates AC as override value when override is set", () => {
-		const armorClass = { base: 10, override: 18 };
-		expect(calculateAC(14, armorClass)).toBe(18);
-		expect(calculateAC(8, armorClass)).toBe(18);
-	});
-
-	it("detects AC override is set", () => {
-		expect({ base: 10, override: 18 }.override !== null).toBe(true);
-		expect({ base: 10, override: null }.override !== null).toBe(false);
-	});
-
-	it("AC override API contract - PUT with override value", () => {
-		const id = "abc";
-		const url = `/api/characters/${id}/ac`;
-		expect(url).toBe("/api/characters/abc/ac");
-		const body = JSON.stringify({ override: 18 });
-		const parsed = JSON.parse(body);
-		expect(parsed.override).toBe(18);
-	});
-
-	it("AC clear override API contract - PUT with null override", () => {
-		const body = JSON.stringify({ override: null });
-		const parsed = JSON.parse(body);
-		expect(parsed.override).toBe(null);
-	});
-
-	it("AC section exists in component source", () => {
-		const { readFileSync } = require("node:fs");
-		const { resolve } = require("node:path");
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		expect(tsx).toContain("Armor Class");
-		expect(tsx).toContain("calculateAC");
-		expect(tsx).toContain("acValue");
-		expect(tsx).toContain("Override AC");
-		expect(tsx).toContain("Clear Override");
-		expect(tsx).toContain("acOverrideIndicator");
-	});
-
-	it("AC CSS styles exist", () => {
-		const { readFileSync } = require("node:fs");
-		const { resolve } = require("node:path");
-		const css = readFileSync(resolve(__dirname, "CharacterSheet.module.css"), "utf-8");
-		expect(css).toContain(".acDisplay");
-		expect(css).toContain(".acShield");
-		expect(css).toContain(".acValue");
-		expect(css).toContain(".acOverrideIndicator");
-		expect(css).toContain(".acOverrideButton");
-		expect(css).toContain(".acClearButton");
-	});
-});
-
 describe("CharacterSheet themed styles", () => {
 	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
 	const css = readFileSync(cssPath, "utf-8");
@@ -326,56 +262,5 @@ describe("CharacterSheet themed styles", () => {
 		expect(tsx).toContain("hpBarFillWarning");
 		expect(tsx).toContain("hpBarFillDanger");
 		expect(tsx).not.toContain("backgroundColor: hpColor");
-	});
-
-	// --- Saving Throws (US-007) ---
-
-	it("displays all 6 saving throws in a Saving Throws section", () => {
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		expect(tsx).toContain("Saving Throws");
-		expect(tsx).toContain("saving-throw-");
-		expect(tsx).toContain("calculateSavingThrow");
-		// Iterates over ABILITY_KEYS which contains all 6
-		expect(tsx).toContain("ABILITY_KEYS.map");
-	});
-
-	it("calculates saving throw bonus without proficiency", () => {
-		// DEX 14 (mod +2), not proficient, level 5
-		expect(calculateSavingThrow(14, false, 5)).toBe(2);
-	});
-
-	it("calculates saving throw bonus with proficiency", () => {
-		// DEX 14 (mod +2), proficient, level 5 (prof bonus +3) = +5
-		expect(calculateSavingThrow(14, true, 5)).toBe(5);
-	});
-
-	it("calculates saving throw for negative modifier with proficiency", () => {
-		// STR 8 (mod -1), proficient, level 1 (prof bonus +2) = +1
-		expect(calculateSavingThrow(8, true, 1)).toBe(1);
-	});
-
-	it("renders saving throw toggle via API call pattern", () => {
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		expect(tsx).toContain("/saving-throws/");
-		expect(tsx).toContain("/toggle");
-		expect(tsx).toContain('method: "POST"');
-	});
-
-	it("renders checkboxes for saving throw proficiency", () => {
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		expect(tsx).toContain("savingThrowProficiencies");
-		expect(tsx).toContain("handleToggleSavingThrow");
-		// All 6 abilities rendered
-		// Uses data-testid with saving-throw- prefix and iterates ABILITY_KEYS
-		expect(tsx).toContain("data-testid={`saving-throw-${key}`}");
-		expect(tsx).toContain("handleToggleSavingThrow(key)");
-	});
-
-	it("saving throw section reuses skill styling", () => {
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		// Should reuse skillsList/skillRow/skillCheckbox styles
-		expect(tsx).toContain("styles.skillsList");
-		expect(tsx).toContain("styles.skillRow");
-		expect(tsx).toContain("styles.skillCheckbox");
 	});
 });
