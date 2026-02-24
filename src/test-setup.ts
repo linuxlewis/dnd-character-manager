@@ -33,7 +33,7 @@ db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 
 // Create the srd_spells table
 db.run(sql`CREATE TABLE IF NOT EXISTS srd_spells (
-	index_ TEXT PRIMARY KEY,
+	"index" TEXT PRIMARY KEY,
 	name TEXT NOT NULL,
 	level INTEGER NOT NULL,
 	school TEXT NOT NULL,
