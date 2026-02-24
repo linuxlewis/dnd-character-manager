@@ -1,0 +1,24 @@
+# Progress Log
+Run: d3bd0c4f-75bb-4dcf-a1a9-b342dff7c6c6
+Task: Add AC calculation and Saving Throws to DnD Character Manager
+Started: 2026-02-23T19:02:00-06:00
+
+## Codebase Patterns
+- Test DB is in-memory SQLite set up in src/test-setup.ts with raw CREATE TABLE SQL — must be updated when adding schema columns
+- Schema is in src/providers/db/schema.ts using Drizzle ORM sqlite-core
+- Migrations generated via `npx drizzle-kit generate`, stored in drizzle/
+- Repo layer in src/domains/character/repo/character-repo.ts maps DB rows to domain types via toDomain()
+- JSON columns use text() with { mode: "json" } and .$type<T>() for typing
+- All tests use vitest, run with `pnpm test`
+
+---
+
+## 2026-02-23 19:02 - US-001: Add armor_class and saving_throw_proficiencies columns to DB schema
+- Added armor_class (JSON, shape: { base: number, override: number | null }) to characters table schema
+- Added saving_throw_proficiencies (JSON, shape: string[]) to characters table schema
+- Generated migration: drizzle/0001_pale_meggan.sql
+- Updated test-setup.ts CREATE TABLE to include new columns
+- Updated schema.test.ts with tests for new JSON columns
+- Files changed: src/providers/db/schema.ts, src/test-setup.ts, src/providers/db/schema.test.ts, drizzle/0001_pale_meggan.sql, drizzle/meta/*
+- **Learnings:** When adding columns to schema.ts, MUST also update the raw CREATE TABLE in src/test-setup.ts or all DB-touching tests break
+---

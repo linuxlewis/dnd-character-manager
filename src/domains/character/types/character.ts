@@ -101,6 +101,24 @@ export function calculateTotalWeight(equipment: EquipmentItem[]): number {
 	return equipment.reduce((sum, item) => sum + item.weight * item.quantity, 0);
 }
 
+export const ArmorClassSchema = z.object({
+	base: z.number().default(10),
+	override: z.number().nullable().default(null),
+});
+
+export type ArmorClass = z.infer<typeof ArmorClassSchema>;
+
+/**
+ * Calculate AC. If override is set, return override. Otherwise return base + DEX modifier.
+ */
+export function calculateAC(
+	dexScore: number,
+	armorClass: { base: number; override: number | null },
+): number {
+	if (armorClass.override !== null) return armorClass.override;
+	return armorClass.base + getAbilityModifier(dexScore);
+}
+
 export const CharacterSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string().min(1).max(255),
@@ -120,6 +138,8 @@ export const CharacterSchema = z.object({
 			}),
 		)
 		.default([]),
+	armorClass: ArmorClassSchema.default({ base: 10, override: null }),
+	savingThrowProficiencies: z.array(z.enum(["STR", "DEX", "CON", "INT", "WIS", "CHA"])).default([]),
 	notes: z.string().default(""),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),

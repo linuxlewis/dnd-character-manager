@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SKILLS, SkillSchema, calculateSkillBonus, getProficiencyBonus } from "./skills.js";
+import { SKILLS, SkillSchema, calculateSavingThrow, calculateSkillBonus, getProficiencyBonus } from "./skills.js";
 
 describe("SkillSchema", () => {
 	it("validates a valid skill", () => {
@@ -73,5 +73,27 @@ describe("calculateSkillBonus", () => {
 
 	it("handles score 10 (mod 0) not proficient", () => {
 		expect(calculateSkillBonus(10, false, 10)).toBe(0);
+	});
+});
+
+describe("calculateSavingThrow", () => {
+	it("returns ability mod when not proficient", () => {
+		// score 14 → mod +2
+		expect(calculateSavingThrow(14, false, 5)).toBe(2);
+	});
+
+	it("returns ability mod + proficiency bonus when proficient", () => {
+		// score 14 → mod +2, level 5 → prof +3 = +5
+		expect(calculateSavingThrow(14, true, 5)).toBe(5);
+	});
+
+	it("handles low ability score proficient", () => {
+		// score 8 → mod -1, level 1 → prof +2 = +1
+		expect(calculateSavingThrow(8, true, 1)).toBe(1);
+	});
+
+	it("handles high level proficiency bonus", () => {
+		// score 10 → mod 0, level 17 → prof +6 = +6
+		expect(calculateSavingThrow(10, true, 17)).toBe(6);
 	});
 });

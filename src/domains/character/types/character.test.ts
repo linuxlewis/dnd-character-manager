@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
 	AbilityScoresSchema,
+	ArmorClassSchema,
 	CharacterSchema,
 	CreateCharacterSchema,
 	HpSchema,
 	UpdateCharacterSchema,
 	applyDamage,
 	applyHealing,
+	calculateAC,
 	getAbilityModifier,
 } from "./character.js";
 
@@ -203,5 +205,55 @@ describe("applyHealing", () => {
 	it("handles healing at full HP", () => {
 		const result = applyHealing({ current: 20, max: 20, temp: 0 }, 5);
 		expect(result).toEqual({ current: 20, max: 20, temp: 0 });
+	});
+});
+
+describe("ArmorClassSchema", () => {
+	it("applies defaults", () => {
+		const result = ArmorClassSchema.parse({});
+		expect(result).toEqual({ base: 10, override: null });
+	});
+
+	it("accepts override", () => {
+		const result = ArmorClassSchema.parse({ base: 10, override: 18 });
+		expect(result).toEqual({ base: 10, override: 18 });
+	});
+});
+
+describe("calculateAC", () => {
+	it("returns base + DEX modifier when no override", () => {
+		// DEX 14 → modifier +2, base 10 → AC 12
+		expect(calculateAC(14, { base: 10, override: null })).toBe(12);
+	});
+
+	it("returns override when set", () => {
+		expect(calculateAC(14, { base: 10, override: 18 })).toBe(18);
+	});
+
+	it("handles low DEX", () => {
+		// DEX 8 → modifier -1, base 10 → AC 9
+		expect(calculateAC(8, { base: 10, override: null })).toBe(9);
+	});
+
+	it("returns override even if lower than calculated", () => {
+		expect(calculateAC(20, { base: 10, override: 5 })).toBe(5);
+	});
+});
+
+describe("CharacterSchema armorClass and savingThrowProficiencies", () => {
+	it("includes armorClass with defaults", () => {
+		const char = CharacterSchema.parse({
+			...validCharacter,
+		});
+		expect(char.armorClass).toEqual({ base: 10, override: null });
+		expect(char.savingThrowProficiencies).toEqual([]);
+	});
+
+	it("accepts savingThrowProficiencies", () => {
+		const char = CharacterSchema.parse({
+			...validCharacter,
+			savingThrowProficiencies: ["WIS", "CHA"],
+		});
+		expect(char.savingThrowProficiencies).toEqual(["WIS", "CHA"]);
 	});
 });

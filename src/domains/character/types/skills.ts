@@ -46,6 +46,19 @@ export function getProficiencyBonus(level: number): number {
 }
 
 /**
+ * Calculate saving throw bonus.
+ * Returns abilityMod + proficiencyBonus when proficient, else just abilityMod.
+ */
+export function calculateSavingThrow(
+	abilityScore: number,
+	proficient: boolean,
+	level: number,
+): number {
+	const mod = getAbilityModifier(abilityScore);
+	return proficient ? mod + getProficiencyBonus(level) : mod;
+}
+
+/**
  * Calculate skill bonus.
  * Returns abilityMod + proficiencyBonus when proficient, else just abilityMod.
  */

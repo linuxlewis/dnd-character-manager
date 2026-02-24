@@ -17,6 +17,9 @@ export {
 	EquipmentItemSchema,
 	type EquipmentItem,
 	calculateTotalWeight,
+	ArmorClassSchema,
+	calculateAC,
+	type ArmorClass,
 } from "./character.js";
 
 export {
@@ -25,5 +28,6 @@ export {
 	SKILLS,
 	getProficiencyBonus,
 	calculateSkillBonus,
+	calculateSavingThrow,
 	type Skill,
 } from "./skills.js";
