@@ -19,3 +19,19 @@ export const characters = sqliteTable("characters", {
 
 export type Character = typeof characters.$inferSelect;
 export type NewCharacter = typeof characters.$inferInsert;
+
+export const srdSpells = sqliteTable("srd_spells", {
+	index: text("index").primaryKey(),
+	name: text("name").notNull(),
+	level: integer("level").notNull(),
+	school: text("school").notNull(),
+	casting_time: text("casting_time").notNull(),
+	range: text("range").notNull(),
+	duration: text("duration").notNull(),
+	description: text("description").notNull(),
+	classes: text("classes", { mode: "json" }).$type<string[]>().notNull(),
+	cached_at: text("cached_at").notNull().default(sql`(datetime('now'))`),
+});
+
+export type SrdSpell = typeof srdSpells.$inferSelect;
+export type NewSrdSpell = typeof srdSpells.$inferInsert;
