@@ -2,7 +2,7 @@
 	min-height: 100vh;
 	background-color: var(--color-bg);
 	color: var(--color-text);
-	font-family: var(--font-family);
+	font-family: var(--font-body);
 	transition: background-color var(--transition-theme, 0.3s ease), color
 		var(--transition-theme, 0.3s ease);
 }
