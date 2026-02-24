@@ -288,4 +288,24 @@ describe("characterService", () => {
 		const result = await characterService.setAcOverride("nonexistent", 16);
 		expect(result).toBeNull();
 	});
+
+	it("toggleSavingThrowProficiency adds ability key if not present", async () => {
+		const created = await characterService.createCharacter(validInput);
+		const updated = await characterService.toggleSavingThrowProficiency(created.id, "STR");
+		expect(updated).not.toBeNull();
+		expect(updated!.savingThrowProficiencies).toContain("STR");
+	});
+
+	it("toggleSavingThrowProficiency removes ability key if already present", async () => {
+		const created = await characterService.createCharacter(validInput);
+		await characterService.toggleSavingThrowProficiency(created.id, "STR");
+		const updated = await characterService.toggleSavingThrowProficiency(created.id, "STR");
+		expect(updated).not.toBeNull();
+		expect(updated!.savingThrowProficiencies).not.toContain("STR");
+	});
+
+	it("toggleSavingThrowProficiency returns null for missing character", async () => {
+		const result = await characterService.toggleSavingThrowProficiency("nonexistent", "STR");
+		expect(result).toBeNull();
+	});
 });

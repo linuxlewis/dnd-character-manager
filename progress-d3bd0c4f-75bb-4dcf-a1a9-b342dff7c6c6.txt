@@ -41,3 +41,11 @@ Started: 2026-02-23T19:02:00-06:00
 - Files changed: src/domains/character/repo/character-repo.test.ts
 - **Learnings:** US-002 was thorough and already handled repo updates
 ---
+
+## 2026-02-23 19:33 - US-004: Add service methods and API routes for AC override
+- Added setAcOverride(id, override) to character-service.ts
+- Added PUT /api/characters/:id/ac route in routes.ts
+- Added 3 service tests (set, clear, 404) and 3 route tests (set, clear, 404)
+- All 316 tests pass, typecheck passes
+- Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
+---
