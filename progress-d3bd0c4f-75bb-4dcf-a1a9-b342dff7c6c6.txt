@@ -22,3 +22,14 @@ Started: 2026-02-23T19:02:00-06:00
 - Files changed: src/providers/db/schema.ts, src/test-setup.ts, src/providers/db/schema.test.ts, drizzle/0001_pale_meggan.sql, drizzle/meta/*
 - **Learnings:** When adding columns to schema.ts, MUST also update the raw CREATE TABLE in src/test-setup.ts or all DB-touching tests break
 ---
+
+## 2026-02-23 19:14 - US-002: Add AC and saving throw types and calculation functions
+- Added ArmorClassSchema to character.ts (base + override)
+- Added calculateAC function (returns override if set, else base + DEX mod)
+- Added savingThrowProficiencies field to CharacterSchema
+- Added calculateSavingThrow to skills.ts
+- Updated CreateCharacterSchema/UpdateCharacterSchema (inherited via .omit/.partial)
+- Updated character-repo.ts toDomain/create/update to handle new fields
+- Updated all test fixtures with new required fields
+- **Learnings:** When adding fields to CharacterSchema, all test fixtures across repo/service/routes tests need updating too
+---
