@@ -9,11 +9,13 @@ import { getDb } from "@providers/db/index.js";
 import { characters } from "@providers/db/schema.js";
 import { eq } from "drizzle-orm";
 import type { Character, CreateCharacter, UpdateCharacter } from "../types/index.js";
+import { generateSlug } from "../types/slug.js";
 
 /** Map a DB row to the domain Character type. */
 function toDomain(row: typeof characters.$inferSelect): Character {
 	return {
 		id: row.id,
+		slug: row.slug ?? "",
 		name: row.name,
 		race: row.race,
 		class: row.class,
@@ -36,6 +38,12 @@ export const characterRepo = {
 		return rows.map(toDomain);
 	},
 
+	async findBySlug(slug: string): Promise<Character | null> {
+		const db = getDb();
+		const rows = await db.select().from(characters).where(eq(characters.slug, slug));
+		return rows.length > 0 ? toDomain(rows[0]) : null;
+	},
+
 	async findById(id: string): Promise<Character | null> {
 		const db = getDb();
 		const rows = await db.select().from(characters).where(eq(characters.id, id));
@@ -46,8 +54,10 @@ export const characterRepo = {
 		const db = getDb();
 		const now = new Date();
 		const id = crypto.randomUUID();
+		const slug = generateSlug(input.name);
 		const row = {
 			id,
+			slug,
 			name: input.name,
 			race: input.race,
 			class: input.class,
@@ -65,6 +75,7 @@ export const characterRepo = {
 		return {
 			...input,
 			id,
+			slug,
 			createdAt: now,
 			updatedAt: now,
 		};
