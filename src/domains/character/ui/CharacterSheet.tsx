@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import styles from "./CharacterSheet.module.css";
 import { EquipmentSection } from "./EquipmentSection.tsx";
+import { ShareSection } from "./ShareSection.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -131,22 +132,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => {});
 	};
 
-	const [copied, setCopied] = useState(false);
-	const shareUrl = character?.slug
-		? `${window.location.origin}/characters/${character.slug}`
-		: null;
-
-	const handleCopyShareUrl = useCallback(() => {
-		if (!shareUrl) return;
-		navigator.clipboard
-			.writeText(shareUrl)
-			.then(() => {
-				setCopied(true);
-				setTimeout(() => setCopied(false), 2000);
-			})
-			.catch(() => {});
-	}, [shareUrl]);
-
 	if (loading) return <div className={styles.container}>Loading...</div>;
 	if (!character) return <div className={styles.container}>Character not found.</div>;
 
@@ -168,22 +153,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				{character.race} {character.class} · Level {character.level}
 			</p>
 
-			{shareUrl && !readOnly && (
-				<div className={styles.shareSection} data-testid="share-url-section">
-					<span className={styles.shareLabel}>Share:</span>
-					<code className={styles.shareUrl} data-testid="share-url">
-						{shareUrl}
-					</code>
-					<button
-						type="button"
-						className={styles.copyButton}
-						onClick={handleCopyShareUrl}
-						data-testid="copy-share-url"
-					>
-						{copied ? "Copied!" : "Copy"}
-					</button>
-				</div>
-			)}
+			{character?.slug && !readOnly && <ShareSection slug={character.slug} />}
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Ability Scores</h2>
