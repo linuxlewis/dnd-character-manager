@@ -16,6 +16,14 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		return characterService.listCharacters();
 	});
 
+	app.get<{ Params: { slug: string } }>("/api/characters/by-slug/:slug", async (request, reply) => {
+		const character = await characterService.getCharacterBySlug(request.params.slug);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
 	app.get<{ Params: { id: string } }>("/api/characters/:id", async (request, reply) => {
 		const character = await characterService.getCharacter(request.params.id);
 		if (!character) {
