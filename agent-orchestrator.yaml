@@ -1,0 +1,44 @@
+dataDir: ~/.agent-orchestrator
+worktreeDir: ~/.worktrees
+port: 3333
+defaults:
+  runtime: tmux
+  agent: claude-code
+  workspace: worktree
+  notifiers:
+    - desktop
+reactions:
+  ci-failed:
+    auto: true
+    action: send-to-agent
+    retries: 2
+  changes-requested:
+    auto: true
+    action: send-to-agent
+    escalateAfter: 30m
+  approved-and-green:
+    auto: false
+    action: notify
+
+projects:
+  dnd-character-manager:
+    repo: linuxlewis/dnd-character-manager
+    path: /Users/sambolgert/Documents/workspace/dnd-character-manager
+    defaultBranch: main
+    agentConfig:
+      permissions: skip
+    postCreate:
+      - "pnpm install"
+    agentRules: |
+      BEFORE EVERY COMMIT:
+      1. Run `pnpm lint` and fix ALL errors (Biome + architectural linter with 300-line file limit)
+      2. Run `pnpm build` to verify typecheck passes
+      3. Run `pnpm test` to verify all tests pass
+      4. Use conventional commits: feat:, fix:, chore:, refactor:
+      
+      ARCHITECTURE:
+      - Follow layered architecture in src/domains/: types → config → repo → service → runtime → ui
+      - No file over 300 lines — split into focused modules
+      - No cross-domain imports below the service layer
+      - Use Drizzle ORM for database, Fastify for routes, React for UI
+      - CSS modules with theme tokens (var(--color-*)), no hardcoded colors
