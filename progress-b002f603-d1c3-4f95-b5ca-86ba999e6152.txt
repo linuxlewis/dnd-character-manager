@@ -12,6 +12,8 @@ Started: 2026-02-23T19:47:00-06:00
 - Build = `tsc --noEmit` + vite build
 - Migrations generated with `pnpm db:generate` (drizzle-kit)
 - Migration files go in drizzle/ folder
+- test-setup.ts has raw SQL CREATE TABLE for in-memory test DB — must update manually when adding columns
+- Test fixtures (validInput) in all test files must include new required fields
 
 ---
 
@@ -23,4 +25,15 @@ Started: 2026-02-23T19:47:00-06:00
 - 9 tests for SrdSpellSchema validation (valid spell, cantrip, level bounds, missing fields, cached_at, empty classes)
 - All 299 tests pass, typecheck passes
 - **Learnings:** Default sql expression for timestamps: sql`(datetime('now'))`
+---
+
+## 2026-02-23 20:10 - US-002: Add known_spells and prepared_spells columns to characters table
+- Added `known_spells` and `prepared_spells` JSON columns to characters table in schema.ts
+- Generated Drizzle migration: drizzle/0002_warm_krista_starr.sql
+- Updated CharacterSchema with knownSpells/preparedSpells (string arrays, default [])
+- Updated character repo toDomain mapping and create/update methods
+- Updated test-setup.ts to include new columns in in-memory DB
+- Updated all test fixtures to include knownSpells/preparedSpells
+- Added 3 new tests: create with spells, default empty arrays, update spells
+- **Learnings:** test-setup.ts uses raw SQL CREATE TABLE — must be updated manually when adding columns
 ---
