@@ -176,6 +176,19 @@ export const characterService = {
 		return updated;
 	},
 
+	async setAcOverride(id: string, override: number | null): Promise<Character | null> {
+		log.info({ id, override }, "Setting AC override");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for AC override");
+			return null;
+		}
+		const armorClass = { ...character.armorClass, override };
+		const updated = await characterRepo.update(id, { armorClass });
+		log.info({ id, override }, "AC override set");
+		return updated;
+	},
+
 	async deleteCharacter(id: string): Promise<boolean> {
 		log.info({ id }, "Deleting character");
 		const deleted = await characterRepo.delete(id);

@@ -266,4 +266,26 @@ describe("characterService", () => {
 		const result = await characterService.longRest("nonexistent");
 		expect(result).toBeNull();
 	});
+
+	// --- AC Override ---
+
+	it("setAcOverride sets override value", async () => {
+		const created = await characterService.createCharacter(validInput);
+		const updated = await characterService.setAcOverride(created.id, 16);
+		expect(updated).not.toBeNull();
+		expect(updated!.armorClass.override).toBe(16);
+	});
+
+	it("setAcOverride clears override with null", async () => {
+		const created = await characterService.createCharacter(validInput);
+		await characterService.setAcOverride(created.id, 16);
+		const updated = await characterService.setAcOverride(created.id, null);
+		expect(updated).not.toBeNull();
+		expect(updated!.armorClass.override).toBeNull();
+	});
+
+	it("setAcOverride returns null for missing character", async () => {
+		const result = await characterService.setAcOverride("nonexistent", 16);
+		expect(result).toBeNull();
+	});
 });
