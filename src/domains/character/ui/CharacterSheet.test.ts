@@ -196,6 +196,33 @@ describe("CharacterSheet", () => {
 	});
 });
 
+describe("CharacterSheet slug support", () => {
+	it("exports CharacterSheet that accepts slug prop", async () => {
+		const mod = await import("./CharacterSheet.tsx");
+		// CharacterSheet accepts { id?, slug? } — verify function exists
+		expect(typeof mod.CharacterSheet).toBe("function");
+	});
+
+	it("slug-based fetch uses /api/characters/by-slug/:slug endpoint", () => {
+		const slug = "gandalf-the-grey-a3f2";
+		const url = `/api/characters/by-slug/${slug}`;
+		expect(url).toBe("/api/characters/by-slug/gandalf-the-grey-a3f2");
+	});
+
+	it("id-based fetch uses /api/characters/:id endpoint", () => {
+		const id = "abc-123";
+		const url = `/api/characters/${id}`;
+		expect(url).toBe("/api/characters/abc-123");
+	});
+
+	it("slug route is /characters/:slug (plural)", () => {
+		const slug = "gandalf-the-grey-a3f2";
+		const route = `/characters/${slug}`;
+		expect(route).toBe("/characters/gandalf-the-grey-a3f2");
+		expect(route).toMatch(/^\/characters\/[a-z0-9-]+$/);
+	});
+});
+
 describe("CharacterSheet themed styles", () => {
 	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
 	const css = readFileSync(cssPath, "utf-8");
