@@ -12,8 +12,13 @@ export const characters = sqliteTable("characters", {
 	spell_slots: text("spell_slots", { mode: "json" }),
 	equipment: text("equipment", { mode: "json" }),
 	skills: text("skills", { mode: "json" }),
-	armor_class: text("armor_class", { mode: "json" }).$type<{ base: number; override: number | null }>(),
-	saving_throw_proficiencies: text("saving_throw_proficiencies", { mode: "json" }).$type<string[]>(),
+	armor_class: text("armor_class", { mode: "json" }).$type<{
+		base: number;
+		override: number | null;
+	}>(),
+	saving_throw_proficiencies: text("saving_throw_proficiencies", { mode: "json" }).$type<
+		string[]
+	>(),
 	notes: text("notes"),
 	created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
 	updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),

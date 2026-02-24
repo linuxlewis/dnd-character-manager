@@ -24,7 +24,8 @@ function toDomain(row: typeof characters.$inferSelect): Character {
 		equipment: (row.equipment ?? []) as Character["equipment"],
 		skills: (row.skills ?? []) as Character["skills"],
 		armorClass: (row.armor_class as Character["armorClass"]) ?? { base: 10, override: null },
-		savingThrowProficiencies: (row.saving_throw_proficiencies as Character["savingThrowProficiencies"]) ?? [],
+		savingThrowProficiencies:
+			(row.saving_throw_proficiencies as Character["savingThrowProficiencies"]) ?? [],
 		notes: row.notes ?? "",
 		createdAt: new Date(row.created_at),
 		updatedAt: new Date(row.updated_at),
@@ -99,7 +100,8 @@ export const characterRepo = {
 		if (input.equipment !== undefined) values.equipment = input.equipment;
 		if (input.skills !== undefined) values.skills = input.skills;
 		if (input.armorClass !== undefined) values.armor_class = input.armorClass;
-		if (input.savingThrowProficiencies !== undefined) values.saving_throw_proficiencies = input.savingThrowProficiencies;
+		if (input.savingThrowProficiencies !== undefined)
+			values.saving_throw_proficiencies = input.savingThrowProficiencies;
 		if (input.notes !== undefined) values.notes = input.notes;
 
 		db.update(characters).set(values).where(eq(characters.id, id)).run();

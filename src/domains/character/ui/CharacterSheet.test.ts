@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { calculateAC, calculateTotalWeight, getAbilityModifier } from "../types/character.js";
-import { SKILLS, calculateSavingThrow, calculateSkillBonus, getProficiencyBonus } from "../types/skills.js";
+import {
+	SKILLS,
+	calculateSavingThrow,
+	calculateSkillBonus,
+	getProficiencyBonus,
+} from "../types/skills.js";
 
 describe("CharacterSheet", () => {
 	it("exports CharacterSheet component", async () => {
@@ -201,7 +206,7 @@ describe("CharacterSheet AC display", () => {
 		const armorClass = { base: 10, override: null };
 		expect(calculateAC(14, armorClass)).toBe(12); // 10 + 2
 		expect(calculateAC(10, armorClass)).toBe(10); // 10 + 0
-		expect(calculateAC(8, armorClass)).toBe(9);  // 10 + (-1)
+		expect(calculateAC(8, armorClass)).toBe(9); // 10 + (-1)
 	});
 
 	it("calculates AC as override value when override is set", () => {
@@ -362,7 +367,7 @@ describe("CharacterSheet themed styles", () => {
 		expect(tsx).toContain("handleToggleSavingThrow");
 		// All 6 abilities rendered
 		// Uses data-testid with saving-throw- prefix and iterates ABILITY_KEYS
-		expect(tsx).toContain('data-testid={`saving-throw-${key}`}');
+		expect(tsx).toContain("data-testid={`saving-throw-${key}`}");
 		expect(tsx).toContain("handleToggleSavingThrow(key)");
 	});
 

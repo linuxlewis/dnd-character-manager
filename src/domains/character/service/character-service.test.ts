@@ -273,7 +273,7 @@ describe("characterService", () => {
 		const created = await characterService.createCharacter(validInput);
 		const updated = await characterService.setAcOverride(created.id, 16);
 		expect(updated).not.toBeNull();
-		expect(updated!.armorClass.override).toBe(16);
+		expect(updated?.armorClass.override).toBe(16);
 	});
 
 	it("setAcOverride clears override with null", async () => {
@@ -281,7 +281,7 @@ describe("characterService", () => {
 		await characterService.setAcOverride(created.id, 16);
 		const updated = await characterService.setAcOverride(created.id, null);
 		expect(updated).not.toBeNull();
-		expect(updated!.armorClass.override).toBeNull();
+		expect(updated?.armorClass.override).toBeNull();
 	});
 
 	it("setAcOverride returns null for missing character", async () => {
@@ -293,7 +293,7 @@ describe("characterService", () => {
 		const created = await characterService.createCharacter(validInput);
 		const updated = await characterService.toggleSavingThrowProficiency(created.id, "STR");
 		expect(updated).not.toBeNull();
-		expect(updated!.savingThrowProficiencies).toContain("STR");
+		expect(updated?.savingThrowProficiencies).toContain("STR");
 	});
 
 	it("toggleSavingThrowProficiency removes ability key if already present", async () => {
@@ -301,7 +301,7 @@ describe("characterService", () => {
 		await characterService.toggleSavingThrowProficiency(created.id, "STR");
 		const updated = await characterService.toggleSavingThrowProficiency(created.id, "STR");
 		expect(updated).not.toBeNull();
-		expect(updated!.savingThrowProficiencies).not.toContain("STR");
+		expect(updated?.savingThrowProficiencies).not.toContain("STR");
 	});
 
 	it("toggleSavingThrowProficiency returns null for missing character", async () => {

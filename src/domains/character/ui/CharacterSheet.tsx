@@ -238,12 +238,12 @@ export function CharacterSheet({ id }: { id: string }) {
 				<h2 className={styles.sectionTitle}>Armor Class</h2>
 				<div className={styles.acDisplay}>
 					<div className={styles.acShield}>
-						<span className={styles.acValue} data-testid="ac-value">{acValue}</span>
+						<span className={styles.acValue} data-testid="ac-value">
+							{acValue}
+						</span>
 						<span className={styles.acLabel}>AC</span>
 					</div>
-					{hasAcOverride && (
-						<span className={styles.acOverrideIndicator}>Override</span>
-					)}
+					{hasAcOverride && <span className={styles.acOverrideIndicator}>Override</span>}
 				</div>
 				<div className={styles.acActions}>
 					{hasAcOverride ? (
@@ -251,7 +251,11 @@ export function CharacterSheet({ id }: { id: string }) {
 							Clear Override
 						</button>
 					) : !showAcOverride ? (
-						<button type="button" className={styles.acOverrideButton} onClick={() => setShowAcOverride(true)}>
+						<button
+							type="button"
+							className={styles.acOverrideButton}
+							onClick={() => setShowAcOverride(true)}
+						>
 							Override AC
 						</button>
 					) : (
@@ -267,7 +271,14 @@ export function CharacterSheet({ id }: { id: string }) {
 							<button type="button" className={styles.acSetButton} onClick={handleSetAcOverride}>
 								Set
 							</button>
-							<button type="button" className={styles.acCancelButton} onClick={() => { setShowAcOverride(false); setAcOverrideInput(""); }}>
+							<button
+								type="button"
+								className={styles.acCancelButton}
+								onClick={() => {
+									setShowAcOverride(false);
+									setAcOverrideInput("");
+								}}
+							>
 								Cancel
 							</button>
 						</div>

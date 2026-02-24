@@ -69,3 +69,14 @@ Started: 2026-02-23T19:02:00-06:00
 - All 329 tests pass, typecheck passes
 - Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
 ---
+
+## 2026-02-23 20:13 - US-007: Display saving throws with proficiency toggles in character sheet UI
+- Added Saving Throws section to CharacterSheet.tsx between AC and Skills sections
+- Displays all 6 abilities with proficiency checkbox, ability name, and calculated bonus
+- Uses calculateSavingThrow for bonus calculation
+- Checkbox toggles call POST /api/characters/:id/saving-throws/:abilityKey/toggle
+- Reuses existing skill styling (skillsList, skillRow, skillCheckbox CSS classes)
+- Added 7 tests: section presence, bonus calculations (3), API pattern, checkbox rendering, style reuse
+- All 336 tests pass, typecheck passes
+- Files changed: CharacterSheet.tsx, CharacterSheet.test.ts
+---

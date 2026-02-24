@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { SKILLS, SkillSchema, calculateSavingThrow, calculateSkillBonus, getProficiencyBonus } from "./skills.js";
+import {
+	SKILLS,
+	SkillSchema,
+	calculateSavingThrow,
+	calculateSkillBonus,
+	getProficiencyBonus,
+} from "./skills.js";
 
 describe("SkillSchema", () => {
 	it("validates a valid skill", () => {

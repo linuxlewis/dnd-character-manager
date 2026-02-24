@@ -190,7 +190,10 @@ export const characterService = {
 		return updated;
 	},
 
-	async toggleSavingThrowProficiency(id: string, abilityKey: AbilityKey): Promise<Character | null> {
+	async toggleSavingThrowProficiency(
+		id: string,
+		abilityKey: AbilityKey,
+	): Promise<Character | null> {
 		log.info({ id, abilityKey }, "Toggling saving throw proficiency");
 		const character = await characterRepo.findById(id);
 		if (!character) {
