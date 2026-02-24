@@ -19,6 +19,7 @@ export const characters = sqliteTable("characters", {
 	saving_throw_proficiencies: text("saving_throw_proficiencies", { mode: "json" }).$type<
 		string[]
 	>(),
+	slug: text("slug").unique(),
 	notes: text("notes"),
 	created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
 	updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),
