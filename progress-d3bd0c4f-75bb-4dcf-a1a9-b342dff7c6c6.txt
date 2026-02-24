@@ -49,3 +49,11 @@ Started: 2026-02-23T19:02:00-06:00
 - All 316 tests pass, typecheck passes
 - Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
 ---
+
+## 2026-02-23 19:43 - US-005: Add service method and API route for toggling saving throw proficiency
+- Added toggleSavingThrowProficiency(id, abilityKey) to character-service.ts
+- Added POST /api/characters/:id/saving-throws/:abilityKey/toggle route in routes.ts with validation
+- Added 3 service tests (add, remove, 404) and 3 route tests (add, remove, 404)
+- All 322 tests pass, typecheck passes
+- Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
+---
