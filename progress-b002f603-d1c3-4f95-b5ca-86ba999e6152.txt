@@ -55,3 +55,14 @@ Started: 2026-02-23T19:47:00-06:00
 - 10 tests with mocked fetch and repo covering all methods and error cases
 - **Learnings:** When a method checks cache then returns data, avoid double-querying — store first query result and return it directly if cache was populated
 ---
+
+## 2026-02-23 20:44 - US-005: Add GET /api/spells endpoint for listing and searching SRD spells
+- Created `src/domains/spell/runtime/routes.ts` with registerSpellRoutes function
+- GET /api/spells with query params: name, level, school, class (filters via service)
+- GET /api/spells/:index returns single spell or 404
+- POST /api/spells/refresh triggers cache refresh, returns {success, count}
+- Registered routes in server.ts
+- 10 tests: list, filter by name/level/school/class, multi-filter, detail, 404, refresh
+- All 334 tests pass, typecheck passes
+- **Learnings:** Fastify route param conflicts (/:index vs /refresh) — order matters, put specific routes before parameterized ones (Fastify handles this correctly with its radix tree router though)
+---
