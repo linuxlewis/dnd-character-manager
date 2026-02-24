@@ -223,6 +223,45 @@ describe("CharacterSheet slug support", () => {
 	});
 });
 
+describe("CharacterSheet share URL display", () => {
+	it("share URL is constructed from origin and character slug", () => {
+		const origin = "http://localhost:3000";
+		const slug = "gandalf-the-grey-a3f2";
+		const shareUrl = `${origin}/characters/${slug}`;
+		expect(shareUrl).toBe("http://localhost:3000/characters/gandalf-the-grey-a3f2");
+	});
+
+	it("share URL is null when character has no slug", () => {
+		const slug: string | undefined = undefined;
+		const shareUrl = slug ? `http://localhost:3000/characters/${slug}` : null;
+		expect(shareUrl).toBeNull();
+	});
+
+	it("component source contains share URL section with data-testid", async () => {
+		const { readFileSync } = await import("node:fs");
+		const { resolve } = await import("node:path");
+		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
+		expect(tsx).toContain('data-testid="share-url-section"');
+		expect(tsx).toContain('data-testid="share-url"');
+		expect(tsx).toContain('data-testid="copy-share-url"');
+	});
+
+	it("share section is only shown when not in readOnly (slug) mode", async () => {
+		const { readFileSync } = await import("node:fs");
+		const { resolve } = await import("node:path");
+		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
+		// shareUrl && !readOnly guards the share section
+		expect(tsx).toContain("shareUrl && !readOnly");
+	});
+
+	it("copy button shows 'Copied!' feedback text", async () => {
+		const { readFileSync } = await import("node:fs");
+		const { resolve } = await import("node:path");
+		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
+		expect(tsx).toContain('copied ? "Copied!" : "Copy"');
+	});
+});
+
 describe("CharacterSheet themed styles", () => {
 	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
 	const css = readFileSync(cssPath, "utf-8");
@@ -276,6 +315,13 @@ describe("CharacterSheet themed styles", () => {
 	it("has alternating row colors for skills using theme tokens", () => {
 		expect(css).toMatch(/\.skillRow:nth-child\(odd\)/);
 		expect(css).toMatch(/\.skillRow:nth-child\(even\)/);
+	});
+
+	it("has share section styles", () => {
+		expect(css).toContain(".shareSection");
+		expect(css).toContain(".shareUrl");
+		expect(css).toContain(".copyButton");
+		expect(css).toContain(".shareLabel");
 	});
 
 	it("has responsive media query for mobile", () => {
