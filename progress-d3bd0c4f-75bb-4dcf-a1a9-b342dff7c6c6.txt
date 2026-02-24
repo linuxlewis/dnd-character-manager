@@ -57,3 +57,15 @@ Started: 2026-02-23T19:02:00-06:00
 - All 322 tests pass, typecheck passes
 - Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
 ---
+
+## 2026-02-23 20:04 - US-006: Display AC in character sheet UI
+- Added AC display with shield-shaped stat block near HP section
+- Shows calculated AC (10 + DEX mod) or override value
+- Override indicator badge when override is set
+- Override AC button opens inline form, Clear Override button removes it
+- API calls to PUT /api/characters/:id/ac for set/clear
+- Added CSS styles for AC shield, override indicator, override form
+- Added 7 tests: AC calculation, override detection, API contracts, component source verification, CSS verification
+- All 329 tests pass, typecheck passes
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+---
