@@ -45,3 +45,13 @@ Started: 2026-02-23T19:47:00-06:00
 - 12 tests covering all CRUD and search operations
 - **Learnings:** SQLite reserved word "index" needs quoting in raw SQL but Drizzle handles it automatically
 ---
+
+## 2026-02-23 20:35 - US-004: Add spell service with SRD API fetch and caching
+- Created `src/domains/spell/service/spell-service.ts` with methods: fetchAndCacheSpells, getSpells, getSpellByIndex, refreshCache
+- fetchAndCacheSpells fetches list from SRD API, then each spell detail, maps to domain type, bulk upserts via repo
+- getSpells auto-fetches from API if cache is empty, supports optional filters
+- refreshCache clears cache and re-fetches
+- Graceful error handling: skips individual spell fetch failures, throws on list API failure
+- 10 tests with mocked fetch and repo covering all methods and error cases
+- **Learnings:** When a method checks cache then returns data, avoid double-querying — store first query result and return it directly if cache was populated
+---
