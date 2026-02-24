@@ -147,7 +147,10 @@ describe("Character CRUD routes", () => {
 	});
 
 	it("GET /api/characters/by-slug/:slug returns 404 for missing", async () => {
-		const res = await app.inject({ method: "GET", url: "/api/characters/by-slug/nonexistent-slug" });
+		const res = await app.inject({
+			method: "GET",
+			url: "/api/characters/by-slug/nonexistent-slug",
+		});
 		expect(res.statusCode).toBe(404);
 	});
 
