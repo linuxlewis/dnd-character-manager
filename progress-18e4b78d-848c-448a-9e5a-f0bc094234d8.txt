@@ -35,3 +35,11 @@ Started: 2026-02-23
 - Files changed: character.ts, character.test.ts, character-repo.ts, character-repo.test.ts
 - **Learnings:** When adding fields to CharacterSchema, also omit auto-generated ones from CreateCharacterSchema; update test fixtures in character.test.ts
 ---
+
+## 2026-02-23 19:18 - US-005: Add API route for fetching character by slug
+- Added GET /api/characters/by-slug/:slug route in routes.ts
+- Returns character JSON when found, 404 when not found
+- Added 2 tests: slug lookup success, slug lookup 404
+- Files changed: routes.ts, routes.test.ts
+- **Learnings:** Route must be registered before /:id to avoid param conflicts
+---
