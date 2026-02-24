@@ -132,6 +132,25 @@ describe("Character CRUD routes", () => {
 		expect(res.statusCode).toBe(404);
 	});
 
+	it("GET /api/characters/by-slug/:slug returns character", async () => {
+		const createRes = await app.inject({
+			method: "POST",
+			url: "/api/characters",
+			payload: validInput,
+		});
+		const { slug } = createRes.json();
+		expect(slug).toBeDefined();
+		const res = await app.inject({ method: "GET", url: `/api/characters/by-slug/${slug}` });
+		expect(res.statusCode).toBe(200);
+		expect(res.json().name).toBe("Gandalf");
+		expect(res.json().slug).toBe(slug);
+	});
+
+	it("GET /api/characters/by-slug/:slug returns 404 for missing", async () => {
+		const res = await app.inject({ method: "GET", url: "/api/characters/by-slug/nonexistent-slug" });
+		expect(res.statusCode).toBe(404);
+	});
+
 	it("POST /api/characters returns 400 for invalid data", async () => {
 		const res = await app.inject({
 			method: "POST",
