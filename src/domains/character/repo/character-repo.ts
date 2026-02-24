@@ -23,6 +23,9 @@ function toDomain(row: typeof characters.$inferSelect): Character {
 		spellSlots: (row.spell_slots ?? []) as Character["spellSlots"],
 		equipment: (row.equipment ?? []) as Character["equipment"],
 		skills: (row.skills ?? []) as Character["skills"],
+		armorClass: (row.armor_class as Character["armorClass"]) ?? { base: 10, override: null },
+		savingThrowProficiencies:
+			(row.saving_throw_proficiencies as Character["savingThrowProficiencies"]) ?? [],
 		notes: row.notes ?? "",
 		createdAt: new Date(row.created_at),
 		updatedAt: new Date(row.updated_at),
@@ -57,6 +60,8 @@ export const characterRepo = {
 			spell_slots: input.spellSlots as unknown as string,
 			equipment: input.equipment as unknown as string,
 			skills: input.skills as unknown as string,
+			armor_class: input.armorClass ?? { base: 10, override: null },
+			saving_throw_proficiencies: input.savingThrowProficiencies ?? [],
 			notes: input.notes ?? "",
 			created_at: now.toISOString(),
 			updated_at: now.toISOString(),
@@ -94,6 +99,9 @@ export const characterRepo = {
 		if (input.spellSlots !== undefined) values.spell_slots = input.spellSlots;
 		if (input.equipment !== undefined) values.equipment = input.equipment;
 		if (input.skills !== undefined) values.skills = input.skills;
+		if (input.armorClass !== undefined) values.armor_class = input.armorClass;
+		if (input.savingThrowProficiencies !== undefined)
+			values.saving_throw_proficiencies = input.savingThrowProficiencies;
 		if (input.notes !== undefined) values.notes = input.notes;
 
 		db.update(characters).set(values).where(eq(characters.id, id)).run();

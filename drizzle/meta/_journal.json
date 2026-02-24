@@ -8,6 +8,13 @@
 			"when": 1771793894702,
 			"tag": "0000_special_mandroid",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1771894977110,
+			"tag": "0001_pale_meggan",
+			"breakpoints": true
 		}
 	]
 }

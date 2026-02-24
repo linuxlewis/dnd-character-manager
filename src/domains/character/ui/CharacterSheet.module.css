@@ -157,6 +157,114 @@
 	background: color-mix(in srgb, var(--color-success) 25%, var(--color-surface));
 }
 
+.acDisplay {
+	display: flex;
+	align-items: center;
+	gap: var(--space-md);
+	margin-bottom: var(--space-sm);
+}
+
+.acShield {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 4rem;
+	height: 4.5rem;
+	border: 2px solid var(--color-border);
+	border-radius: 0 0 50% 50%;
+	background: var(--color-surface);
+	transition: var(--transition-theme);
+}
+
+.acValue {
+	font-size: var(--text-xl);
+	font-weight: 700;
+	color: var(--color-text);
+	line-height: 1;
+	transition: var(--transition-theme);
+}
+
+.acLabel {
+	font-size: 0.7rem;
+	color: var(--color-text-secondary);
+	text-transform: uppercase;
+	transition: var(--transition-theme);
+}
+
+.acOverrideIndicator {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--color-primary);
+	background: color-mix(in srgb, var(--color-primary) 15%, var(--color-surface));
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	transition: var(--transition-theme);
+}
+
+.acActions {
+	display: flex;
+	gap: var(--space-sm);
+}
+
+.acOverrideButton,
+.acClearButton {
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	background: var(--color-surface);
+	color: var(--color-text);
+	transition: var(--transition-theme);
+}
+
+.acOverrideButton:hover,
+.acClearButton:hover {
+	background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+}
+
+.acOverrideForm {
+	display: flex;
+	gap: var(--space-sm);
+	align-items: center;
+}
+
+.acOverrideInput {
+	width: 5rem;
+	min-height: 36px;
+	padding: var(--space-xs) var(--space-sm);
+	border: 1px solid var(--color-input-border);
+	border-radius: 6px;
+	font-size: var(--text-base);
+	background: var(--color-input-bg);
+	color: var(--color-text);
+	transition: var(--transition-theme);
+}
+
+.acSetButton {
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	background: var(--color-primary);
+	color: var(--color-bg);
+	transition: var(--transition-theme);
+}
+
+.acCancelButton {
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	background: var(--color-surface);
+	color: var(--color-text-secondary);
+	transition: var(--transition-theme);
+}
+
 .skillsList {
 	display: flex;
 	flex-direction: column;

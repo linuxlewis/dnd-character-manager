@@ -1,0 +1,82 @@
+# Progress Log
+Run: d3bd0c4f-75bb-4dcf-a1a9-b342dff7c6c6
+Task: Add AC calculation and Saving Throws to DnD Character Manager
+Started: 2026-02-23T19:02:00-06:00
+
+## Codebase Patterns
+- Test DB is in-memory SQLite set up in src/test-setup.ts with raw CREATE TABLE SQL — must be updated when adding schema columns
+- Schema is in src/providers/db/schema.ts using Drizzle ORM sqlite-core
+- Migrations generated via `npx drizzle-kit generate`, stored in drizzle/
+- Repo layer in src/domains/character/repo/character-repo.ts maps DB rows to domain types via toDomain()
+- JSON columns use text() with { mode: "json" } and .$type<T>() for typing
+- All tests use vitest, run with `pnpm test`
+
+---
+
+## 2026-02-23 19:02 - US-001: Add armor_class and saving_throw_proficiencies columns to DB schema
+- Added armor_class (JSON, shape: { base: number, override: number | null }) to characters table schema
+- Added saving_throw_proficiencies (JSON, shape: string[]) to characters table schema
+- Generated migration: drizzle/0001_pale_meggan.sql
+- Updated test-setup.ts CREATE TABLE to include new columns
+- Updated schema.test.ts with tests for new JSON columns
+- Files changed: src/providers/db/schema.ts, src/test-setup.ts, src/providers/db/schema.test.ts, drizzle/0001_pale_meggan.sql, drizzle/meta/*
+- **Learnings:** When adding columns to schema.ts, MUST also update the raw CREATE TABLE in src/test-setup.ts or all DB-touching tests break
+---
+
+## 2026-02-23 19:14 - US-002: Add AC and saving throw types and calculation functions
+- Added ArmorClassSchema to character.ts (base + override)
+- Added calculateAC function (returns override if set, else base + DEX mod)
+- Added savingThrowProficiencies field to CharacterSchema
+- Added calculateSavingThrow to skills.ts
+- Updated CreateCharacterSchema/UpdateCharacterSchema (inherited via .omit/.partial)
+- Updated character-repo.ts toDomain/create/update to handle new fields
+- Updated all test fixtures with new required fields
+- **Learnings:** When adding fields to CharacterSchema, all test fixtures across repo/service/routes tests need updating too
+---
+
+## 2026-02-23 19:23 - US-003: Update repo layer to persist AC and saving throw data
+- Added 6 repo tests for AC and saving throw persistence (create, default, update for each)
+- Repo layer was already updated in US-002; this story focused on verifying with tests
+- All 310 tests pass, typecheck passes
+- Files changed: src/domains/character/repo/character-repo.test.ts
+- **Learnings:** US-002 was thorough and already handled repo updates
+---
+
+## 2026-02-23 19:33 - US-004: Add service methods and API routes for AC override
+- Added setAcOverride(id, override) to character-service.ts
+- Added PUT /api/characters/:id/ac route in routes.ts
+- Added 3 service tests (set, clear, 404) and 3 route tests (set, clear, 404)
+- All 316 tests pass, typecheck passes
+- Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
+---
+
+## 2026-02-23 19:43 - US-005: Add service method and API route for toggling saving throw proficiency
+- Added toggleSavingThrowProficiency(id, abilityKey) to character-service.ts
+- Added POST /api/characters/:id/saving-throws/:abilityKey/toggle route in routes.ts with validation
+- Added 3 service tests (add, remove, 404) and 3 route tests (add, remove, 404)
+- All 322 tests pass, typecheck passes
+- Files changed: character-service.ts, routes.ts, character-service.test.ts, action-routes.test.ts
+---
+
+## 2026-02-23 20:04 - US-006: Display AC in character sheet UI
+- Added AC display with shield-shaped stat block near HP section
+- Shows calculated AC (10 + DEX mod) or override value
+- Override indicator badge when override is set
+- Override AC button opens inline form, Clear Override button removes it
+- API calls to PUT /api/characters/:id/ac for set/clear
+- Added CSS styles for AC shield, override indicator, override form
+- Added 7 tests: AC calculation, override detection, API contracts, component source verification, CSS verification
+- All 329 tests pass, typecheck passes
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+---
+
+## 2026-02-23 20:13 - US-007: Display saving throws with proficiency toggles in character sheet UI
+- Added Saving Throws section to CharacterSheet.tsx between AC and Skills sections
+- Displays all 6 abilities with proficiency checkbox, ability name, and calculated bonus
+- Uses calculateSavingThrow for bonus calculation
+- Checkbox toggles call POST /api/characters/:id/saving-throws/:abilityKey/toggle
+- Reuses existing skill styling (skillsList, skillRow, skillCheckbox CSS classes)
+- Added 7 tests: section presence, bonus calculations (3), API pattern, checkbox rendering, style reuse
+- All 336 tests pass, typecheck passes
+- Files changed: CharacterSheet.tsx, CharacterSheet.test.ts
+---

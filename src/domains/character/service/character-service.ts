@@ -8,6 +8,7 @@
 import { createLogger } from "../../../providers/telemetry/logger.js";
 import { characterRepo } from "../repo/character-repo.js";
 import {
+	type AbilityKey,
 	type Character,
 	type CreateCharacter,
 	CreateCharacterSchema,
@@ -173,6 +174,38 @@ export const characterService = {
 		const spellSlots = character.spellSlots.map((s) => ({ ...s, used: 0 }));
 		const updated = await characterRepo.update(id, { spellSlots });
 		log.info({ id }, "Long rest completed");
+		return updated;
+	},
+
+	async setAcOverride(id: string, override: number | null): Promise<Character | null> {
+		log.info({ id, override }, "Setting AC override");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for AC override");
+			return null;
+		}
+		const armorClass = { ...character.armorClass, override };
+		const updated = await characterRepo.update(id, { armorClass });
+		log.info({ id, override }, "AC override set");
+		return updated;
+	},
+
+	async toggleSavingThrowProficiency(
+		id: string,
+		abilityKey: AbilityKey,
+	): Promise<Character | null> {
+		log.info({ id, abilityKey }, "Toggling saving throw proficiency");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for saving throw toggle");
+			return null;
+		}
+		const profs = character.savingThrowProficiencies;
+		const savingThrowProficiencies = profs.includes(abilityKey)
+			? profs.filter((k) => k !== abilityKey)
+			: [...profs, abilityKey];
+		const updated = await characterRepo.update(id, { savingThrowProficiencies });
+		log.info({ id, abilityKey }, "Saving throw proficiency toggled");
 		return updated;
 	},
 

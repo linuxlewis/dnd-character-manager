@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { calculateTotalWeight, getAbilityModifier } from "../types/character.js";
-import { SKILLS, calculateSkillBonus, getProficiencyBonus } from "../types/skills.js";
+import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
 	it("exports CharacterSheet component", async () => {

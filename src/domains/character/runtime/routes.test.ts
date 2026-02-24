@@ -14,6 +14,8 @@ const validInput: CreateCharacter = {
 	skills: [],
 	spellSlots: [],
 	equipment: [],
+	armorClass: { base: 10, override: null },
+	savingThrowProficiencies: [],
 	notes: "",
 };
 

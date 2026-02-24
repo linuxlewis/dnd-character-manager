@@ -147,6 +147,34 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		},
 	);
 
+	app.put<{ Params: { id: string } }>("/api/characters/:id/ac", async (request, reply) => {
+		const { override } = request.body as { override: number | null };
+		const character = await characterService.setAcOverride(request.params.id, override);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.post<{ Params: { id: string; abilityKey: string } }>(
+		"/api/characters/:id/saving-throws/:abilityKey/toggle",
+		async (request, reply) => {
+			const { id, abilityKey } = request.params;
+			const validKeys = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
+			if (!validKeys.includes(abilityKey)) {
+				return reply.status(400).send({ error: "Invalid ability key" });
+			}
+			const character = await characterService.toggleSavingThrowProficiency(
+				id,
+				abilityKey as "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA",
+			);
+			if (!character) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return character;
+		},
+	);
+
 	app.post<{ Params: { id: string } }>("/api/characters/:id/long-rest", async (request, reply) => {
 		const character = await characterService.longRest(request.params.id);
 		if (!character) {

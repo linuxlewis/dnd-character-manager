@@ -3,8 +3,10 @@ import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
+import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import styles from "./CharacterSheet.module.css";
 import { EquipmentSection } from "./EquipmentSection.tsx";
+import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -18,7 +20,6 @@ export function CharacterSheet({ id }: { id: string }) {
 	const [character, setCharacter] = useState<Character | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
-
 	useEffect(() => {
 		fetch(`/api/characters/${id}`)
 			.then((r) => (r.ok ? r.json() : null))
@@ -185,6 +186,10 @@ export function CharacterSheet({ id }: { id: string }) {
 					</button>
 				</div>
 			</div>
+
+			<ArmorClassSection character={character} characterId={id} onUpdate={setCharacter} />
+
+			<SavingThrowsSection character={character} characterId={id} onUpdate={setCharacter} />
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Skills</h2>
