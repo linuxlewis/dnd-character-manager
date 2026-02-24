@@ -12,6 +12,8 @@ export const characters = sqliteTable("characters", {
 	spell_slots: text("spell_slots", { mode: "json" }),
 	equipment: text("equipment", { mode: "json" }),
 	skills: text("skills", { mode: "json" }),
+	known_spells: text("known_spells", { mode: "json" }).$type<string[]>().default([]),
+	prepared_spells: text("prepared_spells", { mode: "json" }).$type<string[]>().default([]),
 	notes: text("notes"),
 	created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
 	updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),

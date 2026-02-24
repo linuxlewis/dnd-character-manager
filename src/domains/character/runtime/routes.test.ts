@@ -15,6 +15,8 @@ const validInput: CreateCharacter = {
 	spellSlots: [],
 	equipment: [],
 	notes: "",
+	knownSpells: [],
+	preparedSpells: [],
 };
 
 const app = Fastify();

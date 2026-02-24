@@ -24,9 +24,25 @@ db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 	spell_slots TEXT,
 	equipment TEXT,
 	skills TEXT,
+	known_spells TEXT DEFAULT '[]',
+	prepared_spells TEXT DEFAULT '[]',
 	notes TEXT,
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
+
+// Create the srd_spells table
+db.run(sql`CREATE TABLE IF NOT EXISTS srd_spells (
+	index_ TEXT PRIMARY KEY,
+	name TEXT NOT NULL,
+	level INTEGER NOT NULL,
+	school TEXT NOT NULL,
+	casting_time TEXT NOT NULL,
+	range TEXT NOT NULL,
+	duration TEXT NOT NULL,
+	description TEXT NOT NULL,
+	classes TEXT NOT NULL,
+	cached_at TEXT NOT NULL DEFAULT (datetime('now'))
 )`);
 
 _setDb(db);

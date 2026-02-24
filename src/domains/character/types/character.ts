@@ -120,6 +120,8 @@ export const CharacterSchema = z.object({
 			}),
 		)
 		.default([]),
+	knownSpells: z.array(z.string()).default([]),
+	preparedSpells: z.array(z.string()).default([]),
 	notes: z.string().default(""),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),

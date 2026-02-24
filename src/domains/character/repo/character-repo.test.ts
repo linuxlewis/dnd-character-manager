@@ -13,6 +13,8 @@ const validInput: CreateCharacter = {
 	equipment: [],
 	skills: [],
 	notes: "",
+	knownSpells: [],
+	preparedSpells: [],
 };
 
 describe("characterRepo", () => {
@@ -76,5 +78,36 @@ describe("characterRepo", () => {
 
 	it("delete returns false for unknown id", async () => {
 		expect(await characterRepo.delete("nonexistent")).toBe(false);
+	});
+
+	it("create stores knownSpells and preparedSpells", async () => {
+		const input = { ...validInput, knownSpells: ["fireball", "magic-missile"], preparedSpells: ["fireball"] };
+		const created = await characterRepo.create(input);
+		expect(created.knownSpells).toEqual(["fireball", "magic-missile"]);
+		expect(created.preparedSpells).toEqual(["fireball"]);
+
+		const fetched = await characterRepo.findById(created.id);
+		expect(fetched!.knownSpells).toEqual(["fireball", "magic-missile"]);
+		expect(fetched!.preparedSpells).toEqual(["fireball"]);
+	});
+
+	it("create defaults knownSpells and preparedSpells to empty arrays", async () => {
+		const created = await characterRepo.create(validInput);
+		expect(created.knownSpells).toEqual([]);
+		expect(created.preparedSpells).toEqual([]);
+	});
+
+	it("update can modify knownSpells and preparedSpells", async () => {
+		const created = await characterRepo.create(validInput);
+		const updated = await characterRepo.update(created.id, {
+			knownSpells: ["shield"],
+			preparedSpells: ["shield"],
+		});
+		expect(updated!.knownSpells).toEqual(["shield"]);
+		expect(updated!.preparedSpells).toEqual(["shield"]);
+
+		const fetched = await characterRepo.findById(created.id);
+		expect(fetched!.knownSpells).toEqual(["shield"]);
+		expect(fetched!.preparedSpells).toEqual(["shield"]);
 	});
 });

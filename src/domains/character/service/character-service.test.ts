@@ -14,6 +14,8 @@ const validInput: CreateCharacter = {
 	equipment: [],
 	skills: [],
 	notes: "",
+	knownSpells: [],
+	preparedSpells: [],
 };
 
 describe("characterService", () => {
