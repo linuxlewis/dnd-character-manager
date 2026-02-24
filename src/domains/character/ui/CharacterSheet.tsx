@@ -93,10 +93,8 @@ export function CharacterSheet({ id }: { id: string }) {
 	};
 
 	const handleToggleSkill = (skillName: string) => {
-		fetch(`/api/characters/${id}/skills/toggle`, {
+		fetch(`/api/characters/${id}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ skillName }),
 		})
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
