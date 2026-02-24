@@ -12,6 +12,7 @@ export const characters = sqliteTable("characters", {
 	spell_slots: text("spell_slots", { mode: "json" }),
 	equipment: text("equipment", { mode: "json" }),
 	skills: text("skills", { mode: "json" }),
+	slug: text("slug").unique(),
 	notes: text("notes"),
 	created_at: text("created_at").notNull().default(sql`(datetime('now'))`),
 	updated_at: text("updated_at").notNull().default(sql`(datetime('now'))`),
