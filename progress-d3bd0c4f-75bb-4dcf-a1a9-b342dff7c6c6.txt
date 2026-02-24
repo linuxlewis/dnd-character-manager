@@ -33,3 +33,11 @@ Started: 2026-02-23T19:02:00-06:00
 - Updated all test fixtures with new required fields
 - **Learnings:** When adding fields to CharacterSchema, all test fixtures across repo/service/routes tests need updating too
 ---
+
+## 2026-02-23 19:23 - US-003: Update repo layer to persist AC and saving throw data
+- Added 6 repo tests for AC and saving throw persistence (create, default, update for each)
+- Repo layer was already updated in US-002; this story focused on verifying with tests
+- All 310 tests pass, typecheck passes
+- Files changed: src/domains/character/repo/character-repo.test.ts
+- **Learnings:** US-002 was thorough and already handled repo updates
+---
