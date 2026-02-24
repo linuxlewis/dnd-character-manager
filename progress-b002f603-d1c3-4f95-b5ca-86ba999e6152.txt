@@ -1,0 +1,26 @@
+# Progress Log
+Run: b002f603-d1c3-4f95-b5ca-86ba999e6152
+Task: Add SRD spell data integration and spell list management
+Started: 2026-02-23T19:47:00-06:00
+
+## Codebase Patterns
+- Zod v4 used for schema validation (import { z } from "zod")
+- Domain structure: src/domains/<name>/types/, config/, repo/, service/, runtime/, ui/
+- DB schema in src/providers/db/schema.ts using drizzle-orm/sqlite-core
+- JSON columns use `text("col", { mode: "json" }).$type<T>()`
+- Tests use vitest, run with `pnpm test`
+- Build = `tsc --noEmit` + vite build
+- Migrations generated with `pnpm db:generate` (drizzle-kit)
+- Migration files go in drizzle/ folder
+
+---
+
+## 2026-02-23 19:48 - US-001: Add SRD spells cache table with Drizzle migration
+- Added `srd_spells` table to schema.ts with columns: index (PK), name, level, school, casting_time, range, duration, description, classes (JSON), cached_at
+- Generated Drizzle migration: drizzle/0001_sticky_reptil.sql
+- Created src/domains/spell/types/spell.ts with SrdSpellSchema (Zod)
+- Created src/domains/spell/types/index.ts exporting types
+- 9 tests for SrdSpellSchema validation (valid spell, cantrip, level bounds, missing fields, cached_at, empty classes)
+- All 299 tests pass, typecheck passes
+- **Learnings:** Default sql expression for timestamps: sql`(datetime('now'))`
+---
