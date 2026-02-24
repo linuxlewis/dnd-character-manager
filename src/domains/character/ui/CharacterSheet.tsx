@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
@@ -24,9 +24,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const characterId = id ?? character?.id;
 
 	useEffect(() => {
-		const url = slug
-			? `/api/characters/by-slug/${slug}`
-			: `/api/characters/${id}`;
+		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;
 		fetch(url)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -144,10 +142,13 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 
 	const handleCopyShareUrl = useCallback(() => {
 		if (!shareUrl) return;
-		navigator.clipboard.writeText(shareUrl).then(() => {
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		}).catch(() => {});
+		navigator.clipboard
+			.writeText(shareUrl)
+			.then(() => {
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			})
+			.catch(() => {});
 	}, [shareUrl]);
 
 	if (loading) return <div className={styles.container}>Loading...</div>;
@@ -174,7 +175,9 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			{shareUrl && !readOnly && (
 				<div className={styles.shareSection} data-testid="share-url-section">
 					<span className={styles.shareLabel}>Share:</span>
-					<code className={styles.shareUrl} data-testid="share-url">{shareUrl}</code>
+					<code className={styles.shareUrl} data-testid="share-url">
+						{shareUrl}
+					</code>
 					<button
 						type="button"
 						className={styles.copyButton}
@@ -214,15 +217,15 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					/>
 				</div>
 				{!readOnly && (
-				<div className={styles.hpActions}>
-					<button type="button" className={styles.damageButton} onClick={handleDamage}>
-						Damage
-					</button>
-					<button type="button" className={styles.healButton} onClick={handleHeal}>
-						Heal
-					</button>
-				</div>
-			)}
+					<div className={styles.hpActions}>
+						<button type="button" className={styles.damageButton} onClick={handleDamage}>
+							Damage
+						</button>
+						<button type="button" className={styles.healButton} onClick={handleHeal}>
+							Heal
+						</button>
+					</div>
+				)}
 			</div>
 
 			<ArmorClassSection character={character} characterId={id} onUpdate={setCharacter} />
