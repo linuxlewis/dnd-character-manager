@@ -18,6 +18,7 @@ const routes = [
 	createRoute("/character/new", () => <CharacterForm />),
 	createRoute("/character/:id/edit", (params) => <CharacterForm id={params.id} />),
 	createRoute("/character/:id", (params) => <CharacterSheet id={params.id} />),
+	createRoute("/characters/:slug", (params) => <CharacterSheet slug={params.slug} />),
 ];
 
 export function App() {

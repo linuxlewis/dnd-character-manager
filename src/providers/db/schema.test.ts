@@ -20,6 +20,7 @@ describe("characters schema", () => {
 			"spell_slots",
 			"equipment",
 			"skills",
+			"slug",
 			"notes",
 			"created_at",
 			"updated_at",
@@ -44,6 +45,13 @@ describe("characters schema", () => {
 	it("has level defaulting to 1", () => {
 		const cols = getTableColumns(characters);
 		expect(cols.level.notNull).toBe(true);
+	});
+
+	it("has a slug column that is unique and nullable", () => {
+		const cols = getTableColumns(characters);
+		expect(cols.slug).toBeDefined();
+		expect(cols.slug.notNull).toBe(false);
+		expect(cols.slug.isUnique).toBe(true);
 	});
 
 	it("has JSON text columns for complex data", () => {

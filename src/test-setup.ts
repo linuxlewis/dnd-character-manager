@@ -24,6 +24,7 @@ db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 	spell_slots TEXT,
 	equipment TEXT,
 	skills TEXT,
+	slug TEXT UNIQUE,
 	notes TEXT,
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))

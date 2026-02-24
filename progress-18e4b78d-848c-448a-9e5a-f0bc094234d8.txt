@@ -1,0 +1,65 @@
+# Progress Log
+Run: 18e4b78d-848c-448a-9e5a-f0bc094234d8
+Task: Add slug-based sharing for characters
+Started: 2026-02-23
+
+## Codebase Patterns
+- Tests use vitest (`import { describe, expect, it } from "vitest"`)
+- Build: `tsc --noEmit && vite build` — no node: imports in shared/types code (browser bundle)
+- Use `crypto.getRandomValues` instead of `node:crypto` for browser-compatible code
+- Types exported from `src/domains/character/types/index.ts`
+- Worktree at `/private/tmp/feature-slug-based-sharing`
+
+---
+
+## 2026-02-23 18:49 - US-001: Add slug column to characters schema and generate migration
+- (completed in previous session)
+---
+
+## 2026-02-23 18:49 - US-002: Add slug generation utility function
+- Created `src/domains/character/types/slug.ts` with `generateSlug(name)` function
+- Uses `crypto.getRandomValues` for browser compatibility (not node:crypto)
+- Slugifies name: lowercase, strip special chars, hyphens for spaces, 4-char hex suffix
+- Exported from types index
+- 5 tests in `slug.test.ts`: basic slug, special chars, trim, multiple spaces, uniqueness
+- **Learnings:** Vite build externalizes node: modules — use Web Crypto API instead
+---
+
+## 2026-02-23 18:58 - US-003: Update character repo to store and query by slug
+- Added `slug: string` to domain Character type (CharacterSchema), omitted from CreateCharacterSchema
+- Updated `toDomain()` to map slug column
+- Updated `create()` to generate slug via `generateSlug(input.name)` and store/return it
+- Added `findBySlug(slug)` method to characterRepo
+- Added 3 tests: slug generation on create, findBySlug success, findBySlug null
+- Fixed validCharacter in character.test.ts to include slug field
+- Files changed: character.ts, character.test.ts, character-repo.ts, character-repo.test.ts
+- **Learnings:** When adding fields to CharacterSchema, also omit auto-generated ones from CreateCharacterSchema; update test fixtures in character.test.ts
+---
+
+## 2026-02-23 19:18 - US-005: Add API route for fetching character by slug
+- Added GET /api/characters/by-slug/:slug route in routes.ts
+- Returns character JSON when found, 404 when not found
+- Added 2 tests: slug lookup success, slug lookup 404
+- Files changed: routes.ts, routes.test.ts
+- **Learnings:** Route must be registered before /:id to avoid param conflicts
+---
+
+## 2026-02-23 19:28 - US-006: Add frontend route for viewing character by slug
+- Added `/characters/:slug` route in app.tsx using createRoute
+- Updated CharacterSheet to accept `{ id?, slug? }` props
+- When slug provided, fetches from `/api/characters/by-slug/:slug`
+- readOnly mode hides damage/heal buttons, delete button, disables skill toggles, makes notes read-only
+- Added 3 router tests for slug route matching and non-conflict with /character/:id
+- Added 4 CharacterSheet tests for slug support and API endpoint contracts
+- Files changed: app.tsx, router.test.ts, CharacterSheet.tsx, CharacterSheet.test.ts
+- **Learnings:** Routes use singular /character/:id for owned views, plural /characters/:slug for public sharing
+---
+
+## 2026-02-23 19:38 - US-007: Display shareable slug URL on character sheet
+- Added share URL display section to CharacterSheet component (visible when viewing by id, not slug/readOnly)
+- Shows full shareable URL with copy-to-clipboard button and "Copied!" feedback
+- Added CSS styles for share section (shareSection, shareUrl, copyButton, shareLabel)
+- Added 5 tests for share URL logic and 1 CSS test for share styles
+- Files changed: CharacterSheet.tsx, CharacterSheet.module.css, CharacterSheet.test.ts
+- **Learnings:** Component uses data-testid attributes for test targeting; readOnly mode determined by slug prop presence
+---

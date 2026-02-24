@@ -23,6 +23,7 @@ const validHp = { current: 30, max: 45, temp: 5 };
 
 const validCharacter = {
 	id: "550e8400-e29b-41d4-a716-446655440000",
+	slug: "gandalf-a3f2",
 	name: "Gandalf",
 	race: "Human",
 	class: "Wizard",

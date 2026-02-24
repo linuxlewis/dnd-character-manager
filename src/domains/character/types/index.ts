@@ -19,6 +19,8 @@ export {
 	calculateTotalWeight,
 } from "./character.js";
 
+export { generateSlug } from "./slug.js";
+
 export {
 	SkillSchema,
 	AbilityKey,

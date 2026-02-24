@@ -77,4 +77,22 @@ describe("characterRepo", () => {
 	it("delete returns false for unknown id", async () => {
 		expect(await characterRepo.delete("nonexistent")).toBe(false);
 	});
+
+	it("create generates a slug from the character name", async () => {
+		const char = await characterRepo.create(validInput);
+		expect(char.slug).toBeDefined();
+		expect(char.slug).toMatch(/^gandalf-[0-9a-f]{4}$/);
+	});
+
+	it("findBySlug returns character after create", async () => {
+		const char = await characterRepo.create(validInput);
+		const found = await characterRepo.findBySlug(char.slug);
+		expect(found).not.toBeNull();
+		expect(found?.id).toBe(char.id);
+		expect(found?.slug).toBe(char.slug);
+	});
+
+	it("findBySlug returns null for unknown slug", async () => {
+		expect(await characterRepo.findBySlug("nonexistent-slug")).toBeNull();
+	});
 });

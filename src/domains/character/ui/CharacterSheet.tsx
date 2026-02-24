@@ -5,6 +5,7 @@ import type { Character } from "../types/index.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import styles from "./CharacterSheet.module.css";
 import { EquipmentSection } from "./EquipmentSection.tsx";
+import { ShareSection } from "./ShareSection.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -13,14 +14,17 @@ function formatMod(score: number): string {
 	return mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
-export function CharacterSheet({ id }: { id: string }) {
+export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const navigate = useNavigate();
 	const [character, setCharacter] = useState<Character | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
+	const readOnly = !!slug;
+	const characterId = id ?? character?.id;
 
 	useEffect(() => {
-		fetch(`/api/characters/${id}`)
+		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;
+		fetch(url)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
 				setCharacter(data);
@@ -28,14 +32,14 @@ export function CharacterSheet({ id }: { id: string }) {
 			})
 			.catch(() => {})
 			.finally(() => setLoading(false));
-	}, [id]);
+	}, [id, slug]);
 
 	const handleDamage = () => {
 		const input = prompt("How much damage?");
 		if (input === null) return;
 		const amount = Number.parseInt(input, 10);
 		if (Number.isNaN(amount) || amount <= 0) return;
-		fetch(`/api/characters/${id}/damage`, {
+		fetch(`/api/characters/${characterId}/damage`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
@@ -52,7 +56,7 @@ export function CharacterSheet({ id }: { id: string }) {
 		if (input === null) return;
 		const amount = Number.parseInt(input, 10);
 		if (Number.isNaN(amount) || amount <= 0) return;
-		fetch(`/api/characters/${id}/heal`, {
+		fetch(`/api/characters/${characterId}/heal`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
@@ -65,7 +69,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	};
 
 	const handleUseSpellSlot = (level: number) => {
-		fetch(`/api/characters/${id}/spells/${level}/use`, { method: "POST" })
+		fetch(`/api/characters/${characterId}/spells/${level}/use`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
 				if (data) setCharacter(data);
@@ -74,7 +78,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	};
 
 	const handleRestoreSpellSlot = (level: number) => {
-		fetch(`/api/characters/${id}/spells/${level}/restore`, { method: "POST" })
+		fetch(`/api/characters/${characterId}/spells/${level}/restore`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
 				if (data) setCharacter(data);
@@ -83,7 +87,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	};
 
 	const handleLongRest = () => {
-		fetch(`/api/characters/${id}/long-rest`, { method: "POST" })
+		fetch(`/api/characters/${characterId}/long-rest`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
 				if (data) setCharacter(data);
@@ -92,7 +96,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	};
 
 	const handleToggleSkill = (skillName: string) => {
-		fetch(`/api/characters/${id}/skills/toggle`, {
+		fetch(`/api/characters/${characterId}/skills/toggle`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ skillName }),
@@ -106,7 +110,7 @@ export function CharacterSheet({ id }: { id: string }) {
 
 	const handleNotesBlur = () => {
 		if (!character) return;
-		fetch(`/api/characters/${id}`, {
+		fetch(`/api/characters/${characterId}`, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ notes }),
@@ -121,7 +125,7 @@ export function CharacterSheet({ id }: { id: string }) {
 	const handleDelete = () => {
 		if (!window.confirm(`Delete ${character?.name ?? "this character"}? This cannot be undone.`))
 			return;
-		fetch(`/api/characters/${id}`, { method: "DELETE" })
+		fetch(`/api/characters/${characterId}`, { method: "DELETE" })
 			.then((r) => {
 				if (r.ok) navigate("/");
 			})
@@ -148,6 +152,8 @@ export function CharacterSheet({ id }: { id: string }) {
 			<p className={styles.meta}>
 				{character.race} {character.class} · Level {character.level}
 			</p>
+
+			{character?.slug && !readOnly && <ShareSection slug={character.slug} />}
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Ability Scores</h2>
@@ -176,14 +182,16 @@ export function CharacterSheet({ id }: { id: string }) {
 						style={{ width: `${hpPercent}%` }}
 					/>
 				</div>
-				<div className={styles.hpActions}>
-					<button type="button" className={styles.damageButton} onClick={handleDamage}>
-						Damage
-					</button>
-					<button type="button" className={styles.healButton} onClick={handleHeal}>
-						Heal
-					</button>
-				</div>
+				{!readOnly && (
+					<div className={styles.hpActions}>
+						<button type="button" className={styles.damageButton} onClick={handleDamage}>
+							Damage
+						</button>
+						<button type="button" className={styles.healButton} onClick={handleHeal}>
+							Heal
+						</button>
+					</div>
+				)}
 			</div>
 
 			<div className={styles.section}>
@@ -205,6 +213,7 @@ export function CharacterSheet({ id }: { id: string }) {
 									checked={proficient}
 									onChange={() => handleToggleSkill(skill.name)}
 									className={styles.skillCheckbox}
+									disabled={readOnly}
 								/>
 								<span className={styles.skillName}>{skill.name}</span>
 								<span className={styles.skillAbility}>{skill.abilityKey}</span>
@@ -248,11 +257,13 @@ export function CharacterSheet({ id }: { id: string }) {
 				</div>
 			)}
 
-			<EquipmentSection
-				characterId={id}
-				equipment={character.equipment ?? []}
-				onUpdate={setCharacter}
-			/>
+			{characterId && (
+				<EquipmentSection
+					characterId={characterId}
+					equipment={character.equipment ?? []}
+					onUpdate={readOnly ? () => {} : setCharacter}
+				/>
+			)}
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Notes</h2>
@@ -260,17 +271,20 @@ export function CharacterSheet({ id }: { id: string }) {
 					className={styles.notesTextarea}
 					value={notes}
 					onChange={(e) => setNotes(e.target.value)}
-					onBlur={handleNotesBlur}
+					onBlur={readOnly ? undefined : handleNotesBlur}
 					placeholder="Add notes about your character..."
 					rows={6}
+					readOnly={readOnly}
 				/>
 			</div>
 
-			<div className={styles.section}>
-				<button type="button" className={styles.deleteButton} onClick={handleDelete}>
-					Delete Character
-				</button>
-			</div>
+			{!readOnly && (
+				<div className={styles.section}>
+					<button type="button" className={styles.deleteButton} onClick={handleDelete}>
+						Delete Character
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

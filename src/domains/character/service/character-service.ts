@@ -38,6 +38,15 @@ export const characterService = {
 		return character;
 	},
 
+	async getCharacterBySlug(slug: string): Promise<Character | null> {
+		log.info({ slug }, "Getting character by slug");
+		const character = await characterRepo.findBySlug(slug);
+		if (!character) {
+			log.info({ slug }, "Character not found by slug");
+		}
+		return character;
+	},
+
 	async createCharacter(input: CreateCharacter): Promise<Character> {
 		log.info({ name: input.name }, "Creating character");
 		const parsed = CreateCharacterSchema.parse(input);
