@@ -12,8 +12,15 @@
 		{
 			"idx": 1,
 			"version": "6",
-			"when": 1771894977110,
-			"tag": "0001_pale_meggan",
+			"when": 1771893455372,
+			"tag": "0001_useful_white_queen",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1772980438956,
+			"tag": "0002_stiff_dragon_lord",
 			"breakpoints": true
 		}
 	]

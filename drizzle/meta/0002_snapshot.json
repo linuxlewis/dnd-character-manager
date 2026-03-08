@@ -1,8 +1,8 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "8da7d06a-5d97-459d-93a6-ec85136c65eb",
-	"prevId": "05c5272d-044f-45d3-8424-17cbb3766375",
+	"id": "e8d45632-5666-4901-8291-4694939f313d",
+	"prevId": "8da7d06a-5d97-459d-93a6-ec85136c65eb",
 	"tables": {
 		"characters": {
 			"name": "characters",
@@ -73,6 +73,20 @@
 				},
 				"skills": {
 					"name": "skills",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"armor_class": {
+					"name": "armor_class",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"saving_throw_proficiencies": {
+					"name": "saving_throw_proficiencies",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": false,

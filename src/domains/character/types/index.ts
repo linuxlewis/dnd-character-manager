@@ -22,6 +22,8 @@ export {
 	type ArmorClass,
 } from "./character.js";
 
+export { generateSlug } from "./slug.js";
+
 export {
 	SkillSchema,
 	AbilityKey,

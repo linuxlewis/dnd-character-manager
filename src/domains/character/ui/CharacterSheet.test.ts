@@ -251,6 +251,13 @@ describe("CharacterSheet themed styles", () => {
 		expect(css).toMatch(/\.skillRow:nth-child\(even\)/);
 	});
 
+	it("has share section styles", () => {
+		expect(css).toContain(".shareSection");
+		expect(css).toContain(".shareUrl");
+		expect(css).toContain(".copyButton");
+		expect(css).toContain(".shareLabel");
+	});
+
 	it("has responsive media query for mobile", () => {
 		expect(css).toMatch(/@media\s*\(max-width:\s*480px\)/);
 	});
