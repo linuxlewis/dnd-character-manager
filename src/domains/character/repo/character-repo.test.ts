@@ -143,10 +143,12 @@ describe("characterRepo", () => {
 	it("findBySlug returns character after create", async () => {
 		const char = await characterRepo.create(validInput);
 		expect(char.slug).not.toBeNull();
-		const found = await characterRepo.findBySlug(char.slug!);
-		expect(found).not.toBeNull();
-		expect(found?.id).toBe(char.id);
-		expect(found?.slug).toBe(char.slug);
+		if (char.slug) {
+			const found = await characterRepo.findBySlug(char.slug);
+			expect(found).not.toBeNull();
+			expect(found?.id).toBe(char.id);
+			expect(found?.slug).toBe(char.slug);
+		}
 	});
 
 	it("findBySlug returns null for unknown slug", async () => {

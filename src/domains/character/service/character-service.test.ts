@@ -61,10 +61,12 @@ describe("characterService", () => {
 		const created = await characterService.createCharacter(validInput);
 		expect(created.slug).toBeTruthy();
 		expect(created.slug).not.toBeNull();
-		const found = await characterService.getCharacterBySlug(created.slug!);
-		expect(found).not.toBeNull();
-		expect(found?.id).toBe(created.id);
-		expect(found?.name).toBe("Gandalf");
+		if (created.slug) {
+			const found = await characterService.getCharacterBySlug(created.slug);
+			expect(found).not.toBeNull();
+			expect(found?.id).toBe(created.id);
+			expect(found?.name).toBe("Gandalf");
+		}
 	});
 
 	it("returns null for non-existent slug", async () => {
