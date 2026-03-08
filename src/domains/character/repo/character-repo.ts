@@ -15,7 +15,7 @@ import { generateSlug } from "../types/slug.js";
 function toDomain(row: typeof characters.$inferSelect): Character {
 	return {
 		id: row.id,
-		slug: row.slug ?? "",
+		slug: row.slug ?? null,
 		name: row.name,
 		race: row.race,
 		class: row.class,

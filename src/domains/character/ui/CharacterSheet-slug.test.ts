@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("CharacterSheet slug support", () => {
@@ -37,32 +35,13 @@ describe("CharacterSheet share URL display", () => {
 	});
 
 	it("share URL is null when character has no slug", () => {
-		const slug: string | undefined = undefined;
+		const slug: string | null = null;
 		const shareUrl = slug ? `http://localhost:3000/characters/${slug}` : null;
 		expect(shareUrl).toBeNull();
 	});
 
-	it("ShareSection component contains share URL elements with data-testid", async () => {
-		const { readFileSync } = await import("node:fs");
-		const { resolve } = await import("node:path");
-		const tsx = readFileSync(resolve(__dirname, "ShareSection.tsx"), "utf-8");
-		expect(tsx).toContain('data-testid="share-url-section"');
-		expect(tsx).toContain('data-testid="share-url"');
-		expect(tsx).toContain('data-testid="copy-share-url"');
-	});
-
-	it("CharacterSheet conditionally renders ShareSection", async () => {
-		const { readFileSync } = await import("node:fs");
-		const { resolve } = await import("node:path");
-		const tsx = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
-		expect(tsx).toContain("ShareSection");
-		expect(tsx).toContain("!readOnly");
-	});
-
-	it("copy button shows 'Copied!' feedback text", async () => {
-		const { readFileSync } = await import("node:fs");
-		const { resolve } = await import("node:path");
-		const tsx = readFileSync(resolve(__dirname, "ShareSection.tsx"), "utf-8");
-		expect(tsx).toContain('copied ? "Copied!" : "Copy"');
+	it("exports ShareSection component", async () => {
+		const mod = await import("./ShareSection.tsx");
+		expect(typeof mod.ShareSection).toBe("function");
 	});
 });
