@@ -16,10 +16,12 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"check:docs": "tsx scripts/check-doc-freshness.ts",
+		"test:e2e": "playwright test",
 		"worktree:boot": "bash scripts/worktree-boot.sh"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.0",
+		"@playwright/test": "^1.58.2",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^25.3.0",
 		"@types/react": "^19.2.14",

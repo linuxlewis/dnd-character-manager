@@ -7,3 +7,6 @@ dist/
 *.pem
 data/
 .claude/settings.json
+progress-*.txt
+test-results/
+playwright-report/
