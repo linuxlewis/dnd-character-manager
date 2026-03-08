@@ -1,14 +1,15 @@
 services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: localdev
+  app:
+    build: .
     ports:
-      - "5432:5432"
+      - "${PORT:-4000}:4000"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - appdata:/app/data
+    environment:
+      - DATABASE_URL=/app/data/app.db
+      - PORT=4000
+      - HOST=0.0.0.0
+    restart: unless-stopped
 
 volumes:
-  pgdata:
+  appdata:

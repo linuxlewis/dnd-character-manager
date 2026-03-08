@@ -3,6 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"start": "tsx src/server.ts",
 		"dev": "concurrently \"tsx --watch src/server.ts\" \"vite --config src/app/vite.config.ts\"",
 		"dev:server": "tsx --watch src/server.ts",
 		"dev:web": "vite --config src/app/vite.config.ts",
@@ -37,6 +38,7 @@
 	},
 	"packageManager": "pnpm@9.15.0",
 	"dependencies": {
+		"@fastify/static": "^9.0.0",
 		"better-sqlite3": "^12.6.2",
 		"fastify": "^5.7.4",
 		"pino": "^10.3.1",

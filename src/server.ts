@@ -5,6 +5,9 @@
  * Each domain's runtime layer exports a route registration function.
  */
 
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import fastifyStatic from "@fastify/static";
 import { getDb, migrate } from "@providers/db/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
@@ -20,9 +23,29 @@ log.info("Database migrations applied");
 
 const app = Fastify({ logger: false });
 
+// Health check endpoint
+app.get("/health", async () => ({ status: "ok" }));
+
 // Register domain routes
 await registerItemRoutes(app);
 await registerCharacterRoutes(app);
+
+// Serve static frontend in production
+const staticDir = join(import.meta.dirname, "..", "dist", "app");
+if (existsSync(staticDir)) {
+	await app.register(fastifyStatic, { root: staticDir, wildcard: false });
+
+	// SPA fallback: serve index.html for non-API routes
+	app.setNotFoundHandler((request, reply) => {
+		if (request.url.startsWith("/api/")) {
+			reply.status(404).send({ error: "Not found" });
+			return;
+		}
+		reply.sendFile("index.html");
+	});
+
+	log.info({ staticDir }, "Serving static frontend");
+}
 
 // Start
 const port = Number(process.env.PORT ?? 4000);
