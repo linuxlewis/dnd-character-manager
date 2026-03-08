@@ -53,10 +53,18 @@ pnpm lint && pnpm test
 - Fix any failing tests.
 - If you improved coverage or fixed quality gaps, update [docs/quality.md](./docs/quality.md).
 
-### 6. Document Decisions
+### 6. Keep Documentation Up to Date
 
-- If you made architectural decisions, document them in [docs/design/](./docs/design/).
-- Plans live in the repo. If it's not in `plans/` or `docs/`, it doesn't exist.
+These docs are the source of truth. When your changes affect how the project works, update the relevant docs **in the same commit**.
+
+- **New or changed conventions** (coding patterns, naming, file structure) -> update this file (`CLAUDE.md`).
+- **Architectural changes** (new layers, dependency rules, new domains, new providers) -> update [docs/architecture.md](./docs/architecture.md).
+- **Testing changes** (new test tooling, new patterns, new layer-specific conventions) -> update [docs/testing.md](./docs/testing.md).
+- **Quality improvements** (better coverage, fixed gaps) -> update [docs/quality.md](./docs/quality.md).
+- **Architectural decisions** (why something was built a certain way) -> add a doc to [docs/design/](./docs/design/).
+- **New documentation** -> add an entry to [docs/catalog.md](./docs/catalog.md).
+
+Plans live in the repo. If it's not in `plans/` or `docs/`, it doesn't exist.
 
 ## Quick Navigation
 
