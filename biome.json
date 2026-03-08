@@ -11,6 +11,14 @@
 		"lineWidth": 100
 	},
 	"files": {
-		"ignore": ["node_modules", "dist", "*.generated.*", ".claude/settings.json"]
+		"ignore": [
+			"node_modules",
+			"dist",
+			"*.generated.*",
+			".claude/settings.json",
+			"tests/e2e/**",
+			"test-results/**",
+			"playwright-report/**"
+		]
 	}
 }

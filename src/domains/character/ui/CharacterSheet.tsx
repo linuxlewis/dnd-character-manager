@@ -53,6 +53,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleHeal = () => {
 		const input = prompt("How much healing?");
 		if (input === null) return;
@@ -69,6 +70,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleUseSpellSlot = (level: number) => {
 		fetch(`/api/characters/${characterId}/spells/${level}/use`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -77,6 +79,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleRestoreSpellSlot = (level: number) => {
 		fetch(`/api/characters/${characterId}/spells/${level}/restore`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -85,6 +88,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleLongRest = () => {
 		fetch(`/api/characters/${characterId}/long-rest`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -93,6 +97,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleToggleSkill = (skillName: string) => {
 		fetch(`/api/characters/${characterId}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
@@ -117,6 +122,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
+
 	const handleDelete = () => {
 		if (!window.confirm(`Delete ${character?.name ?? "this character"}? This cannot be undone.`))
 			return;
@@ -273,11 +279,12 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					onUpdate={readOnly ? () => {} : setCharacter}
 				/>
 			)}
+
 			<NotesSection
 				notes={notes}
-				onNotesChange={setNotes}
-				onNotesBlur={readOnly ? undefined : handleNotesBlur}
 				readOnly={readOnly}
+				onChange={setNotes}
+				onBlur={handleNotesBlur}
 			/>
 
 			{!readOnly && (

@@ -121,7 +121,7 @@ export function calculateAC(
 
 export const CharacterSchema = z.object({
 	id: z.string().uuid(),
-	slug: z.string().min(1),
+	slug: z.string().min(1).nullable(),
 	name: z.string().min(1).max(255),
 	race: z.string().min(1).max(100),
 	class: z.string().min(1).max(100),
