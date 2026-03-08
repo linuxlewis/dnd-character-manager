@@ -52,7 +52,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleHeal = () => {
 		const input = prompt("How much healing?");
 		if (input === null) return;
@@ -69,7 +68,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleUseSpellSlot = (level: number) => {
 		fetch(`/api/characters/${characterId}/spells/${level}/use`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -78,7 +76,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleRestoreSpellSlot = (level: number) => {
 		fetch(`/api/characters/${characterId}/spells/${level}/restore`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -87,7 +84,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleLongRest = () => {
 		fetch(`/api/characters/${characterId}/long-rest`, { method: "POST" })
 			.then((r) => (r.ok ? r.json() : null))
@@ -96,7 +92,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleToggleSkill = (skillName: string) => {
 		fetch(`/api/characters/${id}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
@@ -121,7 +116,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	const handleDelete = () => {
 		if (!window.confirm(`Delete ${character?.name ?? "this character"}? This cannot be undone.`))
 			return;
@@ -131,7 +125,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-
 	if (loading) return <div className={styles.container}>Loading...</div>;
 	if (!character) return <div className={styles.container}>Character not found.</div>;
 
@@ -196,8 +189,16 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 
 			{!readOnly && characterId && (
 				<>
-					<ArmorClassSection character={character} characterId={characterId} onUpdate={setCharacter} />
-					<SavingThrowsSection character={character} characterId={characterId} onUpdate={setCharacter} />
+					<ArmorClassSection
+						character={character}
+						characterId={characterId}
+						onUpdate={setCharacter}
+					/>
+					<SavingThrowsSection
+						character={character}
+						characterId={characterId}
+						onUpdate={setCharacter}
+					/>
 				</>
 			)}
 
