@@ -194,9 +194,12 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				)}
 			</div>
 
-			<ArmorClassSection character={character} characterId={id} onUpdate={setCharacter} />
-
-			<SavingThrowsSection character={character} characterId={id} onUpdate={setCharacter} />
+			{!readOnly && characterId && (
+				<>
+					<ArmorClassSection character={character} characterId={characterId} onUpdate={setCharacter} />
+					<SavingThrowsSection character={character} characterId={characterId} onUpdate={setCharacter} />
+				</>
+			)}
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Skills</h2>
