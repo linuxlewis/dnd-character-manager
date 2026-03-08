@@ -1,7 +1,7 @@
 /**
  * Custom Architectural Linter
  *
- * Enforces the layered dependency rules defined in ARCHITECTURE.md.
+ * Enforces the layered dependency rules defined in docs/architecture.md.
  * Run via: pnpm lint (or directly: tsx lints/check-deps.ts)
  *
  * Rules enforced:

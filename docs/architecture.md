@@ -1,4 +1,4 @@
-# ARCHITECTURE.md
+# Architecture
 
 ## Domain-Driven Layered Architecture
 
@@ -44,7 +44,7 @@ These rules are enforced by the custom linter at `lints/check-deps.ts`:
 1. Create `src/domains/<name>/` with all six layer directories
 2. Add types and Zod schemas first (types layer is the foundation)
 3. Register routes in the runtime layer
-4. Update [docs/catalog.md](./docs/catalog.md)
+4. Update [docs/catalog.md](./catalog.md)
 
 ### File Conventions
 
