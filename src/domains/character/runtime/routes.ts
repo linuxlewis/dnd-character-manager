@@ -21,7 +21,8 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		if (!character) {
 			return reply.status(404).send({ error: "Character not found" });
 		}
-		return character;
+		const { id: _id, ...publicCharacter } = character;
+		return publicCharacter;
 	});
 
 	app.get<{ Params: { id: string } }>("/api/characters/:id", async (request, reply) => {

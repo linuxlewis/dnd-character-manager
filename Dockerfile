@@ -36,8 +36,10 @@ COPY drizzle/ drizzle/
 # Copy built frontend from builder
 COPY --from=builder /app/dist/app dist/app
 
-# tsx is a devDependency, install it for production runtime
-RUN pnpm add -w tsx@^4.19.0
+# Create non-root user and set ownership
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+  && mkdir -p /app/data \
+  && chown -R appuser:appgroup /app
 
 ENV NODE_ENV=production
 ENV PORT=4000
@@ -49,6 +51,8 @@ EXPOSE 4000
 VOLUME ["/app/data"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:4000/health || exit 1
+  CMD node -e "require('http').get('http://localhost:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+
+USER appuser
 
 CMD ["pnpm", "start"]

@@ -94,7 +94,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => {});
 	};
 	const handleToggleSkill = (skillName: string) => {
-		fetch(`/api/characters/${id}/skills/${encodeURIComponent(skillName)}/toggle`, {
+		fetch(`/api/characters/${characterId}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
 		})
 			.then((r) => (r.ok ? r.json() : null))

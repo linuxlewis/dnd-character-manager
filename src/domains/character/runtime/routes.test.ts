@@ -144,8 +144,10 @@ describe("Character CRUD routes", () => {
 		expect(slug).toBeDefined();
 		const res = await app.inject({ method: "GET", url: `/api/characters/by-slug/${slug}` });
 		expect(res.statusCode).toBe(200);
-		expect(res.json().name).toBe("Gandalf");
-		expect(res.json().slug).toBe(slug);
+		const body = res.json();
+		expect(body.name).toBe("Gandalf");
+		expect(body.slug).toBe(slug);
+		expect(body.id).toBeUndefined();
 	});
 
 	it("GET /api/characters/by-slug/:slug returns 404 for missing", async () => {
