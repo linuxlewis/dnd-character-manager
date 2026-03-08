@@ -98,11 +98,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	};
 
 	const handleToggleSkill = (skillName: string) => {
-<<<<<<< HEAD
 		fetch(`/api/characters/${id}/skills/${encodeURIComponent(skillName)}/toggle`, {
-=======
-		fetch(`/api/characters/${characterId}/skills/toggle`, {
->>>>>>> 91180ca (feat: US-006 - Add frontend route for viewing character by slug)
 			method: "POST",
 		})
 			.then((r) => (r.ok ? r.json() : null))
