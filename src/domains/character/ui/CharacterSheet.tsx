@@ -6,6 +6,7 @@ import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import styles from "./CharacterSheet.module.css";
 import { EquipmentSection } from "./EquipmentSection.tsx";
+import { NotesSection } from "./NotesSection.tsx";
 import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
 
@@ -93,7 +94,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => {});
 	};
 	const handleToggleSkill = (skillName: string) => {
-		fetch(`/api/characters/${id}/skills/${encodeURIComponent(skillName)}/toggle`, {
+		fetch(`/api/characters/${characterId}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
 		})
 			.then((r) => (r.ok ? r.json() : null))
@@ -146,7 +147,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				{character.race} {character.class} · Level {character.level}
 			</p>
 
-			{character?.slug && !readOnly && <ShareSection slug={character.slug} />}
+			{character.slug && !readOnly && <ShareSection slug={character.slug} />}
 
 			<div className={styles.section}>
 				<h2 className={styles.sectionTitle}>Ability Scores</h2>
@@ -272,19 +273,12 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					onUpdate={readOnly ? () => {} : setCharacter}
 				/>
 			)}
-
-			<div className={styles.section}>
-				<h2 className={styles.sectionTitle}>Notes</h2>
-				<textarea
-					className={styles.notesTextarea}
-					value={notes}
-					onChange={(e) => setNotes(e.target.value)}
-					onBlur={readOnly ? undefined : handleNotesBlur}
-					placeholder="Add notes about your character..."
-					rows={6}
-					readOnly={readOnly}
-				/>
-			</div>
+			<NotesSection
+				notes={notes}
+				onNotesChange={setNotes}
+				onNotesBlur={readOnly ? undefined : handleNotesBlur}
+				readOnly={readOnly}
+			/>
 
 			{!readOnly && (
 				<div className={styles.section}>

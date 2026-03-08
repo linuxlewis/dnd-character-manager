@@ -1,19 +1,21 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import styles from "./CharacterSheet.module.css";
 
 export function ShareSection({ slug }: { slug: string }) {
 	const [copied, setCopied] = useState(false);
 	const shareUrl = `${window.location.origin}/characters/${slug}`;
 
-	const handleCopy = useCallback(() => {
+	const handleCopy = () => {
 		navigator.clipboard
 			.writeText(shareUrl)
 			.then(() => {
 				setCopied(true);
 				setTimeout(() => setCopied(false), 2000);
 			})
-			.catch(() => {});
-	}, [shareUrl]);
+			.catch((err) => {
+				console.error("Failed to copy URL:", err);
+			});
+	};
 
 	return (
 		<div className={styles.shareSection} data-testid="share-url-section">
