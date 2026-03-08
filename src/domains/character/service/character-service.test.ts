@@ -59,9 +59,8 @@ describe("characterService", () => {
 
 	it("gets a character by slug", async () => {
 		const created = await characterService.createCharacter(validInput);
-		expect(created.slug).toBeTruthy();
-		expect(created.slug).not.toBeNull();
-		const found = await characterService.getCharacterBySlug(created.slug!);
+		if (created.slug === null) throw new Error("Expected slug to be set");
+		const found = await characterService.getCharacterBySlug(created.slug);
 		expect(found).not.toBeNull();
 		expect(found?.id).toBe(created.id);
 		expect(found?.name).toBe("Gandalf");
