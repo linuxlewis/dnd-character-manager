@@ -105,26 +105,24 @@ describe("CharacterForm", () => {
 	});
 });
 
-describe("CharacterForm uses shadcn/ui and React Hook Form", () => {
+describe("CharacterForm uses shadcn/ui components with simplified form logic", () => {
 	const source = readFileSync(resolve(import.meta.dirname, "CharacterForm.tsx"), "utf-8");
 
-	it("uses React Hook Form", () => {
-		expect(source).toContain("useForm");
-		expect(source).toContain("react-hook-form");
+	it("uses useState for form management", () => {
+		expect(source).toContain("useState");
+		expect(source).toContain("setFormData");
 	});
 
-	it("uses zodResolver for form validation", () => {
-		expect(source).toContain("zodResolver");
-		expect(source).toContain("@hookform/resolvers");
+	it("does not use React Hook Form (simplified for v1)", () => {
+		expect(source).not.toContain("useForm");
+		expect(source).not.toContain("react-hook-form");
+		expect(source).not.toContain("zodResolver");
+		expect(source).not.toContain("@hookform/resolvers");
 	});
 
-	it("imports shadcn/ui form components", () => {
-		expect(source).toContain('from "../../../app/components/ui/form.tsx"');
-		expect(source).toContain("FormField");
-		expect(source).toContain("FormItem");
-		expect(source).toContain("FormLabel");
-		expect(source).toContain("FormControl");
-		expect(source).toContain("FormMessage");
+	it("imports shadcn/ui Label component", () => {
+		expect(source).toContain('from "../../../app/components/ui/label.tsx"');
+		expect(source).toContain("Label");
 	});
 
 	it("imports shadcn/ui Input", () => {
@@ -141,5 +139,10 @@ describe("CharacterForm uses shadcn/ui and React Hook Form", () => {
 
 	it("uses Tailwind responsive classes", () => {
 		expect(source).toContain("max-sm:");
+	});
+
+	it("includes basic form validation", () => {
+		expect(source).toContain("validateForm");
+		expect(source).toContain("FormErrors");
 	});
 });
