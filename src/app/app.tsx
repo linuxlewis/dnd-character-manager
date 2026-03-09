@@ -23,7 +23,7 @@ const routes = [
 export function App() {
 	return (
 		<ThemeProvider>
-			<div className="min-h-screen bg-[var(--color-bg)] text-foreground font-sans transition-colors">
+			<div className="min-h-screen bg-background text-foreground font-sans transition-colors overflow-x-hidden">
 				<header className="sticky top-0 z-50 flex items-center justify-between px-6 py-2 bg-muted border-b border-border transition-colors max-sm:px-2 max-sm:py-1">
 					<h1 className="text-lg font-bold text-primary font-heading max-sm:text-base">
 						D&D Character Manager

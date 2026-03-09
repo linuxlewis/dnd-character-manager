@@ -8,7 +8,7 @@ test.describe("Responsive layout", () => {
 
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 		await expect(page.getByText("Thorin Ironforge")).toBeVisible();
-		await expect(page.getByRole("button", { name: "+ New Character" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "New Character" })).toBeVisible();
 
 		// Header should still be visible
 		await expect(page.getByText("D&D Character Manager")).toBeVisible();

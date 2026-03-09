@@ -41,7 +41,7 @@ export function SavingThrowsSection({
 					return (
 						<div
 							key={key}
-							className="flex items-center gap-3 p-2 rounded-md min-h-[44px] cursor-pointer odd:bg-muted even:bg-[var(--color-bg)] active:bg-primary/10 transition-colors"
+							className="flex items-center gap-3 p-2 rounded-md min-h-[44px] cursor-pointer odd:bg-muted even:bg-background active:bg-primary/10 transition-colors"
 							data-testid={`saving-throw-${key}`}
 						>
 							<Checkbox

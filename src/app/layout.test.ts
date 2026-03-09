@@ -21,8 +21,8 @@ describe("US-003: App layout integration", () => {
 		expect(appSource).toContain("bg-muted");
 	});
 
-	it("App uses theme CSS variables for background", () => {
-		expect(appSource).toContain("var(--color-bg)");
+	it("App uses Tailwind background class", () => {
+		expect(appSource).toContain("bg-background");
 	});
 
 	it("App has transition classes", () => {

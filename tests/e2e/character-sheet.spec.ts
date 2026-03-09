@@ -41,7 +41,7 @@ test.describe("Character sheet view", () => {
 		await page.getByText("Thorin Ironforge").click();
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
 
-		await page.getByRole("button", { name: "← Back" }).click();
+		await page.getByRole("button", { name: "Back" }).click();
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 	});
 
