@@ -17,6 +17,7 @@
 		"types": ["node"],
 		"baseUrl": ".",
 		"paths": {
+			"@/*": ["src/app/*"],
 			"@domains/*": ["src/domains/*"],
 			"@providers/*": ["src/providers/*"]
 		}

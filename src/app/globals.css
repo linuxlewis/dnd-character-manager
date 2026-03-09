@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+/*
+ * shadcn/ui Design Tokens — D&D Fantasy Aesthetic
+ *
+ * This file defines the Tailwind + shadcn/ui theming layer.
+ * It coexists with theme.css (legacy CSS custom properties) during migration.
+ *
+ * Color convention: HSL values without the hsl() wrapper,
+ * consumed as hsl(var(--primary)) by Tailwind utilities.
+ */
+
+@layer base {
+	:root {
+		/* --- shadcn/ui semantic tokens (Light) --- */
+		--background: 0 0% 100%;
+		--foreground: 240 33% 14%;
+
+		--card: 240 10% 96%;
+		--card-foreground: 240 33% 14%;
+
+		--popover: 0 0% 100%;
+		--popover-foreground: 240 33% 14%;
+
+		--primary: 221 83% 53%;
+		--primary-foreground: 0 0% 100%;
+
+		--secondary: 240 10% 96%;
+		--secondary-foreground: 240 33% 14%;
+
+		--muted: 240 10% 96%;
+		--muted-foreground: 0 0% 33%;
+
+		--accent: 240 10% 96%;
+		--accent-foreground: 240 33% 14%;
+
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 0 0% 100%;
+
+		--success: 142 72% 38%;
+		--success-foreground: 0 0% 100%;
+
+		--warning: 48 96% 53%;
+		--warning-foreground: 240 33% 14%;
+
+		--border: 220 13% 82%;
+		--input: 220 13% 69%;
+		--ring: 221 83% 53%;
+
+		--radius: 0.5rem;
+
+		/* --- D&D Fantasy Tokens --- */
+		--parchment: 39 50% 95%;
+		--parchment-foreground: 30 20% 20%;
+		--gold: 43 96% 56%;
+		--gold-foreground: 30 20% 15%;
+		--blood: 0 72% 40%;
+		--blood-foreground: 0 0% 100%;
+		--arcane: 270 70% 55%;
+		--arcane-foreground: 0 0% 100%;
+		--nature: 142 50% 35%;
+		--nature-foreground: 0 0% 100%;
+		--steel: 220 10% 55%;
+		--steel-foreground: 0 0% 100%;
+	}
+
+	[data-theme="dark"] {
+		/* --- shadcn/ui semantic tokens (Dark) --- */
+		--background: 240 33% 14%;
+		--foreground: 0 0% 88%;
+
+		--card: 240 27% 21%;
+		--card-foreground: 0 0% 88%;
+
+		--popover: 240 33% 14%;
+		--popover-foreground: 0 0% 88%;
+
+		--primary: 213 94% 68%;
+		--primary-foreground: 240 33% 14%;
+
+		--secondary: 240 27% 21%;
+		--secondary-foreground: 0 0% 88%;
+
+		--muted: 240 27% 21%;
+		--muted-foreground: 240 10% 66%;
+
+		--accent: 240 27% 21%;
+		--accent-foreground: 0 0% 88%;
+
+		--destructive: 0 86% 71%;
+		--destructive-foreground: 240 33% 14%;
+
+		--success: 142 69% 58%;
+		--success-foreground: 240 33% 14%;
+
+		--warning: 48 97% 72%;
+		--warning-foreground: 240 33% 14%;
+
+		--border: 240 18% 30%;
+		--input: 240 15% 37%;
+		--ring: 213 94% 68%;
+
+		/* --- D&D Fantasy Tokens (Dark) --- */
+		--parchment: 30 15% 18%;
+		--parchment-foreground: 39 40% 85%;
+		--gold: 43 80% 50%;
+		--gold-foreground: 0 0% 100%;
+		--blood: 0 60% 50%;
+		--blood-foreground: 0 0% 100%;
+		--arcane: 270 60% 65%;
+		--arcane-foreground: 0 0% 100%;
+		--nature: 142 40% 45%;
+		--nature-foreground: 0 0% 100%;
+		--steel: 220 8% 45%;
+		--steel-foreground: 0 0% 100%;
+	}
+}
+
+/* Custom Tailwind theme mapping for shadcn/ui */
+@theme inline {
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+
+	--color-success: hsl(var(--success));
+	--color-success-foreground: hsl(var(--success-foreground));
+
+	--color-warning: hsl(var(--warning));
+	--color-warning-foreground: hsl(var(--warning-foreground));
+
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+
+	/* D&D Fantasy colors */
+	--color-parchment: hsl(var(--parchment));
+	--color-parchment-foreground: hsl(var(--parchment-foreground));
+	--color-gold: hsl(var(--gold));
+	--color-gold-foreground: hsl(var(--gold-foreground));
+	--color-blood: hsl(var(--blood));
+	--color-blood-foreground: hsl(var(--blood-foreground));
+	--color-arcane: hsl(var(--arcane));
+	--color-arcane-foreground: hsl(var(--arcane-foreground));
+	--color-nature: hsl(var(--nature));
+	--color-nature-foreground: hsl(var(--nature-foreground));
+	--color-steel: hsl(var(--steel));
+	--color-steel-foreground: hsl(var(--steel-foreground));
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	/* Typography — matches existing font-heading / font-body */
+	--font-heading: "Cinzel", Georgia, "Times New Roman", serif;
+	--font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--font-mono: "Fira Code", "Cascadia Code", Consolas, monospace;
+}

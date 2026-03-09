@@ -16,7 +16,7 @@ All documentation in this repository, indexed for discoverability.
 
 | Document | Path | Status | Last Verified |
 |----------|------|--------|---------------|
-| *(none yet)* | | | |
+| UI migration strategy | [docs/design/ui-migration-strategy.md](./design/ui-migration-strategy.md) | Current | 2026-03-08 |
 
 ## Plans
 
