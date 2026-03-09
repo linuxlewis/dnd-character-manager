@@ -19,13 +19,14 @@ export function ShareSection({ slug }: { slug: string }) {
 	};
 
 	return (
-		<div
-			className="flex items-center gap-2 p-3 bg-muted border border-border rounded-lg mb-4 flex-wrap sm:flex-nowrap"
+		<section
+			className="flex items-center gap-2 p-3 bg-muted border border-border rounded-lg mb-6 flex-wrap sm:flex-nowrap"
 			data-testid="share-url-section"
+			aria-label="Share character link"
 		>
 			<span className="font-semibold text-muted-foreground whitespace-nowrap">Share:</span>
 			<code
-				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground break-all max-w-[200px] sm:max-w-none"
+				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground break-all max-w-[200px] sm:max-w-none font-mono"
 				data-testid="share-url"
 			>
 				{shareUrl}
@@ -43,6 +44,6 @@ export function ShareSection({ slug }: { slug: string }) {
 					</>
 				)}
 			</Button>
-		</div>
+		</section>
 	);
 }

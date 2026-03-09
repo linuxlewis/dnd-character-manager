@@ -138,7 +138,7 @@ describe("CharacterForm uses shadcn/ui components with simplified form logic", (
 	});
 
 	it("uses Tailwind responsive classes", () => {
-		expect(source).toContain("max-sm:");
+		expect(source).toContain("sm:max-w-");
 	});
 
 	it("includes basic form validation", () => {

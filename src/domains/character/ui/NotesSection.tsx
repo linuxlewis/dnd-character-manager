@@ -1,3 +1,4 @@
+import { BookOpen } from "lucide-react";
 import { Textarea } from "../../../app/components/ui/textarea.tsx";
 
 interface NotesSectionProps {
@@ -9,18 +10,25 @@ interface NotesSectionProps {
 
 export function NotesSection({ notes, readOnly, onChange, onBlur }: NotesSectionProps) {
 	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+		<section className="mb-6" aria-label="Character Notes">
+			<h2 className="text-base font-heading font-bold text-foreground mb-3 pb-1 border-b-2 border-primary/20 flex items-center gap-2">
+				<BookOpen className="h-4 w-4 text-muted-foreground" />
 				Notes
 			</h2>
 			<Textarea
 				value={notes}
 				onChange={(e) => onChange(e.target.value)}
 				onBlur={readOnly ? undefined : onBlur}
-				placeholder="Add notes about your character..."
+				placeholder="Record your character's story, backstory, allies, enemies..."
 				rows={6}
 				readOnly={readOnly}
+				aria-label="Character notes"
 			/>
-		</div>
+			{!readOnly && (
+				<p className="text-xs text-muted-foreground mt-1">
+					Notes save automatically when you click away.
+				</p>
+			)}
+		</section>
 	);
 }

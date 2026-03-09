@@ -8,14 +8,11 @@ test.describe("Character deletion", () => {
 		const character = await createCharacter();
 		await page.goto(`/character/${character.id}`);
 
-		// Set up dialog handler to accept the confirmation
-		page.on("dialog", (dialog) => dialog.accept());
-
 		await page.getByRole("button", { name: "Delete Character" }).click();
+		await page.getByRole("button", { name: "Delete" }).click();
 
-		// Should navigate back to list
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 		await expect(page.getByText("Thorin Ironforge")).not.toBeVisible();
-		await expect(page.getByText("No characters yet")).toBeVisible();
+		await expect(page.getByText("No Adventurers Yet")).toBeVisible();
 	});
 });

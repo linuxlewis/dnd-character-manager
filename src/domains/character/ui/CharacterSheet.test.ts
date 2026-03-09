@@ -191,6 +191,7 @@ describe("CharacterSheet", () => {
 
 describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 	const source = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
+	const hpSource = readFileSync(resolve(__dirname, "HitPointsSection.tsx"), "utf-8");
 
 	it("imports shadcn/ui Button", () => {
 		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
@@ -202,26 +203,26 @@ describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 		expect(skillsSource).toContain('from "../../../app/components/ui/checkbox.tsx"');
 	});
 
-	it("imports cn utility for class merging", () => {
-		expect(source).toContain('from "../../../app/lib/utils.ts"');
+	it("imports HitPointsSection for HP display", () => {
+		expect(source).toContain('from "./HitPointsSection.tsx"');
 	});
 
 	it("does not import CSS modules", () => {
 		expect(source).not.toContain(".module.css");
 	});
 
-	it("uses Tailwind classes for HP bar colors", () => {
-		expect(source).toContain("bg-success");
-		expect(source).toContain("bg-warning");
-		expect(source).toContain("bg-destructive");
+	it("uses Tailwind classes for HP bar colors in HitPointsSection", () => {
+		expect(hpSource).toContain("bg-success");
+		expect(hpSource).toContain("bg-warning");
+		expect(hpSource).toContain("bg-destructive");
 	});
 
 	it("uses Tailwind responsive classes", () => {
 		expect(source).toContain("max-sm:");
 	});
 
-	it("uses Button variant props for damage/heal", () => {
-		expect(source).toContain('variant="destructive-ghost"');
-		expect(source).toContain('variant="success-ghost"');
+	it("uses Button variant props for damage/heal in HitPointsSection", () => {
+		expect(hpSource).toContain('variant="destructive-ghost"');
+		expect(hpSource).toContain('variant="success-ghost"');
 	});
 });
