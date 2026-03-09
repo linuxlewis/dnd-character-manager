@@ -115,8 +115,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-<<<<<<< HEAD
-				setServerError("Failed to save character");
 				toast.error("Failed to save character");
 				return;
 			}

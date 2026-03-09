@@ -227,8 +227,8 @@ describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
 	});
 
-	it("uses shadcn/ui Checkbox", () => {
-		expect(source).toContain('from "../../../app/components/ui/checkbox.tsx"');
+	it("uses shadcn/ui Checkbox in HitPointsSection", () => {
+		expect(hpSource).toContain('from "../../../app/components/ui/checkbox.tsx"');
 	});
 
 	it("uses shadcn/ui Tooltip for condition descriptions", () => {
