@@ -3,9 +3,6 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CreateCharacterSchema } from "../types/index.js";
 
-const cssPath = resolve(import.meta.dirname, "CharacterForm.module.css");
-const css = readFileSync(cssPath, "utf-8");
-
 describe("CharacterForm", () => {
 	it("exports CharacterForm component", async () => {
 		const mod = await import("./CharacterForm.tsx");
@@ -91,48 +88,6 @@ describe("CharacterForm", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("CSS contains no hardcoded color values", () => {
-		// Match hex colors like #ccc, #d32f2f, but allow inside var() references
-		const lines = css.split("\n");
-		for (const line of lines) {
-			const trimmed = line.trim();
-			// skip comments
-			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) continue;
-			// Check for hex colors not inside var()
-			if (/#[0-9a-fA-F]{3,8}\b/.test(trimmed)) {
-				throw new Error(`Hardcoded color found: ${trimmed}`);
-			}
-			// Check for rgb/rgba not inside var()
-			if (/\brgba?\s*\(/.test(trimmed) && !trimmed.includes("var(")) {
-				throw new Error(`Hardcoded rgb color found: ${trimmed}`);
-			}
-		}
-	});
-
-	it("CSS uses theme tokens for input styling", () => {
-		expect(css).toContain("--color-input-bg");
-		expect(css).toContain("--color-input-border");
-	});
-
-	it("CSS uses --color-primary for focus states", () => {
-		expect(css).toContain(":focus");
-		expect(css).toContain("--color-primary");
-	});
-
-	it("CSS uses --color-danger for error messages", () => {
-		expect(css).toContain("--color-danger");
-	});
-
-	it("CSS uses --color-primary for submit button", () => {
-		const submitSection = css.substring(css.indexOf(".submitButton"));
-		expect(submitSection).toContain("--color-primary");
-		expect(submitSection).toContain("--color-primary-hover");
-	});
-
-	it("inputs have min-height of 44px for touch targets", () => {
-		expect(css).toContain("min-height: 44px");
-	});
-
 	it("form fields cover all 6 ability scores", () => {
 		const keys = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
 		expect(keys).toHaveLength(6);
@@ -147,5 +102,47 @@ describe("CharacterForm", () => {
 			};
 			expect(CreateCharacterSchema.safeParse(valid).success).toBe(true);
 		}
+	});
+});
+
+describe("CharacterForm uses shadcn/ui components with simplified form logic", () => {
+	const source = readFileSync(resolve(import.meta.dirname, "CharacterForm.tsx"), "utf-8");
+
+	it("uses useState for form management", () => {
+		expect(source).toContain("useState");
+		expect(source).toContain("setFormData");
+	});
+
+	it("does not use React Hook Form (simplified for v1)", () => {
+		expect(source).not.toContain("useForm");
+		expect(source).not.toContain("react-hook-form");
+		expect(source).not.toContain("zodResolver");
+		expect(source).not.toContain("@hookform/resolvers");
+	});
+
+	it("imports shadcn/ui Label component", () => {
+		expect(source).toContain('from "../../../app/components/ui/label.tsx"');
+		expect(source).toContain("Label");
+	});
+
+	it("imports shadcn/ui Input", () => {
+		expect(source).toContain('from "../../../app/components/ui/input.tsx"');
+	});
+
+	it("imports shadcn/ui Button", () => {
+		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
+	});
+
+	it("does not import CSS modules", () => {
+		expect(source).not.toContain(".module.css");
+	});
+
+	it("uses Tailwind responsive classes", () => {
+		expect(source).toContain("max-sm:");
+	});
+
+	it("includes basic form validation", () => {
+		expect(source).toContain("validateForm");
+		expect(source).toContain("FormErrors");
 	});
 });

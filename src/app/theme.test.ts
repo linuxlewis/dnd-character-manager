@@ -2,82 +2,76 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const themeCSS = readFileSync(resolve(__dirname, "theme.css"), "utf-8");
+const globalsCss = readFileSync(resolve(__dirname, "globals.css"), "utf-8");
 
-describe("theme.css", () => {
+describe("globals.css", () => {
 	it("contains :root selector", () => {
-		expect(themeCSS).toContain(":root");
+		expect(globalsCss).toContain(":root");
 	});
 
 	it('contains [data-theme="dark"] selector', () => {
-		expect(themeCSS).toContain('[data-theme="dark"]');
+		expect(globalsCss).toContain('[data-theme="dark"]');
 	});
 
-	const colorTokens = [
-		"--color-bg",
-		"--color-surface",
-		"--color-text",
-		"--color-text-secondary",
-		"--color-primary",
-		"--color-primary-hover",
-		"--color-border",
-		"--color-danger",
-		"--color-success",
-		"--color-input-bg",
-		"--color-input-border",
+	const semanticTokens = [
+		"--background",
+		"--foreground",
+		"--card",
+		"--card-foreground",
+		"--primary",
+		"--primary-foreground",
+		"--muted",
+		"--muted-foreground",
+		"--destructive",
+		"--destructive-foreground",
+		"--success",
+		"--success-foreground",
+		"--warning",
+		"--warning-foreground",
+		"--border",
+		"--input",
+		"--input-bg",
+		"--ring",
 	];
 
-	for (const token of colorTokens) {
-		it(`defines color token ${token}`, () => {
-			expect(themeCSS).toContain(token);
+	for (const token of semanticTokens) {
+		it(`defines semantic token ${token}`, () => {
+			expect(globalsCss).toContain(token);
 		});
 	}
 
-	const spacingTokens = ["--space-xs", "--space-sm", "--space-md", "--space-lg", "--space-xl"];
+	const fantasyTokens = ["--parchment", "--gold", "--blood", "--arcane", "--nature", "--steel"];
 
-	for (const token of spacingTokens) {
-		it(`defines spacing token ${token}`, () => {
-			expect(themeCSS).toContain(token);
+	for (const token of fantasyTokens) {
+		it(`defines D&D fantasy token ${token}`, () => {
+			expect(globalsCss).toContain(token);
 		});
 	}
 
-	const typographyTokens = [
-		"--font-body",
-		"--font-heading",
-		"--font-mono",
-		"--text-sm",
-		"--text-base",
-		"--text-lg",
-		"--text-xl",
-	];
-
-	for (const token of typographyTokens) {
-		it(`defines typography token ${token}`, () => {
-			expect(themeCSS).toContain(token);
-		});
-	}
-
-	it("defines transition token --transition-theme", () => {
-		expect(themeCSS).toContain("--transition-theme");
+	it("imports tailwindcss", () => {
+		expect(globalsCss).toContain('@import "tailwindcss"');
 	});
 
-	it("light theme has white/light background", () => {
-		// :root section should have light bg
-		expect(themeCSS).toMatch(/--color-bg:\s*#fff/);
+	it("defines radius tokens", () => {
+		expect(globalsCss).toContain("--radius");
 	});
 
-	it("dark theme has dark background", () => {
-		expect(themeCSS).toContain("#1a1a2e");
+	it("light theme defines background as white", () => {
+		expect(globalsCss).toMatch(/--background:\s*0 0% 100%/);
 	});
 
-	it("dark theme has light text", () => {
-		expect(themeCSS).toContain("#e0e0e0");
+	it("dark theme defines dark background", () => {
+		expect(globalsCss).toMatch(/--background:\s*240 33% 14%/);
+	});
+
+	it("dark theme defines light foreground", () => {
+		expect(globalsCss).toMatch(/--foreground:\s*0 0% 88%/);
 	});
 });
 
-describe("main.tsx imports theme.css", () => {
-	it("contains theme.css import", () => {
+describe("main.tsx imports globals.css", () => {
+	it("contains globals.css import", () => {
 		const mainTSX = readFileSync(resolve(__dirname, "main.tsx"), "utf-8");
-		expect(mainTSX).toContain('import "./theme.css"');
+		expect(mainTSX).toContain('import "./globals.css"');
 	});
 });

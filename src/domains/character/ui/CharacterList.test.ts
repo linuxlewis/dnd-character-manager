@@ -2,9 +2,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const cssPath = resolve(import.meta.dirname, "CharacterList.module.css");
-const css = readFileSync(cssPath, "utf-8");
-
 describe("CharacterList", () => {
 	it("module exports CharacterList function", async () => {
 		const mod = await import("./CharacterList.tsx");
@@ -56,55 +53,26 @@ describe("CharacterList", () => {
 	});
 });
 
-describe("CharacterList.module.css - theme tokens", () => {
-	it("contains no hardcoded hex color values", () => {
-		// Match hex colors but exclude rgba() which is acceptable for shadows
-		const lines = css.split("\n");
-		for (const line of lines) {
-			const trimmed = line.trim();
-			// Skip rgba values (used in box-shadow)
-			if (trimmed.includes("rgba(")) continue;
-			// Check for hex colors like #xxx or #xxxxxx
-			const hexMatch = trimmed.match(/#[0-9a-fA-F]{3,8}\b/);
-			if (hexMatch) {
-				throw new Error(`Found hardcoded hex color "${hexMatch[0]}" in line: ${trimmed}`);
-			}
-		}
+describe("CharacterList uses shadcn/ui components", () => {
+	const source = readFileSync(resolve(import.meta.dirname, "CharacterList.tsx"), "utf-8");
+
+	it("imports Button from shadcn/ui", () => {
+		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
 	});
 
-	it("uses var(--color-*) for all color properties", () => {
-		expect(css).toContain("var(--color-surface)");
-		expect(css).toContain("var(--color-border)");
-		expect(css).toContain("var(--color-text)");
-		expect(css).toContain("var(--color-text-secondary)");
-		expect(css).toContain("var(--color-primary)");
-		expect(css).toContain("var(--color-danger)");
+	it("uses Tailwind responsive grid classes", () => {
+		expect(source).toContain("grid-cols-1");
+		expect(source).toContain("sm:grid-cols-2");
+		expect(source).toContain("lg:grid-cols-3");
 	});
 
-	it("uses spacing tokens", () => {
-		expect(css).toContain("var(--space-");
+	it("does not import CSS modules", () => {
+		expect(source).not.toContain(".module.css");
 	});
 
-	it("uses typography tokens", () => {
-		expect(css).toContain("var(--text-");
-	});
-
-	it("cards have transition for smooth theme switching", () => {
-		expect(css).toContain("background-color 0.3s");
-		expect(css).toContain("border-color 0.3s");
-	});
-
-	it("empty state uses --color-text-secondary", () => {
-		const emptyBlock = css.substring(css.indexOf(".empty"));
-		expect(emptyBlock).toContain("var(--color-text-secondary)");
-	});
-
-	it("cards have box-shadow for depth", () => {
-		expect(css).toContain("box-shadow");
-	});
-
-	it("hover/focus states reference --color-primary", () => {
-		const hoverSection = css.substring(css.indexOf(".card:hover"));
-		expect(hoverSection).toContain("var(--color-primary)");
+	it("uses Tailwind classes for styling", () => {
+		expect(source).toContain("className=");
+		expect(source).toContain("text-foreground");
+		expect(source).toContain("text-muted-foreground");
 	});
 });

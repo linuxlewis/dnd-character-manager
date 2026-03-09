@@ -22,7 +22,7 @@ test.describe("Dark mode toggle", () => {
 		expect(newTheme).not.toBe(initialTheme);
 
 		// Verify CSS custom properties change with theme
-		const bgColor = await html.evaluate((el) => getComputedStyle(el).getPropertyValue("--color-bg"));
+		const bgColor = await html.evaluate((el) => getComputedStyle(el).getPropertyValue("--background"));
 		expect(bgColor).toBeTruthy();
 
 		// Toggle back

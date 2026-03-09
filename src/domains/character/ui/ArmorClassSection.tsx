@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Badge } from "../../../app/components/ui/badge.tsx";
+import { Button } from "../../../app/components/ui/button.tsx";
+import { Input } from "../../../app/components/ui/input.tsx";
 import { calculateAC } from "../types/character.js";
 import type { Character } from "../types/index.js";
-import styles from "./CharacterSheet.module.css";
 
 export function ArmorClassSection({
 	character,
@@ -51,53 +53,51 @@ export function ArmorClassSection({
 	};
 
 	return (
-		<div className={styles.section}>
-			<h2 className={styles.sectionTitle}>Armor Class</h2>
-			<div className={styles.acDisplay}>
-				<div className={styles.acShield}>
-					<span className={styles.acValue} data-testid="ac-value">
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Armor Class
+			</h2>
+			<div className="flex items-center gap-4 mb-2">
+				<div className="flex flex-col items-center justify-center w-16 h-[4.5rem] border-2 border-border rounded-b-[50%] bg-muted transition-colors">
+					<span className="text-2xl font-bold text-foreground leading-none" data-testid="ac-value">
 						{acValue}
 					</span>
-					<span className={styles.acLabel}>AC</span>
+					<span className="text-[0.7rem] text-muted-foreground uppercase">AC</span>
 				</div>
-				{hasAcOverride && <span className={styles.acOverrideIndicator}>Override</span>}
+				{hasAcOverride && <Badge>Override</Badge>}
 			</div>
-			<div className={styles.acActions}>
+			<div className="flex gap-2">
 				{hasAcOverride ? (
-					<button type="button" className={styles.acClearButton} onClick={handleClearAcOverride}>
+					<Button variant="outline" size="sm" onClick={handleClearAcOverride}>
 						Clear Override
-					</button>
+					</Button>
 				) : !showAcOverride ? (
-					<button
-						type="button"
-						className={styles.acOverrideButton}
-						onClick={() => setShowAcOverride(true)}
-					>
+					<Button variant="outline" size="sm" onClick={() => setShowAcOverride(true)}>
 						Override AC
-					</button>
+					</Button>
 				) : (
-					<div className={styles.acOverrideForm}>
-						<input
+					<div className="flex gap-2 items-center">
+						<Input
 							type="number"
-							className={styles.acOverrideInput}
+							className="w-20"
 							value={acOverrideInput}
 							onChange={(e) => setAcOverrideInput(e.target.value)}
-							placeholder="AC value"
+							placeholder="AC"
 							min="0"
 						/>
-						<button type="button" className={styles.acSetButton} onClick={handleSetAcOverride}>
+						<Button size="sm" onClick={handleSetAcOverride}>
 							Set
-						</button>
-						<button
-							type="button"
-							className={styles.acCancelButton}
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
 							onClick={() => {
 								setShowAcOverride(false);
 								setAcOverrideInput("");
 							}}
 						>
 							Cancel
-						</button>
+						</Button>
 					</div>
 				)}
 			</div>

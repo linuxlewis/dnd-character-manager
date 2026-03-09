@@ -1,20 +1,17 @@
 import { Checkbox } from "../../../app/components/ui/checkbox.tsx";
 import type { Character } from "../types/index.js";
-import { calculateSavingThrow } from "../types/skills.js";
+import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 
-const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
-
-export function SavingThrowsSection({
-	character,
-	characterId,
-	onUpdate,
-}: {
+interface SkillsSectionProps {
 	character: Character;
 	characterId: string;
+	readOnly: boolean;
 	onUpdate: (c: Character) => void;
-}) {
-	const handleToggleSavingThrow = (abilityKey: string) => {
-		fetch(`/api/characters/${characterId}/saving-throws/${abilityKey}/toggle`, {
+}
+
+export function SkillsSection({ character, characterId, readOnly, onUpdate }: SkillsSectionProps) {
+	const handleToggleSkill = (skillName: string) => {
+		fetch(`/api/characters/${characterId}/skills/${encodeURIComponent(skillName)}/toggle`, {
 			method: "POST",
 		})
 			.then((r) => (r.ok ? r.json() : null))
@@ -27,34 +24,39 @@ export function SavingThrowsSection({
 	return (
 		<div className="mb-6">
 			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
-				Saving Throws
+				Skills
 			</h2>
 			<div className="flex flex-col gap-1">
-				{ABILITY_KEYS.map((key) => {
-					const proficient = character.savingThrowProficiencies?.includes(key) ?? false;
-					const bonus = calculateSavingThrow(
-						character.abilityScores[key],
+				{SKILLS.map((skill) => {
+					const charSkill = character.skills?.find((s) => s.name === skill.name);
+					const proficient = charSkill?.proficient ?? false;
+					const bonus = calculateSkillBonus(
+						character.abilityScores[skill.abilityKey],
 						proficient,
 						character.level,
 					);
 					const formatted = bonus >= 0 ? `+${bonus}` : `${bonus}`;
+					const skillId = `skill-checkbox-${skill.name.replace(/\s+/g, "-").toLowerCase()}`;
 					return (
 						<div
-							key={key}
+							key={skill.name}
 							className="flex items-center gap-3 p-2 rounded-md min-h-[44px] cursor-pointer odd:bg-muted even:bg-background active:bg-primary/10 transition-colors"
-							data-testid={`saving-throw-${key}`}
 						>
 							<Checkbox
-								id={`saving-throw-checkbox-${key}`}
+								id={skillId}
 								checked={proficient}
-								onCheckedChange={() => handleToggleSavingThrow(key)}
+								onCheckedChange={() => handleToggleSkill(skill.name)}
+								disabled={readOnly}
 							/>
 							<label
-								htmlFor={`saving-throw-checkbox-${key}`}
+								htmlFor={skillId}
 								className="flex-1 text-[0.95rem] text-foreground cursor-pointer"
 							>
-								{key}
+								{skill.name}
 							</label>
+							<span className="text-xs text-muted-foreground w-8 text-center">
+								{skill.abilityKey}
+							</span>
 							<span className="font-bold text-[0.95rem] w-10 text-right text-foreground">
 								{formatted}
 							</span>

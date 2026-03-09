@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 describe("US-003: App layout integration", () => {
 	const appSource = readFileSync(resolve(__dirname, "app.tsx"), "utf-8");
-	const layoutCss = readFileSync(resolve(__dirname, "layout.module.css"), "utf-8");
 
 	it("App wraps content in ThemeProvider", () => {
 		expect(appSource).toContain("<ThemeProvider>");
@@ -16,27 +15,25 @@ describe("US-003: App layout integration", () => {
 		expect(appSource).toContain("<header");
 	});
 
-	it("App uses layout module styles", () => {
-		expect(appSource).toContain("styles.appShell");
-		expect(appSource).toContain("styles.header");
+	it("App uses Tailwind classes for layout", () => {
+		expect(appSource).toContain("min-h-screen");
+		expect(appSource).toContain("sticky");
+		expect(appSource).toContain("bg-muted");
 	});
 
-	it("layout CSS uses theme custom properties for background and color", () => {
-		expect(layoutCss).toContain("var(--color-bg)");
-		expect(layoutCss).toContain("var(--color-text)");
+	it("App uses Tailwind background class", () => {
+		expect(appSource).toContain("bg-background");
 	});
 
-	it("layout CSS has transition using --transition-theme", () => {
-		expect(layoutCss).toContain("var(--transition-theme");
-		expect(layoutCss).toContain("background-color");
+	it("App has transition classes", () => {
+		expect(appSource).toContain("transition-colors");
 	});
 
-	it("header is sticky", () => {
-		expect(layoutCss).toContain("position: sticky");
-		expect(layoutCss).toContain("top: 0");
+	it("header is sticky with z-index", () => {
+		expect(appSource).toContain("sticky top-0 z-50");
 	});
 
-	it("layout has min-height 100vh", () => {
-		expect(layoutCss).toContain("min-height: 100vh");
+	it("main content has max width constraint", () => {
+		expect(appSource).toContain("max-w-[960px]");
 	});
 });

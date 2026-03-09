@@ -20,7 +20,6 @@ describe("CharacterSheet", () => {
 	});
 
 	it("formats modifier with sign", () => {
-		// Positive modifiers should have +, negative should have -
 		const formatMod = (score: number) => {
 			const mod = getAbilityModifier(score);
 			return mod >= 0 ? `+${mod}` : `${mod}`;
@@ -40,22 +39,20 @@ describe("CharacterSheet", () => {
 
 	it("HP color thresholds", () => {
 		const getColor = (percent: number) =>
-			percent > 50 ? "#22c55e" : percent > 25 ? "#eab308" : "#ef4444";
-		expect(getColor(75)).toBe("#22c55e");
-		expect(getColor(50)).toBe("#eab308");
-		expect(getColor(25)).toBe("#ef4444");
-		expect(getColor(10)).toBe("#ef4444");
+			percent > 50 ? "success" : percent > 25 ? "warning" : "destructive";
+		expect(getColor(75)).toBe("success");
+		expect(getColor(50)).toBe("warning");
+		expect(getColor(25)).toBe("destructive");
+		expect(getColor(10)).toBe("destructive");
 	});
 
 	it("damage API contract", () => {
-		// Verify the expected request shape for damage endpoint
 		const body = JSON.stringify({ amount: 5 });
 		const parsed = JSON.parse(body);
 		expect(parsed.amount).toBe(5);
 	});
 
 	it("heal API contract", () => {
-		// Verify the expected request shape for heal endpoint
 		const body = JSON.stringify({ amount: 3 });
 		const parsed = JSON.parse(body);
 		expect(parsed.amount).toBe(3);
@@ -78,14 +75,11 @@ describe("CharacterSheet", () => {
 	});
 
 	it("calculates skill bonus without proficiency", () => {
-		// DEX 14 = +2 mod, not proficient => +2
 		expect(calculateSkillBonus(14, false, 1)).toBe(2);
 	});
 
 	it("calculates skill bonus with proficiency", () => {
-		// DEX 14 = +2 mod, proficient at level 1 = +2 prof => +4
 		expect(calculateSkillBonus(14, true, 1)).toBe(4);
-		// Level 5 = +3 prof => +5
 		expect(calculateSkillBonus(14, true, 5)).toBe(5);
 	});
 
@@ -99,7 +93,6 @@ describe("CharacterSheet", () => {
 		const slot = { level: 1, used: 2, available: 4 };
 		const remaining = slot.available - slot.used;
 		expect(remaining).toBe(2);
-		// First 'used' slots are used, rest are available
 		const circles = Array.from({ length: slot.available }, (_, i) => i < slot.used);
 		expect(circles).toEqual([true, true, false, false]);
 	});
@@ -196,78 +189,39 @@ describe("CharacterSheet", () => {
 	});
 });
 
-describe("CharacterSheet themed styles", () => {
-	const cssPath = resolve(__dirname, "CharacterSheet.module.css");
-	const css = readFileSync(cssPath, "utf-8");
+describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
+	const source = readFileSync(resolve(__dirname, "CharacterSheet.tsx"), "utf-8");
 
-	it("contains no hardcoded hex color values", () => {
-		// Allow #eab308 for warning (no theme token for warning), and percentage values in color-mix
-		const lines = css.split("\n");
-		const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
-		const allowedHex = ["#eab308"]; // warning yellow - no theme token
-		for (const line of lines) {
-			const trimmed = line.trim();
-			if (trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("//")) continue;
-			const matches = trimmed.match(hexPattern);
-			if (matches) {
-				for (const match of matches) {
-					expect(allowedHex).toContain(match);
-				}
-			}
-		}
+	it("imports shadcn/ui Button", () => {
+		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
 	});
 
-	it("uses --color-surface for stat card backgrounds", () => {
-		expect(css).toContain(".stat");
-		expect(css).toMatch(/\.stat\s*\{[^}]*var\(--color-surface\)/);
+	it("uses SkillsSection which uses shadcn/ui Checkbox", () => {
+		expect(source).toContain("SkillsSection");
+		const skillsSource = readFileSync(resolve(__dirname, "SkillsSection.tsx"), "utf-8");
+		expect(skillsSource).toContain('from "../../../app/components/ui/checkbox.tsx"');
 	});
 
-	it("uses --color-danger for HP bar danger class", () => {
-		expect(css).toContain(".hpBarFillDanger");
-		expect(css).toMatch(/\.hpBarFillDanger\s*\{[^}]*var\(--color-danger\)/);
+	it("imports cn utility for class merging", () => {
+		expect(source).toContain('from "../../../app/lib/utils.ts"');
 	});
 
-	it("uses --color-success for HP bar good class", () => {
-		expect(css).toContain(".hpBarFillGood");
-		expect(css).toMatch(/\.hpBarFillGood\s*\{[^}]*var\(--color-success\)/);
+	it("does not import CSS modules", () => {
+		expect(source).not.toContain(".module.css");
 	});
 
-	it("uses theme tokens for damage and heal buttons", () => {
-		expect(css).toMatch(/\.damageButton\s*\{[^}]*var\(--color-danger\)/);
-		expect(css).toMatch(/\.healButton\s*\{[^}]*var\(--color-success\)/);
+	it("uses Tailwind classes for HP bar colors", () => {
+		expect(source).toContain("bg-success");
+		expect(source).toContain("bg-warning");
+		expect(source).toContain("bg-destructive");
 	});
 
-	it("uses theme tokens for notes textarea", () => {
-		expect(css).toMatch(/\.notesTextarea\s*\{[^}]*var\(--color-input-bg\)/);
-		expect(css).toMatch(/\.notesTextarea\s*\{[^}]*var\(--color-input-border\)/);
+	it("uses Tailwind responsive classes", () => {
+		expect(source).toContain("max-sm:");
 	});
 
-	it("uses theme tokens for delete button", () => {
-		expect(css).toMatch(/\.deleteButton\s*\{[^}]*var\(--color-danger\)/);
-	});
-
-	it("has alternating row colors for skills using theme tokens", () => {
-		expect(css).toMatch(/\.skillRow:nth-child\(odd\)/);
-		expect(css).toMatch(/\.skillRow:nth-child\(even\)/);
-	});
-
-	it("has share section styles", () => {
-		expect(css).toContain(".shareSection");
-		expect(css).toContain(".shareUrl");
-		expect(css).toContain(".copyButton");
-		expect(css).toContain(".shareLabel");
-	});
-
-	it("has responsive media query for mobile", () => {
-		expect(css).toMatch(/@media\s*\(max-width:\s*480px\)/);
-	});
-
-	it("HP bar uses CSS classes instead of inline colors in component", async () => {
-		const tsxPath = resolve(__dirname, "CharacterSheet.tsx");
-		const tsx = readFileSync(tsxPath, "utf-8");
-		expect(tsx).toContain("hpBarFillGood");
-		expect(tsx).toContain("hpBarFillWarning");
-		expect(tsx).toContain("hpBarFillDanger");
-		expect(tsx).not.toContain("backgroundColor: hpColor");
+	it("uses Button variant props for damage/heal", () => {
+		expect(source).toContain('variant="destructive-ghost"');
+		expect(source).toContain('variant="success-ghost"');
 	});
 });

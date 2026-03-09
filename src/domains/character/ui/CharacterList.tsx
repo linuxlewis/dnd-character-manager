@@ -1,7 +1,8 @@
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../../../app/components/ui/button.tsx";
 import { useNavigate } from "../../../app/router.tsx";
 import type { Character } from "../types/index.js";
-import styles from "./CharacterList.module.css";
 
 export function CharacterList() {
 	const navigate = useNavigate();
@@ -17,35 +18,34 @@ export function CharacterList() {
 	}, []);
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.header}>
-				<h1 className={styles.title}>Characters</h1>
-				<button
-					type="button"
-					className={styles.newButton}
-					onClick={() => navigate("/character/new")}
-				>
-					+ New Character
-				</button>
+		<div className="max-w-[960px] mx-auto p-6 max-sm:p-2">
+			<div className="flex justify-between items-center mb-6">
+				<h1 className="text-2xl font-heading text-foreground">Characters</h1>
+				<Button onClick={() => navigate("/character/new")}>
+					<Plus className="h-4 w-4" />
+					New Character
+				</Button>
 			</div>
 			{loading ? (
-				<p>Loading...</p>
+				<p className="text-muted-foreground">Loading...</p>
 			) : characters.length === 0 ? (
-				<p className={styles.empty}>No characters yet. Create your first adventurer!</p>
+				<p className="text-center text-muted-foreground py-8 text-lg">
+					No characters yet. Create your first adventurer!
+				</p>
 			) : (
-				<div className={styles.grid}>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 					{characters.map((c) => (
 						<button
 							key={c.id}
 							type="button"
-							className={styles.card}
+							className="rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all p-6 cursor-pointer hover:border-primary hover:shadow-md text-left"
 							onClick={() => navigate(`/character/${c.id}`)}
 						>
-							<div className={styles.cardName}>{c.name}</div>
-							<div className={styles.cardMeta}>
+							<div className="text-lg font-bold mb-1 text-foreground">{c.name}</div>
+							<div className="text-sm text-muted-foreground mb-2">
 								{c.race} · {c.class} · Level {c.level}
 							</div>
-							<div className={styles.cardHp}>
+							<div className="text-sm font-semibold text-destructive">
 								HP: {c.hp.current} / {c.hp.max}
 							</div>
 						</button>

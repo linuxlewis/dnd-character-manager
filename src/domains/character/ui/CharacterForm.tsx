@@ -1,10 +1,28 @@
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../../../app/components/ui/button.tsx";
+import { Input } from "../../../app/components/ui/input.tsx";
+import { Label } from "../../../app/components/ui/label.tsx";
 import { useNavigate } from "../../../app/router.tsx";
-import { CreateCharacterSchema } from "../types/index.js";
-import type { Character } from "../types/index.js";
-import styles from "./CharacterForm.module.css";
+import type { AbilityScores, Character } from "../types/index.js";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
+
+type CharacterFormValues = {
+	name: string;
+	race: string;
+	class: string;
+	level: number;
+	abilityScores: AbilityScores;
+};
+
+type FormErrors = {
+	name?: string;
+	race?: string;
+	class?: string;
+	level?: string;
+	[key: string]: string | undefined;
+};
 
 interface CharacterFormProps {
 	id?: string;
@@ -13,62 +31,81 @@ interface CharacterFormProps {
 export function CharacterForm({ id }: CharacterFormProps) {
 	const navigate = useNavigate();
 	const isEdit = id !== undefined && id !== "new";
-
-	const [name, setName] = useState("");
-	const [race, setRace] = useState("");
-	const [charClass, setCharClass] = useState("");
-	const [level, setLevel] = useState(1);
-	const [abilities, setAbilities] = useState({
-		STR: 10,
-		DEX: 10,
-		CON: 10,
-		INT: 10,
-		WIS: 10,
-		CHA: 10,
-	});
-	const [errors, setErrors] = useState<string[]>([]);
-	const [submitting, setSubmitting] = useState(false);
+	const [serverError, setServerError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(isEdit);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errors, setErrors] = useState<FormErrors>({});
+
+	const [formData, setFormData] = useState<CharacterFormValues>({
+		name: "",
+		race: "",
+		class: "",
+		level: 1,
+		abilityScores: { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 },
+	});
 
 	useEffect(() => {
 		if (!isEdit) return;
 		fetch(`/api/characters/${id}`)
 			.then((r) => r.json())
 			.then((c: Character) => {
-				setName(c.name);
-				setRace(c.race);
-				setCharClass(c.class);
-				setLevel(c.level);
-				setAbilities(c.abilityScores);
+				setFormData({
+					name: c.name,
+					race: c.race,
+					class: c.class,
+					level: c.level,
+					abilityScores: c.abilityScores,
+				});
 			})
-			.catch(() => setErrors(["Failed to load character"]))
+			.catch(() => setServerError("Failed to load character"))
 			.finally(() => setLoading(false));
 	}, [id, isEdit]);
 
-	function setAbility(key: string, value: number) {
-		setAbilities((prev) => ({ ...prev, [key]: value }));
+	function validateForm(data: CharacterFormValues): FormErrors {
+		const newErrors: FormErrors = {};
+
+		if (!data.name.trim()) {
+			newErrors.name = "Name is required";
+		} else if (data.name.length > 255) {
+			newErrors.name = "Name must be 255 characters or less";
+		}
+
+		if (!data.race.trim()) {
+			newErrors.race = "Race is required";
+		} else if (data.race.length > 100) {
+			newErrors.race = "Race must be 100 characters or less";
+		}
+
+		if (!data.class.trim()) {
+			newErrors.class = "Class is required";
+		} else if (data.class.length > 100) {
+			newErrors.class = "Class must be 100 characters or less";
+		}
+
+		if (data.level < 1 || data.level > 20) {
+			newErrors.level = "Level must be between 1 and 20";
+		}
+
+		return newErrors;
 	}
 
-	async function handleSubmit(e: React.FormEvent) {
+	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		setErrors([]);
+		setServerError(null);
+		setErrors({});
 
-		const data = {
-			name,
-			race,
-			class: charClass,
-			level,
-			abilityScores: abilities,
-			hp: { current: 10, max: 10, temp: 0 },
-		};
-
-		const result = CreateCharacterSchema.safeParse(data);
-		if (!result.success) {
-			setErrors(result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`));
+		const validationErrors = validateForm(formData);
+		if (Object.keys(validationErrors).length > 0) {
+			setErrors(validationErrors);
 			return;
 		}
 
-		setSubmitting(true);
+		setIsSubmitting(true);
+		const data = {
+			...formData,
+			hp: { current: 10, max: 10, temp: 0 },
+		};
+
 		try {
 			const url = isEdit ? `/api/characters/${id}` : "/api/characters";
 			const method = isEdit ? "PUT" : "POST";
@@ -78,111 +115,117 @@ export function CharacterForm({ id }: CharacterFormProps) {
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				setErrors(["Failed to save character"]);
+				setServerError("Failed to save character");
 				return;
 			}
 			navigate("/");
 		} catch {
-			setErrors(["Network error"]);
+			setServerError("Network error");
 		} finally {
-			setSubmitting(false);
+			setIsSubmitting(false);
 		}
 	}
 
-	if (loading) return <p>Loading...</p>;
+	function handleInputChange(
+		field: keyof Omit<CharacterFormValues, "abilityScores">,
+		value: string | number,
+	) {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+		// Clear error when user starts typing
+		if (errors[field]) {
+			setErrors((prev) => ({ ...prev, [field]: undefined }));
+		}
+	}
+
+	function handleAbilityScoreChange(ability: keyof AbilityScores, value: number) {
+		setFormData((prev) => ({
+			...prev,
+			abilityScores: { ...prev.abilityScores, [ability]: value },
+		}));
+	}
+
+	if (loading) return <p className="text-muted-foreground p-4">Loading...</p>;
 
 	return (
-		<div className={styles.container}>
-			<button type="button" className={styles.backButton} onClick={() => navigate("/")}>
-				← Back
-			</button>
-			<h1 className={styles.title}>{isEdit ? "Edit Character" : "New Character"}</h1>
-			<form className={styles.form} onSubmit={handleSubmit}>
-				<div className={styles.field}>
-					<label className={styles.label} htmlFor="name">
-						Name
-					</label>
-					<input
-						className={styles.input}
+		<div className="max-w-full sm:max-w-[600px] mx-auto p-4">
+			<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
+				<ArrowLeft className="h-4 w-4" />
+				Back
+			</Button>
+			<h1 className="text-2xl font-heading text-foreground mb-4">
+				{isEdit ? "Edit Character" : "New Character"}
+			</h1>
+			<form onSubmit={onSubmit} className="space-y-4">
+				<div>
+					<Label htmlFor="name">Name</Label>
+					<Input
 						id="name"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						required
+						value={formData.name}
+						onChange={(e) => handleInputChange("name", e.target.value)}
+						placeholder="Enter character name"
 					/>
+					{errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
 				</div>
-				<div className={styles.field}>
-					<label className={styles.label} htmlFor="race">
-						Race
-					</label>
-					<input
-						className={styles.input}
+
+				<div>
+					<Label htmlFor="race">Race</Label>
+					<Input
 						id="race"
-						value={race}
-						onChange={(e) => setRace(e.target.value)}
-						required
+						value={formData.race}
+						onChange={(e) => handleInputChange("race", e.target.value)}
+						placeholder="Enter character race"
 					/>
+					{errors.race && <p className="text-sm text-destructive mt-1">{errors.race}</p>}
 				</div>
-				<div className={styles.field}>
-					<label className={styles.label} htmlFor="charClass">
-						Class
-					</label>
-					<input
-						className={styles.input}
-						id="charClass"
-						value={charClass}
-						onChange={(e) => setCharClass(e.target.value)}
-						required
+
+				<div>
+					<Label htmlFor="class">Class</Label>
+					<Input
+						id="class"
+						value={formData.class}
+						onChange={(e) => handleInputChange("class", e.target.value)}
+						placeholder="Enter character class"
 					/>
+					{errors.class && <p className="text-sm text-destructive mt-1">{errors.class}</p>}
 				</div>
-				<div className={styles.field}>
-					<label className={styles.label} htmlFor="level">
-						Level
-					</label>
-					<input
-						className={styles.input}
+
+				<div>
+					<Label htmlFor="level">Level</Label>
+					<Input
 						id="level"
 						type="number"
 						min={1}
 						max={20}
-						value={level}
-						onChange={(e) => setLevel(Number(e.target.value))}
-						required
+						value={formData.level}
+						onChange={(e) => handleInputChange("level", e.target.valueAsNumber || 1)}
 					/>
+					{errors.level && <p className="text-sm text-destructive mt-1">{errors.level}</p>}
 				</div>
-				<fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-					<legend className={styles.label} style={{ marginBottom: "var(--space-sm)" }}>
-						Ability Scores
-					</legend>
-					<div className={styles.abilityGrid}>
+
+				<fieldset className="border-0 p-0 m-0">
+					<legend className="text-sm font-semibold text-foreground mb-2">Ability Scores</legend>
+					<div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
 						{ABILITY_KEYS.map((key) => (
-							<div className={styles.field} key={key}>
-								<label className={styles.label} htmlFor={`ability-${key}`}>
-									{key}
-								</label>
-								<input
-									className={styles.input}
+							<div key={key}>
+								<Label htmlFor={`ability-${key}`}>{key}</Label>
+								<Input
 									id={`ability-${key}`}
 									type="number"
 									min={1}
 									max={30}
-									value={abilities[key]}
-									onChange={(e) => setAbility(key, Number(e.target.value))}
-									required
+									value={formData.abilityScores[key]}
+									onChange={(e) => handleAbilityScoreChange(key, e.target.valueAsNumber || 10)}
 								/>
 							</div>
 						))}
 					</div>
 				</fieldset>
-				{errors.length > 0 && (
-					<ul className={styles.errorList}>
-						{errors.map((err) => (
-							<li key={err}>{err}</li>
-						))}
-					</ul>
-				)}
-				<button type="submit" className={styles.submitButton} disabled={submitting}>
-					{submitting ? "Saving..." : isEdit ? "Save Changes" : "Create Character"}
-				</button>
+
+				{serverError && <p className="text-sm font-medium text-destructive">{serverError}</p>}
+
+				<Button type="submit" size="lg" className="w-full mt-2" disabled={isSubmitting}>
+					{isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Character"}
+				</Button>
 			</form>
 		</div>
 	);

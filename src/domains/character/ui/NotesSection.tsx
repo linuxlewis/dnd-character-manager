@@ -1,4 +1,4 @@
-import styles from "./CharacterSheet.module.css";
+import { Textarea } from "../../../app/components/ui/textarea.tsx";
 
 interface NotesSectionProps {
 	notes: string;
@@ -9,10 +9,11 @@ interface NotesSectionProps {
 
 export function NotesSection({ notes, readOnly, onChange, onBlur }: NotesSectionProps) {
 	return (
-		<div className={styles.section}>
-			<h2 className={styles.sectionTitle}>Notes</h2>
-			<textarea
-				className={styles.notesTextarea}
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Notes
+			</h2>
+			<Textarea
 				value={notes}
 				onChange={(e) => onChange(e.target.value)}
 				onBlur={readOnly ? undefined : onBlur}
