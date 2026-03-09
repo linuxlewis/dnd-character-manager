@@ -1,5 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { Input } from "../../../app/components/ui/input.tsx";
 import { Label } from "../../../app/components/ui/label.tsx";
@@ -31,7 +32,7 @@ interface CharacterFormProps {
 export function CharacterForm({ id }: CharacterFormProps) {
 	const navigate = useNavigate();
 	const isEdit = id !== undefined && id !== "new";
-	const [serverError, setServerError] = useState<string | null>(null);
+
 	const [loading, setLoading] = useState(isEdit);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errors, setErrors] = useState<FormErrors>({});
@@ -57,7 +58,7 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					abilityScores: c.abilityScores,
 				});
 			})
-			.catch(() => setServerError("Failed to load character"))
+			.catch(() => toast.error("Failed to load character"))
 			.finally(() => setLoading(false));
 	}, [id, isEdit]);
 
@@ -91,7 +92,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		setServerError(null);
 		setErrors({});
 
 		const validationErrors = validateForm(formData);
@@ -115,12 +115,13 @@ export function CharacterForm({ id }: CharacterFormProps) {
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				setServerError("Failed to save character");
+				toast.error("Failed to save character");
 				return;
 			}
+			toast.success(isEdit ? "Character updated successfully" : "Character created successfully");
 			navigate("/");
 		} catch {
-			setServerError("Network error");
+			toast.error("Network error");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -220,8 +221,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 						))}
 					</div>
 				</fieldset>
-
-				{serverError && <p className="text-sm font-medium text-destructive">{serverError}</p>}
 
 				<Button type="submit" size="lg" className="w-full mt-2" disabled={isSubmitting}>
 					{isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Character"}

@@ -1,11 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { cn } from "../../../app/lib/utils.ts";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
+import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
 import { EquipmentSection } from "./EquipmentSection.tsx";
 import { NotesSection } from "./NotesSection.tsx";
 import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
@@ -25,6 +27,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const [character, setCharacter] = useState<Character | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const readOnly = !!slug;
 	const characterId = id ?? character?.id;
 
@@ -52,9 +55,14 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 		})
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				if (data) setCharacter(data);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Applied ${amount} damage`);
+				} else {
+					toast.error("Failed to apply damage");
+				}
 			})
-			.catch(() => {});
+			.catch(() => toast.error("Network error"));
 	};
 
 	const handleHeal = () => {
@@ -69,9 +77,14 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 		})
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				if (data) setCharacter(data);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Healed ${amount} HP`);
+				} else {
+					toast.error("Failed to heal");
+				}
 			})
-			.catch(() => {});
+			.catch(() => toast.error("Network error"));
 	};
 
 	const handleNotesBlur = () => {
@@ -83,19 +96,22 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 		})
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				if (data) setCharacter(data);
+				if (data) {
+					setCharacter(data);
+					toast.success("Notes saved");
+				} else {
+					toast.error("Failed to save notes");
+				}
 			})
-			.catch(() => {});
+			.catch(() => toast.error("Network error"));
 	};
 
-	const handleDelete = () => {
-		if (!window.confirm(`Delete ${character?.name ?? "this character"}? This cannot be undone.`))
-			return;
-		fetch(`/api/characters/${characterId}`, { method: "DELETE" })
-			.then((r) => {
-				if (r.ok) navigate("/");
-			})
-			.catch(() => {});
+	const handleDeleteClick = () => {
+		setShowDeleteDialog(true);
+	};
+
+	const handleDeleteConfirm = () => {
+		navigate("/");
 	};
 
 	if (loading)
@@ -176,10 +192,19 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			/>
 			{!readOnly && (
 				<div className="mb-6">
-					<Button variant="destructive" className="w-full" onClick={handleDelete}>
+					<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>
 						Delete Character
 					</Button>
 				</div>
+			)}
+			{character && (
+				<DeleteCharacterDialog
+					characterId={character.id}
+					characterName={character.name}
+					isOpen={showDeleteDialog}
+					onClose={() => setShowDeleteDialog(false)}
+					onDeleted={handleDeleteConfirm}
+				/>
 			)}
 		</div>
 	);
