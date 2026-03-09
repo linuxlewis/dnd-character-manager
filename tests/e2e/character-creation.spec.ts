@@ -3,7 +3,7 @@ import { DEFAULT_CHARACTER, expect, fillCharacterForm, test } from "./fixtures.t
 test.describe("Character creation flow", () => {
 	test("creates a character via form and it appears in the list", async ({ page, testCharacter }) => {
 		await page.goto("/");
-		await expect(page.getByText("No characters yet")).toBeVisible();
+		await expect(page.getByText("No Adventurers Yet")).toBeVisible();
 
 		await page.getByRole("button", { name: "New Character" }).click();
 		await expect(page.getByRole("heading", { name: "New Character" })).toBeVisible();
@@ -13,7 +13,7 @@ test.describe("Character creation flow", () => {
 
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 		await expect(page.getByText(testCharacter.name)).toBeVisible();
-		await expect(page.getByText(`${testCharacter.race} · ${testCharacter.class}`)).toBeVisible();
+		await expect(page.getByText(`${testCharacter.race} ${testCharacter.class}`)).toBeVisible();
 	});
 
 	test("shows validation errors for empty fields", async ({ page }) => {
@@ -43,8 +43,9 @@ test.describe("Character creation flow", () => {
 		const card = page.getByText(testCharacter.name);
 		await expect(card).toBeVisible();
 		await expect(
-			page.getByText(`${testCharacter.race} · ${testCharacter.class} · Level ${testCharacter.level}`),
+			page.getByText(`${testCharacter.race} ${testCharacter.class}`),
 		).toBeVisible();
-		await expect(page.getByText("HP: 10 / 10")).toBeVisible();
+		await expect(page.getByText(`Lvl ${testCharacter.level}`)).toBeVisible();
+		await expect(page.getByText("10/10")).toBeVisible();
 	});
 });

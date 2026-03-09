@@ -11,7 +11,7 @@ test.describe("Equipment management", () => {
 		await page.getByRole("button", { name: "Add" }).click();
 
 		await expect(page.getByText("Longsword", { exact: true })).toBeVisible();
-		await expect(page.getByText("3 lbs")).toBeVisible();
+		await expect(page.getByText("3 lbs", { exact: true })).toBeVisible();
 		await expect(page.getByText("Total Weight: 3 lbs")).toBeVisible();
 
 		await page.getByRole("button", { name: "Remove Longsword" }).click();

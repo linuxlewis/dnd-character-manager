@@ -7,13 +7,14 @@ test.describe("Character sheet view", () => {
 
 		// Header info
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
-		await expect(page.getByText("Dwarf Fighter · Level 5")).toBeVisible();
+		await expect(page.getByText("Dwarf Fighter")).toBeVisible();
+		await expect(page.getByText("Level 5")).toBeVisible();
 
 		// Ability scores section
 		await expect(page.getByText("Ability Scores")).toBeVisible();
-		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
+		const abilitySection = page.locator("section").filter({ has: page.getByText("Ability Scores") });
 		for (const stat of ["STR", "DEX", "CON", "INT", "WIS", "CHA"]) {
-			await expect(abilitySection.locator("div").filter({ hasText: new RegExp(`^${stat}$`) })).toBeVisible();
+			await expect(abilitySection.getByText(stat, { exact: true })).toBeVisible();
 		}
 
 		// HP section
@@ -52,8 +53,8 @@ test.describe("Character sheet view", () => {
 		await page.getByText("Thorin Ironforge").click();
 
 		// Check modifiers within the ability scores section specifically
-		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
-		await expect(abilitySection.locator("div").filter({ hasText: /^\+3$/ })).toBeVisible(); // STR mod
-		await expect(abilitySection.locator("div").filter({ hasText: /^-1$/ })).toBeVisible(); // CHA mod
+		const abilitySection = page.locator("section").filter({ has: page.getByText("Ability Scores") });
+		await expect(abilitySection.getByText("+3", { exact: true })).toBeVisible(); // STR mod
+		await expect(abilitySection.getByText("-1", { exact: true })).toBeVisible(); // CHA mod
 	});
 });
