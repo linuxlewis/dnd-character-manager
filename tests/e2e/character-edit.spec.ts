@@ -15,8 +15,8 @@ test.describe("Edit character", () => {
 		await expect(page.getByLabel("Race")).toHaveValue("Dwarf");
 
 		// Modify ability scores to unique values
-		await page.getByLabel("STR", { exact: true }).fill("20");
-		await page.getByLabel("CHA", { exact: true }).fill("15");
+		await page.getByLabel("Strength (STR)").fill("20");
+		await page.getByLabel("Charisma (CHA)").fill("15");
 
 		await page.getByRole("button", { name: "Save Changes" }).click();
 

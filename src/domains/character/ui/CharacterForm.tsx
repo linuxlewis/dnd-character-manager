@@ -7,17 +7,7 @@ import { Label } from "../../../app/components/ui/label.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
 import type { AbilityScores, Character } from "../types/index.js";
-
-const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
-
-const ABILITY_LABELS: Record<string, string> = {
-	STR: "Strength",
-	DEX: "Dexterity",
-	CON: "Constitution",
-	INT: "Intelligence",
-	WIS: "Wisdom",
-	CHA: "Charisma",
-};
+import { AbilityScoresFieldset } from "./AbilityScoresFieldset.tsx";
 
 type CharacterFormValues = {
 	name: string;
@@ -261,28 +251,10 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					)}
 				</div>
 
-				<fieldset className="border-0 p-0 m-0">
-					<legend className="text-sm font-heading font-bold text-foreground mb-3">
-						Ability Scores
-					</legend>
-					<div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-						{ABILITY_KEYS.map((key) => (
-							<div key={key}>
-								<Label htmlFor={`ability-${key}`} className="text-xs">
-									{ABILITY_LABELS[key]} ({key})
-								</Label>
-								<Input
-									id={`ability-${key}`}
-									type="number"
-									min={1}
-									max={30}
-									value={formData.abilityScores[key]}
-									onChange={(e) => handleAbilityScoreChange(key, e.target.valueAsNumber || 10)}
-								/>
-							</div>
-						))}
-					</div>
-				</fieldset>
+				<AbilityScoresFieldset
+					abilityScores={formData.abilityScores}
+					onChange={handleAbilityScoreChange}
+				/>
 
 				{serverError && (
 					<div

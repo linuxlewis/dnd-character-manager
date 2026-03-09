@@ -24,7 +24,7 @@ test.describe("Responsive layout", () => {
 		await expect(page.getByLabel("Class")).toBeVisible();
 
 		// Ability score fields should be visible
-		await expect(page.getByLabel("STR", { exact: true })).toBeVisible();
+		await expect(page.getByLabel("Strength (STR)")).toBeVisible();
 		await expect(page.getByRole("button", { name: "Create Character" })).toBeVisible();
 	});
 
