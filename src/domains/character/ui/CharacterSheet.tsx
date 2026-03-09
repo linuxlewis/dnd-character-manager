@@ -99,16 +99,22 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	};
 
 	if (loading)
-		return <div className="max-w-[600px] mx-auto p-4 text-muted-foreground">Loading...</div>;
+		return (
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
+				Loading...
+			</div>
+		);
 	if (!character)
 		return (
-			<div className="max-w-[600px] mx-auto p-4 text-muted-foreground">Character not found.</div>
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
+				Character not found.
+			</div>
 		);
 
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
 
 	return (
-		<div className="max-w-[600px] mx-auto p-4 transition-colors">
+		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden [&_*]:max-w-full [&_*]:box-border">
 			<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
 				<ArrowLeft className="h-4 w-4" />
 				Back

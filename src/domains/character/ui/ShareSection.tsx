@@ -20,12 +20,12 @@ export function ShareSection({ slug }: { slug: string }) {
 
 	return (
 		<div
-			className="flex items-center gap-2 p-3 bg-muted border border-border rounded-lg mb-4 flex-wrap"
+			className="flex items-center gap-2 p-3 bg-muted border border-border rounded-lg mb-4 flex-wrap sm:flex-nowrap"
 			data-testid="share-url-section"
 		>
 			<span className="font-semibold text-muted-foreground whitespace-nowrap">Share:</span>
 			<code
-				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground"
+				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground break-all max-w-[200px] sm:max-w-none"
 				data-testid="share-url"
 			>
 				{shareUrl}

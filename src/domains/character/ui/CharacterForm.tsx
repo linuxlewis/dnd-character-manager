@@ -4,7 +4,7 @@ import { Button } from "../../../app/components/ui/button.tsx";
 import { Input } from "../../../app/components/ui/input.tsx";
 import { Label } from "../../../app/components/ui/label.tsx";
 import { useNavigate } from "../../../app/router.tsx";
-import type { Character, AbilityScores } from "../types/index.js";
+import type { AbilityScores, Character } from "../types/index.js";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -63,25 +63,25 @@ export function CharacterForm({ id }: CharacterFormProps) {
 
 	function validateForm(data: CharacterFormValues): FormErrors {
 		const newErrors: FormErrors = {};
-		
+
 		if (!data.name.trim()) {
 			newErrors.name = "Name is required";
 		} else if (data.name.length > 255) {
 			newErrors.name = "Name must be 255 characters or less";
 		}
-		
+
 		if (!data.race.trim()) {
 			newErrors.race = "Race is required";
 		} else if (data.race.length > 100) {
 			newErrors.race = "Race must be 100 characters or less";
 		}
-		
+
 		if (!data.class.trim()) {
 			newErrors.class = "Class is required";
 		} else if (data.class.length > 100) {
 			newErrors.class = "Class must be 100 characters or less";
 		}
-		
+
 		if (data.level < 1 || data.level > 20) {
 			newErrors.level = "Level must be between 1 and 20";
 		}
@@ -126,25 +126,28 @@ export function CharacterForm({ id }: CharacterFormProps) {
 		}
 	}
 
-	function handleInputChange(field: keyof Omit<CharacterFormValues, "abilityScores">, value: string | number) {
-		setFormData(prev => ({ ...prev, [field]: value }));
+	function handleInputChange(
+		field: keyof Omit<CharacterFormValues, "abilityScores">,
+		value: string | number,
+	) {
+		setFormData((prev) => ({ ...prev, [field]: value }));
 		// Clear error when user starts typing
 		if (errors[field]) {
-			setErrors(prev => ({ ...prev, [field]: undefined }));
+			setErrors((prev) => ({ ...prev, [field]: undefined }));
 		}
 	}
 
 	function handleAbilityScoreChange(ability: keyof AbilityScores, value: number) {
-		setFormData(prev => ({
+		setFormData((prev) => ({
 			...prev,
-			abilityScores: { ...prev.abilityScores, [ability]: value }
+			abilityScores: { ...prev.abilityScores, [ability]: value },
 		}));
 	}
 
 	if (loading) return <p className="text-muted-foreground p-4">Loading...</p>;
 
 	return (
-		<div className="max-w-[600px] mx-auto p-4">
+		<div className="max-w-full sm:max-w-[600px] mx-auto p-4">
 			<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
 				<ArrowLeft className="h-4 w-4" />
 				Back
@@ -217,15 +220,10 @@ export function CharacterForm({ id }: CharacterFormProps) {
 						))}
 					</div>
 				</fieldset>
-				
+
 				{serverError && <p className="text-sm font-medium text-destructive">{serverError}</p>}
-				
-				<Button
-					type="submit"
-					size="lg"
-					className="w-full mt-2"
-					disabled={isSubmitting}
-				>
+
+				<Button type="submit" size="lg" className="w-full mt-2" disabled={isSubmitting}>
 					{isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Character"}
 				</Button>
 			</form>
