@@ -19,7 +19,7 @@ test.describe("Character sheet view", () => {
 
 		// HP section
 		await expect(page.getByText("Hit Points")).toBeVisible();
-		await expect(page.getByText("10 / 10")).toBeVisible();
+		await expect(page.getByRole("progressbar", { name: "10 of 10 hit points" })).toBeVisible();
 
 		// Skills section
 		await expect(page.getByText("Skills")).toBeVisible();
