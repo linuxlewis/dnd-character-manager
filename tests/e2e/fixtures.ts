@@ -27,8 +27,16 @@ async function fillCharacterForm(page: Page, character: TestCharacter) {
 	await page.getByLabel("Race").fill(character.race);
 	await page.getByLabel("Class").fill(character.class);
 	await page.getByLabel("Level").fill(String(character.level));
+	const abilityLabels: Record<string, string> = {
+		STR: "Strength (STR)",
+		DEX: "Dexterity (DEX)", 
+		CON: "Constitution (CON)",
+		INT: "Intelligence (INT)",
+		WIS: "Wisdom (WIS)",
+		CHA: "Charisma (CHA)"
+	};
 	for (const [key, value] of Object.entries(character.abilityScores)) {
-		await page.getByLabel(key, { exact: true }).fill(String(value));
+		await page.getByLabel(abilityLabels[key]).fill(String(value));
 	}
 }
 

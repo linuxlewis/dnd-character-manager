@@ -16,13 +16,13 @@ test.describe("Character sheet view", () => {
 
 		await expect(page.getByText("Hit Points")).toBeVisible();
 		await expect(page.getByText("10 / 10")).toBeVisible();
-		await expect(page.getByText("Conditions")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Conditions" })).toBeVisible();
 
 		await expect(page.getByText("Skills")).toBeVisible();
 		await expect(page.getByText("Athletics")).toBeVisible();
 		await expect(page.getByText("Perception")).toBeVisible();
 
-		await expect(page.getByText("Notes")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
 
 		await expect(page.getByRole("button", { name: "Damage" })).toBeVisible();
 		await expect(page.getByRole("button", { name: "Heal" })).toBeVisible();
@@ -69,7 +69,8 @@ test.describe("Character sheet view", () => {
 		const character = await createCharacter();
 		await page.goto(`/character/${character.id}`);
 
-		await page.getByText("Blinded").hover();
-		await expect(page.getByText("A blinded creature can’t see")).toBeVisible();
+		// Hover over the Blinded Info button to trigger the tooltip
+		await page.getByRole("button", { name: "Blinded Info" }).hover();
+		await expect(page.getByText("A blinded creature can't see")).toBeVisible();
 	});
 });

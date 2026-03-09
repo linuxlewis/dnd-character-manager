@@ -13,6 +13,6 @@ test.describe("Character deletion", () => {
 
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 		await expect(page.getByText("Thorin Ironforge")).not.toBeVisible();
-		await expect(page.getByText("No Adventurers Yet")).toBeVisible();
+		await expect(page.getByText("No characters yet. Create your first adventurer!")).toBeVisible();
 	});
 });
