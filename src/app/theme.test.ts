@@ -13,30 +13,44 @@ describe("globals.css", () => {
 		expect(globalsCss).toContain('[data-theme="dark"]');
 	});
 
-	const colorTokens = [
-		"--color-bg",
-		"--color-surface-raw",
-		"--color-text-raw",
-		"--color-text-secondary-raw",
-		"--color-primary-raw",
-		"--color-primary-hover",
-		"--color-border-raw",
-		"--color-danger-raw",
-		"--color-success-raw",
-		"--color-input-bg-raw",
-		"--color-input-border-raw",
+	const semanticTokens = [
+		"--background",
+		"--foreground",
+		"--card",
+		"--card-foreground",
+		"--primary",
+		"--primary-foreground",
+		"--muted",
+		"--muted-foreground",
+		"--destructive",
+		"--destructive-foreground",
+		"--success",
+		"--success-foreground",
+		"--warning",
+		"--warning-foreground",
+		"--border",
+		"--input",
+		"--input-bg",
+		"--ring",
 	];
 
-	for (const token of colorTokens) {
-		it(`defines color token ${token}`, () => {
+	for (const token of semanticTokens) {
+		it(`defines semantic token ${token}`, () => {
 			expect(globalsCss).toContain(token);
 		});
 	}
 
-	const spacingTokens = ["--space-xs", "--space-sm", "--space-md", "--space-lg", "--space-xl"];
+	const fantasyTokens = [
+		"--parchment",
+		"--gold",
+		"--blood",
+		"--arcane",
+		"--nature",
+		"--steel",
+	];
 
-	for (const token of spacingTokens) {
-		it(`defines spacing token ${token}`, () => {
+	for (const token of fantasyTokens) {
+		it(`defines D&D fantasy token ${token}`, () => {
 			expect(globalsCss).toContain(token);
 		});
 	}
@@ -45,20 +59,20 @@ describe("globals.css", () => {
 		expect(globalsCss).toContain('@import "tailwindcss"');
 	});
 
-	it("defines transition token --transition-theme", () => {
-		expect(globalsCss).toContain("--transition-theme");
+	it("defines radius tokens", () => {
+		expect(globalsCss).toContain("--radius");
 	});
 
-	it("light theme has white/light background", () => {
-		expect(globalsCss).toMatch(/--color-bg:\s*#fff/);
+	it("light theme defines background as white", () => {
+		expect(globalsCss).toMatch(/--background:\s*0 0% 100%/);
 	});
 
-	it("dark theme has dark background", () => {
-		expect(globalsCss).toContain("#1a1a2e");
+	it("dark theme defines dark background", () => {
+		expect(globalsCss).toMatch(/--background:\s*240 33% 14%/);
 	});
 
-	it("dark theme has light text", () => {
-		expect(globalsCss).toContain("#e0e0e0");
+	it("dark theme defines light foreground", () => {
+		expect(globalsCss).toMatch(/--foreground:\s*0 0% 88%/);
 	});
 });
 
