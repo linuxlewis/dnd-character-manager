@@ -27,7 +27,7 @@ test.describe("Character sheet view", () => {
 		await expect(page.getByText("Perception")).toBeVisible();
 
 		// Notes section
-		await expect(page.getByText("Notes")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
 
 		// Action buttons
 		await expect(page.getByRole("button", { name: "Damage" })).toBeVisible();

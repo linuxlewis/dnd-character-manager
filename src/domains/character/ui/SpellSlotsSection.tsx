@@ -20,7 +20,7 @@ export function SpellSlotsSection({ character, characterId, onUpdate }: SpellSlo
 				return r.json();
 			})
 			.then((data) => onUpdate(data))
-			.catch(() => {});
+			.catch(() => toast.error("Failed to use spell slot"));
 	};
 
 	const handleRestoreSpellSlot = (level: number) => {
@@ -32,7 +32,7 @@ export function SpellSlotsSection({ character, characterId, onUpdate }: SpellSlo
 				return r.json();
 			})
 			.then((data) => onUpdate(data))
-			.catch(() => {});
+			.catch(() => toast.error("Failed to restore spell slot"));
 	};
 
 	const handleLongRest = () => {

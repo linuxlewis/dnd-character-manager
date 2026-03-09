@@ -1,5 +1,6 @@
 import { Plus, Swords } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
@@ -20,7 +21,9 @@ export function CharacterList() {
 				return r.json();
 			})
 			.then((data) => setCharacters(data))
-			.catch(() => {})
+			.catch(() => {
+				toast.error("Failed to load characters");
+			})
 			.finally(() => setLoading(false));
 	}, []);
 
