@@ -5,7 +5,7 @@ test.describe("Character creation flow", () => {
 		await page.goto("/");
 		await expect(page.getByText("No characters yet")).toBeVisible();
 
-		await page.getByRole("button", { name: "+ New Character" }).click();
+		await page.getByRole("button", { name: "New Character" }).click();
 		await expect(page.getByRole("heading", { name: "New Character" })).toBeVisible();
 
 		await fillCharacterForm(page, testCharacter);
@@ -28,7 +28,7 @@ test.describe("Character creation flow", () => {
 
 	test("back button returns to character list", async ({ page }) => {
 		await page.goto("/character/new");
-		await page.getByRole("button", { name: "← Back" }).click();
+		await page.getByRole("button", { name: "Back" }).click();
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
 	});
 
