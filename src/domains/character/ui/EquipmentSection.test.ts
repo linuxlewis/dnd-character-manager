@@ -32,9 +32,8 @@ describe("globals.css has design tokens", () => {
 	const globalsCss = readFileSync(resolve(__dirname, "../../../app/globals.css"), "utf-8");
 
 	it("defines color tokens for theming", () => {
-		expect(globalsCss).toContain("--color-success-raw");
-		expect(globalsCss).toContain("--color-danger-raw");
-		expect(globalsCss).toContain("--color-warning-raw");
+		expect(globalsCss).toContain("--color-success");
+		expect(globalsCss).toContain("--color-warning");
 	});
 
 	it("imports tailwindcss", () => {

@@ -40,14 +40,7 @@ describe("globals.css", () => {
 		});
 	}
 
-	const fantasyTokens = [
-		"--parchment",
-		"--gold",
-		"--blood",
-		"--arcane",
-		"--nature",
-		"--steel",
-	];
+	const fantasyTokens = ["--parchment", "--gold", "--blood", "--arcane", "--nature", "--steel"];
 
 	for (const token of fantasyTokens) {
 		it(`defines D&D fantasy token ${token}`, () => {

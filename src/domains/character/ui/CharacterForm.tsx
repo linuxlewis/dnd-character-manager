@@ -23,7 +23,7 @@ const CharacterFormSchema = z.object({
 	name: z.string().min(1, "Name is required").max(255),
 	race: z.string().min(1, "Race is required").max(100),
 	class: z.string().min(1, "Class is required").max(100),
-	level: z.coerce.number().int().min(1, "Level must be at least 1").max(20, "Level must be at most 20"),
+	level: z.number().int().min(1, "Level must be at least 1").max(20, "Level must be at most 20"),
 	abilityScores: AbilityScoresSchema,
 });
 
@@ -59,7 +59,7 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					name: c.name,
 					race: c.race,
 					class: c.class,
-					level: String(c.level),
+					level: c.level,
 					abilityScores: c.abilityScores,
 				});
 			})
@@ -71,7 +71,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 		setServerError(null);
 		const data = {
 			...values,
-			level: Number(values.level),
 			hp: { current: 10, max: 10, temp: 0 },
 		};
 
@@ -152,7 +151,13 @@ export function CharacterForm({ id }: CharacterFormProps) {
 							<FormItem>
 								<FormLabel>Level</FormLabel>
 								<FormControl>
-										<Input type="number" min={1} max={20} {...field} />
+									<Input
+										type="number"
+										min={1}
+										max={20}
+										{...field}
+										onChange={(e) => field.onChange(e.target.valueAsNumber)}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
