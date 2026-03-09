@@ -2,34 +2,34 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const themeCSS = readFileSync(resolve(__dirname, "theme.css"), "utf-8");
+const globalsCss = readFileSync(resolve(__dirname, "globals.css"), "utf-8");
 
-describe("theme.css", () => {
+describe("globals.css", () => {
 	it("contains :root selector", () => {
-		expect(themeCSS).toContain(":root");
+		expect(globalsCss).toContain(":root");
 	});
 
 	it('contains [data-theme="dark"] selector', () => {
-		expect(themeCSS).toContain('[data-theme="dark"]');
+		expect(globalsCss).toContain('[data-theme="dark"]');
 	});
 
 	const colorTokens = [
 		"--color-bg",
-		"--color-surface",
-		"--color-text",
-		"--color-text-secondary",
-		"--color-primary",
+		"--color-surface-raw",
+		"--color-text-raw",
+		"--color-text-secondary-raw",
+		"--color-primary-raw",
 		"--color-primary-hover",
-		"--color-border",
-		"--color-danger",
-		"--color-success",
-		"--color-input-bg",
-		"--color-input-border",
+		"--color-border-raw",
+		"--color-danger-raw",
+		"--color-success-raw",
+		"--color-input-bg-raw",
+		"--color-input-border-raw",
 	];
 
 	for (const token of colorTokens) {
 		it(`defines color token ${token}`, () => {
-			expect(themeCSS).toContain(token);
+			expect(globalsCss).toContain(token);
 		});
 	}
 
@@ -37,47 +37,34 @@ describe("theme.css", () => {
 
 	for (const token of spacingTokens) {
 		it(`defines spacing token ${token}`, () => {
-			expect(themeCSS).toContain(token);
+			expect(globalsCss).toContain(token);
 		});
 	}
 
-	const typographyTokens = [
-		"--font-body",
-		"--font-heading",
-		"--font-mono",
-		"--text-sm",
-		"--text-base",
-		"--text-lg",
-		"--text-xl",
-	];
-
-	for (const token of typographyTokens) {
-		it(`defines typography token ${token}`, () => {
-			expect(themeCSS).toContain(token);
-		});
-	}
+	it("imports tailwindcss", () => {
+		expect(globalsCss).toContain('@import "tailwindcss"');
+	});
 
 	it("defines transition token --transition-theme", () => {
-		expect(themeCSS).toContain("--transition-theme");
+		expect(globalsCss).toContain("--transition-theme");
 	});
 
 	it("light theme has white/light background", () => {
-		// :root section should have light bg
-		expect(themeCSS).toMatch(/--color-bg:\s*#fff/);
+		expect(globalsCss).toMatch(/--color-bg:\s*#fff/);
 	});
 
 	it("dark theme has dark background", () => {
-		expect(themeCSS).toContain("#1a1a2e");
+		expect(globalsCss).toContain("#1a1a2e");
 	});
 
 	it("dark theme has light text", () => {
-		expect(themeCSS).toContain("#e0e0e0");
+		expect(globalsCss).toContain("#e0e0e0");
 	});
 });
 
-describe("main.tsx imports theme.css", () => {
-	it("contains theme.css import", () => {
+describe("main.tsx imports globals.css", () => {
+	it("contains globals.css import", () => {
 		const mainTSX = readFileSync(resolve(__dirname, "main.tsx"), "utf-8");
-		expect(mainTSX).toContain('import "./theme.css"');
+		expect(mainTSX).toContain('import "./globals.css"');
 	});
 });

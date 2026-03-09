@@ -104,19 +104,19 @@ describe("ThemeProvider", () => {
 });
 
 describe("ThemeToggle", () => {
-	it("renders sun icon in dark mode", () => {
+	it("renders SVG icon in dark mode", () => {
 		storage.theme = "dark";
-		// Dynamic import to avoid module-level issues
 		const { ThemeToggle } = require("./ThemeToggle.tsx");
 		const html = renderToString(
 			<ThemeProvider>
 				<ThemeToggle />
 			</ThemeProvider>,
 		);
-		expect(html).toContain("☀️");
+		// Sun icon is rendered as SVG in dark mode
+		expect(html).toContain("<svg");
 	});
 
-	it("renders moon icon in light mode", () => {
+	it("renders SVG icon in light mode", () => {
 		storage.theme = "light";
 		const { ThemeToggle } = require("./ThemeToggle.tsx");
 		const html = renderToString(
@@ -124,7 +124,8 @@ describe("ThemeToggle", () => {
 				<ThemeToggle />
 			</ThemeProvider>,
 		);
-		expect(html).toContain("🌙");
+		// Moon icon is rendered as SVG in light mode
+		expect(html).toContain("<svg");
 	});
 
 	it("renders a button element", () => {

@@ -1,7 +1,9 @@
+import { X } from "lucide-react";
 import { type FormEvent, useState } from "react";
+import { Button } from "../../../app/components/ui/button.tsx";
+import { Input } from "../../../app/components/ui/input.tsx";
 import { calculateTotalWeight } from "../types/character.js";
 import type { Character, EquipmentItem } from "../types/index.js";
-import styles from "./EquipmentSection.module.css";
 
 interface EquipmentSectionProps {
 	characterId: string;
@@ -46,61 +48,71 @@ export function EquipmentSection({ characterId, equipment, onUpdate }: Equipment
 	};
 
 	return (
-		<div className={styles.section}>
-			<h2 className={styles.sectionTitle}>Equipment</h2>
-			<div className={styles.totalWeight}>Total Weight: {calculateTotalWeight(equipment)} lbs</div>
+		<div className="mb-6">
+			<h2 className="text-lg font-bold text-foreground mb-2">Equipment</h2>
+			<div className="text-base font-semibold mb-2 text-foreground">
+				Total Weight: {calculateTotalWeight(equipment)} lbs
+			</div>
 			{equipment.length > 0 ? (
-				<div className={styles.equipmentList}>
+				<div className="flex flex-col gap-1 mb-3">
 					{equipment.map((item) => (
-						<div key={item.id} className={styles.equipmentRow}>
-							<span className={styles.equipmentName}>{item.name}</span>
-							<span className={styles.equipmentQty}>×{item.quantity}</span>
-							<span className={styles.equipmentWeight}>{item.weight * item.quantity} lbs</span>
-							<button
-								type="button"
-								className={styles.equipmentRemove}
+						<div
+							key={item.id}
+							className="flex items-center gap-2 min-h-[44px] px-2 py-1 bg-muted rounded-md shadow-sm transition-colors"
+						>
+							<span className="flex-1 font-medium text-foreground">{item.name}</span>
+							<span className="text-muted-foreground min-w-[2rem] text-center">
+								x{item.quantity}
+							</span>
+							<span className="text-muted-foreground min-w-[4rem] text-right">
+								{item.weight * item.quantity} lbs
+							</span>
+							<Button
+								variant="destructive-ghost"
+								size="icon"
+								className="h-8 w-8"
 								onClick={() => handleRemoveEquipment(item.id)}
 								aria-label={`Remove ${item.name}`}
 							>
-								✕
-							</button>
+								<X className="h-3.5 w-3.5" />
+							</Button>
 						</div>
 					))}
 				</div>
 			) : (
-				<p className={styles.emptyText}>No equipment yet.</p>
+				<p className="text-muted-foreground italic mb-3">No equipment yet.</p>
 			)}
-			<form className={styles.equipmentForm} onSubmit={handleAddEquipment}>
-				<input
+			<form className="flex gap-2 flex-wrap max-sm:flex-col" onSubmit={handleAddEquipment}>
+				<Input
 					type="text"
 					placeholder="Item name"
 					value={eqName}
 					onChange={(e) => setEqName(e.target.value)}
-					className={styles.equipmentInput}
+					className="flex-1 min-w-[120px]"
 					required
 				/>
-				<input
+				<Input
 					type="number"
 					placeholder="Qty"
 					value={eqQty}
 					onChange={(e) => setEqQty(e.target.value)}
-					className={styles.equipmentInputSmall}
+					className="w-[70px] max-sm:w-full"
 					min="1"
 					required
 				/>
-				<input
+				<Input
 					type="number"
 					placeholder="Weight"
 					value={eqWeight}
 					onChange={(e) => setEqWeight(e.target.value)}
-					className={styles.equipmentInputSmall}
+					className="w-[70px] max-sm:w-full"
 					min="0"
 					step="0.1"
 					required
 				/>
-				<button type="submit" className={styles.equipmentAddButton}>
+				<Button type="submit" variant="success">
 					Add
-				</button>
+				</Button>
 			</form>
 		</div>
 	);

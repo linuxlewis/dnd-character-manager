@@ -1,14 +1,17 @@
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../../../app/components/ui/button.tsx";
+import { cn } from "../../../app/lib/utils.ts";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
-import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
-import styles from "./CharacterSheet.module.css";
 import { EquipmentSection } from "./EquipmentSection.tsx";
 import { NotesSection } from "./NotesSection.tsx";
 import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
+import { SkillsSection } from "./SkillsSection.tsx";
+import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -71,44 +74,6 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => {});
 	};
 
-	const handleUseSpellSlot = (level: number) => {
-		fetch(`/api/characters/${characterId}/spells/${level}/use`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) setCharacter(data);
-			})
-			.catch(() => {});
-	};
-
-	const handleRestoreSpellSlot = (level: number) => {
-		fetch(`/api/characters/${characterId}/spells/${level}/restore`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) setCharacter(data);
-			})
-			.catch(() => {});
-	};
-
-	const handleLongRest = () => {
-		fetch(`/api/characters/${characterId}/long-rest`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) setCharacter(data);
-			})
-			.catch(() => {});
-	};
-
-	const handleToggleSkill = (skillName: string) => {
-		fetch(`/api/characters/${characterId}/skills/${encodeURIComponent(skillName)}/toggle`, {
-			method: "POST",
-		})
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) setCharacter(data);
-			})
-			.catch(() => {});
-	};
-
 	const handleNotesBlur = () => {
 		if (!character) return;
 		fetch(`/api/characters/${characterId}`, {
@@ -132,68 +97,35 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			})
 			.catch(() => {});
 	};
-	if (loading) return <div className={styles.container}>Loading...</div>;
-	if (!character) return <div className={styles.container}>Character not found.</div>;
+
+	if (loading)
+		return <div className="max-w-[600px] mx-auto p-4 text-muted-foreground">Loading...</div>;
+	if (!character)
+		return (
+			<div className="max-w-[600px] mx-auto p-4 text-muted-foreground">Character not found.</div>
+		);
 
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
-	const hpFillClass =
-		hpPercent > 50
-			? styles.hpBarFillGood
-			: hpPercent > 25
-				? styles.hpBarFillWarning
-				: styles.hpBarFillDanger;
 
 	return (
-		<div className={styles.container}>
-			<button type="button" className={styles.backButton} onClick={() => navigate("/")}>
-				← Back
-			</button>
-			<h1 className={styles.name}>{character.name}</h1>
-			<p className={styles.meta}>
+		<div className="max-w-[600px] mx-auto p-4 transition-colors">
+			<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
+				<ArrowLeft className="h-4 w-4" />
+				Back
+			</Button>
+			<h1 className="text-2xl text-foreground mb-1">{character.name}</h1>
+			<p className="text-muted-foreground mb-4">
 				{character.race} {character.class} · Level {character.level}
 			</p>
-
 			{character.slug && !readOnly && <ShareSection slug={character.slug} />}
-
-			<div className={styles.section}>
-				<h2 className={styles.sectionTitle}>Ability Scores</h2>
-				<div className={styles.statGrid}>
-					{ABILITY_KEYS.map((key) => (
-						<div key={key} className={styles.stat}>
-							<div className={styles.statLabel}>{key}</div>
-							<div className={styles.statValue}>{character.abilityScores[key]}</div>
-							<div className={styles.statMod}>{formatMod(character.abilityScores[key])}</div>
-						</div>
-					))}
-				</div>
-			</div>
-
-			<div className={styles.section}>
-				<h2 className={styles.sectionTitle}>Hit Points</h2>
-				<div className={styles.hpDisplay}>
-					<span className={styles.hpText}>
-						{character.hp.current} / {character.hp.max}
-						{character.hp.temp > 0 ? ` (+${character.hp.temp} temp)` : ""}
-					</span>
-				</div>
-				<div className={styles.hpBarTrack}>
-					<div
-						className={`${styles.hpBarFill} ${hpFillClass}`}
-						style={{ width: `${hpPercent}%` }}
-					/>
-				</div>
-				{!readOnly && (
-					<div className={styles.hpActions}>
-						<button type="button" className={styles.damageButton} onClick={handleDamage}>
-							Damage
-						</button>
-						<button type="button" className={styles.healButton} onClick={handleHeal}>
-							Heal
-						</button>
-					</div>
-				)}
-			</div>
-
+			<AbilityScoresGrid character={character} />
+			<HitPointsSection
+				character={character}
+				hpPercent={hpPercent}
+				readOnly={readOnly}
+				onDamage={handleDamage}
+				onHeal={handleHeal}
+			/>
 			{!readOnly && characterId && (
 				<>
 					<ArmorClassSection
@@ -208,70 +140,21 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					/>
 				</>
 			)}
-
-			<div className={styles.section}>
-				<h2 className={styles.sectionTitle}>Skills</h2>
-				<div className={styles.skillsList}>
-					{SKILLS.map((skill) => {
-						const charSkill = character.skills?.find((s) => s.name === skill.name);
-						const proficient = charSkill?.proficient ?? false;
-						const bonus = calculateSkillBonus(
-							character.abilityScores[skill.abilityKey],
-							proficient,
-							character.level,
-						);
-						const formatted = bonus >= 0 ? `+${bonus}` : `${bonus}`;
-						return (
-							<label key={skill.name} className={styles.skillRow}>
-								<input
-									type="checkbox"
-									checked={proficient}
-									onChange={() => handleToggleSkill(skill.name)}
-									className={styles.skillCheckbox}
-									disabled={readOnly}
-								/>
-								<span className={styles.skillName}>{skill.name}</span>
-								<span className={styles.skillAbility}>{skill.abilityKey}</span>
-								<span className={styles.skillBonus}>{formatted}</span>
-							</label>
-						);
-					})}
-				</div>
-			</div>
-
-			{character.spellSlots && character.spellSlots.length > 0 && (
-				<div className={styles.section}>
-					<h2 className={styles.sectionTitle}>Spell Slots</h2>
-					{character.spellSlots.map((slot) => (
-						<div key={slot.level} className={styles.spellSlotRow}>
-							<span className={styles.spellSlotLevel}>Level {slot.level}</span>
-							<div className={styles.spellSlotCircles}>
-								{Array.from({ length: slot.available }, (_, i) => {
-									const isUsed = i < slot.used;
-									return (
-										<button
-											key={`slot-${slot.level}-${i}`}
-											type="button"
-											className={`${styles.spellSlotCircle} ${isUsed ? styles.spellSlotUsed : styles.spellSlotAvailable}`}
-											onClick={() =>
-												isUsed ? handleRestoreSpellSlot(slot.level) : handleUseSpellSlot(slot.level)
-											}
-											aria-label={`Level ${slot.level} slot ${i + 1} - ${isUsed ? "used" : "available"}`}
-										/>
-									);
-								})}
-							</div>
-							<span className={styles.spellSlotCount}>
-								{slot.available - slot.used}/{slot.available}
-							</span>
-						</div>
-					))}
-					<button type="button" className={styles.longRestButton} onClick={handleLongRest}>
-						Long Rest
-					</button>
-				</div>
+			{characterId && (
+				<SkillsSection
+					character={character}
+					characterId={characterId}
+					readOnly={readOnly}
+					onUpdate={setCharacter}
+				/>
 			)}
-
+			{characterId && (
+				<SpellSlotsSection
+					character={character}
+					characterId={characterId}
+					onUpdate={setCharacter}
+				/>
+			)}
 			{characterId && (
 				<EquipmentSection
 					characterId={characterId}
@@ -279,19 +162,88 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					onUpdate={readOnly ? () => {} : setCharacter}
 				/>
 			)}
-
 			<NotesSection
 				notes={notes}
 				readOnly={readOnly}
 				onChange={setNotes}
 				onBlur={handleNotesBlur}
 			/>
-
 			{!readOnly && (
-				<div className={styles.section}>
-					<button type="button" className={styles.deleteButton} onClick={handleDelete}>
+				<div className="mb-6">
+					<Button variant="destructive" className="w-full" onClick={handleDelete}>
 						Delete Character
-					</button>
+					</Button>
+				</div>
+			)}
+		</div>
+	);
+}
+
+function AbilityScoresGrid({ character }: { character: Character }) {
+	return (
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Ability Scores
+			</h2>
+			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2">
+				{ABILITY_KEYS.map((key) => (
+					<div
+						key={key}
+						className="text-center p-2 border border-border rounded-lg bg-muted transition-colors"
+					>
+						<div className="text-xs text-muted-foreground uppercase">{key}</div>
+						<div className="text-lg font-bold text-foreground">{character.abilityScores[key]}</div>
+						<div className="text-sm text-muted-foreground">
+							{formatMod(character.abilityScores[key])}
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function HitPointsSection({
+	character,
+	hpPercent,
+	readOnly,
+	onDamage,
+	onHeal,
+}: {
+	character: Character;
+	hpPercent: number;
+	readOnly: boolean;
+	onDamage: () => void;
+	onHeal: () => void;
+}) {
+	return (
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Hit Points
+			</h2>
+			<div className="mb-2">
+				<span className="text-lg font-bold text-foreground">
+					{character.hp.current} / {character.hp.max}
+					{character.hp.temp > 0 ? ` (+${character.hp.temp} temp)` : ""}
+				</span>
+			</div>
+			<div className="w-full h-4 bg-muted border border-border rounded-full overflow-hidden mb-3">
+				<div
+					className={cn(
+						"h-full rounded-full transition-all duration-300",
+						hpPercent > 50 ? "bg-success" : hpPercent > 25 ? "bg-warning" : "bg-destructive",
+					)}
+					style={{ width: `${hpPercent}%` }}
+				/>
+			</div>
+			{!readOnly && (
+				<div className="flex gap-3 max-sm:flex-col">
+					<Button variant="destructive-ghost" className="flex-1" onClick={onDamage}>
+						Damage
+					</Button>
+					<Button variant="success-ghost" className="flex-1" onClick={onHeal}>
+						Heal
+					</Button>
 				</div>
 			)}
 		</div>

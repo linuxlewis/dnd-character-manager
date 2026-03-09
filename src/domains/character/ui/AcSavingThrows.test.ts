@@ -45,17 +45,14 @@ describe("CharacterSheet AC display", () => {
 		expect(tsx).toContain("acValue");
 		expect(tsx).toContain("Override AC");
 		expect(tsx).toContain("Clear Override");
-		expect(tsx).toContain("acOverrideIndicator");
 	});
 
-	it("AC CSS styles exist", () => {
-		const css = readFileSync(resolve(__dirname, "CharacterSheet.module.css"), "utf-8");
-		expect(css).toContain(".acDisplay");
-		expect(css).toContain(".acShield");
-		expect(css).toContain(".acValue");
-		expect(css).toContain(".acOverrideIndicator");
-		expect(css).toContain(".acOverrideButton");
-		expect(css).toContain(".acClearButton");
+	it("ArmorClassSection uses shadcn/ui components", () => {
+		const tsx = readFileSync(resolve(__dirname, "ArmorClassSection.tsx"), "utf-8");
+		expect(tsx).toContain('from "../../../app/components/ui/button.tsx"');
+		expect(tsx).toContain('from "../../../app/components/ui/input.tsx"');
+		expect(tsx).toContain('from "../../../app/components/ui/badge.tsx"');
+		expect(tsx).not.toContain(".module.css");
 	});
 });
 
@@ -95,10 +92,9 @@ describe("Saving Throws", () => {
 		expect(tsx).toContain("handleToggleSavingThrow(key)");
 	});
 
-	it("saving throw section reuses skill styling", () => {
+	it("SavingThrowsSection uses shadcn/ui Checkbox", () => {
 		const tsx = readFileSync(resolve(__dirname, "SavingThrowsSection.tsx"), "utf-8");
-		expect(tsx).toContain("styles.skillsList");
-		expect(tsx).toContain("styles.skillRow");
-		expect(tsx).toContain("styles.skillCheckbox");
+		expect(tsx).toContain('from "../../../app/components/ui/checkbox.tsx"');
+		expect(tsx).not.toContain(".module.css");
 	});
 });

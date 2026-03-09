@@ -10,6 +10,9 @@
  * consumed as hsl(var(--primary)) by Tailwind utilities.
  */
 
+/* Custom variant for dark mode via data-theme attribute */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @layer base {
 	:root {
 		/* --- shadcn/ui semantic tokens (Light) --- */
@@ -45,6 +48,7 @@
 
 		--border: 220 13% 82%;
 		--input: 220 13% 69%;
+		--input-bg: 0 0% 100%;
 		--ring: 221 83% 53%;
 
 		--radius: 0.5rem;
@@ -98,6 +102,7 @@
 
 		--border: 240 18% 30%;
 		--input: 240 15% 37%;
+		--input-bg: 240 27% 21%;
 		--ring: 213 94% 68%;
 
 		/* --- D&D Fantasy Tokens (Dark) --- */
@@ -113,6 +118,60 @@
 		--nature-foreground: 0 0% 100%;
 		--steel: 220 8% 45%;
 		--steel-foreground: 0 0% 100%;
+	}
+
+	/* Global Reset */
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	* {
+		margin: 0;
+		padding: 0;
+	}
+
+	html {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-size-adjust: 100%;
+	}
+
+	body {
+		line-height: 1.5;
+		min-height: 100vh;
+	}
+
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-width: 100%;
+	}
+
+	input,
+	button,
+	textarea,
+	select {
+		font: inherit;
+	}
+
+	/* Touch targets - minimum 44px for all interactive elements */
+	button,
+	a,
+	input[type="checkbox"],
+	input[type="radio"],
+	select {
+		min-height: 44px;
+		min-width: 44px;
+	}
+
+	a {
+		display: inline-flex;
+		align-items: center;
 	}
 }
 
@@ -150,6 +209,7 @@
 
 	--color-border: hsl(var(--border));
 	--color-input: hsl(var(--input));
+	--color-input-bg: hsl(var(--input-bg));
 	--color-ring: hsl(var(--ring));
 
 	/* D&D Fantasy colors */
