@@ -1,4 +1,4 @@
-import { Tooltip } from "../../../app/components/ui/tooltip.tsx";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../app/components/ui/tooltip.tsx";
 import { cn } from "../../../app/lib/utils.ts";
 import { getAbilityModifier } from "../types/character.js";
 
@@ -25,31 +25,37 @@ interface StatBlockProps {
 
 export function StatBlock({ abilityScores, className }: StatBlockProps) {
 	return (
-		<fieldset
-			className={cn("grid grid-cols-6 gap-2 max-sm:grid-cols-3 border-0 p-0 m-0", className)}
-			aria-label="Ability Scores"
-		>
-			{ABILITY_KEYS.map((key, i) => (
-				<Tooltip key={key} content={ABILITY_LABELS[key]}>
-					<div
-						className={cn(
-							"relative flex flex-col items-center p-3 rounded-lg border-2 border-border bg-card transition-all hover:border-primary/50 hover:shadow-md",
-							"animate-fade-in",
-						)}
-						style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
-					>
-						<span className="text-[0.65rem] font-heading font-bold uppercase tracking-wider text-muted-foreground">
-							{key}
-						</span>
-						<span className="text-2xl font-bold text-foreground leading-tight">
-							{formatMod(abilityScores[key])}
-						</span>
-						<span className="text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5 mt-1">
-							{abilityScores[key]}
-						</span>
-					</div>
-				</Tooltip>
-			))}
+		<TooltipProvider>
+			<fieldset
+				className={cn("grid grid-cols-6 gap-2 max-sm:grid-cols-3 border-0 p-0 m-0", className)}
+				aria-label="Ability Scores"
+			>
+				{ABILITY_KEYS.map((key, i) => (
+					<Tooltip key={key}>
+						<TooltipTrigger asChild>
+							<div
+								className={cn(
+									"relative flex flex-col items-center p-3 rounded-lg border-2 border-border bg-card transition-all hover:border-primary/50 hover:shadow-md",
+									"animate-fade-in",
+								)}
+								style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
+							>
+								<span className="text-[0.65rem] font-heading font-bold uppercase tracking-wider text-muted-foreground">
+									{key}
+								</span>
+								<span className="text-2xl font-bold text-foreground leading-tight">
+									{formatMod(abilityScores[key])}
+								</span>
+								<span className="text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5 mt-1">
+									{abilityScores[key]}
+								</span>
+							</div>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>{ABILITY_LABELS[key]}</p>
+						</TooltipContent>
+					</Tooltip>
+				))}
 		</fieldset>
 	);
 }
