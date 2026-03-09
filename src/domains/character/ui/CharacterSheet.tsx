@@ -52,15 +52,16 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
 		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				setCharacter(data);
-				toast.success(`Applied ${amount} damage`);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Applied ${amount} damage`);
+				} else {
+					toast.error("Failed to apply damage");
+				}
 			})
-			.catch(() => toast.error("Failed to apply damage"));
+			.catch(() => toast.error("Network error"));
 	};
 
 	const handleHeal = (amount: number) => {
@@ -70,15 +71,16 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
 		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				setCharacter(data);
-				toast.success(`Healed ${amount} HP`);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Healed ${amount} HP`);
+				} else {
+					toast.error("Failed to heal");
+				}
 			})
-			.catch(() => toast.error("Failed to heal"));
+			.catch(() => toast.error("Network error"));
 	};
 
 	const handleNotesBlur = () => {
@@ -88,15 +90,24 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ notes }),
 		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				setCharacter(data);
-				toast.success("Notes saved");
+				if (data) {
+					setCharacter(data);
+					toast.success("Notes saved");
+				} else {
+					toast.error("Failed to save notes");
+				}
 			})
-			.catch(() => toast.error("Failed to save notes"));
+			.catch(() => toast.error("Network error"));
+	};
+
+	const handleDeleteClick = () => {
+		setShowDeleteDialog(true);
+	};
+
+	const handleDeleteConfirm = () => {
+		navigate("/");
 	};
 
 	if (loading)
@@ -231,24 +242,23 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			/>
 
 			{!readOnly && (
-				<div className="mb-6 pt-4 border-t border-border">
-					<Button
-						variant="destructive-ghost"
-						className="w-full"
-						onClick={() => setShowDeleteDialog(true)}
-					>
+				<div className="mb-6">
+					<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>
 						Delete Character
 					</Button>
 				</div>
 			)}
+			{character && (
+				<DeleteCharacterDialog
+					characterId={character.id}
+					characterName={character.name}
+					isOpen={showDeleteDialog}
+					onClose={() => setShowDeleteDialog(false)}
+					onDeleted={handleDeleteConfirm}
+				/>
+			)}
 
-			<DeleteCharacterDialog
-				characterId={character.id}
-				characterName={character.name}
-				isOpen={showDeleteDialog}
-				onClose={() => setShowDeleteDialog(false)}
-				onDeleted={() => navigate("/")}
-			/>
+
 
 			<AmountDialog
 				title="Apply Damage"

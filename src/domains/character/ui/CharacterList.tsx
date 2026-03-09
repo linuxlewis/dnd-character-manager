@@ -7,6 +7,7 @@ import { useNavigate } from "../../../app/router.tsx";
 import type { Character } from "../types/index.js";
 import { CharacterCard } from "./CharacterCard.tsx";
 
+// Static skeleton keys to avoid array index lint warning
 const SKELETON_KEYS = ["sk1", "sk2", "sk3", "sk4", "sk5", "sk6"];
 
 export function CharacterList() {
@@ -37,6 +38,20 @@ export function CharacterList() {
 				</Button>
 			</div>
 			{loading ? (
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					{SKELETON_KEYS.map((key) => (
+						<div key={key} className="rounded-xl border border-border bg-card p-6">
+							<Skeleton className="h-6 w-3/4 mb-2" />
+							<Skeleton className="h-4 w-full mb-2" />
+							<Skeleton className="h-4 w-1/2" />
+						</div>
+					))}
+				</div>
+			) : characters.length === 0 ? (
+				<p className="text-center text-muted-foreground py-8 text-lg">
+					No characters yet. Create your first adventurer!
+				</p>
+			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 					{SKELETON_KEYS.map((key) => (
 						<div key={key} className="rounded-xl border border-border bg-card p-5">
