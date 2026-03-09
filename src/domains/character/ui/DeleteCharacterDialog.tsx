@@ -30,7 +30,7 @@ export function DeleteCharacterDialog({
 	async function handleDelete() {
 		setIsDeleting(true);
 		try {
-			const res = await fetch(`/api/characters/${characterId}`, {
+			const res = await fetch(`/api/characters/${encodeURIComponent(characterId)}`, {
 				method: "DELETE",
 			});
 			if (!res.ok) {

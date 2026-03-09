@@ -323,7 +323,7 @@
 	/* Animation tokens (D&D) */
 	--animate-fade-in: fade-in 0.3s ease-out;
 	--animate-fade-in-scale: fade-in-scale 0.2s ease-out;
---animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+	--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 	--animate-dice-roll: dice-roll 0.3s ease-out;
 
 	@keyframes pulse {

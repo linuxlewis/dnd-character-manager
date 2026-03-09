@@ -30,7 +30,11 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const characterId = id ?? character?.id;
 
 	useEffect(() => {
-		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;
+		const target = slug ?? id;
+		if (!target) return;
+		const url = slug
+			? `/api/characters/by-slug/${encodeURIComponent(slug)}`
+			: `/api/characters/${encodeURIComponent(target)}`;
 		fetch(url)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -42,58 +46,57 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	}, [id, slug]);
 
 	const handleDamage = (amount: number) => {
-		fetch(`/api/characters/${characterId}/damage`, {
+		if (!characterId) return;
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/damage`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
 		})
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) {
-					setCharacter(data);
-					toast.success(`Applied ${amount} damage`);
-				} else {
-					toast.error("Failed to apply damage");
-				}
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
 			})
-			.catch(() => toast.error("Network error"));
+			.then((data) => {
+				setCharacter(data);
+				toast.success(`Applied ${amount} damage`);
+			})
+			.catch(() => toast.error("Failed to apply damage"));
 	};
 
 	const handleHeal = (amount: number) => {
-		fetch(`/api/characters/${characterId}/heal`, {
+		if (!characterId) return;
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/heal`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ amount }),
 		})
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) {
-					setCharacter(data);
-					toast.success(`Healed ${amount} HP`);
-				} else {
-					toast.error("Failed to heal");
-				}
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
 			})
-			.catch(() => toast.error("Network error"));
+			.then((data) => {
+				setCharacter(data);
+				toast.success(`Healed ${amount} HP`);
+			})
+			.catch(() => toast.error("Failed to heal"));
 	};
 
 	const handleNotesBlur = () => {
-		if (!character) return;
-		fetch(`/api/characters/${characterId}`, {
+		if (!character || !characterId) return;
+		fetch(`/api/characters/${encodeURIComponent(characterId)}`, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ notes }),
 		})
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) {
-					setCharacter(data);
-					toast.success("Notes saved");
-				} else {
-					toast.error("Failed to save notes");
-				}
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
 			})
-			.catch(() => toast.error("Network error"));
+			.then((data) => {
+				setCharacter(data);
+				toast.success("Notes saved");
+			})
+			.catch(() => toast.error("Failed to save notes"));
 	};
 
 	if (loading)
@@ -131,14 +134,19 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
 
 	return (
-		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden [&_*]:max-w-full [&_*]:box-border animate-fade-in">
+		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden animate-fade-in">
 			<div className="flex items-center justify-between mb-4">
 				<Button variant="outline" onClick={() => navigate("/")}>
 					<ArrowLeft className="h-4 w-4" />
 					Back
 				</Button>
 				{!readOnly && characterId && (
-					<Button variant="outline" onClick={() => navigate(`/character/${characterId}/edit`)}>
+					<Button
+						variant="outline"
+						onClick={() =>
+							characterId && navigate(`/character/${encodeURIComponent(characterId)}/edit`)
+						}
+					>
 						<Edit className="h-4 w-4" />
 						<span className="max-sm:hidden">Edit</span>
 					</Button>

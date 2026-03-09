@@ -12,31 +12,38 @@ interface SpellSlotsSectionProps {
 
 export function SpellSlotsSection({ character, characterId, onUpdate }: SpellSlotsSectionProps) {
 	const handleUseSpellSlot = (level: number) => {
-		fetch(`/api/characters/${characterId}/spells/${level}/use`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) onUpdate(data);
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/spells/${level}/use`, {
+			method: "POST",
+		})
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
 			})
+			.then((data) => onUpdate(data))
 			.catch(() => {});
 	};
 
 	const handleRestoreSpellSlot = (level: number) => {
-		fetch(`/api/characters/${characterId}/spells/${level}/restore`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data) onUpdate(data);
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/spells/${level}/restore`, {
+			method: "POST",
+		})
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
 			})
+			.then((data) => onUpdate(data))
 			.catch(() => {});
 	};
 
 	const handleLongRest = () => {
-		fetch(`/api/characters/${characterId}/long-rest`, { method: "POST" })
-			.then((r) => (r.ok ? r.json() : null))
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/long-rest`, { method: "POST" })
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
+			})
 			.then((data) => {
-				if (data) {
-					onUpdate(data);
-					toast.success("Long rest complete — all spell slots restored");
-				}
+				onUpdate(data);
+				toast.success("Long rest complete — all spell slots restored");
 			})
 			.catch(() => toast.error("Failed to complete long rest"));
 	};

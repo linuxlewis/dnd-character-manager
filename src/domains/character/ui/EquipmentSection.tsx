@@ -24,20 +24,21 @@ export function EquipmentSection({ characterId, equipment, onUpdate }: Equipment
 		const quantity = Number.parseInt(eqQty, 10);
 		const weight = Number.parseFloat(eqWeight);
 		if (!eqName.trim() || Number.isNaN(quantity) || Number.isNaN(weight)) return;
-		fetch(`/api/characters/${characterId}/equipment`, {
+		fetch(`/api/characters/${encodeURIComponent(characterId)}/equipment`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ name: eqName.trim(), quantity, weight, equipped: false }),
 		})
-			.then((r) => (r.ok ? r.json() : null))
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
+			})
 			.then((data) => {
-				if (data) {
-					onUpdate(data);
-					toast.success(`Added ${eqName.trim()}`);
-					setEqName("");
-					setEqQty("1");
-					setEqWeight("0");
-				}
+				onUpdate(data);
+				toast.success(`Added ${eqName.trim()}`);
+				setEqName("");
+				setEqQty("1");
+				setEqWeight("0");
 			})
 			.catch(() => {
 				toast.error("Failed to add equipment");
@@ -45,13 +46,17 @@ export function EquipmentSection({ characterId, equipment, onUpdate }: Equipment
 	};
 
 	const handleRemoveEquipment = (itemId: string, itemName: string) => {
-		fetch(`/api/characters/${characterId}/equipment/${itemId}`, { method: "DELETE" })
-			.then((r) => (r.ok ? r.json() : null))
+		fetch(
+			`/api/characters/${encodeURIComponent(characterId)}/equipment/${encodeURIComponent(itemId)}`,
+			{ method: "DELETE" },
+		)
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
+			})
 			.then((data) => {
-				if (data) {
-					onUpdate(data);
-					toast.success(`Removed ${itemName}`);
-				}
+				onUpdate(data);
+				toast.success(`Removed ${itemName}`);
 			})
 			.catch(() => {
 				toast.error("Failed to remove equipment");

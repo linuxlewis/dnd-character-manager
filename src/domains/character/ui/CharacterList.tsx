@@ -15,7 +15,10 @@ export function CharacterList() {
 
 	useEffect(() => {
 		fetch("/api/characters")
-			.then((r) => r.json())
+			.then((r) => {
+				if (!r.ok) throw new Error("Server error");
+				return r.json();
+			})
 			.then((data) => setCharacters(data))
 			.catch(() => {})
 			.finally(() => setLoading(false));
