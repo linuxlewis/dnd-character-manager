@@ -56,6 +56,7 @@ export function StatBlock({ abilityScores, className }: StatBlockProps) {
 						</TooltipContent>
 					</Tooltip>
 				))}
-		</fieldset>
+			</fieldset>
+		</TooltipProvider>
 	);
 }
