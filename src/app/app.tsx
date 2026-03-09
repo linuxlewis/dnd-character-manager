@@ -9,6 +9,7 @@ import { Swords } from "lucide-react";
 import { CharacterForm } from "../domains/character/ui/CharacterForm.tsx";
 import { CharacterList } from "../domains/character/ui/CharacterList.tsx";
 import { CharacterSheet } from "../domains/character/ui/CharacterSheet.tsx";
+import { DiceRoller } from "../domains/character/ui/DiceRoller.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
@@ -36,7 +37,10 @@ function AppHeader() {
 				<Swords className="h-5 w-5" />
 				<span>D&D Character Manager</span>
 			</button>
-			<ThemeToggle />
+			<div className="flex items-center gap-2">
+				<DiceRoller />
+				<ThemeToggle />
+			</div>
 		</header>
 	);
 }

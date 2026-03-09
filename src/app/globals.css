@@ -225,17 +225,6 @@
 	}
 }
 
-@keyframes slide-up {
-	from {
-		opacity: 0;
-		transform: translateY(16px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
 @keyframes pulse-glow {
 	0%,
 	100% {
@@ -243,6 +232,24 @@
 	}
 	50% {
 		box-shadow: 0 0 12px hsl(var(--arcane) / 0.6);
+	}
+}
+
+@keyframes dice-roll {
+	0% {
+		transform: rotate(0deg) scale(1);
+	}
+	25% {
+		transform: rotate(90deg) scale(1.1);
+	}
+	50% {
+		transform: rotate(180deg) scale(1);
+	}
+	75% {
+		transform: rotate(270deg) scale(1.1);
+	}
+	100% {
+		transform: rotate(360deg) scale(1);
 	}
 }
 
@@ -316,8 +323,8 @@
 	/* Animation tokens (D&D) */
 	--animate-fade-in: fade-in 0.3s ease-out;
 	--animate-fade-in-scale: fade-in-scale 0.2s ease-out;
-	--animate-slide-up: slide-up 0.4s ease-out;
-	--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+	--animate-dice-roll: dice-roll 0.3s ease-out;
 
 	@keyframes pulse {
 		50% {

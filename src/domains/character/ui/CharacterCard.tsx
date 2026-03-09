@@ -31,8 +31,8 @@ export function CharacterCard({ character, onClick, index = 0 }: CharacterCardPr
 		<button
 			type="button"
 			className={cn(
-				"group relative text-left rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200 cursor-pointer overflow-hidden",
-				"hover:border-primary hover:shadow-lg hover:-translate-y-0.5",
+				"group relative w-full text-left rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200 cursor-pointer overflow-hidden",
+				"hover:border-primary hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]",
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 				"animate-fade-in",
 			)}

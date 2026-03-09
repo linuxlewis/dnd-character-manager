@@ -45,7 +45,13 @@ export function DiceRoller() {
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Dice Roller</DialogTitle>
+					<DialogTitle className="flex items-center gap-2">
+						<Dices
+							className={cn("h-5 w-5 text-primary", rolling && "animate-dice-roll")}
+							aria-hidden="true"
+						/>
+						Dice Roller
+					</DialogTitle>
 				</DialogHeader>
 
 				<div className="grid grid-cols-3 gap-2 mb-4">
@@ -53,7 +59,7 @@ export function DiceRoller() {
 						<Button
 							key={die}
 							variant="outline"
-							className="h-14 text-lg font-heading font-bold hover:bg-primary/10 hover:border-primary"
+							className="h-14 text-lg font-heading font-bold hover:bg-primary/10 hover:border-primary transition-all active:scale-95"
 							onClick={() => rollDie(die)}
 							disabled={rolling}
 						>
@@ -64,6 +70,7 @@ export function DiceRoller() {
 
 				{latest && (
 					<div
+						key={latest.timestamp}
 						className={cn(
 							"text-center py-6 rounded-lg border-2 mb-4 animate-fade-in-scale",
 							isCrit && "border-gold bg-gold/10",
@@ -82,7 +89,11 @@ export function DiceRoller() {
 						>
 							{latest.value}
 						</div>
-						{isCrit && <div className="text-sm font-bold text-gold mt-1">Critical Hit!</div>}
+						{isCrit && (
+							<div className="text-sm font-bold text-gold mt-1 animate-pulse-glow inline-block px-3 py-0.5 rounded-full">
+								Critical Hit!
+							</div>
+						)}
 						{isFumble && <div className="text-sm font-bold text-blood mt-1">Critical Fail!</div>}
 					</div>
 				)}

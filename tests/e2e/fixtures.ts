@@ -6,6 +6,21 @@ interface TestCharacter {
 	class: string;
 	level: number;
 	abilityScores: Record<string, number>;
+	hp: {
+		current: number;
+		max: number;
+		temp: number;
+	};
+	spellSlots: Array<{ level: number; used: number; available: number }>;
+	equipment: Array<{
+		id: string;
+		name: string;
+		quantity: number;
+		weight: number;
+		equipped: boolean;
+	}>;
+	skills: Array<{ name: string; abilityKey: string; proficient: boolean }>;
+	notes: string;
 }
 
 const DEFAULT_CHARACTER: TestCharacter = {
@@ -14,6 +29,20 @@ const DEFAULT_CHARACTER: TestCharacter = {
 	class: "Fighter",
 	level: 5,
 	abilityScores: { STR: 16, DEX: 12, CON: 14, INT: 10, WIS: 13, CHA: 8 },
+	hp: { current: 10, max: 10, temp: 0 },
+	spellSlots: [],
+	equipment: [],
+	skills: [],
+	notes: "",
+};
+
+const ABILITY_LABELS: Record<string, string> = {
+	STR: "Strength",
+	DEX: "Dexterity",
+	CON: "Constitution",
+	INT: "Intelligence",
+	WIS: "Wisdom",
+	CHA: "Charisma",
 };
 
 async function fillCharacterForm(page: Page, character: TestCharacter) {
@@ -22,21 +51,15 @@ async function fillCharacterForm(page: Page, character: TestCharacter) {
 	await page.getByLabel("Class").fill(character.class);
 	await page.getByLabel("Level").fill(String(character.level));
 	for (const [key, value] of Object.entries(character.abilityScores)) {
-		await page.getByLabel(key, { exact: true }).fill(String(value));
+		const label = `${ABILITY_LABELS[key]} (${key})`;
+		await page.getByLabel(label, { exact: true }).fill(String(value));
 	}
 }
 
 async function createCharacterViaAPI(page: Page, character?: Partial<TestCharacter>) {
 	const data = { ...DEFAULT_CHARACTER, ...character };
 	const response = await page.request.post("/api/characters", {
-		data: {
-			name: data.name,
-			race: data.race,
-			class: data.class,
-			level: data.level,
-			abilityScores: data.abilityScores,
-			hp: { current: 10, max: 10, temp: 0 },
-		},
+		data,
 	});
 	expect(response.ok()).toBe(true);
 	return response.json();

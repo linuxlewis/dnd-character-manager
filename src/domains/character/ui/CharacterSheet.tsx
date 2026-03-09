@@ -1,26 +1,22 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
-import { cn } from "../../../app/lib/utils.ts";
+import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
-import { getAbilityModifier } from "../types/character.js";
 import type { Character } from "../types/index.js";
+import { AmountDialog } from "./AmountDialog.tsx";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
 import { EquipmentSection } from "./EquipmentSection.tsx";
+import { HitPointsSection } from "./HitPointsSection.tsx";
 import { NotesSection } from "./NotesSection.tsx";
 import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
 import { SkillsSection } from "./SkillsSection.tsx";
 import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
-
-const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
-
-function formatMod(score: number): string {
-	const mod = getAbilityModifier(score);
-	return mod >= 0 ? `+${mod}` : `${mod}`;
-}
+import { StatBlock } from "./StatBlock.tsx";
 
 export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const navigate = useNavigate();
@@ -28,6 +24,8 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showDamageDialog, setShowDamageDialog] = useState(false);
+	const [showHealDialog, setShowHealDialog] = useState(false);
 	const readOnly = !!slug;
 	const characterId = id ?? character?.id;
 
@@ -43,11 +41,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.finally(() => setLoading(false));
 	}, [id, slug]);
 
-	const handleDamage = () => {
-		const input = prompt("How much damage?");
-		if (input === null) return;
-		const amount = Number.parseInt(input, 10);
-		if (Number.isNaN(amount) || amount <= 0) return;
+	const handleDamage = (amount: number) => {
 		fetch(`/api/characters/${characterId}/damage`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -65,11 +59,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => toast.error("Network error"));
 	};
 
-	const handleHeal = () => {
-		const input = prompt("How much healing?");
-		if (input === null) return;
-		const amount = Number.parseInt(input, 10);
-		if (Number.isNaN(amount) || amount <= 0) return;
+	const handleHeal = (amount: number) => {
 		fetch(`/api/characters/${characterId}/heal`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -106,48 +96,89 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => toast.error("Network error"));
 	};
 
-	const handleDeleteClick = () => {
-		setShowDeleteDialog(true);
-	};
-
-	const handleDeleteConfirm = () => {
-		navigate("/");
-	};
-
 	if (loading)
 		return (
-			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
-				Loading...
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 space-y-6" aria-busy="true">
+				<Skeleton className="h-10 w-24" />
+				<div>
+					<Skeleton className="h-8 w-48 mb-2" />
+					<Skeleton className="h-5 w-32" />
+				</div>
+				<div className="grid grid-cols-6 max-sm:grid-cols-3 gap-2">
+					{["s1", "s2", "s3", "s4", "s5", "s6"].map((k) => (
+						<Skeleton key={k} className="h-20 rounded-lg" />
+					))}
+				</div>
+				<Skeleton className="h-24 rounded-lg" />
+				<Skeleton className="h-32 rounded-lg" />
 			</div>
 		);
 	if (!character)
 		return (
-			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
-				Character not found.
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-center py-16">
+				<Sparkles className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
+				<h2 className="text-lg font-heading font-bold text-foreground mb-1">Character Not Found</h2>
+				<p className="text-muted-foreground mb-4">
+					This adventurer may have wandered into another realm.
+				</p>
+				<Button variant="outline" onClick={() => navigate("/")}>
+					<ArrowLeft className="h-4 w-4" />
+					Back to Characters
+				</Button>
 			</div>
 		);
 
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
 
 	return (
-		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden [&_*]:max-w-full [&_*]:box-border">
-			<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
-				<ArrowLeft className="h-4 w-4" />
-				Back
-			</Button>
-			<h1 className="text-2xl text-foreground mb-1">{character.name}</h1>
-			<p className="text-muted-foreground mb-4">
-				{character.race} {character.class} · Level {character.level}
-			</p>
+		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden [&_*]:max-w-full [&_*]:box-border animate-fade-in">
+			<div className="flex items-center justify-between mb-4">
+				<Button variant="outline" onClick={() => navigate("/")}>
+					<ArrowLeft className="h-4 w-4" />
+					Back
+				</Button>
+				{!readOnly && characterId && (
+					<Button variant="outline" onClick={() => navigate(`/character/${characterId}/edit`)}>
+						<Edit className="h-4 w-4" />
+						<span className="max-sm:hidden">Edit</span>
+					</Button>
+				)}
+			</div>
+
+			<div className="mb-6">
+				<div className="flex items-start justify-between">
+					<div>
+						<h1 className="text-2xl font-heading font-bold text-foreground mb-0.5">
+							{character.name}
+						</h1>
+						<p className="text-muted-foreground">
+							{character.race} {character.class}
+						</p>
+					</div>
+					<Badge variant="outline" className="font-heading text-sm shrink-0">
+						Level {character.level}
+					</Badge>
+				</div>
+			</div>
+
 			{character.slug && !readOnly && <ShareSection slug={character.slug} />}
-			<AbilityScoresGrid character={character} />
+
+			<section className="mb-6" aria-label="Ability Scores">
+				<h2 className="text-base font-heading font-bold text-foreground mb-3 pb-1 border-b-2 border-primary/20 flex items-center gap-2">
+					<Sparkles className="h-4 w-4 text-arcane" aria-hidden="true" />
+					Ability Scores
+				</h2>
+				<StatBlock abilityScores={character.abilityScores} />
+			</section>
+
 			<HitPointsSection
 				character={character}
 				hpPercent={hpPercent}
 				readOnly={readOnly}
-				onDamage={handleDamage}
-				onHeal={handleHeal}
+				onDamage={() => setShowDamageDialog(true)}
+				onHeal={() => setShowHealDialog(true)}
 			/>
+
 			{!readOnly && characterId && (
 				<>
 					<ArmorClassSection
@@ -192,92 +223,44 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			/>
 
 			{!readOnly && (
-				<div className="mb-6">
-					<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>
+				<div className="mb-6 pt-4 border-t border-border">
+					<Button
+						variant="destructive-ghost"
+						className="w-full"
+						onClick={() => setShowDeleteDialog(true)}
+					>
 						Delete Character
 					</Button>
 				</div>
 			)}
-			{character && (
-				<DeleteCharacterDialog
-					characterId={character.id}
-					characterName={character.name}
-					isOpen={showDeleteDialog}
-					onClose={() => setShowDeleteDialog(false)}
-					onDeleted={handleDeleteConfirm}
-				/>
-			)}
-		</div>
-	);
-}
 
-function AbilityScoresGrid({ character }: { character: Character }) {
-	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
-				Ability Scores
-			</h2>
-			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2">
-				{ABILITY_KEYS.map((key) => (
-					<div
-						key={key}
-						className="text-center p-2 border border-border rounded-lg bg-muted transition-colors"
-					>
-						<div className="text-xs text-muted-foreground uppercase">{key}</div>
-						<div className="text-lg font-bold text-foreground">{character.abilityScores[key]}</div>
-						<div className="text-sm text-muted-foreground">
-							{formatMod(character.abilityScores[key])}
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
+			<DeleteCharacterDialog
+				characterId={character.id}
+				characterName={character.name}
+				isOpen={showDeleteDialog}
+				onClose={() => setShowDeleteDialog(false)}
+				onDeleted={() => navigate("/")}
+			/>
 
-function HitPointsSection({
-	character,
-	hpPercent,
-	readOnly,
-	onDamage,
-	onHeal,
-}: {
-	character: Character;
-	hpPercent: number;
-	readOnly: boolean;
-	onDamage: () => void;
-	onHeal: () => void;
-}) {
-	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
-				Hit Points
-			</h2>
-			<div className="mb-2">
-				<span className="text-lg font-bold text-foreground">
-					{character.hp.current} / {character.hp.max}
-					{character.hp.temp > 0 ? ` (+${character.hp.temp} temp)` : ""}
-				</span>
-			</div>
-			<div className="w-full h-4 bg-muted border border-border rounded-full overflow-hidden mb-3">
-				<div
-					className={cn(
-						"h-full rounded-full transition-all duration-300",
-						hpPercent > 50 ? "bg-success" : hpPercent > 25 ? "bg-warning" : "bg-destructive",
-					)}
-					style={{ width: `${hpPercent}%` }}
-				/>
-			</div>
-			{!readOnly && (
-				<div className="flex gap-3 max-sm:flex-col">
-					<Button variant="destructive-ghost" className="flex-1" onClick={onDamage}>
-						Damage
-					</Button>
-					<Button variant="success-ghost" className="flex-1" onClick={onHeal}>
-						Heal
-					</Button>
-				</div>
-			)}
+			<AmountDialog
+				title="Apply Damage"
+				label="How much damage?"
+				confirmLabel="Apply Damage"
+				confirmVariant="destructive"
+				isOpen={showDamageDialog}
+				onClose={() => setShowDamageDialog(false)}
+				onConfirm={handleDamage}
+			/>
+
+			<AmountDialog
+				title="Heal"
+				label="How much healing?"
+				confirmLabel="Heal"
+				confirmVariant="success"
+				isOpen={showHealDialog}
+				onClose={() => setShowHealDialog(false)}
+				onConfirm={handleHeal}
+			/>
 		</div>
 	);
 }
