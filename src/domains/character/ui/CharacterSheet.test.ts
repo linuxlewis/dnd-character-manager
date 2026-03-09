@@ -1,13 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-	CONDITION_DETAILS,
-	applyDamage,
-	calculateTotalWeight,
-	getAbilityModifier,
-	toggleCondition,
-} from "../types/character.js";
+import { applyDamage, calculateTotalWeight, getAbilityModifier } from "../types/character.js";
+import { CONDITION_DETAILS, toggleCondition } from "../types/conditions.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
@@ -202,7 +197,7 @@ describe("CharacterSheet", () => {
 	});
 
 	it("includes SRD details for conditions", () => {
-		expect(CONDITION_DETAILS.Blinded.summary).toContain("can’t see");
+		expect(CONDITION_DETAILS.Blinded.summary).toContain("blinded creature");
 		expect(CONDITION_DETAILS.Unconscious.effects.length).toBeGreaterThan(0);
 	});
 
