@@ -18,7 +18,7 @@ test.describe("Character creation flow", () => {
 
 	test("shows validation errors for empty fields", async ({ page }) => {
 		await page.goto("/character/new");
-		await page.locator("#name").fill("");
+		await page.getByLabel("Name").fill("");
 		await page.getByRole("button", { name: "Create Character" }).click();
 
 		await expect(page.locator("form")).toBeVisible();

@@ -11,12 +11,12 @@ test.describe("Edit character", () => {
 		await expect(page.getByRole("heading", { name: "Edit Character" })).toBeVisible();
 
 		// Verify form is pre-populated
-		await expect(page.locator("#name")).toHaveValue("Thorin Ironforge");
-		await expect(page.locator("#race")).toHaveValue("Dwarf");
+		await expect(page.getByLabel("Name")).toHaveValue("Thorin Ironforge");
+		await expect(page.getByLabel("Race")).toHaveValue("Dwarf");
 
 		// Modify ability scores to unique values
-		await page.locator("#ability-STR").fill("20");
-		await page.locator("#ability-CHA").fill("15");
+		await page.getByLabel("STR", { exact: true }).fill("20");
+		await page.getByLabel("CHA", { exact: true }).fill("15");
 
 		await page.getByRole("button", { name: "Save Changes" }).click();
 
@@ -43,9 +43,9 @@ test.describe("Edit character", () => {
 		});
 		await page.goto(`/character/${character.id}/edit`);
 
-		await expect(page.locator("#name")).toHaveValue("Elara Moonwhisper");
-		await expect(page.locator("#race")).toHaveValue("Elf");
-		await expect(page.locator("#charClass")).toHaveValue("Wizard");
-		await expect(page.locator("#level")).toHaveValue("3");
+		await expect(page.getByLabel("Name")).toHaveValue("Elara Moonwhisper");
+		await expect(page.getByLabel("Race")).toHaveValue("Elf");
+		await expect(page.getByLabel("Class")).toHaveValue("Wizard");
+		await expect(page.getByLabel("Level")).toHaveValue("3");
 	});
 });

@@ -19,12 +19,12 @@ test.describe("Responsive layout", () => {
 		await page.goto("/character/new");
 
 		await expect(page.getByRole("heading", { name: "New Character" })).toBeVisible();
-		await expect(page.locator("#name")).toBeVisible();
-		await expect(page.locator("#race")).toBeVisible();
-		await expect(page.locator("#charClass")).toBeVisible();
+		await expect(page.getByLabel("Name")).toBeVisible();
+		await expect(page.getByLabel("Race")).toBeVisible();
+		await expect(page.getByLabel("Class")).toBeVisible();
 
 		// Ability score fields should be visible
-		await expect(page.locator("#ability-STR")).toBeVisible();
+		await expect(page.getByLabel("STR", { exact: true })).toBeVisible();
 		await expect(page.getByRole("button", { name: "Create Character" })).toBeVisible();
 	});
 

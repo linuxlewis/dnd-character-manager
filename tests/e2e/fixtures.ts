@@ -17,12 +17,12 @@ const DEFAULT_CHARACTER: TestCharacter = {
 };
 
 async function fillCharacterForm(page: Page, character: TestCharacter) {
-	await page.locator("#name").fill(character.name);
-	await page.locator("#race").fill(character.race);
-	await page.locator("#charClass").fill(character.class);
-	await page.locator("#level").fill(String(character.level));
+	await page.getByLabel("Name").fill(character.name);
+	await page.getByLabel("Race").fill(character.race);
+	await page.getByLabel("Class").fill(character.class);
+	await page.getByLabel("Level").fill(String(character.level));
 	for (const [key, value] of Object.entries(character.abilityScores)) {
-		await page.locator(`#ability-${key}`).fill(String(value));
+		await page.getByLabel(key, { exact: true }).fill(String(value));
 	}
 }
 
