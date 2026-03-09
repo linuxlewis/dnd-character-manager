@@ -5,31 +5,25 @@ test.describe("Character sheet view", () => {
 		const character = await createCharacter();
 		await page.goto(`/character/${character.id}`);
 
-		// Header info
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
-		await expect(page.getByText("Dwarf Fighter")).toBeVisible();
-		await expect(page.getByText("Level 5")).toBeVisible();
+		await expect(page.getByText("Dwarf Fighter · Level 5")).toBeVisible();
 
-		// Ability scores section
 		await expect(page.getByText("Ability Scores")).toBeVisible();
-		const abilitySection = page.locator("section").filter({ has: page.getByText("Ability Scores") });
+		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
 		for (const stat of ["STR", "DEX", "CON", "INT", "WIS", "CHA"]) {
-			await expect(abilitySection.getByText(stat, { exact: true })).toBeVisible();
+			await expect(abilitySection.locator("div").filter({ hasText: new RegExp(`^${stat}$`) })).toBeVisible();
 		}
 
-		// HP section
 		await expect(page.getByText("Hit Points")).toBeVisible();
-		await expect(page.getByRole("progressbar", { name: "10 of 10 hit points" })).toBeVisible();
+		await expect(page.getByText("10 / 10")).toBeVisible();
+		await expect(page.getByText("Conditions")).toBeVisible();
 
-		// Skills section
 		await expect(page.getByText("Skills")).toBeVisible();
 		await expect(page.getByText("Athletics")).toBeVisible();
 		await expect(page.getByText("Perception")).toBeVisible();
 
-		// Notes section
-		await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
+		await expect(page.getByText("Notes")).toBeVisible();
 
-		// Action buttons
 		await expect(page.getByRole("button", { name: "Damage" })).toBeVisible();
 		await expect(page.getByRole("button", { name: "Heal" })).toBeVisible();
 		await expect(page.getByRole("button", { name: "Delete Character" })).toBeVisible();
@@ -47,14 +41,35 @@ test.describe("Character sheet view", () => {
 	});
 
 	test("displays ability score modifiers correctly", async ({ page, createCharacter }) => {
-		// STR 16 => +3, DEX 12 => +1, CON 14 => +2, INT 10 => +0, WIS 13 => +1, CHA 8 => -1
 		await createCharacter();
 		await page.goto("/");
 		await page.getByText("Thorin Ironforge").click();
 
-		// Check modifiers within the ability scores section specifically
-		const abilitySection = page.locator("section").filter({ has: page.getByText("Ability Scores") });
-		await expect(abilitySection.getByText("+3", { exact: true })).toBeVisible(); // STR mod
-		await expect(abilitySection.getByText("-1", { exact: true })).toBeVisible(); // CHA mod
+		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
+		await expect(abilitySection.locator("div").filter({ hasText: /^\+3$/ })).toBeVisible();
+		await expect(abilitySection.locator("div").filter({ hasText: /^-1$/ })).toBeVisible();
+	});
+
+	test("tracks temp HP, concentration, and active conditions", async ({ page, createCharacter }) => {
+		const character = await createCharacter({
+			hp: { current: 18, max: 24, temp: 7 },
+			concentration: true,
+			conditions: [{ name: "Poisoned", durationRounds: 4 }],
+		});
+		await page.goto(`/character/${character.id}`);
+
+		await expect(page.getByText("18 / 24")).toBeVisible();
+		await expect(page.getByText("+7 temp")).toBeVisible();
+		await expect(page.getByText("Concentration").first()).toBeVisible();
+		await expect(page.getByLabel("Active conditions indicator")).toContainText("1 active");
+		await expect(page.getByLabel("Active conditions list")).toContainText("Poisoned (4r)");
+	});
+
+	test("shows condition descriptions on hover", async ({ page, createCharacter }) => {
+		const character = await createCharacter();
+		await page.goto(`/character/${character.id}`);
+
+		await page.getByText("Blinded").hover();
+		await expect(page.getByText("A blinded creature can’t see")).toBeVisible();
 	});
 });

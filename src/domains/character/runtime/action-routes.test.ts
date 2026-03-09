@@ -11,6 +11,8 @@ const validInput: CreateCharacter = {
 	level: 20,
 	abilityScores: { STR: 10, DEX: 14, CON: 12, INT: 20, WIS: 18, CHA: 16 },
 	hp: { current: 100, max: 100, temp: 0 },
+	conditions: [],
+	concentration: false,
 	skills: [],
 	spellSlots: [],
 	equipment: [],
@@ -78,6 +80,72 @@ describe("Action routes", () => {
 		});
 		expect(res.statusCode).toBe(200);
 		expect(res.json().hp.current).toBe(80);
+	});
+
+	it("PUT temp HP updates separate pool", async () => {
+		const char = await createChar();
+		const res = await app.inject({
+			method: "PUT",
+			url: `/api/characters/${char.id}/hp/temp`,
+			payload: { amount: 7 },
+		});
+		expect(res.statusCode).toBe(200);
+		expect(res.json().hp.temp).toBe(7);
+	});
+
+	it("PUT max HP updates max and clamps current", async () => {
+		const char = await createChar();
+		const res = await app.inject({
+			method: "PUT",
+			url: `/api/characters/${char.id}/hp/max`,
+			payload: { amount: 50 },
+		});
+		expect(res.statusCode).toBe(200);
+		expect(res.json().hp.max).toBe(50);
+		expect(res.json().hp.current).toBe(50);
+	});
+
+	it("PUT concentration toggles spell concentration", async () => {
+		const char = await createChar();
+		const res = await app.inject({
+			method: "PUT",
+			url: `/api/characters/${char.id}/concentration`,
+			payload: { concentration: true },
+		});
+		expect(res.statusCode).toBe(200);
+		expect(res.json().concentration).toBe(true);
+	});
+
+	it("POST condition toggle adds condition with duration", async () => {
+		const char = await createChar();
+		const res = await app.inject({
+			method: "POST",
+			url: `/api/characters/${char.id}/conditions/toggle`,
+			payload: { conditionName: "Blinded", durationRounds: 3 },
+		});
+		expect(res.statusCode).toBe(200);
+		expect(res.json().conditions).toEqual([{ name: "Blinded", durationRounds: 3 }]);
+	});
+
+	it("POST condition toggle removes active condition", async () => {
+		const char = await createChar({ conditions: [{ name: "Blinded", durationRounds: 3 }] });
+		const res = await app.inject({
+			method: "POST",
+			url: `/api/characters/${char.id}/conditions/toggle`,
+			payload: { conditionName: "Blinded" },
+		});
+		expect(res.statusCode).toBe(200);
+		expect(res.json().conditions).toEqual([]);
+	});
+
+	it("POST condition toggle rejects invalid condition", async () => {
+		const char = await createChar();
+		const res = await app.inject({
+			method: "POST",
+			url: `/api/characters/${char.id}/conditions/toggle`,
+			payload: { conditionName: "Flying" },
+		});
+		expect(res.statusCode).toBe(400);
 	});
 
 	it("POST heal 404 for missing", async () => {
@@ -187,25 +255,28 @@ describe("Action routes", () => {
 		expect(res.statusCode).toBe(404);
 	});
 
-	it("POST long-rest restores all spell slots", async () => {
+	it("POST long-rest restores all spell slots and clears concentration/temp HP", async () => {
 		const char = await createChar({
 			spellSlots: [
 				{ level: 1, available: 4, used: 3 },
 				{ level: 2, available: 3, used: 2 },
 			],
+			hp: { current: 12, max: 24, temp: 6 },
+			concentration: true,
 		});
 		const res = await app.inject({ method: "POST", url: `/api/characters/${char.id}/long-rest` });
 		expect(res.statusCode).toBe(200);
 		expect(res.json().spellSlots[0].used).toBe(0);
 		expect(res.json().spellSlots[1].used).toBe(0);
+		expect(res.json().hp.current).toBe(24);
+		expect(res.json().hp.temp).toBe(0);
+		expect(res.json().concentration).toBe(false);
 	});
 
 	it("POST long-rest 404 for missing", async () => {
 		const res = await app.inject({ method: "POST", url: "/api/characters/missing/long-rest" });
 		expect(res.statusCode).toBe(404);
 	});
-
-	// --- AC Override Route ---
 
 	it("PUT /ac sets override and returns updated character", async () => {
 		const create = await app.inject({
@@ -248,8 +319,6 @@ describe("Action routes", () => {
 		});
 		expect(res.statusCode).toBe(404);
 	});
-
-	// --- Saving Throw Toggle Route ---
 
 	it("POST saving-throws toggle adds proficiency if not present", async () => {
 		const create = await app.inject({

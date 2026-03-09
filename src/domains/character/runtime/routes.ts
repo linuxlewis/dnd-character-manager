@@ -9,7 +9,11 @@
 
 import type { FastifyInstance } from "fastify";
 import { characterService } from "../service/character-service.js";
-import type { CreateCharacter, UpdateCharacter } from "../types/index.js";
+import {
+	CharacterConditionNameSchema,
+	type CreateCharacter,
+	type UpdateCharacter,
+} from "../types/index.js";
 
 export async function registerCharacterRoutes(app: FastifyInstance) {
 	app.get("/api/characters", async () => {
@@ -37,7 +41,7 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		try {
 			const character = await characterService.createCharacter(request.body as CreateCharacter);
 			return reply.status(201).send(character);
-		} catch (err) {
+		} catch {
 			return reply.status(400).send({ error: "Invalid character data" });
 		}
 	});
@@ -52,7 +56,7 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 				return reply.status(404).send({ error: "Character not found" });
 			}
 			return character;
-		} catch (err) {
+		} catch {
 			return reply.status(400).send({ error: "Invalid character data" });
 		}
 	});
@@ -84,6 +88,60 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		}
 		return character;
 	});
+
+	app.put<{ Params: { id: string } }>("/api/characters/:id/hp/temp", async (request, reply) => {
+		const { amount } = request.body as { amount: number };
+		const character = await characterService.setTempHp(request.params.id, amount);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.put<{ Params: { id: string } }>("/api/characters/:id/hp/max", async (request, reply) => {
+		const { amount } = request.body as { amount: number };
+		const character = await characterService.setMaxHp(request.params.id, amount);
+		if (!character) {
+			return reply.status(404).send({ error: "Character not found" });
+		}
+		return character;
+	});
+
+	app.put<{ Params: { id: string } }>(
+		"/api/characters/:id/concentration",
+		async (request, reply) => {
+			const { concentration } = request.body as { concentration: boolean };
+			const character = await characterService.setConcentration(request.params.id, concentration);
+			if (!character) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return character;
+		},
+	);
+
+	app.post<{ Params: { id: string } }>(
+		"/api/characters/:id/conditions/toggle",
+		async (request, reply) => {
+			try {
+				const { conditionName, durationRounds } = request.body as {
+					conditionName: string;
+					durationRounds?: number | null;
+				};
+				const parsedName = CharacterConditionNameSchema.parse(conditionName);
+				const character = await characterService.toggleCondition(
+					request.params.id,
+					parsedName,
+					durationRounds ?? null,
+				);
+				if (!character) {
+					return reply.status(404).send({ error: "Character not found" });
+				}
+				return character;
+			} catch {
+				return reply.status(400).send({ error: "Invalid condition" });
+			}
+		},
+	);
 
 	app.post<{ Params: { id: string; name: string } }>(
 		"/api/characters/:id/skills/:name/toggle",

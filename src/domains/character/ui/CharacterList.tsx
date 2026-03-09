@@ -1,6 +1,7 @@
-import { Plus, Swords } from "lucide-react";
+import { AlertTriangle, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
@@ -72,6 +73,49 @@ export function CharacterList() {
 								<Skeleton className="h-3 w-16" />
 							</div>
 						</div>
+					))}
+				</div>
+			) : (
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					{characters.map((c) => (
+						<button
+							key={c.id}
+							type="button"
+							className="rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all p-6 cursor-pointer hover:border-primary hover:shadow-md text-left"
+							onClick={() => navigate(`/character/${c.id}`)}
+						>
+							<div className="flex items-start justify-between gap-3 mb-1">
+								<div className="text-lg font-bold text-foreground">{c.name}</div>
+								{c.conditions.length > 0 && (
+									<Badge variant="destructive" className="gap-1">
+										<AlertTriangle className="h-3 w-3" />
+										{c.conditions.length}
+									</Badge>
+								)}
+							</div>
+							<div className="text-sm text-muted-foreground mb-2">
+								{c.race} · {c.class} · Level {c.level}
+							</div>
+							<div className="flex items-center gap-2 flex-wrap mb-2">
+								<div className="text-sm font-semibold text-destructive">
+									HP: {c.hp.current} / {c.hp.max}
+									{c.hp.temp > 0 ? ` (+${c.hp.temp} temp)` : ""}
+								</div>
+								{c.concentration && <Badge variant="secondary">Concentration</Badge>}
+							</div>
+							{c.conditions.length > 0 && (
+								<div className="flex gap-1 flex-wrap">
+									{c.conditions.slice(0, 3).map((condition) => (
+										<Badge key={condition.name} variant="outline">
+											{condition.name}
+										</Badge>
+									))}
+									{c.conditions.length > 3 && (
+										<Badge variant="outline">+{c.conditions.length - 3} more</Badge>
+									)}
+								</div>
+							)}
+						</button>
 					))}
 				</div>
 			) : characters.length === 0 ? (

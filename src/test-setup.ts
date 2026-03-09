@@ -12,7 +12,7 @@ const sqlite = new Database(":memory:");
 sqlite.pragma("journal_mode = WAL");
 const db = drizzle(sqlite, { schema });
 
-// Create the characters table
+// Create the characters table with all columns including new HP/conditions support
 db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 	id TEXT PRIMARY KEY,
 	name TEXT NOT NULL,
@@ -21,6 +21,8 @@ db.run(sql`CREATE TABLE IF NOT EXISTS characters (
 	level INTEGER NOT NULL DEFAULT 1,
 	ability_scores TEXT,
 	hp TEXT,
+	conditions TEXT,
+	concentration INTEGER NOT NULL DEFAULT 0,
 	spell_slots TEXT,
 	equipment TEXT,
 	skills TEXT,

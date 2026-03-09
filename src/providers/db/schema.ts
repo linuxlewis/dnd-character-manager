@@ -9,6 +9,10 @@ export const characters = sqliteTable("characters", {
 	level: integer("level").notNull().default(1),
 	ability_scores: text("ability_scores", { mode: "json" }),
 	hp: text("hp", { mode: "json" }),
+	conditions: text("conditions", { mode: "json" }).$type<
+		Array<{ name: string; durationRounds: number | null }>
+	>(),
+	concentration: integer("concentration", { mode: "boolean" }).notNull().default(false),
 	spell_slots: text("spell_slots", { mode: "json" }),
 	equipment: text("equipment", { mode: "json" }),
 	skills: text("skills", { mode: "json" }),

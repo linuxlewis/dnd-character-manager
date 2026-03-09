@@ -22,6 +22,8 @@ function toDomain(row: typeof characters.$inferSelect): Character {
 		level: row.level,
 		abilityScores: row.ability_scores as Character["abilityScores"],
 		hp: row.hp as Character["hp"],
+		conditions: (row.conditions ?? []) as Character["conditions"],
+		concentration: row.concentration ?? false,
 		spellSlots: (row.spell_slots ?? []) as Character["spellSlots"],
 		equipment: (row.equipment ?? []) as Character["equipment"],
 		skills: (row.skills ?? []) as Character["skills"],
@@ -65,11 +67,13 @@ export const characterRepo = {
 			race: input.race,
 			class: input.class,
 			level: input.level,
-			ability_scores: input.abilityScores as unknown as string,
-			hp: input.hp as unknown as string,
-			spell_slots: input.spellSlots as unknown as string,
-			equipment: input.equipment as unknown as string,
-			skills: input.skills as unknown as string,
+			ability_scores: input.abilityScores,
+			hp: input.hp,
+			conditions: input.conditions ?? [],
+			concentration: input.concentration ?? false,
+			spell_slots: input.spellSlots,
+			equipment: input.equipment,
+			skills: input.skills,
 			armor_class: input.armorClass ?? { base: 10, override: null },
 			saving_throw_proficiencies: input.savingThrowProficiencies ?? [],
 			notes: input.notes ?? "",
@@ -79,6 +83,8 @@ export const characterRepo = {
 		db.insert(characters).values(row).run();
 		return {
 			...input,
+			conditions: input.conditions ?? [],
+			concentration: input.concentration ?? false,
 			id,
 			slug,
 			createdAt: now,
@@ -107,6 +113,8 @@ export const characterRepo = {
 		if (input.level !== undefined) values.level = input.level;
 		if (input.abilityScores !== undefined) values.ability_scores = input.abilityScores;
 		if (input.hp !== undefined) values.hp = input.hp;
+		if (input.conditions !== undefined) values.conditions = input.conditions;
+		if (input.concentration !== undefined) values.concentration = input.concentration;
 		if (input.spellSlots !== undefined) values.spell_slots = input.spellSlots;
 		if (input.equipment !== undefined) values.equipment = input.equipment;
 		if (input.skills !== undefined) values.skills = input.skills;
