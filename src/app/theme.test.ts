@@ -56,16 +56,16 @@ describe("globals.css", () => {
 		expect(globalsCss).toContain("--radius");
 	});
 
-	it("light theme defines background as white", () => {
-		expect(globalsCss).toMatch(/--background:\s*0 0% 100%/);
+	it("light theme defines background", () => {
+		expect(globalsCss).toMatch(/--background:\s*40 30% 97%/);
 	});
 
 	it("dark theme defines dark background", () => {
-		expect(globalsCss).toMatch(/--background:\s*240 33% 14%/);
+		expect(globalsCss).toMatch(/--background:\s*220 20% 10%/);
 	});
 
 	it("dark theme defines light foreground", () => {
-		expect(globalsCss).toMatch(/--foreground:\s*0 0% 88%/);
+		expect(globalsCss).toMatch(/--foreground:\s*39 20% 88%/);
 	});
 });
 

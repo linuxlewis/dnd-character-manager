@@ -44,11 +44,17 @@ export function SpellSlotsSection({ character, characterId, onUpdate }: SpellSlo
 				Spell Slots
 			</h2>
 			{character.spellSlots.map((slot) => (
-				<div key={slot.level} className="flex items-center gap-3 py-2 min-h-[44px]">
-					<span className="text-sm font-semibold w-16 shrink-0 text-foreground">
+				<div
+					key={slot.level}
+					className="flex items-center gap-3 py-2.5 min-h-[44px] border-b border-border/50 last:border-0"
+				>
+					<span className="text-sm font-heading font-bold w-16 shrink-0 text-foreground">
 						Level {slot.level}
 					</span>
-					<div className="flex gap-2 flex-1 flex-wrap">
+					<fieldset
+						className="flex gap-2 flex-1 flex-wrap border-0 p-0 m-0"
+						aria-label={`Level ${slot.level} spell slots`}
+					>
 						{Array.from({ length: slot.available }, (_, i) => {
 							const isUsed = i < slot.used;
 							return (
@@ -62,18 +68,18 @@ export function SpellSlotsSection({ character, characterId, onUpdate }: SpellSlo
 									onClick={() =>
 										isUsed ? handleRestoreSpellSlot(slot.level) : handleUseSpellSlot(slot.level)
 									}
-									aria-label={`Level ${slot.level} slot ${i + 1} - ${isUsed ? "used" : "available"}`}
+									aria-label={`Level ${slot.level} slot ${i + 1} - ${isUsed ? "used, click to restore" : "available, click to use"}`}
 								/>
 							);
 						})}
-					</div>
-					<span className="text-sm text-muted-foreground w-10 text-right shrink-0">
+					</fieldset>
+					<span className="text-sm text-muted-foreground w-10 text-right shrink-0 font-mono">
 						{slot.available - slot.used}/{slot.available}
 					</span>
 				</div>
 			))}
 			<Button variant="primary-ghost" className="w-full mt-3" onClick={handleLongRest}>
-				Long Rest
+				Long Rest (Restore All)
 			</Button>
 		</div>
 	);

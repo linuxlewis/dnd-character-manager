@@ -1,3 +1,4 @@
+import { Shield } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
@@ -53,18 +54,24 @@ export function ArmorClassSection({
 	};
 
 	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+		<section className="mb-6" aria-label="Armor Class">
+			<h2 className="text-base font-heading font-bold text-foreground mb-3 pb-1 border-b-2 border-steel/30 flex items-center gap-2">
+				<Shield className="h-4 w-4 text-steel" />
 				Armor Class
 			</h2>
-			<div className="flex items-center gap-4 mb-2">
-				<div className="flex flex-col items-center justify-center w-16 h-[4.5rem] border-2 border-border rounded-b-[50%] bg-muted transition-colors">
-					<span className="text-2xl font-bold text-foreground leading-none" data-testid="ac-value">
+			<div className="flex items-center gap-4 mb-3">
+				<div className="flex flex-col items-center justify-center w-16 h-[4.5rem] border-2 border-steel rounded-b-[50%] bg-card transition-colors shadow-sm">
+					<span
+						className="text-2xl font-heading font-bold text-foreground leading-none"
+						data-testid="ac-value"
+					>
 						{acValue}
 					</span>
-					<span className="text-[0.7rem] text-muted-foreground uppercase">AC</span>
+					<span className="text-[0.6rem] text-muted-foreground uppercase font-semibold tracking-wider">
+						AC
+					</span>
 				</div>
-				{hasAcOverride && <Badge>Override</Badge>}
+				{hasAcOverride && <Badge variant="outline">Override</Badge>}
 			</div>
 			<div className="flex gap-2">
 				{hasAcOverride ? (
@@ -84,6 +91,7 @@ export function ArmorClassSection({
 							onChange={(e) => setAcOverrideInput(e.target.value)}
 							placeholder="AC"
 							min="0"
+							aria-label="AC override value"
 						/>
 						<Button size="sm" onClick={handleSetAcOverride}>
 							Set
@@ -101,6 +109,6 @@ export function ArmorClassSection({
 					</div>
 				)}
 			</div>
-		</div>
+		</section>
 	);
 }

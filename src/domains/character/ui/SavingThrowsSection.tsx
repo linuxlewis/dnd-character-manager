@@ -1,8 +1,18 @@
 import { Checkbox } from "../../../app/components/ui/checkbox.tsx";
+import { cn } from "../../../app/lib/utils.ts";
 import type { Character } from "../types/index.js";
 import { calculateSavingThrow } from "../types/skills.js";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
+
+const ABILITY_LABELS: Record<string, string> = {
+	STR: "Strength",
+	DEX: "Dexterity",
+	CON: "Constitution",
+	INT: "Intelligence",
+	WIS: "Wisdom",
+	CHA: "Charisma",
+};
 
 export function SavingThrowsSection({
 	character,
@@ -25,12 +35,12 @@ export function SavingThrowsSection({
 	};
 
 	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+		<section className="mb-6" aria-label="Saving Throws">
+			<h2 className="text-base font-heading font-bold text-foreground mb-3 pb-1 border-b-2 border-primary/20">
 				Saving Throws
 			</h2>
-			<div className="flex flex-col gap-1">
-				{ABILITY_KEYS.map((key) => {
+			<div className="rounded-lg border border-border overflow-hidden">
+				{ABILITY_KEYS.map((key, i) => {
 					const proficient = character.savingThrowProficiencies?.includes(key) ?? false;
 					const bonus = calculateSavingThrow(
 						character.abilityScores[key],
@@ -41,7 +51,11 @@ export function SavingThrowsSection({
 					return (
 						<div
 							key={key}
-							className="flex items-center gap-3 p-2 rounded-md min-h-[44px] cursor-pointer odd:bg-muted even:bg-background active:bg-primary/10 transition-colors"
+							className={cn(
+								"flex items-center gap-3 px-3 py-2 min-h-[44px] cursor-pointer transition-colors",
+								i % 2 === 0 ? "bg-card" : "bg-muted/30",
+								"hover:bg-primary/5 active:bg-primary/10",
+							)}
 							data-testid={`saving-throw-${key}`}
 						>
 							<Checkbox
@@ -51,17 +65,22 @@ export function SavingThrowsSection({
 							/>
 							<label
 								htmlFor={`saving-throw-checkbox-${key}`}
-								className="flex-1 text-[0.95rem] text-foreground cursor-pointer"
+								className="flex-1 text-sm text-foreground cursor-pointer select-none"
 							>
-								{key}
+								{ABILITY_LABELS[key]}
 							</label>
-							<span className="font-bold text-[0.95rem] w-10 text-right text-foreground">
+							<span
+								className={cn(
+									"font-bold text-sm w-10 text-right font-mono",
+									proficient ? "text-primary" : "text-foreground",
+								)}
+							>
 								{formatted}
 							</span>
 						</div>
 					);
 				})}
 			</div>
-		</div>
+		</section>
 	);
 }

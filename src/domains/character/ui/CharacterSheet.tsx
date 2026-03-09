@@ -163,17 +163,17 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				</>
 			)}
 			{characterId && (
-				<SkillsSection
+				<SpellSlotsSection
 					character={character}
 					characterId={characterId}
-					readOnly={readOnly}
 					onUpdate={setCharacter}
 				/>
 			)}
 			{characterId && (
-				<SpellSlotsSection
+				<SkillsSection
 					character={character}
 					characterId={characterId}
+					readOnly={readOnly}
 					onUpdate={setCharacter}
 				/>
 			)}
@@ -190,6 +190,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				onChange={setNotes}
 				onBlur={handleNotesBlur}
 			/>
+
 			{!readOnly && (
 				<div className="mb-6">
 					<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>

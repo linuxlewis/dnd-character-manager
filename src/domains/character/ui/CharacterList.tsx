@@ -22,7 +22,7 @@ export function CharacterList() {
 	}, []);
 
 	return (
-		<div className="max-w-[960px] mx-auto p-6 max-sm:p-2">
+		<div className="max-w-[960px] mx-auto p-6 max-sm:p-3">
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-heading text-foreground">Characters</h1>
 				<Button onClick={() => navigate("/character/new")}>
