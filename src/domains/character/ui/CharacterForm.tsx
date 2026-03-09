@@ -32,7 +32,7 @@ interface CharacterFormProps {
 export function CharacterForm({ id }: CharacterFormProps) {
 	const navigate = useNavigate();
 	const isEdit = id !== undefined && id !== "new";
-	const [serverError, setServerError] = useState<string | null>(null);
+
 	const [loading, setLoading] = useState(isEdit);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errors, setErrors] = useState<FormErrors>({});
@@ -58,10 +58,7 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					abilityScores: c.abilityScores,
 				});
 			})
-			.catch(() => {
-				setServerError("Failed to load character");
-				toast.error("Failed to load character");
-			})
+			.catch(() => toast.error("Failed to load character"))
 			.finally(() => setLoading(false));
 	}, [id, isEdit]);
 
@@ -95,7 +92,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		setServerError(null);
 		setErrors({});
 
 		const validationErrors = validateForm(formData);
@@ -119,15 +115,13 @@ export function CharacterForm({ id }: CharacterFormProps) {
 				body: JSON.stringify(data),
 			});
 			if (!res.ok) {
-				setServerError("Failed to save character");
 				toast.error("Failed to save character");
 				return;
 			}
-			toast.success(isEdit ? "Character updated!" : "Character created!");
+			toast.success(isEdit ? "Character updated successfully" : "Character created successfully");
 			navigate("/");
 		} catch {
-			setServerError("Network error");
-			toast.error("Network error — check your connection");
+			toast.error("Network error");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -255,15 +249,6 @@ export function CharacterForm({ id }: CharacterFormProps) {
 					abilityScores={formData.abilityScores}
 					onChange={handleAbilityScoreChange}
 				/>
-
-				{serverError && (
-					<div
-						role="alert"
-						className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm font-medium text-destructive"
-					>
-						{serverError}
-					</div>
-				)}
 
 				<Button type="submit" size="lg" className="w-full mt-2" disabled={isSubmitting}>
 					{isSubmitting ? (

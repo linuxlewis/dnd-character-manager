@@ -10,6 +10,8 @@ const validInput: CreateCharacter = {
 	level: 20,
 	abilityScores: { STR: 10, DEX: 14, CON: 12, INT: 20, WIS: 18, CHA: 16 },
 	hp: { current: 100, max: 100, temp: 0 },
+	conditions: [],
+	concentration: false,
 	spellSlots: [],
 	equipment: [],
 	skills: [],

@@ -1,12 +1,19 @@
-import { ArrowLeft, Edit, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
-import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
+
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "../../../app/components/ui/tooltip.tsx";
+import { cn } from "../../../app/lib/utils.ts";
 import { useNavigate } from "../../../app/router.tsx";
-import type { Character } from "../types/index.js";
-import { AmountDialog } from "./AmountDialog.tsx";
+import { CONDITION_DETAILS, getAbilityModifier } from "../types/character.js";
+import type { Character, CharacterConditionName } from "../types/index.js";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
 import { EquipmentSection } from "./EquipmentSection.tsx";
@@ -16,7 +23,38 @@ import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
 import { SkillsSection } from "./SkillsSection.tsx";
 import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
-import { StatBlock } from "./StatBlock.tsx";
+
+const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
+const SRD_CONDITIONS = [
+	"Blinded",
+	"Charmed",
+	"Deafened",
+	"Frightened",
+	"Grappled",
+	"Incapacitated",
+	"Invisible",
+	"Paralyzed",
+	"Petrified",
+	"Poisoned",
+	"Prone",
+	"Restrained",
+	"Stunned",
+	"Unconscious",
+] as const satisfies CharacterConditionName[];
+
+function formatMod(score: number): string {
+	const mod = getAbilityModifier(score);
+	return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
+async function postCharacterJson<T>(url: string, body?: unknown): Promise<T | null> {
+	const response = await fetch(url, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: body ? JSON.stringify(body) : undefined,
+	});
+	return response.ok ? response.json() : null;
+}
 
 export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const navigate = useNavigate();
@@ -24,17 +62,11 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-	const [showDamageDialog, setShowDamageDialog] = useState(false);
-	const [showHealDialog, setShowHealDialog] = useState(false);
 	const readOnly = !!slug;
 	const characterId = id ?? character?.id;
 
 	useEffect(() => {
-		const target = slug ?? id;
-		if (!target) return;
-		const url = slug
-			? `/api/characters/by-slug/${encodeURIComponent(slug)}`
-			: `/api/characters/${encodeURIComponent(target)}`;
+		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;
 		fetch(url)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -45,230 +77,336 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.finally(() => setLoading(false));
 	}, [id, slug]);
 
-	const handleDamage = (amount: number) => {
-		if (!characterId) return;
-		fetch(`/api/characters/${encodeURIComponent(characterId)}/damage`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ amount }),
-		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+	const handleDamage = () => {
+		const input = prompt("How much damage?");
+		if (input === null) return;
+		const amount = Number.parseInt(input, 10);
+		if (Number.isNaN(amount) || amount <= 0) return;
+		postCharacterJson<Character>(`/api/characters/${characterId}/damage`, { amount })
 			.then((data) => {
-				setCharacter(data);
-				toast.success(`Applied ${amount} damage`);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Applied ${amount} damage`);
+				} else {
+					toast.error("Failed to apply damage");
+				}
 			})
-			.catch(() => toast.error("Failed to apply damage"));
+			.catch(() => toast.error("Network error"));
 	};
 
-	const handleHeal = (amount: number) => {
-		if (!characterId) return;
-		fetch(`/api/characters/${encodeURIComponent(characterId)}/heal`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ amount }),
-		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+	const handleHeal = () => {
+		const input = prompt("How much healing?");
+		if (input === null) return;
+		const amount = Number.parseInt(input, 10);
+		if (Number.isNaN(amount) || amount <= 0) return;
+		postCharacterJson<Character>(`/api/characters/${characterId}/heal`, { amount })
 			.then((data) => {
-				setCharacter(data);
-				toast.success(`Healed ${amount} HP`);
+				if (data) {
+					setCharacter(data);
+					toast.success(`Healed ${amount} HP`);
+				} else {
+					toast.error("Failed to heal");
+				}
 			})
-			.catch(() => toast.error("Failed to heal"));
+			.catch(() => toast.error("Network error"));
 	};
 
 	const handleNotesBlur = () => {
-		if (!character || !characterId) return;
-		fetch(`/api/characters/${encodeURIComponent(characterId)}`, {
+		if (!character) return;
+		fetch(`/api/characters/${characterId}`, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ notes }),
 		})
-			.then((r) => {
-				if (!r.ok) throw new Error("Server error");
-				return r.json();
-			})
+			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				setCharacter(data);
-				toast.success("Notes saved");
+				if (data) {
+					setCharacter(data);
+					toast.success("Notes saved");
+				} else {
+					toast.error("Failed to save notes");
+				}
 			})
-			.catch(() => toast.error("Failed to save notes"));
+			.catch(() => toast.error("Network error"));
+	};
+
+	const handleDeleteClick = () => {
+		setShowDeleteDialog(true);
+	};
+
+	const handleDeleteConfirm = () => {
+		navigate("/");
 	};
 
 	if (loading)
 		return (
-			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 space-y-6" aria-busy="true">
-				<Skeleton className="h-10 w-24" />
-				<div>
-					<Skeleton className="h-8 w-48 mb-2" />
-					<Skeleton className="h-5 w-32" />
-				</div>
-				<div className="grid grid-cols-6 max-sm:grid-cols-3 gap-2">
-					{["s1", "s2", "s3", "s4", "s5", "s6"].map((k) => (
-						<Skeleton key={k} className="h-20 rounded-lg" />
-					))}
-				</div>
-				<Skeleton className="h-24 rounded-lg" />
-				<Skeleton className="h-32 rounded-lg" />
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
+				Loading...
 			</div>
 		);
 	if (!character)
 		return (
-			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-center py-16">
-				<Sparkles className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
-				<h2 className="text-lg font-heading font-bold text-foreground mb-1">Character Not Found</h2>
-				<p className="text-muted-foreground mb-4">
-					This adventurer may have wandered into another realm.
-				</p>
-				<Button variant="outline" onClick={() => navigate("/")}>
-					<ArrowLeft className="h-4 w-4" />
-					Back to Characters
-				</Button>
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
+				Character not found.
 			</div>
 		);
 
 	const hpPercent = character.hp.max > 0 ? (character.hp.current / character.hp.max) * 100 : 0;
 
 	return (
-		<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden animate-fade-in">
-			<div className="flex items-center justify-between mb-4">
-				<Button variant="outline" onClick={() => navigate("/")}>
+		<TooltipProvider>
+			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 transition-colors overflow-x-hidden [&_*]:max-w-full [&_*]:box-border">
+				<Button variant="outline" className="mb-4" onClick={() => navigate("/")}>
 					<ArrowLeft className="h-4 w-4" />
 					Back
 				</Button>
-				{!readOnly && characterId && (
-					<Button
-						variant="outline"
-						onClick={() =>
-							characterId && navigate(`/character/${encodeURIComponent(characterId)}/edit`)
-						}
-					>
-						<Edit className="h-4 w-4" />
-						<span className="max-sm:hidden">Edit</span>
-					</Button>
-				)}
-			</div>
-
-			<div className="mb-6">
-				<div className="flex items-start justify-between">
+				<div className="flex items-start justify-between gap-4 mb-1">
 					<div>
-						<h1 className="text-2xl font-heading font-bold text-foreground mb-0.5">
-							{character.name}
-						</h1>
-						<p className="text-muted-foreground">
-							{character.race} {character.class}
+						<h1 className="text-2xl text-foreground">{character.name}</h1>
+						<p className="text-muted-foreground mb-4">
+							{character.race} {character.class} · Level {character.level}
 						</p>
 					</div>
-					<Badge variant="outline" className="font-heading text-sm shrink-0">
-						Level {character.level}
+					{character.conditions.length > 0 && (
+						<Badge variant="destructive" className="gap-1" aria-label="Active conditions indicator">
+							<ShieldAlert className="h-3.5 w-3.5" />
+							{character.conditions.length} active
+						</Badge>
+					)}
+				</div>
+				{character.slug && !readOnly && <ShareSection slug={character.slug} />}
+				<AbilityScoresGrid character={character} />
+				<HitPointsSection
+					character={character}
+					hpPercent={hpPercent}
+					readOnly={readOnly}
+					onDamage={handleDamage}
+					onHeal={handleHeal}
+					onUpdate={setCharacter}
+				/>
+				<ConditionsSection character={character} readOnly={readOnly} onUpdate={setCharacter} />
+				{!readOnly && characterId && (
+					<>
+						<ArmorClassSection
+							character={character}
+							characterId={characterId}
+							onUpdate={setCharacter}
+						/>
+						<SavingThrowsSection
+							character={character}
+							characterId={characterId}
+							onUpdate={setCharacter}
+						/>
+					</>
+				)}
+				{characterId && (
+					<SkillsSection
+						character={character}
+						characterId={characterId}
+						readOnly={readOnly}
+						onUpdate={setCharacter}
+					/>
+				)}
+				{characterId && (
+					<SpellSlotsSection
+						character={character}
+						characterId={characterId}
+						onUpdate={setCharacter}
+					/>
+				)}
+				{characterId && (
+					<EquipmentSection
+						characterId={characterId}
+						equipment={character.equipment ?? []}
+						onUpdate={readOnly ? () => {} : setCharacter}
+					/>
+				)}
+				<NotesSection
+					notes={notes}
+					readOnly={readOnly}
+					onChange={setNotes}
+					onBlur={handleNotesBlur}
+				/>
+				{!readOnly && (
+					<div className="mb-6">
+						<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>
+							Delete Character
+						</Button>
+					</div>
+				)}
+				{character && (
+					<DeleteCharacterDialog
+						characterId={character.id}
+						characterName={character.name}
+						isOpen={showDeleteDialog}
+						onClose={() => setShowDeleteDialog(false)}
+						onDeleted={handleDeleteConfirm}
+					/>
+				)}
+			</div>
+		</TooltipProvider>
+	);
+}
+
+function AbilityScoresGrid({ character }: { character: Character }) {
+	return (
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Ability Scores
+			</h2>
+			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2">
+				{ABILITY_KEYS.map((key) => (
+					<div
+						key={key}
+						className="text-center p-2 border border-border rounded-lg bg-muted transition-colors"
+					>
+						<div className="text-xs text-muted-foreground uppercase">{key}</div>
+						<div className="text-lg font-bold text-foreground">{character.abilityScores[key]}</div>
+						<div className="text-sm text-muted-foreground">
+							{formatMod(character.abilityScores[key])}
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+
+function ConditionsSection({
+	character,
+	readOnly,
+	onUpdate,
+}: {
+	character: Character;
+	readOnly: boolean;
+	onUpdate: (character: Character) => void;
+}) {
+	const activeNames = new Set(character.conditions.map((condition) => condition.name));
+
+	const toggle = async (conditionName: CharacterConditionName) => {
+		const shouldEnable = !activeNames.has(conditionName);
+		let durationRounds: number | null = null;
+		if (shouldEnable) {
+			const input = prompt(`Duration in rounds for ${conditionName}? Leave blank for indefinite.`);
+			if (input && input.trim().length > 0) {
+				const parsed = Number.parseInt(input, 10);
+				if (!Number.isNaN(parsed) && parsed > 0) durationRounds = parsed;
+			}
+		}
+		try {
+			const data = await postCharacterJson<Character>(
+				`/api/characters/${character.id}/conditions/toggle`,
+				{
+					conditionName,
+					durationRounds,
+				},
+			);
+			if (data) {
+				onUpdate(data);
+				toast.success(shouldEnable ? `${conditionName} applied` : `${conditionName} removed`);
+			} else {
+				toast.error("Failed to update condition");
+			}
+		} catch {
+			toast.error("Network error");
+		}
+	};
+
+	return (
+		<div className="mb-6">
+			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
+				Conditions
+			</h2>
+			{character.conditions.length > 0 ? (
+				<div className="flex flex-wrap gap-2 mb-3" aria-label="Active conditions list">
+					{character.conditions.map((condition) => (
+						<ConditionBadge key={condition.name} condition={condition} active />
+					))}
+				</div>
+			) : (
+				<div className="text-sm text-muted-foreground mb-3">No active conditions.</div>
+			)}
+			<div className="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
+				{SRD_CONDITIONS.map((conditionName) => {
+					const active = activeNames.has(conditionName);
+					const duration = character.conditions.find(
+						(condition) => condition.name === conditionName,
+					)?.durationRounds;
+					return (
+						<button
+							key={conditionName}
+							type="button"
+							className={cn(
+								"flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors",
+								active
+									? "border-destructive/40 bg-destructive/10"
+									: "border-border bg-card hover:border-primary/40",
+							)}
+							onClick={() => !readOnly && toggle(conditionName)}
+							disabled={readOnly}
+						>
+							<div className="flex items-center gap-2">
+								{active && <AlertTriangle className="h-4 w-4 text-destructive" />}
+								<span className="text-sm font-medium text-foreground">{conditionName}</span>
+							</div>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<div className="flex items-center gap-1">
+										{duration ? <Badge variant="outline">{duration}r</Badge> : null}
+										<Badge variant={active ? "destructive" : "secondary"}>
+											{active ? "Active" : "Info"}
+										</Badge>
+									</div>
+								</TooltipTrigger>
+								<TooltipContent className="max-w-sm">
+									<p className="font-semibold mb-1">{conditionName}</p>
+									<p>{CONDITION_DETAILS[conditionName].summary}</p>
+									{CONDITION_DETAILS[conditionName].effects.length > 0 && (
+										<ul className="list-disc pl-4 mt-2 space-y-1">
+											{CONDITION_DETAILS[conditionName].effects.map((effect) => (
+												<li key={effect}>{effect}</li>
+											))}
+										</ul>
+									)}
+								</TooltipContent>
+							</Tooltip>
+						</button>
+					);
+				})}
+			</div>
+		</div>
+	);
+}
+
+function ConditionBadge({
+	condition,
+	active,
+}: {
+	condition: Character["conditions"][number];
+	active: boolean;
+}) {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<div>
+					<Badge variant={active ? "destructive" : "secondary"} className="cursor-default">
+						{condition.name}
+						{condition.durationRounds ? ` (${condition.durationRounds}r)` : ""}
 					</Badge>
 				</div>
-			</div>
-
-			{character.slug && !readOnly && <ShareSection slug={character.slug} />}
-
-			<section className="mb-6" aria-label="Ability Scores">
-				<h2 className="text-base font-heading font-bold text-foreground mb-3 pb-1 border-b-2 border-primary/20 flex items-center gap-2">
-					<Sparkles className="h-4 w-4 text-arcane" aria-hidden="true" />
-					Ability Scores
-				</h2>
-				<StatBlock abilityScores={character.abilityScores} />
-			</section>
-
-			<HitPointsSection
-				character={character}
-				hpPercent={hpPercent}
-				readOnly={readOnly}
-				onDamage={() => setShowDamageDialog(true)}
-				onHeal={() => setShowHealDialog(true)}
-			/>
-
-			{!readOnly && characterId && (
-				<>
-					<ArmorClassSection
-						character={character}
-						characterId={characterId}
-						onUpdate={setCharacter}
-					/>
-					<SavingThrowsSection
-						character={character}
-						characterId={characterId}
-						onUpdate={setCharacter}
-					/>
-				</>
-			)}
-			{characterId && (
-				<SpellSlotsSection
-					character={character}
-					characterId={characterId}
-					onUpdate={setCharacter}
-				/>
-			)}
-			{characterId && (
-				<SkillsSection
-					character={character}
-					characterId={characterId}
-					readOnly={readOnly}
-					onUpdate={setCharacter}
-				/>
-			)}
-			{characterId && (
-				<EquipmentSection
-					characterId={characterId}
-					equipment={character.equipment ?? []}
-					onUpdate={readOnly ? () => {} : setCharacter}
-				/>
-			)}
-			<NotesSection
-				notes={notes}
-				readOnly={readOnly}
-				onChange={setNotes}
-				onBlur={handleNotesBlur}
-			/>
-
-			{!readOnly && (
-				<div className="mb-6 pt-4 border-t border-border">
-					<Button
-						variant="destructive-ghost"
-						className="w-full"
-						onClick={() => setShowDeleteDialog(true)}
-					>
-						Delete Character
-					</Button>
-				</div>
-			)}
-
-			<DeleteCharacterDialog
-				characterId={character.id}
-				characterName={character.name}
-				isOpen={showDeleteDialog}
-				onClose={() => setShowDeleteDialog(false)}
-				onDeleted={() => navigate("/")}
-			/>
-
-			<AmountDialog
-				title="Apply Damage"
-				label="How much damage?"
-				confirmLabel="Apply Damage"
-				confirmVariant="destructive"
-				isOpen={showDamageDialog}
-				onClose={() => setShowDamageDialog(false)}
-				onConfirm={handleDamage}
-			/>
-
-			<AmountDialog
-				title="Heal"
-				label="How much healing?"
-				confirmLabel="Heal"
-				confirmVariant="success"
-				isOpen={showHealDialog}
-				onClose={() => setShowHealDialog(false)}
-				onConfirm={handleHeal}
-			/>
-		</div>
+			</TooltipTrigger>
+			<TooltipContent className="max-w-sm">
+				<p className="font-semibold mb-1">{condition.name}</p>
+				<p>{CONDITION_DETAILS[condition.name].summary}</p>
+				{CONDITION_DETAILS[condition.name].effects.length > 0 && (
+					<ul className="list-disc pl-4 mt-2 space-y-1">
+						{CONDITION_DETAILS[condition.name].effects.map((effect) => (
+							<li key={effect}>{effect}</li>
+						))}
+					</ul>
+				)}
+			</TooltipContent>
+		</Tooltip>
 	);
 }

@@ -10,3 +10,6 @@ data/
 progress-*.txt
 test-results/
 playwright-report/
+
+# Log files
+*.log

@@ -1,7 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { calculateTotalWeight, getAbilityModifier } from "../types/character.js";
+import {
+	CONDITION_DETAILS,
+	applyDamage,
+	calculateTotalWeight,
+	getAbilityModifier,
+	toggleCondition,
+} from "../types/character.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
 
 describe("CharacterSheet", () => {
@@ -44,6 +50,11 @@ describe("CharacterSheet", () => {
 		expect(getColor(50)).toBe("warning");
 		expect(getColor(25)).toBe("destructive");
 		expect(getColor(10)).toBe("destructive");
+	});
+
+	it("temp HP absorbs damage before current HP", () => {
+		const hp = applyDamage({ current: 20, max: 20, temp: 5 }, 7);
+		expect(hp).toEqual({ current: 18, max: 20, temp: 0 });
 	});
 
 	it("damage API contract", () => {
@@ -176,6 +187,25 @@ describe("CharacterSheet", () => {
 		expect(parsed.notes).toBe("Some character notes");
 	});
 
+	it("condition toggle API contract", () => {
+		const body = JSON.stringify({ conditionName: "Blinded", durationRounds: 3 });
+		const parsed = JSON.parse(body);
+		expect(parsed.conditionName).toBe("Blinded");
+		expect(parsed.durationRounds).toBe(3);
+	});
+
+	it("toggleCondition helper adds and removes conditions", () => {
+		const added = toggleCondition([], "Poisoned", 2);
+		expect(added).toEqual([{ name: "Poisoned", durationRounds: 2 }]);
+		const removed = toggleCondition(added, "Poisoned");
+		expect(removed).toEqual([]);
+	});
+
+	it("includes SRD details for conditions", () => {
+		expect(CONDITION_DETAILS.Blinded.summary).toContain("can’t see");
+		expect(CONDITION_DETAILS.Unconscious.effects.length).toBeGreaterThan(0);
+	});
+
 	it("delete character API contract - DELETE to correct endpoint", () => {
 		const id = "abc";
 		const url = `/api/characters/${id}`;
@@ -197,10 +227,12 @@ describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
 	});
 
-	it("uses SkillsSection which uses shadcn/ui Checkbox", () => {
-		expect(source).toContain("SkillsSection");
-		const skillsSource = readFileSync(resolve(__dirname, "SkillsSection.tsx"), "utf-8");
-		expect(skillsSource).toContain('from "../../../app/components/ui/checkbox.tsx"');
+	it("uses shadcn/ui Checkbox in HitPointsSection", () => {
+		expect(hpSource).toContain('from "../../../app/components/ui/checkbox.tsx"');
+	});
+
+	it("uses shadcn/ui Tooltip for condition descriptions", () => {
+		expect(source).toContain('from "../../../app/components/ui/tooltip.tsx"');
 	});
 
 	it("imports HitPointsSection for HP display", () => {

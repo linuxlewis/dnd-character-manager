@@ -10,6 +10,8 @@ const validInput: CreateCharacter = {
 	level: 20,
 	abilityScores: { STR: 10, DEX: 14, CON: 12, INT: 20, WIS: 18, CHA: 16 },
 	hp: { current: 100, max: 100, temp: 0 },
+	conditions: [],
+	concentration: false,
 	spellSlots: [],
 	equipment: [],
 	skills: [],
@@ -105,16 +107,23 @@ describe("characterService", () => {
 		expect(deleted).toBe(false);
 	});
 
-	// HP service methods (story-07)
-
 	it("dealDamage reduces character HP and persists", async () => {
 		const char = await characterService.createCharacter(validInput);
 		const damaged = await characterService.dealDamage(char.id, 30);
 		expect(damaged).not.toBeNull();
 		expect(damaged?.hp.current).toBe(70);
-		// Verify persisted
 		const fetched = await characterService.getCharacter(char.id);
 		expect(fetched?.hp.current).toBe(70);
+	});
+
+	it("dealDamage consumes temp HP first", async () => {
+		const char = await characterService.createCharacter({
+			...validInput,
+			hp: { current: 100, max: 100, temp: 12 },
+		});
+		const damaged = await characterService.dealDamage(char.id, 15);
+		expect(damaged?.hp.temp).toBe(0);
+		expect(damaged?.hp.current).toBe(97);
 	});
 
 	it("dealDamage returns null for missing character", async () => {
@@ -134,7 +143,6 @@ describe("characterService", () => {
 		const healed = await characterService.healCharacter(char.id, 20);
 		expect(healed).not.toBeNull();
 		expect(healed?.hp.current).toBe(70);
-		// Verify persisted
 		const fetched = await characterService.getCharacter(char.id);
 		expect(fetched?.hp.current).toBe(70);
 	});
@@ -150,7 +158,32 @@ describe("characterService", () => {
 		expect(healed?.hp.current).toBe(100);
 	});
 
-	// Skill toggle (story-08)
+	it("setTempHp updates temporary hit points", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const updated = await characterService.setTempHp(char.id, 9);
+		expect(updated?.hp.temp).toBe(9);
+	});
+
+	it("setMaxHp updates max hit points and clamps current", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const updated = await characterService.setMaxHp(char.id, 40);
+		expect(updated?.hp.max).toBe(40);
+		expect(updated?.hp.current).toBe(40);
+	});
+
+	it("setConcentration toggles concentration state", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const updated = await characterService.setConcentration(char.id, true);
+		expect(updated?.concentration).toBe(true);
+	});
+
+	it("toggleCondition adds and removes conditions", async () => {
+		const char = await characterService.createCharacter(validInput);
+		const added = await characterService.toggleCondition(char.id, "Blinded", 3);
+		expect(added?.conditions).toEqual([{ name: "Blinded", durationRounds: 3 }]);
+		const removed = await characterService.toggleCondition(char.id, "Blinded");
+		expect(removed?.conditions).toEqual([]);
+	});
 
 	it("toggleSkillProficiency flips proficient boolean", async () => {
 		const char = await characterService.createCharacter({
@@ -160,7 +193,6 @@ describe("characterService", () => {
 		const toggled = await characterService.toggleSkillProficiency(char.id, "Stealth");
 		expect(toggled).not.toBeNull();
 		expect(toggled?.skills.find((s) => s.name === "Stealth")?.proficient).toBe(true);
-		// Toggle back
 		const toggled2 = await characterService.toggleSkillProficiency(char.id, "Stealth");
 		expect(toggled2?.skills.find((s) => s.name === "Stealth")?.proficient).toBe(false);
 	});
@@ -169,8 +201,6 @@ describe("characterService", () => {
 		const result = await characterService.toggleSkillProficiency("nonexistent", "Stealth");
 		expect(result).toBeNull();
 	});
-
-	// Equipment service methods (story-08)
 
 	it("addEquipment appends validated equipment item", async () => {
 		const char = await characterService.createCharacter(validInput);
@@ -215,7 +245,6 @@ describe("characterService", () => {
 		expect(result).toBeNull();
 	});
 
-	// Spell slot service methods
 	const inputWithSlots: CreateCharacter = {
 		...validInput,
 		spellSlots: [
@@ -235,7 +264,6 @@ describe("characterService", () => {
 
 	it("useSpellSlot throws if no slots available", async () => {
 		const char = await characterService.createCharacter(inputWithSlots);
-		// level 3 has used=2, available=2 — already full
 		await expect(characterService.useSpellSlot(char.id, 3)).rejects.toThrow(
 			"No available spell slots at level 3",
 		);
@@ -256,7 +284,6 @@ describe("characterService", () => {
 
 	it("restoreSpellSlot floors used at 0", async () => {
 		const char = await characterService.createCharacter(inputWithSlots);
-		// level 1 has used=0 already
 		const updated = await characterService.restoreSpellSlot(char.id, 1);
 		const slot = updated?.spellSlots.find((s) => s.level === 1);
 		expect(slot?.used).toBe(0);
@@ -267,10 +294,17 @@ describe("characterService", () => {
 		expect(result).toBeNull();
 	});
 
-	it("longRest resets all spell slots to used=0", async () => {
-		const char = await characterService.createCharacter(inputWithSlots);
+	it("longRest resets spell slots, temp HP, current HP, and concentration", async () => {
+		const char = await characterService.createCharacter({
+			...inputWithSlots,
+			hp: { current: 12, max: 30, temp: 5 },
+			concentration: true,
+		});
 		const updated = await characterService.longRest(char.id);
 		expect(updated).not.toBeNull();
+		expect(updated?.hp.current).toBe(30);
+		expect(updated?.hp.temp).toBe(0);
+		expect(updated?.concentration).toBe(false);
 		for (const slot of updated?.spellSlots ?? []) {
 			expect(slot.used).toBe(0);
 		}

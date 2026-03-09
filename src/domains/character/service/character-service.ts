@@ -10,6 +10,7 @@ import { characterRepo } from "../repo/character-repo.js";
 import {
 	type AbilityKey,
 	type Character,
+	type CharacterConditionName,
 	type CreateCharacter,
 	CreateCharacterSchema,
 	type EquipmentItem,
@@ -18,6 +19,9 @@ import {
 	UpdateCharacterSchema,
 	applyDamage,
 	applyHealing,
+	setMaxHp,
+	setTempHp,
+	toggleCondition,
 } from "../types/index.js";
 
 const log = createLogger("character-service");
@@ -92,6 +96,53 @@ export const characterService = {
 		const updated = await characterRepo.update(id, { hp: newHp });
 		log.info({ id, hp: newHp }, "Healing applied");
 		return updated;
+	},
+
+	async setTempHp(id: string, amount: number): Promise<Character | null> {
+		log.info({ id, amount }, "Setting temp HP");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for temp HP");
+			return null;
+		}
+		const hp = setTempHp(character.hp, amount);
+		return characterRepo.update(id, { hp });
+	},
+
+	async setMaxHp(id: string, amount: number): Promise<Character | null> {
+		log.info({ id, amount }, "Setting max HP");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for max HP");
+			return null;
+		}
+		const hp = setMaxHp(character.hp, amount);
+		return characterRepo.update(id, { hp });
+	},
+
+	async setConcentration(id: string, concentration: boolean): Promise<Character | null> {
+		log.info({ id, concentration }, "Setting concentration");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for concentration");
+			return null;
+		}
+		return characterRepo.update(id, { concentration });
+	},
+
+	async toggleCondition(
+		id: string,
+		conditionName: CharacterConditionName,
+		durationRounds: number | null = null,
+	): Promise<Character | null> {
+		log.info({ id, conditionName }, "Toggling condition");
+		const character = await characterRepo.findById(id);
+		if (!character) {
+			log.info({ id }, "Character not found for condition toggle");
+			return null;
+		}
+		const conditions = toggleCondition(character.conditions, conditionName, durationRounds);
+		return characterRepo.update(id, { conditions });
 	},
 
 	async toggleSkillProficiency(id: string, skillName: string): Promise<Character | null> {
@@ -181,7 +232,11 @@ export const characterService = {
 			return null;
 		}
 		const spellSlots = character.spellSlots.map((s) => ({ ...s, used: 0 }));
-		const updated = await characterRepo.update(id, { spellSlots });
+		const updated = await characterRepo.update(id, {
+			hp: { ...character.hp, current: character.hp.max, temp: 0 },
+			spellSlots,
+			concentration: false,
+		});
 		log.info({ id }, "Long rest completed");
 		return updated;
 	},
