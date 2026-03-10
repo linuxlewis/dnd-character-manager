@@ -9,6 +9,7 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
+			"@": resolve(__dirname, "src/app"),
 			"@domains": resolve(__dirname, "src/domains"),
 			"@providers": resolve(__dirname, "src/providers"),
 		},
