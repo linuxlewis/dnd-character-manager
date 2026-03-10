@@ -1,4 +1,4 @@
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ShieldAlert, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "../../../app/components/ui/badge.tsx";
@@ -13,12 +13,13 @@ import {
 import { cn } from "../../../app/lib/utils.ts";
 import { useNavigate } from "../../../app/router.tsx";
 import { getAbilityModifier } from "../types/character.js";
-import type { Character } from "../types/index.js";
+import type { Character, LevelUpResult } from "../types/index.js";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import { ConditionsSection } from "./ConditionsSection.tsx";
 import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
 import { EquipmentSection } from "./EquipmentSection.tsx";
 import { HitPointsSection } from "./HitPointsSection.tsx";
+import { LevelUpWizard } from "./LevelUpWizard.tsx";
 import { NotesSection } from "./NotesSection.tsx";
 import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
@@ -47,6 +48,7 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showLevelUpWizard, setShowLevelUpWizard] = useState(false);
 	const readOnly = !!slug;
 	const characterId = id ?? character?.id;
 
@@ -123,6 +125,19 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 		navigate("/");
 	};
 
+	const handleLevelUpClick = () => {
+		if (character && character.level < 20) {
+			setShowLevelUpWizard(true);
+		} else {
+			toast.error("Character is already at maximum level");
+		}
+	};
+
+	const handleLevelUpComplete = (result: { character: Character; result: LevelUpResult }) => {
+		setCharacter(result.character);
+		setShowLevelUpWizard(false);
+	};
+
 	if (loading)
 		return (
 			<div className="max-w-full sm:max-w-[600px] mx-auto p-4 text-muted-foreground">
@@ -146,11 +161,24 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					Back
 				</Button>
 				<div className="flex items-start justify-between gap-4 mb-1">
-					<div>
+					<div className="flex-1">
 						<h1 className="text-2xl text-foreground">{character.name}</h1>
-						<p className="text-muted-foreground mb-4">
-							{character.race} {character.class} · Level {character.level}
-						</p>
+						<div className="flex items-center gap-3 mb-4">
+							<p className="text-muted-foreground">
+								{character.race} {character.class} · Level {character.level}
+							</p>
+							{!readOnly && character.level < 20 && (
+								<Button 
+									size="sm" 
+									variant="outline" 
+									className="h-7 px-2 text-xs gap-1"
+									onClick={handleLevelUpClick}
+								>
+									<TrendingUp className="h-3 w-3" />
+									Level Up
+								</Button>
+							)}
+						</div>
 					</div>
 					{character.conditions.length > 0 && (
 						<Badge variant="destructive" className="gap-1" aria-label="Active conditions indicator">
@@ -222,13 +250,21 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					</div>
 				)}
 				{character && (
-					<DeleteCharacterDialog
-						characterId={character.id}
-						characterName={character.name}
-						isOpen={showDeleteDialog}
-						onClose={() => setShowDeleteDialog(false)}
-						onDeleted={handleDeleteConfirm}
-					/>
+					<>
+						<LevelUpWizard
+							character={character}
+							isOpen={showLevelUpWizard}
+							onClose={() => setShowLevelUpWizard(false)}
+							onLevelUp={handleLevelUpComplete}
+						/>
+						<DeleteCharacterDialog
+							characterId={character.id}
+							characterName={character.name}
+							isOpen={showDeleteDialog}
+							onClose={() => setShowDeleteDialog(false)}
+							onDeleted={handleDeleteConfirm}
+						/>
+					</>
 				)}
 			</div>
 		</TooltipProvider>

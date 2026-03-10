@@ -13,6 +13,7 @@ import {
 	CharacterConditionNameSchema,
 	type CreateCharacter,
 	type UpdateCharacter,
+	type LevelUpChoices,
 } from "../types/index.js";
 import { registerEquipmentRoutes } from "./equipment-routes.js";
 
@@ -219,6 +220,21 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 			return character;
 		},
 	);
+
+	app.post<{ Params: { id: string } }>("/api/characters/:id/level-up", async (request, reply) => {
+		try {
+			const result = await characterService.levelUpCharacter(
+				request.params.id,
+				request.body as LevelUpChoices
+			);
+			if (!result) {
+				return reply.status(404).send({ error: "Character not found" });
+			}
+			return result;
+		} catch (err) {
+			return reply.status(400).send({ error: (err as Error).message });
+		}
+	});
 
 	app.post<{ Params: { id: string } }>("/api/characters/:id/long-rest", async (request, reply) => {
 		const character = await characterService.longRest(request.params.id);

@@ -60,3 +60,17 @@ export {
 	type AddEquipmentItem,
 	type UpdateEquipmentItem,
 } from "./equipment.js";
+
+export {
+	LevelUpChoicesSchema,
+	LevelUpResultSchema,
+	CLASS_HIT_DICE,
+	ABILITY_SCORE_IMPROVEMENT_LEVELS,
+	calculateHpGain,
+	getsAbilityScoreImprovement,
+	validateAbilityScoreImprovements,
+	calculateSpellSlots,
+	applyLevelUp,
+	type LevelUpChoices,
+	type LevelUpResult,
+} from "./level-up.js";
