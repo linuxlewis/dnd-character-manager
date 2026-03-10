@@ -62,6 +62,23 @@ export {
 } from "./equipment.js";
 
 export {
+	DieTypeSchema,
+	DiceRollInputSchema,
+	RollModeSchema,
+	DICE_TYPES,
+	MAX_ROLL_HISTORY,
+	rollSingleDie,
+	selectRoll,
+	rollDice,
+	formatModifier,
+	formatRollResult,
+	type DieType,
+	type RollMode,
+	type DiceRollInput,
+	type DiceRollResult,
+} from "./dice.js";
+
+export {
 	LevelUpChoicesSchema,
 	LevelUpResultSchema,
 	CLASS_HIT_DICE,

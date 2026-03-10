@@ -2,6 +2,7 @@ import { Checkbox } from "../../../app/components/ui/checkbox.tsx";
 import { cn } from "../../../app/lib/utils.ts";
 import type { Character } from "../types/index.js";
 import { calculateSavingThrow } from "../types/skills.js";
+import { QuickRollButton } from "./QuickRollButton.tsx";
 
 const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -77,6 +78,7 @@ export function SavingThrowsSection({
 							>
 								{formatted}
 							</span>
+							<QuickRollButton modifier={bonus} label={`${ABILITY_LABELS[key]} Save`} compact />
 						</div>
 					);
 				})}

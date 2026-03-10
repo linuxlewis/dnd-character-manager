@@ -261,7 +261,7 @@ describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 	});
 
 	it("uses Tailwind responsive classes", () => {
-		expect(source).toContain("max-sm:");
+		expect(source).toContain("sm:max-w-");
 	});
 
 	it("uses Button variant props for damage/heal in HitPointsSection", () => {

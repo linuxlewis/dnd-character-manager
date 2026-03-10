@@ -2,6 +2,7 @@ import { Checkbox } from "../../../app/components/ui/checkbox.tsx";
 import { cn } from "../../../app/lib/utils.ts";
 import type { Character } from "../types/index.js";
 import { SKILLS, calculateSkillBonus } from "../types/skills.js";
+import { QuickRollButton } from "./QuickRollButton.tsx";
 
 interface SkillsSectionProps {
 	character: Character;
@@ -70,6 +71,7 @@ export function SkillsSection({ character, characterId, readOnly, onUpdate }: Sk
 							>
 								{formatted}
 							</span>
+							<QuickRollButton modifier={bonus} label={skill.name} compact />
 						</div>
 					);
 				})}

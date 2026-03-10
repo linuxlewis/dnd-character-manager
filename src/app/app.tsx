@@ -10,6 +10,7 @@ import { CharacterForm } from "../domains/character/ui/CharacterForm.tsx";
 import { CharacterList } from "../domains/character/ui/CharacterList.tsx";
 import { CharacterSheet } from "../domains/character/ui/CharacterSheet.tsx";
 import { DiceRoller } from "../domains/character/ui/DiceRoller.tsx";
+import { DiceRollerProvider } from "../domains/character/ui/DiceRollerContext.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
@@ -48,18 +49,20 @@ function AppHeader() {
 export function App() {
 	return (
 		<ThemeProvider>
-			<TooltipProvider delayDuration={300}>
-				<div className="min-h-screen bg-background text-foreground font-sans transition-colors overflow-x-hidden">
-					<a href="#main-content" className="skip-link">
-						Skip to main content
-					</a>
-					<AppHeader />
-					<main id="main-content" className="max-w-[960px] mx-auto p-4 max-sm:p-2">
-						<Router routes={routes} />
-					</main>
-				</div>
-				<Toaster />
-			</TooltipProvider>
+			<DiceRollerProvider>
+				<TooltipProvider delayDuration={300}>
+					<div className="min-h-screen bg-background text-foreground font-sans transition-colors overflow-x-hidden">
+						<a href="#main-content" className="skip-link">
+							Skip to main content
+						</a>
+						<AppHeader />
+						<main id="main-content" className="max-w-[960px] mx-auto p-4 max-sm:p-2">
+							<Router routes={routes} />
+						</main>
+					</div>
+					<Toaster />
+				</TooltipProvider>
+			</DiceRollerProvider>
 		</ThemeProvider>
 	);
 }

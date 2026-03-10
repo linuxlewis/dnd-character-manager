@@ -12,8 +12,8 @@ import {
 } from "../../../app/components/ui/tooltip.tsx";
 import { cn } from "../../../app/lib/utils.ts";
 import { useNavigate } from "../../../app/router.tsx";
-import { getAbilityModifier } from "../types/character.js";
 import type { Character, LevelUpResult } from "../types/index.js";
+import { AbilityScoresGrid } from "./AbilityScoresGrid.tsx";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
 import { ConditionsSection } from "./ConditionsSection.tsx";
 import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
@@ -25,13 +25,6 @@ import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
 import { SkillsSection } from "./SkillsSection.tsx";
 import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
-
-const ABILITY_KEYS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
-
-function formatMod(score: number): string {
-	const mod = getAbilityModifier(score);
-	return mod >= 0 ? `+${mod}` : `${mod}`;
-}
 
 async function postCharacterJson<T>(url: string, body?: unknown): Promise<T | null> {
 	const response = await fetch(url, {
@@ -268,29 +261,5 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 				)}
 			</div>
 		</TooltipProvider>
-	);
-}
-
-function AbilityScoresGrid({ character }: { character: Character }) {
-	return (
-		<div className="mb-6">
-			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
-				Ability Scores
-			</h2>
-			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2">
-				{ABILITY_KEYS.map((key) => (
-					<div
-						key={key}
-						className="text-center p-2 border border-border rounded-lg bg-muted transition-colors"
-					>
-						<div className="text-xs text-muted-foreground uppercase">{key}</div>
-						<div className="text-lg font-bold text-foreground">{character.abilityScores[key]}</div>
-						<div className="text-sm text-muted-foreground">
-							{formatMod(character.abilityScores[key])}
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
 	);
 }
