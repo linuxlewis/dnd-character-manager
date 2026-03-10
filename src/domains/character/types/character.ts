@@ -11,6 +11,7 @@ import {
 	type CharacterConditionName,
 	CharacterConditionSchema,
 } from "./conditions.js";
+import { type EquipmentItem, EquipmentItemSchema } from "./equipment.js";
 
 const abilityScore = z.number().int().min(1).max(30);
 
@@ -107,22 +108,7 @@ export const SpellSlotSchema = z
 
 export type SpellSlot = z.infer<typeof SpellSlotSchema>;
 
-export const EquipmentItemSchema = z.object({
-	id: z.string().uuid(),
-	name: z.string().min(1),
-	quantity: z.number().int().min(1),
-	weight: z.number().min(0),
-	equipped: z.boolean(),
-});
-
-export type EquipmentItem = z.infer<typeof EquipmentItemSchema>;
-
-/**
- * Calculate the total weight of equipment (weight * quantity for each item).
- */
-export function calculateTotalWeight(equipment: EquipmentItem[]): number {
-	return equipment.reduce((sum, item) => sum + item.weight * item.quantity, 0);
-}
+export { EquipmentItemSchema, type EquipmentItem, calculateTotalWeight } from "./equipment.js";
 
 export const ArmorClassSchema = z.object({
 	base: z.number().default(10),

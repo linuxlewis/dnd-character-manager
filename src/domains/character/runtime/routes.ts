@@ -14,6 +14,7 @@ import {
 	type CreateCharacter,
 	type UpdateCharacter,
 } from "../types/index.js";
+import { registerEquipmentRoutes } from "./equipment-routes.js";
 
 export async function registerCharacterRoutes(app: FastifyInstance) {
 	app.get("/api/characters", async () => {
@@ -157,30 +158,7 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		},
 	);
 
-	app.post<{ Params: { id: string } }>("/api/characters/:id/equipment", async (request, reply) => {
-		const character = await characterService.addEquipment(request.params.id, {
-			...(request.body as { name: string; weight: number; quantity: number }),
-			equipped: false,
-		});
-		if (!character) {
-			return reply.status(404).send({ error: "Character not found" });
-		}
-		return character;
-	});
-
-	app.delete<{ Params: { id: string; itemId: string } }>(
-		"/api/characters/:id/equipment/:itemId",
-		async (request, reply) => {
-			const character = await characterService.removeEquipment(
-				request.params.id,
-				request.params.itemId,
-			);
-			if (!character) {
-				return reply.status(404).send({ error: "Character not found" });
-			}
-			return character;
-		},
-	);
+	await registerEquipmentRoutes(app);
 
 	app.post<{ Params: { id: string; level: string } }>(
 		"/api/characters/:id/spells/:level/use",

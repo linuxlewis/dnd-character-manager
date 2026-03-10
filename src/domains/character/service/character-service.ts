@@ -13,8 +13,6 @@ import {
 	type CharacterConditionName,
 	type CreateCharacter,
 	CreateCharacterSchema,
-	type EquipmentItem,
-	EquipmentItemSchema,
 	type UpdateCharacter,
 	UpdateCharacterSchema,
 	applyDamage,
@@ -23,6 +21,7 @@ import {
 	setTempHp,
 	toggleCondition,
 } from "../types/index.js";
+import { equipmentService } from "./equipment-service.js";
 
 const log = createLogger("character-service");
 
@@ -160,35 +159,10 @@ export const characterService = {
 		return updated;
 	},
 
-	async addEquipment(id: string, item: Omit<EquipmentItem, "id">): Promise<Character | null> {
-		log.info({ id }, "Adding equipment");
-		const character = await characterRepo.findById(id);
-		if (!character) {
-			log.info({ id }, "Character not found for adding equipment");
-			return null;
-		}
-		const newItem = EquipmentItemSchema.parse({
-			...item,
-			id: crypto.randomUUID(),
-		});
-		const equipment = [...character.equipment, newItem];
-		const updated = await characterRepo.update(id, { equipment });
-		log.info({ id, itemName: newItem.name }, "Equipment added");
-		return updated;
-	},
-
-	async removeEquipment(id: string, itemId: string): Promise<Character | null> {
-		log.info({ id, itemId }, "Removing equipment");
-		const character = await characterRepo.findById(id);
-		if (!character) {
-			log.info({ id }, "Character not found for removing equipment");
-			return null;
-		}
-		const equipment = character.equipment.filter((e) => e.id !== itemId);
-		const updated = await characterRepo.update(id, { equipment });
-		log.info({ id, itemId }, "Equipment removed");
-		return updated;
-	},
+	addEquipment: equipmentService.addEquipment,
+	removeEquipment: equipmentService.removeEquipment,
+	toggleEquipItem: equipmentService.toggleEquipItem,
+	updateEquipmentItem: equipmentService.updateEquipmentItem,
 
 	async useSpellSlot(id: string, level: number): Promise<Character | null> {
 		log.info({ id, level }, "Using spell slot");

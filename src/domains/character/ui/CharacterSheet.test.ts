@@ -141,8 +141,24 @@ describe("CharacterSheet", () => {
 
 	it("calculates total equipment weight", () => {
 		const equipment = [
-			{ id: "1", name: "Sword", quantity: 1, weight: 3, equipped: true },
-			{ id: "2", name: "Arrows", quantity: 20, weight: 0.05, equipped: false },
+			{
+				id: "1",
+				name: "Sword",
+				quantity: 1,
+				weight: 3,
+				equipped: true,
+				category: "weapon" as const,
+				description: "",
+			},
+			{
+				id: "2",
+				name: "Arrows",
+				quantity: 20,
+				weight: 0.05,
+				equipped: false,
+				category: "ammunition" as const,
+				description: "",
+			},
 		];
 		expect(calculateTotalWeight(equipment)).toBe(4);
 	});

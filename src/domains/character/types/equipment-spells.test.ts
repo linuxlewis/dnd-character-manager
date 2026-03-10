@@ -70,8 +70,24 @@ describe("calculateTotalWeight", () => {
 
 	it("sums weight * quantity", () => {
 		const equipment = [
-			{ id: "a", name: "Sword", quantity: 1, weight: 3, equipped: true },
-			{ id: "b", name: "Arrows", quantity: 20, weight: 0.05, equipped: false },
+			{
+				id: "a",
+				name: "Sword",
+				quantity: 1,
+				weight: 3,
+				equipped: true,
+				category: "weapon" as const,
+				description: "",
+			},
+			{
+				id: "b",
+				name: "Arrows",
+				quantity: 20,
+				weight: 0.05,
+				equipped: false,
+				category: "ammunition" as const,
+				description: "",
+			},
 		];
 		expect(calculateTotalWeight(equipment)).toBeCloseTo(4);
 	});

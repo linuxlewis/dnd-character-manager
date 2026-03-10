@@ -203,7 +203,9 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					<EquipmentSection
 						characterId={characterId}
 						equipment={character.equipment ?? []}
-						onUpdate={readOnly ? () => {} : setCharacter}
+						strScore={character.abilityScores.STR}
+						readOnly={readOnly}
+						onUpdate={setCharacter}
 					/>
 				)}
 				<NotesSection

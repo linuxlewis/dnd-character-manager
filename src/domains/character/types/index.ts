@@ -45,3 +45,18 @@ export {
 	calculateSavingThrow,
 	type Skill,
 } from "./skills.js";
+
+export {
+	ItemCategorySchema,
+	ITEM_CATEGORIES,
+	ITEM_CATEGORY_LABELS,
+	AddEquipmentItemSchema,
+	UpdateEquipmentItemSchema,
+	calculateCarryingCapacity,
+	isEncumbered,
+	toggleEquipItem,
+	updateEquipmentItem,
+	type ItemCategory,
+	type AddEquipmentItem,
+	type UpdateEquipmentItem,
+} from "./equipment.js";
