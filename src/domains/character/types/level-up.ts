@@ -3,7 +3,13 @@
  */
 
 import { z } from "zod";
-import { type AbilityScores, AbilityScoresSchema, AbilityKeySchema, type Character, type SpellSlot } from "./character.js";
+import {
+	AbilityKeySchema,
+	type AbilityScores,
+	AbilityScoresSchema,
+	type Character,
+	type SpellSlot,
+} from "./character.js";
 import { getProficiencyBonus } from "./skills.js";
 
 /**
@@ -25,10 +31,12 @@ export const LevelUpResultSchema = z.object({
 	hpGained: z.number().int(),
 	proficiencyBonusChanged: z.boolean(),
 	abilityScoreChanges: z.record(AbilityKeySchema, z.number().int()),
-	newSpellSlots: z.array(z.object({
-		level: z.number().int().min(1).max(9),
-		available: z.number().int().min(0),
-	})),
+	newSpellSlots: z.array(
+		z.object({
+			level: z.number().int().min(1).max(9),
+			available: z.number().int().min(0),
+		}),
+	),
 	spellsLearned: z.array(z.string()),
 	featGained: z.string().optional(),
 });
@@ -40,22 +48,22 @@ export type LevelUpResult = z.infer<typeof LevelUpResultSchema>;
  */
 export const CLASS_HIT_DICE: Record<string, number> = {
 	// d6 classes
-	"Sorcerer": 6,
-	"Wizard": 6,
-	// d8 classes  
-	"Artificer": 8,
-	"Bard": 8,
-	"Cleric": 8,
-	"Druid": 8,
-	"Monk": 8,
-	"Rogue": 8,
-	"Warlock": 8,
+	Sorcerer: 6,
+	Wizard: 6,
+	// d8 classes
+	Artificer: 8,
+	Bard: 8,
+	Cleric: 8,
+	Druid: 8,
+	Monk: 8,
+	Rogue: 8,
+	Warlock: 8,
 	// d10 classes
-	"Fighter": 10,
-	"Paladin": 10,
-	"Ranger": 10,
+	Fighter: 10,
+	Paladin: 10,
+	Ranger: 10,
 	// d12 classes
-	"Barbarian": 12,
+	Barbarian: 12,
 };
 
 /**
@@ -86,7 +94,7 @@ export function getsAbilityScoreImprovement(level: number): boolean {
  */
 export function validateAbilityScoreImprovements(
 	currentAbilities: AbilityScores,
-	improvements: Record<string, number>
+	improvements: Record<string, number>,
 ): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 	let totalPoints = 0;
@@ -124,7 +132,7 @@ export function validateAbilityScoreImprovements(
  */
 const FULL_CASTER_SLOTS = [
 	[2], // Level 1: 2 first-level slots
-	[3], // Level 2: 3 first-level slots  
+	[3], // Level 2: 3 first-level slots
 	[4, 2], // Level 3: 4 first-level, 2 second-level
 	[4, 3], // Level 4: 4 first-level, 3 second-level
 	[4, 3, 2], // Level 5: 4 first-level, 3 second-level, 2 third-level
@@ -151,7 +159,7 @@ const FULL_CASTER_SLOTS = [
  */
 export function calculateSpellSlots(characterClass: string, level: number): SpellSlot[] {
 	const casterClasses = ["Wizard", "Sorcerer", "Bard", "Cleric", "Druid", "Warlock"];
-	
+
 	if (!casterClasses.includes(characterClass)) {
 		return []; // Non-caster class
 	}
@@ -167,7 +175,7 @@ export function calculateSpellSlots(characterClass: string, level: number): Spel
 
 	// Full caster progression
 	if (level < 1 || level > 20) return [];
-	
+
 	const slots = FULL_CASTER_SLOTS[level - 1];
 	return slots.map((available, index) => ({
 		level: index + 1,
@@ -179,18 +187,21 @@ export function calculateSpellSlots(characterClass: string, level: number): Spel
 /**
  * Apply level-up to a character.
  */
-export function applyLevelUp(character: Character, choices: LevelUpChoices): { 
-	character: Character; 
-	result: LevelUpResult 
+export function applyLevelUp(
+	character: Character,
+	choices: LevelUpChoices,
+): {
+	character: Character;
+	result: LevelUpResult;
 } {
 	const newLevel = character.level + 1;
 	const oldProficiencyBonus = getProficiencyBonus(character.level);
 	const newProficiencyBonus = getProficiencyBonus(newLevel);
-	
+
 	// Apply ability score improvements
 	const abilityScoreChanges: Record<string, number> = {};
-	let newAbilityScores = { ...character.abilityScores };
-	
+	const newAbilityScores = { ...character.abilityScores };
+
 	if (choices.abilityScoreImprovements) {
 		for (const [ability, improvement] of Object.entries(choices.abilityScoreImprovements)) {
 			if (improvement > 0) {
@@ -199,7 +210,7 @@ export function applyLevelUp(character: Character, choices: LevelUpChoices): {
 			}
 		}
 	}
-	
+
 	// Calculate HP gain
 	const conModifier = Math.floor((newAbilityScores.CON - 10) / 2);
 	const hpGained = calculateHpGain(character.class, conModifier);
@@ -208,10 +219,10 @@ export function applyLevelUp(character: Character, choices: LevelUpChoices): {
 		max: character.hp.max + hpGained,
 		temp: character.hp.temp,
 	};
-	
+
 	// Calculate new spell slots
 	const newSpellSlots = calculateSpellSlots(character.class, newLevel);
-	
+
 	const updatedCharacter: Character = {
 		...character,
 		level: newLevel,
@@ -219,19 +230,19 @@ export function applyLevelUp(character: Character, choices: LevelUpChoices): {
 		hp: newHp,
 		spellSlots: newSpellSlots,
 	};
-	
+
 	const result: LevelUpResult = {
 		newLevel,
 		hpGained,
 		proficiencyBonusChanged: oldProficiencyBonus !== newProficiencyBonus,
 		abilityScoreChanges,
-		newSpellSlots: newSpellSlots.map(slot => ({
+		newSpellSlots: newSpellSlots.map((slot) => ({
 			level: slot.level,
 			available: slot.available,
 		})),
 		spellsLearned: choices.spellsLearned ?? [],
 		featGained: choices.featChosen,
 	};
-	
+
 	return { character: updatedCharacter, result };
 }

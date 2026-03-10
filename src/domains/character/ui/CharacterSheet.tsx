@@ -168,9 +168,9 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 								{character.race} {character.class} · Level {character.level}
 							</p>
 							{!readOnly && character.level < 20 && (
-								<Button 
-									size="sm" 
-									variant="outline" 
+								<Button
+									size="sm"
+									variant="outline"
 									className="h-7 px-2 text-xs gap-1"
 									onClick={handleLevelUpClick}
 								>

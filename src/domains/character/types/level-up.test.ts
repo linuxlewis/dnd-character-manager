@@ -3,21 +3,21 @@
  */
 
 import { describe, expect, test } from "vitest";
+import type { AbilityScores, Character } from "./character.js";
 import {
+	ABILITY_SCORE_IMPROVEMENT_LEVELS,
+	CLASS_HIT_DICE,
+	applyLevelUp,
 	calculateHpGain,
+	calculateSpellSlots,
 	getsAbilityScoreImprovement,
 	validateAbilityScoreImprovements,
-	calculateSpellSlots,
-	applyLevelUp,
-	CLASS_HIT_DICE,
-	ABILITY_SCORE_IMPROVEMENT_LEVELS,
 } from "./level-up.js";
-import type { Character, AbilityScores } from "./character.js";
 
 describe("calculateHpGain", () => {
 	test("should calculate HP gain correctly for known classes", () => {
 		expect(calculateHpGain("Wizard", 2)).toBe(6); // (6/2 + 1) + 2 = 6
-		expect(calculateHpGain("Fighter", 3)).toBe(9); // (10/2 + 1) + 3 = 9 
+		expect(calculateHpGain("Fighter", 3)).toBe(9); // (10/2 + 1) + 3 = 9
 		expect(calculateHpGain("Barbarian", 4)).toBe(11); // (12/2 + 1) + 4 = 11
 	});
 
@@ -158,9 +158,9 @@ describe("applyLevelUp", () => {
 
 	test("should apply ability score improvements", () => {
 		const choices = {
-			abilityScoreImprovements: { "STR": 1, "CON": 1 },
+			abilityScoreImprovements: { STR: 1, CON: 1 },
 		};
-		
+
 		const { character, result } = applyLevelUp(testCharacter, choices);
 
 		expect(character.abilityScores.STR).toBe(17);

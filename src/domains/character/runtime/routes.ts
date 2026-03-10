@@ -12,8 +12,8 @@ import { characterService } from "../service/character-service.js";
 import {
 	CharacterConditionNameSchema,
 	type CreateCharacter,
-	type UpdateCharacter,
 	type LevelUpChoices,
+	type UpdateCharacter,
 } from "../types/index.js";
 import { registerEquipmentRoutes } from "./equipment-routes.js";
 
@@ -225,7 +225,7 @@ export async function registerCharacterRoutes(app: FastifyInstance) {
 		try {
 			const result = await characterService.levelUpCharacter(
 				request.params.id,
-				request.body as LevelUpChoices
+				request.body as LevelUpChoices,
 			);
 			if (!result) {
 				return reply.status(404).send({ error: "Character not found" });

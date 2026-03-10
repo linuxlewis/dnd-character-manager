@@ -13,18 +13,18 @@ import {
 	type CharacterConditionName,
 	type CreateCharacter,
 	CreateCharacterSchema,
-	type UpdateCharacter,
-	UpdateCharacterSchema,
 	type LevelUpChoices,
 	LevelUpChoicesSchema,
 	type LevelUpResult,
+	type UpdateCharacter,
+	UpdateCharacterSchema,
 	applyDamage,
 	applyHealing,
+	applyLevelUp,
+	getsAbilityScoreImprovement,
 	setMaxHp,
 	setTempHp,
 	toggleCondition,
-	applyLevelUp,
-	getsAbilityScoreImprovement,
 	validateAbilityScoreImprovements,
 } from "../types/index.js";
 import { equipmentService } from "./equipment-service.js";
@@ -253,9 +253,12 @@ export const characterService = {
 		return updated;
 	},
 
-	async levelUpCharacter(id: string, choices: LevelUpChoices): Promise<{ character: Character; result: LevelUpResult } | null> {
+	async levelUpCharacter(
+		id: string,
+		choices: LevelUpChoices,
+	): Promise<{ character: Character; result: LevelUpResult } | null> {
 		log.info({ id, choices }, "Leveling up character");
-		
+
 		const character = await characterRepo.findById(id);
 		if (!character) {
 			log.info({ id }, "Character not found for level up");
@@ -268,12 +271,12 @@ export const characterService = {
 		}
 
 		const newLevel = character.level + 1;
-		
+
 		// Validate ability score improvements if provided
 		if (choices.abilityScoreImprovements && getsAbilityScoreImprovement(newLevel)) {
 			const validation = validateAbilityScoreImprovements(
 				character.abilityScores,
-				choices.abilityScoreImprovements
+				choices.abilityScoreImprovements,
 			);
 			if (!validation.valid) {
 				throw new Error(`Invalid ability score improvements: ${validation.errors.join(", ")}`);
@@ -282,10 +285,10 @@ export const characterService = {
 
 		// Parse choices to ensure they're valid
 		const parsedChoices = LevelUpChoicesSchema.parse(choices);
-		
+
 		// Apply level up
 		const { character: updatedCharacter, result } = applyLevelUp(character, parsedChoices);
-		
+
 		// Save the updated character
 		const savedCharacter = await characterRepo.update(id, {
 			level: updatedCharacter.level,
@@ -293,11 +296,11 @@ export const characterService = {
 			hp: updatedCharacter.hp,
 			spellSlots: updatedCharacter.spellSlots,
 		});
-		
+
 		if (!savedCharacter) {
 			throw new Error("Failed to save character after level up");
 		}
-		
+
 		log.info({ id, newLevel: result.newLevel }, "Character leveled up successfully");
 		return { character: savedCharacter, result };
 	},
