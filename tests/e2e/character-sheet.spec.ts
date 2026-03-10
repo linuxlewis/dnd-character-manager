@@ -69,8 +69,8 @@ test.describe("Character sheet view", () => {
 		const character = await createCharacter();
 		await page.goto(`/character/${character.id}`);
 
-		// Hover over the Blinded Info button to trigger the tooltip
-		await page.getByRole("button", { name: "Blinded Info" }).hover();
-		await expect(page.getByText("A blinded creature can't see")).toBeVisible();
+		const blindedRow = page.locator("div").filter({ hasText: /^BlindedInfo$/ }).first();
+		await blindedRow.getByText("Info").hover();
+		await expect(page.getByText("A blinded creature can't see").first()).toBeVisible();
 	});
 });

@@ -103,25 +103,27 @@ export function ConditionsSection({
 						(condition) => condition.name === conditionName,
 					)?.durationRounds;
 					return (
-						<button
+						<div
 							key={conditionName}
-							type="button"
 							className={cn(
 								"flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors",
 								active
 									? "border-destructive/40 bg-destructive/10"
 									: "border-border bg-card hover:border-primary/40",
 							)}
-							onClick={() => !readOnly && toggle(conditionName)}
-							disabled={readOnly}
 						>
-							<div className="flex items-center gap-2">
+							<button
+								type="button"
+								className="flex flex-1 items-center gap-2 text-left"
+								onClick={() => !readOnly && toggle(conditionName)}
+								disabled={readOnly}
+							>
 								{active && <AlertTriangle className="h-4 w-4 text-destructive" />}
 								<span className="text-sm font-medium text-foreground">{conditionName}</span>
-							</div>
+							</button>
 							<Tooltip>
 								<TooltipTrigger asChild>
-									<div className="flex items-center gap-1">
+									<div className="flex items-center gap-1 cursor-default">
 										{duration ? <Badge variant="outline">{duration}r</Badge> : null}
 										<Badge variant={active ? "destructive" : "secondary"}>
 											{active ? "Active" : "Info"}
@@ -140,7 +142,7 @@ export function ConditionsSection({
 									)}
 								</TooltipContent>
 							</Tooltip>
-						</button>
+						</div>
 					);
 				})}
 			</div>
