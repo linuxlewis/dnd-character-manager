@@ -8,7 +8,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import fastifyStatic from "@fastify/static";
-import { getDb, migrate } from "@providers/db/index.js";
+import { DB_PATH, getDb, migrate } from "@providers/db/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { registerCharacterRoutes } from "./domains/character/runtime/routes.js";
@@ -17,14 +17,19 @@ import { registerItemRoutes } from "./domains/example/runtime/routes.js";
 const log = createLogger("server");
 
 // Initialize database and run migrations before starting
+log.info({ dbPath: DB_PATH }, "Using SQLite database");
 const db = getDb();
 migrate(db);
-log.info("Database migrations applied");
+log.info({ dbPath: DB_PATH }, "Database migrations applied");
 
 const app = Fastify({ logger: false });
 
 // Health check endpoint
 app.get("/health", async () => ({ status: "ok" }));
+app.get("/api/debug/persistence", async () => ({
+	databasePath: DB_PATH,
+	nodeEnv: process.env.NODE_ENV ?? "development",
+}));
 
 // Register domain routes
 await registerItemRoutes(app);
