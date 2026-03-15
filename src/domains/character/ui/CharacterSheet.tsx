@@ -11,7 +11,7 @@ import {
 	TooltipTrigger,
 } from "../../../app/components/ui/tooltip.tsx";
 import { cn } from "../../../app/lib/utils.ts";
-import { useCurrentPath, useNavigate } from "../../../app/router.tsx";
+import { useNavigate } from "../../../app/router.tsx";
 import type { Character, LevelUpResult } from "../types/index.js";
 import { AbilityScoresGrid } from "./AbilityScoresGrid.tsx";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
@@ -26,8 +26,9 @@ import { ShareSection } from "./ShareSection.tsx";
 import { SkillsSection } from "./SkillsSection.tsx";
 import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
 import {
+	hasAttemptedInitialCharacterRestore,
+	markInitialCharacterRestoreAttempted,
 	rememberLastOpenedCharacterId,
-	shouldAttemptInitialCharacterRestore,
 } from "./last-opened-character.js";
 
 async function postCharacterJson<T>(url: string, body?: unknown): Promise<T | null> {
@@ -41,7 +42,6 @@ async function postCharacterJson<T>(url: string, body?: unknown): Promise<T | nu
 
 export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const navigate = useNavigate();
-	const currentPath = useCurrentPath();
 	const [character, setCharacter] = useState<Character | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [notes, setNotes] = useState("");
@@ -51,8 +51,11 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const characterId = id ?? character?.id;
 
 	useEffect(() => {
-		shouldAttemptInitialCharacterRestore(currentPath);
-	}, [currentPath]);
+		if (hasAttemptedInitialCharacterRestore()) {
+			return;
+		}
+		markInitialCharacterRestoreAttempted();
+	}, []);
 
 	useEffect(() => {
 		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;

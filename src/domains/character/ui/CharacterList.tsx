@@ -9,6 +9,7 @@ import type { Character } from "../types/index.js";
 import {
 	clearLastOpenedCharacterId,
 	getLastOpenedCharacterId,
+	markInitialCharacterRestoreAttempted,
 	rememberLastOpenedCharacterId,
 	shouldAttemptInitialCharacterRestore,
 } from "./last-opened-character.js";
@@ -23,7 +24,11 @@ export function CharacterList() {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		let isMounted = true;
 		const shouldRestoreCharacter = shouldAttemptInitialCharacterRestore(currentPath);
+		if (shouldRestoreCharacter) {
+			markInitialCharacterRestoreAttempted();
+		}
 
 		fetch("/api/characters")
 			.then((r) => {
@@ -31,6 +36,10 @@ export function CharacterList() {
 				return r.json();
 			})
 			.then((data: Character[]) => {
+				if (!isMounted) {
+					return;
+				}
+
 				setCharacters(data);
 
 				const lastOpenedCharacterId = shouldRestoreCharacter ? getLastOpenedCharacterId() : null;
@@ -49,9 +58,19 @@ export function CharacterList() {
 				navigate(`/character/${lastOpenedCharacterId}`);
 			})
 			.catch(() => {
-				toast.error("Failed to load characters");
+				if (isMounted) {
+					toast.error("Failed to load characters");
+				}
 			})
-			.finally(() => setLoading(false));
+			.finally(() => {
+				if (isMounted) {
+					setLoading(false);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
 	}, [currentPath, navigate]);
 
 	return (

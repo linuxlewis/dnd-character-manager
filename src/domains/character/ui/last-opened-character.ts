@@ -25,11 +25,15 @@ export function clearLastOpenedCharacterId() {
 }
 
 export function shouldAttemptInitialCharacterRestore(currentPath: string) {
-	if (hasCheckedInitialCharacterRestore) {
-		return false;
-	}
+	return !hasCheckedInitialCharacterRestore && currentPath === "/";
+}
+
+export function hasAttemptedInitialCharacterRestore() {
+	return hasCheckedInitialCharacterRestore;
+}
+
+export function markInitialCharacterRestoreAttempted() {
 	hasCheckedInitialCharacterRestore = true;
-	return currentPath === "/";
 }
 
 export function resetLastOpenedCharacterMemoryForTests() {

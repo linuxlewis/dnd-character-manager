@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	clearLastOpenedCharacterId,
 	getLastOpenedCharacterId,
+	markInitialCharacterRestoreAttempted,
 	rememberLastOpenedCharacterId,
 	resetLastOpenedCharacterMemoryForTests,
 	shouldAttemptInitialCharacterRestore,
@@ -54,11 +55,13 @@ describe("last-opened-character", () => {
 
 	it("only attempts the initial restore once when the app starts on root", () => {
 		expect(shouldAttemptInitialCharacterRestore("/")).toBe(true);
+		markInitialCharacterRestoreAttempted();
 		expect(shouldAttemptInitialCharacterRestore("/")).toBe(false);
 	});
 
 	it("does not redirect after an initial non-root load followed by a later visit home", () => {
 		expect(shouldAttemptInitialCharacterRestore("/character/abc")).toBe(false);
+		markInitialCharacterRestoreAttempted();
 		expect(shouldAttemptInitialCharacterRestore("/")).toBe(false);
 	});
 });

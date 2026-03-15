@@ -32,6 +32,7 @@ describe("database connection", () => {
 
 	it("resolves the default database path from the repository root", () => {
 		const resolvedPath = resolveDbPath(undefined);
+		expect(existsSync(join(APP_ROOT, "package.json"))).toBe(true);
 		expect(resolvedPath).toBe(join(APP_ROOT, "data", "app.db"));
 		expect(isAbsolute(resolvedPath)).toBe(true);
 	});

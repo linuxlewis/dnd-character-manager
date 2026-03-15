@@ -5,10 +5,13 @@ import { Button } from "../../../app/components/ui/button.tsx";
 import { Input } from "../../../app/components/ui/input.tsx";
 import { Label } from "../../../app/components/ui/label.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
-import { useCurrentPath, useNavigate } from "../../../app/router.tsx";
+import { useNavigate } from "../../../app/router.tsx";
 import type { AbilityScores, Character } from "../types/index.js";
 import { AbilityScoresFieldset } from "./AbilityScoresFieldset.tsx";
-import { shouldAttemptInitialCharacterRestore } from "./last-opened-character.js";
+import {
+	hasAttemptedInitialCharacterRestore,
+	markInitialCharacterRestoreAttempted,
+} from "./last-opened-character.js";
 
 type CharacterFormValues = {
 	name: string;
@@ -32,7 +35,6 @@ interface CharacterFormProps {
 
 export function CharacterForm({ id }: CharacterFormProps) {
 	const navigate = useNavigate();
-	const currentPath = useCurrentPath();
 	const isEdit = id !== undefined && id !== "new";
 
 	const [loading, setLoading] = useState(isEdit);
@@ -48,8 +50,11 @@ export function CharacterForm({ id }: CharacterFormProps) {
 	});
 
 	useEffect(() => {
-		shouldAttemptInitialCharacterRestore(currentPath);
-	}, [currentPath]);
+		if (hasAttemptedInitialCharacterRestore()) {
+			return;
+		}
+		markInitialCharacterRestoreAttempted();
+	}, []);
 
 	useEffect(() => {
 		if (!isEdit) return;

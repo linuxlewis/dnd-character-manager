@@ -1,11 +1,26 @@
-import { mkdirSync } from "node:fs";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { existsSync, mkdirSync } from "node:fs";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
 
 const SQLITE_MEMORY_PATH = ":memory:";
-const APP_ROOT = resolve(import.meta.dirname, "../../..");
+
+function findAppRoot(startDir: string) {
+	let currentDir = resolve(startDir);
+
+	while (!existsSync(join(currentDir, "package.json"))) {
+		const parentDir = dirname(currentDir);
+		if (parentDir === currentDir) {
+			throw new Error(`Could not find package.json from ${startDir}`);
+		}
+		currentDir = parentDir;
+	}
+
+	return currentDir;
+}
+
+const APP_ROOT = findAppRoot(import.meta.dirname);
 
 export function resolveDbPath(
 	databaseUrl: string | undefined = process.env.DATABASE_URL,
