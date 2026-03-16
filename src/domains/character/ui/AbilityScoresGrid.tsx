@@ -15,12 +15,13 @@ export function AbilityScoresGrid({ character }: { character: Character }) {
 			<h2 className="text-base font-semibold text-foreground mb-2 border-b border-border pb-1">
 				Ability Scores
 			</h2>
-			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2">
+			<div className="grid grid-cols-3 gap-2 max-sm:grid-cols-2" aria-label="Ability Scores">
 				{ABILITY_KEYS.map((key) => {
 					const mod = getAbilityModifier(character.abilityScores[key]);
 					return (
 						<div
 							key={key}
+							aria-label={`${key} ability score`}
 							className="text-center p-2 border border-border rounded-lg bg-muted transition-colors relative group"
 						>
 							<div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">

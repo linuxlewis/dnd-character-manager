@@ -12,7 +12,7 @@ test.describe("Character deletion", () => {
 		await page.getByRole("button", { name: "Delete" }).click();
 
 		await expect(page.getByRole("heading", { name: "Characters" })).toBeVisible();
-		await expect(page.getByText("Thorin Ironforge")).not.toBeVisible();
+		await expect(page.getByRole("button", { name: "Thorin Ironforge" })).not.toBeVisible();
 		await expect(page.getByText("No characters yet. Create your first adventurer!")).toBeVisible();
 	});
 });
