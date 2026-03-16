@@ -35,6 +35,16 @@ describe("EquipmentSection uses shadcn/ui components", () => {
 	it("imports Select component in form for categories", () => {
 		expect(formSource).toContain('from "../../../app/components/ui/select.tsx"');
 	});
+
+	it("hides Type and Weight columns on mobile to prevent overflow", () => {
+		const typeHidden = (source.match(/max-sm:hidden/g) || []).length;
+		expect(typeHidden).toBeGreaterThanOrEqual(4);
+	});
+
+	it("uses responsive grid columns for equipment table", () => {
+		expect(source).toContain("grid-cols-[1fr_auto_auto]");
+		expect(source).toContain("sm:grid-cols-[1fr_auto_auto_auto_auto]");
+	});
 });
 
 describe("globals.css has design tokens", () => {
@@ -47,5 +57,20 @@ describe("globals.css has design tokens", () => {
 
 	it("imports tailwindcss", () => {
 		expect(globalsCss).toContain('@import "tailwindcss"');
+	});
+
+	it("does not set min-width on touch targets to avoid mobile overflow", () => {
+		expect(globalsCss).not.toContain("min-width: 44px");
+	});
+});
+
+describe("ShareSection avoids mobile overflow", () => {
+	const shareSource = readFileSync(resolve(__dirname, "ShareSection.tsx"), "utf-8");
+
+	it("uses flex truncation without a fixed max-width on the code element", () => {
+		expect(shareSource).toContain("min-w-0");
+		expect(shareSource).toContain("overflow-hidden");
+		expect(shareSource).toContain("text-ellipsis");
+		expect(shareSource).not.toContain("max-w-[200px]");
 	});
 });
