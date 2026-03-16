@@ -4,9 +4,15 @@ import { toast } from "sonner";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { Input } from "../../../app/components/ui/input.tsx";
 import { Label } from "../../../app/components/ui/label.tsx";
+import { Select } from "../../../app/components/ui/select.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
-import type { AbilityScores, Character } from "../types/index.js";
+import {
+	type AbilityScores,
+	type Character,
+	DND_5E_CLASSES,
+	DND_5E_RACES,
+} from "../types/index.js";
 import { AbilityScoresFieldset } from "./AbilityScoresFieldset.tsx";
 import {
 	hasAttemptedInitialCharacterRestore,
@@ -203,15 +209,20 @@ export function CharacterForm({ id }: CharacterFormProps) {
 
 				<div>
 					<Label htmlFor="race">Race</Label>
-					<Input
+					<Select
 						id="race"
 						value={formData.race}
 						onChange={(e) => handleInputChange("race", e.target.value)}
-						placeholder="Enter character race"
 						aria-invalid={!!errors.race}
 						aria-describedby={errors.race ? "race-error" : undefined}
-						autoComplete="off"
-					/>
+					>
+						<option value="">Select a race</option>
+						{DND_5E_RACES.map((race) => (
+							<option key={race} value={race}>
+								{race}
+							</option>
+						))}
+					</Select>
 					{errors.race && (
 						<p id="race-error" className="text-sm text-destructive mt-1" role="alert">
 							{errors.race}
@@ -221,15 +232,20 @@ export function CharacterForm({ id }: CharacterFormProps) {
 
 				<div>
 					<Label htmlFor="class">Class</Label>
-					<Input
+					<Select
 						id="class"
 						value={formData.class}
 						onChange={(e) => handleInputChange("class", e.target.value)}
-						placeholder="Enter character class"
 						aria-invalid={!!errors.class}
 						aria-describedby={errors.class ? "class-error" : undefined}
-						autoComplete="off"
-					/>
+					>
+						<option value="">Select a class</option>
+						{DND_5E_CLASSES.map((characterClass) => (
+							<option key={characterClass} value={characterClass}>
+								{characterClass}
+							</option>
+						))}
+					</Select>
 					{errors.class && (
 						<p id="class-error" className="text-sm text-destructive mt-1" role="alert">
 							{errors.class}

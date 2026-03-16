@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { CreateCharacterSchema } from "../types/index.js";
+import { CreateCharacterSchema, DND_5E_CLASSES, DND_5E_RACES } from "../types/index.js";
 
 describe("CharacterForm", () => {
 	it("exports CharacterForm component", async () => {
@@ -129,6 +129,10 @@ describe("CharacterForm uses shadcn/ui components with simplified form logic", (
 		expect(source).toContain('from "../../../app/components/ui/input.tsx"');
 	});
 
+	it("imports shadcn/ui Select", () => {
+		expect(source).toContain('from "../../../app/components/ui/select.tsx"');
+	});
+
 	it("imports shadcn/ui Button", () => {
 		expect(source).toContain('from "../../../app/components/ui/button.tsx"');
 	});
@@ -141,8 +145,51 @@ describe("CharacterForm uses shadcn/ui components with simplified form logic", (
 		expect(source).toContain("sm:max-w-");
 	});
 
+	it("uses dropdown placeholders for race and class", () => {
+		expect(source).toContain("Select a race");
+		expect(source).toContain("Select a class");
+	});
+
+	it("renders shared D&D 5e options for race and class", () => {
+		expect(source).toContain("DND_5E_RACES.map");
+		expect(source).toContain("DND_5E_CLASSES.map");
+	});
+
 	it("includes basic form validation", () => {
 		expect(source).toContain("validateForm");
 		expect(source).toContain("FormErrors");
+	});
+});
+
+describe("shared character creation options", () => {
+	it("includes the core D&D 5e races", () => {
+		expect(DND_5E_RACES).toEqual([
+			"Dragonborn",
+			"Dwarf",
+			"Elf",
+			"Gnome",
+			"Half-Elf",
+			"Half-Orc",
+			"Halfling",
+			"Human",
+			"Tiefling",
+		]);
+	});
+
+	it("includes the core D&D 5e classes", () => {
+		expect(DND_5E_CLASSES).toEqual([
+			"Barbarian",
+			"Bard",
+			"Cleric",
+			"Druid",
+			"Fighter",
+			"Monk",
+			"Paladin",
+			"Ranger",
+			"Rogue",
+			"Sorcerer",
+			"Warlock",
+			"Wizard",
+		]);
 	});
 });
