@@ -25,13 +25,15 @@ test.describe("Edit character", () => {
 
 		// Navigate to character sheet to verify changes
 		await page.getByText("Thorin Ironforge").click();
-		await expect(page.getByText("20")).toBeVisible(); // New STR
-		await expect(page.getByText("15")).toBeVisible(); // New CHA
+		await page.getByRole("tab", { name: "Stats" }).click();
+		await expect(page.getByLabel("STR ability score")).toContainText("20");
+		await expect(page.getByLabel("CHA ability score")).toContainText("15");
 
 		// Refresh and verify persistence
 		await page.reload();
-		await expect(page.getByText("20")).toBeVisible();
-		await expect(page.getByText("15")).toBeVisible();
+		await page.getByRole("tab", { name: "Stats" }).click();
+		await expect(page.getByLabel("STR ability score")).toContainText("20");
+		await expect(page.getByLabel("CHA ability score")).toContainText("15");
 	});
 
 	test("edit form loads existing character data", async ({ page, createCharacter }) => {
