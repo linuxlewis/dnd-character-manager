@@ -4,30 +4,74 @@ import { toast } from "sonner";
 import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
 import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
-import { useNavigate } from "../../../app/router.tsx";
+import { useCurrentPath, useNavigate } from "../../../app/router.tsx";
 import type { Character } from "../types/index.js";
-import { CharacterCard } from "./CharacterCard.tsx";
+import {
+	clearLastOpenedCharacterId,
+	getLastOpenedCharacterId,
+	markInitialCharacterRestoreAttempted,
+	rememberLastOpenedCharacterId,
+	shouldAttemptInitialCharacterRestore,
+} from "./last-opened-character.js";
 
 // Static skeleton keys to avoid array index lint warning
 const SKELETON_KEYS = ["sk1", "sk2", "sk3", "sk4", "sk5", "sk6"];
 
 export function CharacterList() {
 	const navigate = useNavigate();
+	const currentPath = useCurrentPath();
 	const [characters, setCharacters] = useState<Character[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		let isMounted = true;
+		const shouldRestoreCharacter = shouldAttemptInitialCharacterRestore(currentPath);
+		if (shouldRestoreCharacter) {
+			markInitialCharacterRestoreAttempted();
+		}
+
 		fetch("/api/characters")
 			.then((r) => {
 				if (!r.ok) throw new Error("Server error");
 				return r.json();
 			})
-			.then((data) => setCharacters(data))
-			.catch(() => {
-				toast.error("Failed to load characters");
+			.then((data: Character[]) => {
+				if (!isMounted) {
+					return;
+				}
+
+				setCharacters(data);
+
+				const lastOpenedCharacterId = shouldRestoreCharacter ? getLastOpenedCharacterId() : null;
+				if (!lastOpenedCharacterId) {
+					return;
+				}
+
+				const hasLastOpenedCharacter = data.some(
+					(character) => character.id === lastOpenedCharacterId,
+				);
+				if (!hasLastOpenedCharacter) {
+					clearLastOpenedCharacterId();
+					return;
+				}
+
+				navigate(`/character/${lastOpenedCharacterId}`);
 			})
-			.finally(() => setLoading(false));
-	}, []);
+			.catch(() => {
+				if (isMounted) {
+					toast.error("Failed to load characters");
+				}
+			})
+			.finally(() => {
+				if (isMounted) {
+					setLoading(false);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, [currentPath, navigate]);
 
 	return (
 		<div className="max-w-[960px] mx-auto p-6 max-sm:p-3">
@@ -59,7 +103,10 @@ export function CharacterList() {
 							key={c.id}
 							type="button"
 							className="rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all p-6 cursor-pointer hover:border-primary hover:shadow-md text-left"
-							onClick={() => navigate(`/character/${c.id}`)}
+							onClick={() => {
+								rememberLastOpenedCharacterId(c.id);
+								navigate(`/character/${c.id}`);
+							}}
 						>
 							<div className="flex items-start justify-between gap-3 mb-1">
 								<div className="text-lg font-bold text-foreground">{c.name}</div>

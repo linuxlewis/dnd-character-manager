@@ -6,6 +6,10 @@ describe("server health check", () => {
 
 	beforeAll(async () => {
 		app.get("/health", async () => ({ status: "ok" }));
+		app.get("/api/debug/persistence", async () => ({
+			databasePath: "/app/data/app.db",
+			nodeEnv: "test",
+		}));
 		await app.ready();
 	});
 
@@ -17,5 +21,14 @@ describe("server health check", () => {
 		const res = await app.inject({ method: "GET", url: "/health" });
 		expect(res.statusCode).toBe(200);
 		expect(res.json()).toEqual({ status: "ok" });
+	});
+
+	it("GET /api/debug/persistence returns the resolved database path", async () => {
+		const res = await app.inject({ method: "GET", url: "/api/debug/persistence" });
+		expect(res.statusCode).toBe(200);
+		expect(res.json()).toEqual({
+			databasePath: "/app/data/app.db",
+			nodeEnv: "test",
+		});
 	});
 });

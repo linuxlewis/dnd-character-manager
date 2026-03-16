@@ -32,6 +32,29 @@ pnpm dev
 
 The app runs on **port 4000** by default.
 
+## Persistence Model
+
+- Character records live in SQLite only. The app does not store character sheets in cookies or `localStorage`.
+- The browser stores one lightweight value in `localStorage`: the last-opened character id used to restore the first visit back to `/`.
+- The server database path is resolved explicitly:
+  - `DATABASE_URL` unset: `<repo>/data/app.db`
+  - `DATABASE_URL` relative path: resolved from the repository/app root
+  - `DATABASE_URL` absolute path: used as-is
+
+## Production Runtime
+
+Production is intended to run from the main repository checkout, not from an ephemeral worktree.
+
+1. Start the app with Docker from the main checkout:
+   ```bash
+   docker compose up -d --build
+   ```
+2. Keep the SQLite file on the Docker volume mounted at `/app/data`.
+3. Publish the container through a Cloudflare Tunnel that forwards traffic to `http://localhost:4000`.
+
+The default production container configuration already points `DATABASE_URL` to `/app/data/app.db` and mounts persistent storage through Docker Compose.
+The server also logs the resolved SQLite path at startup, and `GET /api/debug/persistence` reports the active database file for verification.
+
 ## Scripts
 
 | Script          | Description                                      |

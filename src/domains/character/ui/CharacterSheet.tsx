@@ -25,6 +25,11 @@ import { SavingThrowsSection } from "./SavingThrowsSection.tsx";
 import { ShareSection } from "./ShareSection.tsx";
 import { SkillsSection } from "./SkillsSection.tsx";
 import { SpellSlotsSection } from "./SpellSlotsSection.tsx";
+import {
+	hasAttemptedInitialCharacterRestore,
+	markInitialCharacterRestoreAttempted,
+	rememberLastOpenedCharacterId,
+} from "./last-opened-character.js";
 
 async function postCharacterJson<T>(url: string, body?: unknown): Promise<T | null> {
 	const response = await fetch(url, {
@@ -46,6 +51,13 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 	const characterId = id ?? character?.id;
 
 	useEffect(() => {
+		if (hasAttemptedInitialCharacterRestore()) {
+			return;
+		}
+		markInitialCharacterRestoreAttempted();
+	}, []);
+
+	useEffect(() => {
 		const url = slug ? `/api/characters/by-slug/${slug}` : `/api/characters/${id}`;
 		fetch(url)
 			.then((r) => (r.ok ? r.json() : null))
@@ -56,6 +68,12 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 			.catch(() => {})
 			.finally(() => setLoading(false));
 	}, [id, slug]);
+
+	useEffect(() => {
+		if (!readOnly && character?.id) {
+			rememberLastOpenedCharacterId(character.id);
+		}
+	}, [character?.id, readOnly]);
 
 	const handleDamage = () => {
 		const input = prompt("How much damage?");

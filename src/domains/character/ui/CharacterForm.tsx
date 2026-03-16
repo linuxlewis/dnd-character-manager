@@ -8,6 +8,10 @@ import { Skeleton } from "../../../app/components/ui/skeleton.tsx";
 import { useNavigate } from "../../../app/router.tsx";
 import type { AbilityScores, Character } from "../types/index.js";
 import { AbilityScoresFieldset } from "./AbilityScoresFieldset.tsx";
+import {
+	hasAttemptedInitialCharacterRestore,
+	markInitialCharacterRestoreAttempted,
+} from "./last-opened-character.js";
 
 type CharacterFormValues = {
 	name: string;
@@ -44,6 +48,13 @@ export function CharacterForm({ id }: CharacterFormProps) {
 		level: 1,
 		abilityScores: { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 },
 	});
+
+	useEffect(() => {
+		if (hasAttemptedInitialCharacterRestore()) {
+			return;
+		}
+		markInitialCharacterRestoreAttempted();
+	}, []);
 
 	useEffect(() => {
 		if (!isEdit) return;

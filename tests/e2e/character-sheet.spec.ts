@@ -9,12 +9,11 @@ test.describe("Character sheet view", () => {
 		await expect(page.getByText("Dwarf Fighter · Level 5")).toBeVisible();
 
 		await expect(page.getByText("Ability Scores")).toBeVisible();
-		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
 		for (const stat of ["STR", "DEX", "CON", "INT", "WIS", "CHA"]) {
-			await expect(abilitySection.locator("div").filter({ hasText: new RegExp(`^${stat}$`) })).toBeVisible();
+			await expect(page.getByLabel(`${stat} ability score`)).toContainText(stat);
 		}
 
-		await expect(page.getByText("Hit Points")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Hit Points" })).toBeVisible();
 		await expect(page.getByText("10 / 10")).toBeVisible();
 		await expect(page.getByRole("heading", { name: "Conditions" })).toBeVisible();
 
@@ -45,9 +44,8 @@ test.describe("Character sheet view", () => {
 		await page.goto("/");
 		await page.getByText("Thorin Ironforge").click();
 
-		const abilitySection = page.locator("div").filter({ hasText: "Ability Scores" }).first();
-		await expect(abilitySection.locator("div").filter({ hasText: /^\+3$/ })).toBeVisible();
-		await expect(abilitySection.locator("div").filter({ hasText: /^-1$/ })).toBeVisible();
+		await expect(page.getByLabel("STR ability score")).toContainText("+3");
+		await expect(page.getByLabel("CHA ability score")).toContainText("-1");
 	});
 
 	test("tracks temp HP, concentration, and active conditions", async ({ page, createCharacter }) => {
@@ -59,7 +57,7 @@ test.describe("Character sheet view", () => {
 		await page.goto(`/character/${character.id}`);
 
 		await expect(page.getByText("18 / 24")).toBeVisible();
-		await expect(page.getByText("+7 temp")).toBeVisible();
+		await expect(page.getByText("+7 temp", { exact: true })).toBeVisible();
 		await expect(page.getByText("Concentration").first()).toBeVisible();
 		await expect(page.getByLabel("Active conditions indicator")).toContainText("1 active");
 		await expect(page.getByLabel("Active conditions list")).toContainText("Poisoned (4r)");

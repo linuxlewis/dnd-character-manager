@@ -35,7 +35,7 @@ test.describe("Responsive layout", () => {
 
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
 		await expect(page.getByText("Ability Scores")).toBeVisible();
-		await expect(page.getByText("Hit Points")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Hit Points" })).toBeVisible();
 		await expect(page.getByText("Skills")).toBeVisible();
 
 		// All content should be within viewport width
@@ -50,6 +50,6 @@ test.describe("Responsive layout", () => {
 
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
 		await expect(page.getByText("Ability Scores")).toBeVisible();
-		await expect(page.getByText("Hit Points")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Hit Points" })).toBeVisible();
 	});
 });

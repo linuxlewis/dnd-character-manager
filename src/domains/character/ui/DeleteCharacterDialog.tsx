@@ -9,6 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "../../../app/components/ui/dialog.tsx";
+import { clearLastOpenedCharacterId, getLastOpenedCharacterId } from "./last-opened-character.js";
 
 interface DeleteCharacterDialogProps {
 	characterId: string;
@@ -36,6 +37,9 @@ export function DeleteCharacterDialog({
 			if (!res.ok) {
 				toast.error("Failed to delete character");
 				return;
+			}
+			if (getLastOpenedCharacterId() === characterId) {
+				clearLastOpenedCharacterId();
 			}
 			toast.success(`${characterName} has been deleted`);
 			onDeleted();
