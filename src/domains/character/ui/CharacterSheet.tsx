@@ -1,20 +1,14 @@
-import { ArrowLeft, ShieldAlert, TrendingUp } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "../../../app/components/ui/badge.tsx";
 import { Button } from "../../../app/components/ui/button.tsx";
-
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "../../../app/components/ui/tooltip.tsx";
-import { cn } from "../../../app/lib/utils.ts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../app/components/ui/tabs.tsx";
+import { TooltipProvider } from "../../../app/components/ui/tooltip.tsx";
 import { useNavigate } from "../../../app/router.tsx";
 import type { Character, LevelUpResult } from "../types/index.js";
 import { AbilityScoresGrid } from "./AbilityScoresGrid.tsx";
 import { ArmorClassSection } from "./ArmorClassSection.tsx";
+import { CombatVitalsBar } from "./CombatVitalsBar.tsx";
 import { ConditionsSection } from "./ConditionsSection.tsx";
 import { DeleteCharacterDialog } from "./DeleteCharacterDialog.tsx";
 import { EquipmentSection } from "./EquipmentSection.tsx";
@@ -171,10 +165,10 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 					<ArrowLeft className="h-4 w-4" />
 					Back
 				</Button>
-				<div className="flex items-start justify-between gap-4 mb-1">
+				<div className="flex items-start justify-between gap-4 mb-2">
 					<div className="flex-1">
 						<h1 className="text-2xl text-foreground">{character.name}</h1>
-						<div className="flex items-center gap-3 mb-4">
+						<div className="flex items-center gap-3 mb-2">
 							<p className="text-muted-foreground">
 								{character.race} {character.class} · Level {character.level}
 							</p>
@@ -191,70 +185,81 @@ export function CharacterSheet({ id, slug }: { id?: string; slug?: string }) {
 							)}
 						</div>
 					</div>
-					{character.conditions.length > 0 && (
-						<Badge variant="destructive" className="gap-1" aria-label="Active conditions indicator">
-							<ShieldAlert className="h-3.5 w-3.5" />
-							{character.conditions.length} active
-						</Badge>
-					)}
 				</div>
 				{character.slug && !readOnly && <ShareSection slug={character.slug} />}
-				<AbilityScoresGrid character={character} />
-				<HitPointsSection
-					character={character}
-					hpPercent={hpPercent}
-					readOnly={readOnly}
-					onDamage={handleDamage}
-					onHeal={handleHeal}
-					onUpdate={setCharacter}
-				/>
-				<ConditionsSection character={character} readOnly={readOnly} onUpdate={setCharacter} />
-				{!readOnly && characterId && (
-					<>
-						<ArmorClassSection
+				<CombatVitalsBar character={character} />
+				<Tabs defaultValue="combat">
+					<TabsList>
+						<TabsTrigger value="combat">Combat</TabsTrigger>
+						<TabsTrigger value="stats">Stats</TabsTrigger>
+						<TabsTrigger value="gear">Gear</TabsTrigger>
+						<TabsTrigger value="notes">Notes</TabsTrigger>
+					</TabsList>
+					<TabsContent value="combat">
+						<HitPointsSection
 							character={character}
-							characterId={characterId}
+							hpPercent={hpPercent}
+							readOnly={readOnly}
+							onDamage={handleDamage}
+							onHeal={handleHeal}
 							onUpdate={setCharacter}
 						/>
-						<SavingThrowsSection
-							character={character}
-							characterId={characterId}
-							onUpdate={setCharacter}
+						{!readOnly && characterId && (
+							<ArmorClassSection
+								character={character}
+								characterId={characterId}
+								onUpdate={setCharacter}
+							/>
+						)}
+						<ConditionsSection character={character} readOnly={readOnly} onUpdate={setCharacter} />
+						{characterId && (
+							<SpellSlotsSection
+								character={character}
+								characterId={characterId}
+								onUpdate={setCharacter}
+							/>
+						)}
+					</TabsContent>
+					<TabsContent value="stats">
+						<AbilityScoresGrid character={character} />
+						{!readOnly && characterId && (
+							<SavingThrowsSection
+								character={character}
+								characterId={characterId}
+								onUpdate={setCharacter}
+							/>
+						)}
+						{characterId && (
+							<SkillsSection
+								character={character}
+								characterId={characterId}
+								readOnly={readOnly}
+								onUpdate={setCharacter}
+							/>
+						)}
+					</TabsContent>
+					<TabsContent value="gear">
+						{characterId && (
+							<EquipmentSection
+								characterId={characterId}
+								equipment={character.equipment ?? []}
+								strScore={character.abilityScores.STR}
+								readOnly={readOnly}
+								onUpdate={setCharacter}
+							/>
+						)}
+					</TabsContent>
+					<TabsContent value="notes">
+						<NotesSection
+							notes={notes}
+							readOnly={readOnly}
+							onChange={setNotes}
+							onBlur={handleNotesBlur}
 						/>
-					</>
-				)}
-				{characterId && (
-					<SkillsSection
-						character={character}
-						characterId={characterId}
-						readOnly={readOnly}
-						onUpdate={setCharacter}
-					/>
-				)}
-				{characterId && (
-					<SpellSlotsSection
-						character={character}
-						characterId={characterId}
-						onUpdate={setCharacter}
-					/>
-				)}
-				{characterId && (
-					<EquipmentSection
-						characterId={characterId}
-						equipment={character.equipment ?? []}
-						strScore={character.abilityScores.STR}
-						readOnly={readOnly}
-						onUpdate={setCharacter}
-					/>
-				)}
-				<NotesSection
-					notes={notes}
-					readOnly={readOnly}
-					onChange={setNotes}
-					onBlur={handleNotesBlur}
-				/>
+					</TabsContent>
+				</Tabs>
 				{!readOnly && (
-					<div className="mb-6">
+					<div className="mb-6 mt-6">
 						<Button variant="destructive" className="w-full" onClick={handleDeleteClick}>
 							Delete Character
 						</Button>

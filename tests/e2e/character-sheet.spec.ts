@@ -7,24 +7,31 @@ test.describe("Character sheet view", () => {
 
 		await expect(page.getByRole("heading", { name: "Thorin Ironforge" })).toBeVisible();
 		await expect(page.getByText("Dwarf Fighter · Level 5")).toBeVisible();
-
-		await expect(page.getByText("Ability Scores")).toBeVisible();
-		for (const stat of ["STR", "DEX", "CON", "INT", "WIS", "CHA"]) {
-			await expect(page.getByLabel(`${stat} ability score`)).toContainText(stat);
-		}
+		await expect(page.getByLabel("Combat vitals")).toBeVisible();
+		await expect(page.getByRole("tab", { name: "Combat" })).toHaveAttribute("aria-selected", "true");
 
 		await expect(page.getByRole("heading", { name: "Hit Points" })).toBeVisible();
 		await expect(page.getByText("10 / 10")).toBeVisible();
 		await expect(page.getByRole("heading", { name: "Conditions" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Damage" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Heal" })).toBeVisible();
 
+		await page.getByRole("tab", { name: "Stats" }).click();
+		await expect(page.getByText("Ability Scores")).toBeVisible();
+		for (const stat of ["STR", "DEX", "CON", "INT", "WIS", "CHA"]) {
+			await expect(page.getByLabel(`${stat} ability score`)).toContainText(stat);
+		}
 		await expect(page.getByText("Skills")).toBeVisible();
 		await expect(page.getByText("Athletics")).toBeVisible();
 		await expect(page.getByText("Perception")).toBeVisible();
 
-		await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
+		await page.getByRole("tab", { name: "Gear" }).click();
+		await expect(page.getByRole("heading", { name: "Equipment" })).toBeVisible();
 
-		await expect(page.getByRole("button", { name: "Damage" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "Heal" })).toBeVisible();
+		await page.getByRole("tab", { name: "Notes" }).click();
+		await expect(page.getByRole("heading", { name: "Notes" })).toBeVisible();
+		await expect(page.getByRole("textbox", { name: "Character notes" })).toBeVisible();
+
 		await expect(page.getByRole("button", { name: "Delete Character" })).toBeVisible();
 	});
 
@@ -43,6 +50,7 @@ test.describe("Character sheet view", () => {
 		await createCharacter();
 		await page.goto("/");
 		await page.getByText("Thorin Ironforge").click();
+		await page.getByRole("tab", { name: "Stats" }).click();
 
 		await expect(page.getByLabel("STR ability score")).toContainText("+3");
 		await expect(page.getByLabel("CHA ability score")).toContainText("-1");
@@ -56,10 +64,11 @@ test.describe("Character sheet view", () => {
 		});
 		await page.goto(`/character/${character.id}`);
 
-		await expect(page.getByText("18 / 24")).toBeVisible();
-		await expect(page.getByText("+7 temp", { exact: true })).toBeVisible();
-		await expect(page.getByText("Concentration").first()).toBeVisible();
-		await expect(page.getByLabel("Active conditions indicator")).toContainText("1 active");
+		const combatVitals = page.getByLabel("Combat vitals");
+		await expect(combatVitals).toContainText("18/24");
+		await expect(combatVitals).toContainText("+7");
+		await expect(combatVitals).toContainText("Conc");
+		await expect(combatVitals).toContainText("1");
 		await expect(page.getByLabel("Active conditions list")).toContainText("Poisoned (4r)");
 	});
 

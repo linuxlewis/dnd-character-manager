@@ -268,4 +268,12 @@ describe("CharacterSheet uses shadcn/ui and Tailwind", () => {
 		expect(hpSource).toContain('variant="destructive-ghost"');
 		expect(hpSource).toContain('variant="success-ghost"');
 	});
+
+	it("uses shadcn/ui Tabs for tabbed layout", () => {
+		expect(source).toContain('from "../../../app/components/ui/tabs.tsx"');
+	});
+
+	it("imports CombatVitalsBar for at-a-glance combat info", () => {
+		expect(source).toContain('from "./CombatVitalsBar.tsx"');
+	});
 });
