@@ -24,9 +24,12 @@ describe("US-007: Responsive setup and mobile navigation", () => {
 		expect(globalsCss).toContain("-moz-osx-font-smoothing: grayscale");
 	});
 
-	it("interactive elements have minimum 44px touch targets", () => {
+	it("interactive elements have minimum 44px touch target height", () => {
 		expect(globalsCss).toContain("min-height: 44px");
-		expect(globalsCss).toContain("min-width: 44px");
+	});
+
+	it("does not enforce min-width on touch targets (prevents mobile overflow)", () => {
+		expect(globalsCss).not.toContain("min-width: 44px");
 	});
 
 	it("App uses Tailwind responsive prefixes for mobile", () => {

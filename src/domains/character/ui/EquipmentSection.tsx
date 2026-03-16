@@ -118,11 +118,11 @@ export function EquipmentSection({
 
 			{equipment.length > 0 ? (
 				<div className="rounded-lg border border-border overflow-hidden mb-4">
-					<div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-3 py-2 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
+					<div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-3 py-2 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
 						<span>Item</span>
-						<span className="text-center w-16">Type</span>
+						<span className="text-center w-16 max-sm:hidden">Type</span>
 						<span className="text-center w-12">Qty</span>
-						<span className="text-right w-16">Weight</span>
+						<span className="text-right w-16 max-sm:hidden">Weight</span>
 						<span className="w-16">
 							<span className="sr-only">Actions</span>
 						</span>
@@ -166,7 +166,7 @@ function EquipmentRow({
 	return (
 		<div
 			className={cn(
-				"grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 items-center px-3 min-h-[44px] transition-colors",
+				"grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2 items-center px-3 min-h-[44px] transition-colors",
 				index % 2 === 0 ? "bg-card" : "bg-muted/30",
 				item.equipped && "ring-1 ring-inset ring-primary/20",
 			)}
@@ -191,11 +191,11 @@ function EquipmentRow({
 					<p className="text-xs text-muted-foreground truncate">{item.description}</p>
 				)}
 			</div>
-			<span className="text-xs text-muted-foreground text-center w-16 truncate">
+			<span className="text-xs text-muted-foreground text-center w-16 truncate max-sm:hidden">
 				{ITEM_CATEGORY_LABELS[item.category] ?? item.category}
 			</span>
 			<span className="text-sm text-muted-foreground text-center w-12">x{item.quantity}</span>
-			<span className="text-sm text-muted-foreground text-right w-16">
+			<span className="text-sm text-muted-foreground text-right w-16 max-sm:hidden">
 				{item.weight * item.quantity} lbs
 			</span>
 			{!readOnly && (

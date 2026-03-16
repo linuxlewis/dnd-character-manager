@@ -26,7 +26,7 @@ export function ShareSection({ slug }: { slug: string }) {
 		>
 			<span className="font-semibold text-muted-foreground whitespace-nowrap">Share:</span>
 			<code
-				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground break-all max-w-[200px] sm:max-w-none font-mono"
+				className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground font-mono"
 				data-testid="share-url"
 			>
 				{shareUrl}
