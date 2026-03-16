@@ -27,6 +27,13 @@ export {
 } from "./character.js";
 
 export {
+	DND_5E_RACES,
+	DND_5E_CLASSES,
+	type Dnd5eRace,
+	type Dnd5eClass,
+} from "./character-options.js";
+
+export {
 	CharacterConditionNameSchema,
 	CharacterConditionSchema,
 	CONDITION_DETAILS,
