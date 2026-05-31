@@ -8,8 +8,20 @@
  * UI components never import server-side code directly.
  */
 
+import {
+	Alert,
+	Badge,
+	Box,
+	Button,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	TextInput,
+	Title,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import {
 	ApiClientError,
 	apiMutations,
@@ -17,16 +29,26 @@ import {
 	apiQueryKeys,
 } from "../../../generated/api-client.generated.js";
 
+interface ItemFormValues {
+	name: string;
+}
+
 export function ItemList() {
-	const [newName, setNewName] = useState("");
 	const queryClient = useQueryClient();
+	const form = useForm<ItemFormValues>({
+		mode: "controlled",
+		initialValues: { name: "" },
+		validate: {
+			name: (value) => (value.trim().length === 0 ? "Name is required" : null),
+		},
+	});
 
 	const itemsQuery = useQuery(apiQueries.listItems());
 
 	const createMutation = useMutation({
 		...apiMutations.createItem(),
 		onSuccess: async () => {
-			setNewName("");
+			form.reset();
 			await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listItems() });
 		},
 	});
@@ -40,65 +62,85 @@ export function ItemList() {
 
 	const error = getErrorMessage(itemsQuery.error ?? createMutation.error ?? deleteMutation.error);
 
-	function createItem() {
-		if (!newName.trim()) return;
-		createMutation.mutate({ name: newName, status: "draft" });
+	function createItem(values: ItemFormValues) {
+		createMutation.mutate({ name: values.name.trim(), status: "draft" });
 	}
 
-	if (itemsQuery.isLoading) return <p>Loading...</p>;
+	if (itemsQuery.isLoading) {
+		return (
+			<Paper withBorder p="lg">
+				<Text c="dimmed">Loading...</Text>
+			</Paper>
+		);
+	}
 
 	const items = itemsQuery.data ?? [];
 	return (
-		<div>
-			<h2>Items</h2>
+		<Paper withBorder p="lg">
+			<Stack gap="md">
+				<Group justify="space-between" align="flex-start">
+					<Stack gap={4}>
+						<Title order={2} size="h4">
+							Items
+						</Title>
+						<Text c="dimmed" size="sm">
+							Temporary scaffold data kept until the first character domain replaces it.
+						</Text>
+					</Stack>
+					<Badge color="bloodstone" variant="light">
+						Scaffold
+					</Badge>
+				</Group>
 
-			{error && <p style={{ color: "red" }}>{error}</p>}
+				{error && (
+					<Alert color="red" title="Request failed" variant="light">
+						{error}
+					</Alert>
+				)}
 
-			<div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-				<input
-					type="text"
-					value={newName}
-					onChange={(e) => setNewName(e.target.value)}
-					onKeyDown={(e) => e.key === "Enter" && createItem()}
-					placeholder="New item name..."
-					style={{ flex: 1, padding: "0.5rem" }}
-				/>
-				<button type="button" onClick={createItem}>
-					Add
-				</button>
-			</div>
+				<Box component="form" onSubmit={form.onSubmit(createItem)}>
+					<Group align="flex-end" gap="sm">
+						<TextInput
+							{...form.getInputProps("name")}
+							flex={1}
+							label="Scaffold item"
+							placeholder="New item name..."
+						/>
+						<Button type="submit" loading={createMutation.isPending}>
+							Add
+						</Button>
+					</Group>
+				</Box>
 
-			{items.length === 0 ? (
-				<p style={{ color: "#999" }}>No items yet. Create one above.</p>
-			) : (
-				<ul style={{ listStyle: "none", padding: 0 }}>
-					{items.map((item) => (
-						<li
-							key={item.id}
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								alignItems: "center",
-								padding: "0.5rem",
-								borderBottom: "1px solid #eee",
-							}}
-						>
-							<span>
-								<strong>{item.name}</strong>{" "}
-								<span style={{ color: "#999", fontSize: "0.85em" }}>({item.status})</span>
-							</span>
-							<button
-								type="button"
-								onClick={() => deleteMutation.mutate({ id: item.id })}
-								style={{ color: "red", cursor: "pointer" }}
-							>
-								Delete
-							</button>
-						</li>
-					))}
-				</ul>
-			)}
-		</div>
+				{items.length === 0 ? (
+					<Text c="dimmed" size="sm">
+						No items yet. Create one above.
+					</Text>
+				) : (
+					<Stack gap="xs">
+						{items.map((item) => (
+							<Group key={item.id} justify="space-between" wrap="nowrap">
+								<Group gap="xs">
+									<Text fw={600}>{item.name}</Text>
+									<Badge color="gray" size="sm" variant="outline">
+										{item.status}
+									</Badge>
+								</Group>
+								<Button
+									color="red"
+									onClick={() => deleteMutation.mutate({ id: item.id })}
+									size="xs"
+									type="button"
+									variant="subtle"
+								>
+									Delete
+								</Button>
+							</Group>
+						))}
+					</Stack>
+				)}
+			</Stack>
+		</Paper>
 	);
 }
 

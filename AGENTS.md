@@ -13,7 +13,7 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 | Feature implementation process | [docs/implementation.md](./docs/implementation.md) |
 | Architecture & dependency rules | [docs/architecture.md](./docs/architecture.md) |
 | Testing procedure | [docs/testing.md](./docs/testing.md) |
-| React conventions | [docs/react.md](./docs/react.md) |
+| React and Mantine UI conventions | [docs/react.md](./docs/react.md) |
 | OpenAPI and typed client generation | [docs/openapi.md](./docs/openapi.md) |
 | Progressive web app setup | [docs/pwa.md](./docs/pwa.md) |
 | Production Docker Compose | [docs/production.md](./docs/production.md) |
@@ -23,7 +23,7 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 
 ## Stack
 
-pnpm · TypeScript · Fastify + React/Vite · TanStack Query · PostgreSQL + Drizzle · Zod · Vitest · Playwright · Biome · GitHub Actions · Pino · Docker Compose
+pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · PostgreSQL + Drizzle · Zod · Vitest · Playwright · Biome · GitHub Actions · Pino · Docker Compose
 
 ## Key Rules
 
@@ -32,7 +32,7 @@ pnpm · TypeScript · Fastify + React/Vite · TanStack Query · PostgreSQL + Dri
 3. **Structured logging only.** Use the Pino logger from `src/providers/telemetry`. No `console.log`.
 4. **Cross-cutting via Providers.** Database, telemetry, auth, and feature flags enter through `src/providers/`. No direct imports of cross-cutting concerns in domain code.
 5. **Tests follow the pyramid.** Favor fast co-located unit tests, add integration tests for database/runtime boundaries, and add e2e tests for critical user journeys. Use `pnpm test` for full validation.
-6. **React stays explicit.** Do not use `useEffect` in application source. Use `useState`, TanStack Query, derived render state, and event handlers. See [docs/react.md](./docs/react.md).
+6. **React stays explicit.** Do not use `useEffect` in application source. Use `useState`, TanStack Query, Mantine components, Mantine form helpers, derived render state, and event handlers. See [docs/react.md](./docs/react.md).
 7. **Docs live in the repo.** No external docs. If it's not in `docs/`, it doesn't exist.
 
 ## Common Commands

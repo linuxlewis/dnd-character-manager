@@ -1,0 +1,16 @@
+html,
+body,
+#root {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--mantine-color-dark-9);
+	color: var(--mantine-color-dark-0);
+}
+
+::selection {
+	background: var(--mantine-color-bloodstone-7);
+	color: var(--mantine-color-white);
+}

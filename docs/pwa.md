@@ -9,7 +9,7 @@ This repo uses `vite-plugin-pwa` from the existing Vite build instead of maintai
 - `src/app/vite.config.ts` registers `VitePWA` with `registerType: "autoUpdate"`.
 - Production web builds emit `manifest.webmanifest`, `sw.js`, and Workbox assets into `dist/app`.
 - `src/app/public/` contains the source logo, favicon, Apple touch icon, required manifest PNG icons, and `robots.txt`.
-- `src/app/index.html` includes description, theme color, favicon, SVG icon, and Apple touch icon metadata.
+- `src/app/index.html` includes description, dark default color scheme metadata, theme color, favicon, SVG icon, and Apple touch icon metadata.
 - `src/static-assets.ts` serves `.webmanifest` as `application/manifest+json`.
 
 ## Scope
@@ -22,7 +22,7 @@ Installability also requires HTTPS outside localhost. Keep TLS and HTTP-to-HTTPS
 
 1. Keep PWA configuration in `src/app/vite.config.ts`.
 2. Put installability assets under `src/app/public/`, which is the Vite public directory because `src/app` is the Vite root.
-3. Keep `theme_color` in the manifest aligned with the `<meta name="theme-color">` value in `src/app/index.html`.
+3. Keep `theme_color` in the manifest aligned with the `<meta name="theme-color">` value in `src/app/index.html` and the Mantine dark-mode theme direction.
 4. Regenerate icon files from `src/app/public/logo.svg` only when the source mark changes. The current assets were generated with:
 
 ```bash

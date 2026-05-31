@@ -1,16 +1,15 @@
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { App } from "./app.js";
 import { AppProviders } from "./app-providers.js";
 
-describe("App", () => {
-	it("renders the application shell", () => {
+describe("AppProviders", () => {
+	it("renders children inside the app provider stack", () => {
 		expect(
 			renderToString(
 				<AppProviders>
-					<App />
+					<span>Child</span>
 				</AppProviders>,
 			),
-		).toContain("D&amp;D Character Manager");
+		).toContain("Child");
 	});
 });

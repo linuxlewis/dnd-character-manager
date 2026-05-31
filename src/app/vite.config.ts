@@ -13,8 +13,8 @@ export default defineConfig({
 				name: "D&D Character Manager",
 				short_name: "D&D Manager",
 				description: "A D&D 5e character management app built for agent-first product development.",
-				theme_color: "#111827",
-				background_color: "#ffffff",
+				theme_color: "#101113",
+				background_color: "#101113",
 				display: "standalone",
 				start_url: "/",
 				icons: [
