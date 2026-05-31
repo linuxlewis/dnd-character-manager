@@ -1,9 +1,9 @@
+import { registerAuthRoutes } from "@providers/auth/index.js";
 import { closeDb } from "@providers/database/index.js";
 import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
-import { registerItemRoutes } from "./domains/example/runtime/routes.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -44,7 +44,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 			routes: apiRouteContracts,
 		}),
 	);
-	await registerItemRoutes(app);
+	await registerAuthRoutes(app);
 
 	if (options.staticRoot) {
 		registerStaticAssetFallback(app, options.staticRoot);

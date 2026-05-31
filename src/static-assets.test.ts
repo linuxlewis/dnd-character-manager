@@ -26,7 +26,7 @@ describe("registerStaticAssetFallback", () => {
 			expect(asset.headers["content-type"]).toContain("text/javascript");
 			expect(asset.body).toBe("export {};");
 
-			const browserRoute = await app.inject({ method: "GET", url: "/items/123" });
+			const browserRoute = await app.inject({ method: "GET", url: "/characters/123" });
 			expect(browserRoute.statusCode).toBe(200);
 			expect(browserRoute.headers["content-type"]).toContain("text/html");
 			expect(browserRoute.body).toBe("<main>app</main>");

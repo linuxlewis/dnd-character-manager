@@ -1,3 +1,3 @@
-import { itemRouteContracts } from "./domains/example/runtime/contract.js";
+import { authRouteContracts } from "./providers/auth/index.js";
 
-export const apiRouteContracts = [...itemRouteContracts] as const;
+export const apiRouteContracts = [...authRouteContracts] as const;

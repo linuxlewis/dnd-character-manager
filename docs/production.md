@@ -46,11 +46,14 @@ Copy the example file before running a real stack:
 cp .env.production.example .env.production
 ```
 
-Set at least `POSTGRES_PASSWORD` to a deployment-specific secret. The default values are for local smoke testing only.
+Set at least `POSTGRES_PASSWORD` and `BETTER_AUTH_SECRET` to deployment-specific secrets. The
+default values are for local smoke testing only.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `APP_PORT` | `8080` | Host port exposed for the app container |
+| `BETTER_AUTH_SECRET` | `change-me-change-me-change-me-change-me` | Secret used to sign Better Auth cookies |
+| `BETTER_AUTH_URL` | `http://localhost:8080` | Public app URL used by Better Auth |
 | `POSTGRES_DB` | `app` | PostgreSQL database name |
 | `POSTGRES_USER` | `app` | PostgreSQL user |
 | `POSTGRES_PASSWORD` | `change-me` | PostgreSQL password |

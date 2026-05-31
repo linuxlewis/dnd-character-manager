@@ -21,8 +21,7 @@ describe("buildServer", () => {
 			expect(response.json()).toMatchObject({
 				openapi: "3.1.0",
 				paths: {
-					"/api/items": expect.any(Object),
-					"/api/items/{id}": expect.any(Object),
+					"/api/current-user": expect.any(Object),
 				},
 			});
 		} finally {

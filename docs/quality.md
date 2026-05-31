@@ -14,13 +14,13 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| example | B | B | B | B | B | B | B | Temporary scaffold vertical slice with unit, integration, and e2e coverage |
+| _none yet_ | - | - | - | - | - | - | - | Character domain is the next product slice |
 
 ## Cross-Cutting
 
 | Provider | Grade | Notes |
 |----------|-------|-------|
-| auth | D | Placeholder |
+| auth | B | Better Auth anonymous session provider, Postgres-backed tables, and current-user bootstrap route are wired |
 | database | B | Postgres provider wired through Docker Compose stack |
 | telemetry | B | Pino logger, request IDs, route timings, and stack log files are wired; metrics/traces are future work |
 | openapi | B | Route contracts generate `openapi.generated.json` and a typed frontend client; broader coverage should grow as domains are added |
@@ -33,7 +33,6 @@ Track the health of each domain and architectural layer. Update this when you im
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
 - [ ] No D&D character domain yet
-- [ ] No session-cookie auth implementation yet
 
 ---
 

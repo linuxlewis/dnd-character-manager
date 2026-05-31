@@ -10,7 +10,7 @@ The HTTP contract is generated from TypeScript route contract metadata and Zod s
 |------|-------|
 | OpenAPI document builder | `src/providers/openapi/` |
 | App route contract registry | `src/api-contracts.ts` |
-| Example domain route contracts | `src/domains/example/runtime/contract.ts` |
+| Auth route contracts | `src/providers/auth/contract.ts` |
 | Generated OpenAPI spec | `src/generated/openapi.generated.json` |
 | Generated frontend client and TanStack Query helpers | `src/generated/api-client.generated.ts` |
 
@@ -33,7 +33,7 @@ The HTTP contract is generated from TypeScript route contract metadata and Zod s
 
 ## Contract Shape
 
-Each domain that exposes HTTP routes should have a `runtime/contract.ts` file that exports one readonly array named after the domain, such as `itemRouteContracts`. The array must satisfy `readonly ApiRouteContract[]`.
+Each domain that exposes HTTP routes should have a `runtime/contract.ts` file that exports one readonly array named after the domain, such as `thingRouteContracts`. Cross-cutting providers can expose route contracts from their provider directory. The array must satisfy `readonly ApiRouteContract[]`.
 
 ```ts
 import type { ApiRouteContract } from "@providers/openapi/index.js";
@@ -55,7 +55,7 @@ const ThingParamsSchema = z.object({
 const thingTypeImports = [
 	{
 		kind: "type",
-		module: "../domains/example/types/index.js",
+		module: "../domains/thing/types/index.js",
 		names: ["CreateThing", "ThingResponse"],
 	},
 ] as const;
@@ -63,7 +63,7 @@ const thingTypeImports = [
 const thingResponseSchemaImports = [
 	{
 		kind: "value",
-		module: "../domains/example/types/index.js",
+		module: "../domains/thing/types/index.js",
 		names: ["ThingResponseSchema"],
 	},
 ] as const;
@@ -96,7 +96,7 @@ export const thingRouteContracts = [
 | Field | Required | Purpose |
 |-------|----------|---------|
 | `method` | Yes | Lowercase HTTP method: `get`, `post`, `put`, `patch`, or `delete`. |
-| `operationId` | Yes | Stable OpenAPI operation name. Use a verb phrase like `createItem`; do not reuse within the app. |
+| `operationId` | Yes | Stable OpenAPI operation name. Use a verb phrase like `createThing`; do not reuse within the app. |
 | `path` | Yes | Fastify-style route path. Use `:id` path parameters; the OpenAPI builder converts them to `{id}`. |
 | `pathParams` | When the path has params | Zod object for path params. Keys must match every `:param` segment in `path`. |
 | `requestBody` | For JSON body routes | Zod schema for the request JSON body. Omit for bodyless routes. |
@@ -111,21 +111,21 @@ export const thingRouteContracts = [
 
 | Field | Required | Purpose |
 |-------|----------|---------|
-| `functionName` | Yes | Method name on `apiClient`, such as `apiClient.createItem`. |
+| `functionName` | Yes | Method name on `apiClient`, such as `apiClient.createThing`. |
 | `imports` | When client types or parsers are referenced | Type/value imports emitted into the generated client. Paths are relative to `src/generated/api-client.generated.ts`. |
 | `pathParamsType` | When the path has params | TypeScript type for the generated `params` argument, usually `{ id: string }`. |
 | `requestBodyType` | When `requestBody` exists | TypeScript type for the generated `body` argument. |
 | `responseType` | Yes | Promise result type for the generated client method. Use `void` for `204`-only success responses. |
-| `responseParser` | For JSON responses | Zod parser expression used by the generated client at the browser boundary, such as `ItemResponseSchema` or `ItemResponseSchema.array()`. |
+| `responseParser` | For JSON responses | Zod parser expression used by the generated client at the browser boundary, such as `ThingResponseSchema` or `ThingResponseSchema.array()`. |
 
 Use `kind: "type"` imports for TypeScript-only names and `kind: "value"` imports for Zod schemas referenced by `responseParser`.
 
 ```ts
 client: {
-	functionName: "listItems",
-	imports: [...itemTypeImports, ...itemResponseSchemaImports],
-	responseParser: "ItemResponseSchema.array()",
-	responseType: "ItemResponse[]",
+	functionName: "listThings",
+	imports: [...thingTypeImports, ...thingResponseSchemaImports],
+	responseParser: "ThingResponseSchema.array()",
+	responseType: "ThingResponse[]",
 }
 ```
 
@@ -151,12 +151,12 @@ import {
 	apiQueryKeys,
 } from "../../../generated/api-client.generated.js";
 
-const itemsQuery = useQuery(apiQueries.listItems());
+const thingsQuery = useQuery(apiQueries.listThings());
 
 const createMutation = useMutation({
-	...apiMutations.createItem(),
+	...apiMutations.createThing(),
 	onSuccess: async () => {
-		await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listItems() });
+		await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listThings() });
 	},
 });
 ```
@@ -164,7 +164,7 @@ const createMutation = useMutation({
 GET routes generate `apiQueries.<functionName>()`. If the route has path params, the params become the first argument:
 
 ```ts
-useQuery(apiQueries.getItem({ id }));
+useQuery(apiQueries.getThing({ id }));
 ```
 
 Non-GET routes generate `apiMutations.<functionName>()`. Mutation variables match the generated client method shape:
@@ -175,7 +175,7 @@ Non-GET routes generate `apiMutations.<functionName>()`. Mutation variables matc
 - bodyless and paramless routes use no mutation variables
 
 ```ts
-createMutation.mutate({ name: "New item", status: "draft" });
+createMutation.mutate({ name: "New thing", status: "draft" });
 deleteMutation.mutate({ id });
 ```
 
@@ -186,7 +186,7 @@ The generated helpers call the generated `apiClient`, so response parsing and `A
 - Request schemas should describe the raw JSON sent by clients.
 - Response schemas should describe the JSON returned over HTTP, not necessarily the service-layer domain entity. If the service uses `Date`, the response schema should usually use `z.iso.datetime()` because JSON carries strings.
 - Error responses should use explicit schemas, commonly `z.object({ error: z.string() })`, so OpenAPI documents failure shapes too.
-- Path parameter schemas should reuse domain value schemas such as `ItemIdSchema`.
+- Path parameter schemas should reuse domain value schemas such as `ThingIdSchema`.
 - Do not import `repo`, `service`, or `ui` code from `runtime/contract.ts`; contracts should depend on `types` and provider contract types only.
 
 ## Registration
@@ -194,10 +194,10 @@ The generated helpers call the generated `apiClient`, so response parsing and `A
 After adding a domain contract, register it in `src/api-contracts.ts`.
 
 ```ts
-import { itemRouteContracts } from "./domains/example/runtime/contract.js";
 import { thingRouteContracts } from "./domains/thing/runtime/contract.js";
+import { authRouteContracts } from "./providers/auth/contract.js";
 
-export const apiRouteContracts = [...itemRouteContracts, ...thingRouteContracts] as const;
+export const apiRouteContracts = [...authRouteContracts, ...thingRouteContracts] as const;
 ```
 
 The server and generator both consume `apiRouteContracts`, so this is the single app-level registry for OpenAPI and client generation.

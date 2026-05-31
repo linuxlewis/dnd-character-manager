@@ -73,6 +73,8 @@ const metadata: StackMetadata = {
 };
 
 metadata.pids.api = await spawnLogged("pnpm", ["exec", "tsx", "src/server.ts"], metadata.logs.api, {
+	BETTER_AUTH_TRUSTED_ORIGINS: metadata.urls.web,
+	BETTER_AUTH_URL: metadata.urls.web,
 	DATABASE_URL: databaseUrl,
 	HOST: "127.0.0.1",
 	PORT: String(ports.api),
@@ -86,7 +88,7 @@ metadata.pids.web = await spawnLogged(
 		"--config",
 		"src/app/vite.config.ts",
 		"--host",
-		"127.0.0.1",
+		"0.0.0.0",
 		"--port",
 		String(ports.web),
 		"--strictPort",
