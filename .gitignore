@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.stack/
+plans/
+playwright-report/
+test-results/
+.env
+.env.local
+.env.production
+*.generated.*
+!src/generated/
+!src/generated/*.generated.*
