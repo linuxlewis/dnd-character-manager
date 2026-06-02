@@ -17,6 +17,7 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 | OpenAPI and typed client generation | [docs/openapi.md](./docs/openapi.md) |
 | Progressive web app setup | [docs/pwa.md](./docs/pwa.md) |
 | Production Docker Compose | [docs/production.md](./docs/production.md) |
+| Production deployment semantics | [docs/deployment.md](./docs/deployment.md) |
 | D&D MVP plan | [docs/mvp.md](./docs/mvp.md) |
 | Core beliefs & principles | [docs/beliefs.md](./docs/beliefs.md) |
 | Quality tracking | [docs/quality.md](./docs/quality.md) |

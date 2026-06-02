@@ -36,7 +36,8 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --bui
 ```
 
 See [docs/production.md](./docs/production.md) for the production image, Compose, migration, and
-health-check details.
+health-check details. See [docs/deployment.md](./docs/deployment.md) for the `dev-server-1`
+deployment contract, Cloudflare Tunnel semantics, and systemd rollout procedure.
 
 ## Product Direction
 
@@ -86,7 +87,8 @@ When an agent needs the running app URL, use `pnpm health` or read
 4. The first real domain should be designed from `types/` forward before replacing the example.
 5. Keep [AGENTS.md](./AGENTS.md), [docs/implementation.md](./docs/implementation.md),
    [docs/testing.md](./docs/testing.md), [docs/openapi.md](./docs/openapi.md), [docs/pwa.md](./docs/pwa.md),
-   [docs/production.md](./docs/production.md), [docs/react.md](./docs/react.md), and
+   [docs/production.md](./docs/production.md), [docs/deployment.md](./docs/deployment.md),
+   [docs/react.md](./docs/react.md), and
    [docs/mvp.md](./docs/mvp.md) current as the project develops.
 
 ## For Agents

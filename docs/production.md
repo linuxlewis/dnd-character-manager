@@ -1,8 +1,11 @@
 # Production Environment
 
-Last verified: 2026-05-05
+Last verified: 2026-06-02
 
 The production environment runs the API and built React app from one Node 24 container, with PostgreSQL provided by Docker Compose. The image uses a multi-stage Docker build: install/build stages include development tooling, while the runtime stage contains production dependencies, compiled server entries, migrations, and built web assets.
+
+For host-specific deployment semantics on `dev-server-1`, including systemd ownership, Cloudflare
+Tunnel routing, rollout, and rollback, see [deployment.md](./deployment.md).
 
 ## Files
 
@@ -14,6 +17,7 @@ The production environment runs the API and built React app from one Node 24 con
 | Production server entrypoint | `src/prod-server.ts` |
 | Server build config | `src/server.vite.config.ts` |
 | Static asset fallback | `src/static-assets.ts` |
+| Host systemd service template | `systemd/dnd-character-manager-prod.service` |
 
 ## Runtime Shape
 
@@ -60,6 +64,15 @@ default values are for local smoke testing only.
 
 The Compose file builds `DATABASE_URL` from the PostgreSQL variables and passes it to the app container.
 
+On the shared `dev-server-1` host, do not use the default `APP_PORT=8080`; that port belongs to the
+existing D&D inventory manager production service. Prefer a loopback-bound port for Cloudflare
+Tunnel origins, for example:
+
+```env
+APP_PORT=127.0.0.1:8090
+BETTER_AUTH_URL=https://characters.dndinventorymanager.com
+```
+
 ## Commands
 
 Build the image without starting containers:
@@ -86,6 +99,12 @@ Check health:
 curl http://127.0.0.1:${APP_PORT:-8080}/healthz
 ```
 
+When `APP_PORT` includes a host bind such as `127.0.0.1:8090`, use the published port in curl:
+
+```bash
+curl http://127.0.0.1:8090/healthz
+```
+
 Follow app logs:
 
 ```bash
@@ -97,6 +116,21 @@ Stop the stack:
 ```bash
 pnpm prod:down
 ```
+
+## systemd
+
+The repository includes a source copy of the host service unit at
+`systemd/dnd-character-manager-prod.service`. It runs the production Compose stack with
+`.env.production`. See [deployment.md](./deployment.md) before installing it on the shared host.
+
+```bash
+sudo cp systemd/dnd-character-manager-prod.service /etc/systemd/system/dnd-character-manager-prod.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now dnd-character-manager-prod.service
+```
+
+The unit expects `/home/sbolgert/workspace/dnd-character-manager/.env.production` to exist before
+startup.
 
 Remove the production database volume when you intentionally want to delete local production data:
 
