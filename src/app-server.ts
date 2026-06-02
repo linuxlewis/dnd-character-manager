@@ -4,6 +4,7 @@ import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
+import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -45,6 +46,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 		}),
 	);
 	await registerAuthRoutes(app);
+	await registerCharacterRoutes(app);
 
 	if (options.staticRoot) {
 		registerStaticAssetFallback(app, options.staticRoot);
