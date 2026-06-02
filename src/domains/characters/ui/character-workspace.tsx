@@ -1,20 +1,29 @@
 import { Stack } from "@mantine/core";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { CharacterDetail } from "./character-detail.js";
 import { CharacterList } from "./character-list.js";
-import { type CharacterRoute, characterRoutePath, parseCharacterRoute } from "./character-route.js";
+import {
+	type CharacterRoute,
+	characterListRoute,
+	characterRoutePath,
+	parseCharacterRoute,
+} from "./character-route.js";
 import { CreateCharacterForm } from "./create-character-form.js";
 
 export type NavigateToCharacterRoute = (route: CharacterRoute) => void;
 
 export function CharacterWorkspace() {
-	const [route, setRoute] = useState(getInitialRoute);
+	const route = useSyncExternalStore(
+		subscribeToBrowserRoute,
+		getBrowserRouteSnapshot,
+		getServerRouteSnapshot,
+	);
 
 	const navigate: NavigateToCharacterRoute = (nextRoute) => {
-		if (typeof window !== "undefined") {
-			window.history.pushState({}, "", characterRoutePath(nextRoute));
-		}
-		setRoute(nextRoute);
+		if (typeof window === "undefined") return;
+
+		window.history.pushState({}, "", characterRoutePath(nextRoute));
+		notifyBrowserRouteSubscribers();
 	};
 
 	return (
@@ -26,7 +35,40 @@ export function CharacterWorkspace() {
 	);
 }
 
-function getInitialRoute() {
-	if (typeof window === "undefined") return { screen: "list" } satisfies CharacterRoute;
-	return parseCharacterRoute(window.location.pathname);
+const routeSubscribers = new Set<() => void>();
+let cachedBrowserPathname = "";
+let cachedBrowserRoute: CharacterRoute = characterListRoute;
+
+function subscribeToBrowserRoute(onStoreChange: () => void) {
+	if (typeof window === "undefined") return () => undefined;
+
+	routeSubscribers.add(onStoreChange);
+	window.addEventListener("popstate", onStoreChange);
+
+	return () => {
+		routeSubscribers.delete(onStoreChange);
+		window.removeEventListener("popstate", onStoreChange);
+	};
+}
+
+function getBrowserRouteSnapshot() {
+	if (typeof window === "undefined") return characterListRoute;
+
+	const nextPathname = window.location.pathname;
+	if (nextPathname === cachedBrowserPathname) return cachedBrowserRoute;
+
+	cachedBrowserPathname = nextPathname;
+	cachedBrowserRoute = parseCharacterRoute(nextPathname);
+
+	return cachedBrowserRoute;
+}
+
+function getServerRouteSnapshot() {
+	return characterListRoute;
+}
+
+function notifyBrowserRouteSubscribers() {
+	for (const subscriber of routeSubscribers) {
+		subscriber();
+	}
 }

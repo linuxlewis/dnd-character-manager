@@ -16,6 +16,10 @@ describe("parseCharacterRoute", () => {
 	it("falls back to the list for unknown routes", () => {
 		expect(parseCharacterRoute("/missing")).toEqual({ screen: "list" });
 	});
+
+	it("falls back to the list for malformed detail route URI components", () => {
+		expect(parseCharacterRoute("/characters/%test")).toEqual({ screen: "list" });
+	});
 });
 
 describe("characterRoutePath", () => {

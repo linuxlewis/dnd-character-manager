@@ -12,7 +12,11 @@ export function parseCharacterRoute(pathname: string): CharacterRoute {
 
 	const detailMatch = pathname.match(/^\/characters\/([^/]+)$/);
 	if (detailMatch?.[1]) {
-		return { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
+		try {
+			return { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
+		} catch {
+			return characterListRoute;
+		}
 	}
 
 	return characterListRoute;

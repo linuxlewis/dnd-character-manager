@@ -41,6 +41,14 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
 	await expect(page.getByText("Level 7")).toBeVisible();
+
+	await page.goBack();
+	await expect(page).toHaveURL(/\/characters$/);
+	await expect(page.getByRole("link", { name: "Lyria Dawn" })).toBeVisible();
+
+	await page.goForward();
+	await expect(page).toHaveURL(/\/characters\/[0-9a-f-]{36}$/);
+	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 });
 
 test("shows a not-found state for a missing character id", async ({ page }) => {
