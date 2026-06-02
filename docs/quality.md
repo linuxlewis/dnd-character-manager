@@ -14,7 +14,7 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| _none yet_ | - | - | - | - | - | - | - | Character domain is the next product slice |
+| characters | B | B | B | B | B | B | B | Character creation vertical slice with unit, repository integration, route, and e2e coverage |
 
 ## Cross-Cutting
 
@@ -32,7 +32,6 @@ Track the health of each domain and architectural layer. Update this when you im
 
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
-- [ ] No D&D character domain yet
 
 ---
 

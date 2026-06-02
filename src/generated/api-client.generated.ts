@@ -5,6 +5,9 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
+import type { CharacterParams, CharacterResponse, CreateCharacter } from "../domains/characters/types/index.js";
+export type { CharacterParams, CharacterResponse, CreateCharacter } from "../domains/characters/types/index.js";
+import { CharacterResponseSchema } from "../domains/characters/types/index.js";
 
 export interface ApiClientOptions {
 	baseUrl?: string;
@@ -35,6 +38,18 @@ export function createApiClient(options: ApiClientOptions = {}) {
 	return {
 		getCurrentUser(options: ApiRequestOptions = {}): Promise<CurrentUserResponse> {
 			return request<CurrentUserResponse>(fetchImpl, baseUrl, "GET", "/api/current-user", options, undefined, (body: unknown) => CurrentUserResponseSchema.parse(body));
+		},
+
+		listCharacters(options: ApiRequestOptions = {}): Promise<CharacterResponse[]> {
+			return request<CharacterResponse[]>(fetchImpl, baseUrl, "GET", "/api/characters", options, undefined, (body: unknown) => CharacterResponseSchema.array().parse(body));
+		},
+
+		createCharacter(body: CreateCharacter, options: ApiRequestOptions = {}): Promise<CharacterResponse> {
+			return request<CharacterResponse>(fetchImpl, baseUrl, "POST", "/api/characters", options, body, (body: unknown) => CharacterResponseSchema.parse(body));
+		},
+
+		getCharacter(params: CharacterParams, options: ApiRequestOptions = {}): Promise<CharacterResponse> {
+			return request<CharacterResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.id}`, options, undefined, (body: unknown) => CharacterResponseSchema.parse(body));
 		}
 	};
 }
@@ -43,6 +58,8 @@ export const apiClient = createApiClient();
 
 export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
+	listCharacters: () => ["api", "listCharacters"] as const,
+	getCharacter: (params: CharacterParams) => ["api", "getCharacter", params] as const,
 } as const;
 
 export function createApiQueryOptions(client = apiClient) {
@@ -51,13 +68,28 @@ export function createApiQueryOptions(client = apiClient) {
 			queryKey: apiQueryKeys.getCurrentUser(),
 			queryFn: () => client.getCurrentUser(options),
 		}),
+
+		listCharacters: (options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.listCharacters(),
+			queryFn: () => client.listCharacters(options),
+		}),
+
+		getCharacter: (params: CharacterParams, options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.getCharacter(params),
+			queryFn: () => client.getCharacter(params, options),
+		}),
 	};
 }
 
 export const apiQueries = createApiQueryOptions();
 
-export function createApiMutationOptions(_client = apiClient) {
-	return {};
+export function createApiMutationOptions(client = apiClient) {
+	return {
+		createCharacter: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "createCharacter"] as const,
+			mutationFn: (body: CreateCharacter) => client.createCharacter(body, options),
+		}),
+	};
 }
 
 export const apiMutations = createApiMutationOptions();

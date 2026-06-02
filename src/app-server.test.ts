@@ -22,6 +22,8 @@ describe("buildServer", () => {
 				openapi: "3.1.0",
 				paths: {
 					"/api/current-user": expect.any(Object),
+					"/api/characters": expect.any(Object),
+					"/api/characters/{id}": expect.any(Object),
 				},
 			});
 		} finally {

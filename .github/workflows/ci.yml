@@ -8,6 +8,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -31,9 +32,6 @@ jobs:
 
       - name: Check doc freshness
         run: pnpm check:docs
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
 
       - name: Test
         run: pnpm test
