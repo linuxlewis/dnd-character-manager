@@ -29,6 +29,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
 	await expect(page.getByText("Level 7")).toBeVisible();
+	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 
 	await page.getByText("Back to characters").click();
 	await expect(page).toHaveURL(/\/characters$/);

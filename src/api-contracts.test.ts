@@ -5,9 +5,10 @@ describe("apiRouteContracts", () => {
 	it("aggregates app route contracts for OpenAPI and client generation", () => {
 		expect(apiRouteContracts.map((route) => route.operationId)).toEqual([
 			"getCurrentUser",
-			"listCharacters",
 			"createCharacter",
+			"listCharacters",
 			"getCharacter",
+			"updateCharacterHealth",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

@@ -1,85 +1,108 @@
-import type { CurrentUserResponse } from "@providers/auth/index.js";
-import { getOrCreateCurrentUser } from "@providers/auth/index.js";
+import type { CurrentUserResponse } from "@providers/auth/current-user.js";
+import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { ZodError } from "zod";
-import { type CharacterService, createCharacterService } from "../service/index.js";
-import type { Character, CharacterResponse } from "../types/index.js";
-import { CharacterParamsSchema, CreateCharacterSchema } from "../types/index.js";
+import type { z } from "zod";
+import {
+	type CharacterHealthService,
+	CharacterNotFoundError,
+	type CharacterService,
+	createCharacterHealthService,
+	createCharacterService,
+} from "../service/index.js";
+import {
+	CreateCharacterRequestSchema,
+	UpdateCharacterHealthRequestSchema,
+} from "../types/index.js";
+import { CharacterPathParamsSchema } from "./contract.js";
 
-type CurrentUserResolver = (
-	request: FastifyRequest,
-	reply: FastifyReply,
-) => Promise<CurrentUserResponse>;
+const defaultCharacterService = createCharacterService();
+const defaultCharacterHealthService = createCharacterHealthService();
 
-export interface CharacterRoutesDependencies {
-	getCurrentUser?: CurrentUserResolver;
-	service?: CharacterService;
+export interface RegisterCharacterRoutesOptions {
+	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
+	characterService?: CharacterService;
+	characterHealthService?: CharacterHealthService;
 }
 
 export async function registerCharacterRoutes(
 	app: FastifyInstance,
-	dependencies: CharacterRoutesDependencies = {},
+	options: RegisterCharacterRoutesOptions = {},
 ) {
-	const getCurrentUser = dependencies.getCurrentUser ?? getOrCreateCurrentUser;
-	let service = dependencies.service;
-	const getService = () => {
-		service ??= createCharacterService();
-		return service;
-	};
-
-	app.get("/api/characters", async (request, reply) => {
-		const { user } = await getCurrentUser(request, reply);
-		const characters = await getService().listCharacters(user.id);
-		return characters.map(toCharacterResponse);
-	});
+	const characterService = options.characterService ?? defaultCharacterService;
+	const characterHealthService = options.characterHealthService ?? defaultCharacterHealthService;
+	const getCurrentUser = options.getCurrentUser ?? getOrCreateCurrentUser;
 
 	app.post("/api/characters", async (request, reply) => {
-		const parsedBody = CreateCharacterSchema.safeParse(request.body);
-		if (!parsedBody.success) {
-			return reply.status(400).send(toValidationError(parsedBody.error));
-		}
+		const body = parseBody(CreateCharacterRequestSchema, request.body, reply);
+		if (!body) return;
 
-		const { user } = await getCurrentUser(request, reply);
-		const character = await getService().createCharacter({
-			userId: user.id,
-			character: parsedBody.data,
-		});
-
-		return reply.status(201).send(toCharacterResponse(character));
+		const currentUser = await getCurrentUser(request, reply);
+		const character = await characterService.createCharacter(currentUser.user.id, body);
+		return reply.status(201).send({ character });
 	});
 
-	app.get("/api/characters/:id", async (request, reply) => {
-		const parsedParams = CharacterParamsSchema.safeParse(request.params);
-		if (!parsedParams.success) {
-			return reply.status(400).send(toValidationError(parsedParams.error));
+	app.get("/api/characters", async (request, reply) => {
+		const currentUser = await getCurrentUser(request, reply);
+		const characters = await characterService.listCharacters(currentUser.user.id);
+		return { characters };
+	});
+
+	app.get("/api/characters/:characterId", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.getCharacter(
+				currentUser.user.id,
+				params.characterId,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
 		}
+	});
 
-		const { user } = await getCurrentUser(request, reply);
-		const character = await getService().getCharacter({
-			userId: user.id,
-			id: parsedParams.data.id,
-		});
+	app.put("/api/characters/:characterId/health", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
 
-		if (!character) {
-			return reply.status(404).send({ error: "Character not found." });
+		const body = parseBody(UpdateCharacterHealthRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			return await characterHealthService.updateCharacterHealth(
+				currentUser.user.id,
+				params.characterId,
+				body,
+			);
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
 		}
-
-		return toCharacterResponse(character);
 	});
 }
 
-export function toCharacterResponse(character: Character): CharacterResponse {
-	return {
-		id: character.id,
-		name: character.name,
-		class: character.class,
-		level: character.level,
-		createdAt: character.createdAt.toISOString(),
-		updatedAt: character.updatedAt.toISOString(),
-	};
+function parseParams(request: FastifyRequest, reply: FastifyReply) {
+	const result = CharacterPathParamsSchema.safeParse(request.params);
+	if (result.success) return result.data;
+	reply.status(400).send({ error: "Invalid character path." });
+	return null;
 }
 
-function toValidationError(error: ZodError) {
-	const issue = error.issues[0];
-	return { error: issue?.message ?? "Invalid character data." };
+function parseBody<TSchema extends z.ZodType>(
+	schema: TSchema,
+	body: unknown,
+	reply: FastifyReply,
+): z.infer<TSchema> | null {
+	const result = schema.safeParse(body);
+	if (result.success) return result.data;
+	reply.status(400).send({ error: "Invalid request body." });
+	return null;
 }

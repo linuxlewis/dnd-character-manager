@@ -1,74 +1,83 @@
 import { describe, expect, it } from "vitest";
 import {
-	CHARACTER_CLASSES,
-	CharacterNameSchema,
-	CharacterResponseSchema,
-	CreateCharacterSchema,
+	CharacterDetailResponseSchema,
+	CreateCharacterRequestSchema,
+	UpdateCharacterHealthRequestSchema,
 } from "./character.js";
 
-describe("CHARACTER_CLASSES", () => {
-	it("contains the core D&D 5e class names used by the create dropdown", () => {
-		expect(CHARACTER_CLASSES).toEqual([
-			"Barbarian",
-			"Bard",
-			"Cleric",
-			"Druid",
-			"Fighter",
-			"Monk",
-			"Paladin",
-			"Ranger",
-			"Rogue",
-			"Sorcerer",
-			"Warlock",
-			"Wizard",
-		]);
-	});
-});
-
-describe("CreateCharacterSchema", () => {
-	it("trims names and accepts a valid character payload", () => {
+describe("CreateCharacterRequestSchema", () => {
+	it("accepts the character creation MVP fields plus initial max HP", () => {
 		expect(
-			CreateCharacterSchema.parse({
-				name: "  Tamsin  ",
-				class: "Wizard",
+			CreateCharacterRequestSchema.parse({
+				name: "Mira",
+				className: "Fighter",
 				level: 3,
+				maxHp: 28,
 			}),
 		).toEqual({
-			name: "Tamsin",
-			class: "Wizard",
+			name: "Mira",
+			className: "Fighter",
 			level: 3,
+			maxHp: 28,
 		});
 	});
 
-	it("rejects missing names, unsupported classes, and levels outside 1 through 20", () => {
+	it("rejects empty names and invalid levels", () => {
 		expect(() =>
-			CreateCharacterSchema.parse({
+			CreateCharacterRequestSchema.parse({
 				name: " ",
-				class: "Commoner",
+				className: "Wizard",
 				level: 21,
+				maxHp: 12,
 			}),
 		).toThrow();
 	});
 });
 
-describe("CharacterNameSchema", () => {
-	it("allows names up to 120 trimmed characters", () => {
-		expect(CharacterNameSchema.parse("x".repeat(120))).toHaveLength(120);
-		expect(() => CharacterNameSchema.parse("x".repeat(121))).toThrow();
+describe("UpdateCharacterHealthRequestSchema", () => {
+	it("allows editable current, max, and temporary HP values", () => {
+		expect(
+			UpdateCharacterHealthRequestSchema.parse({
+				currentHp: 18,
+				maxHp: 20,
+				temporaryHp: 5,
+			}),
+		).toEqual({
+			currentHp: 18,
+			maxHp: 20,
+			temporaryHp: 5,
+		});
+	});
+
+	it("rejects negative HP and zero max HP", () => {
+		expect(() =>
+			UpdateCharacterHealthRequestSchema.parse({
+				currentHp: -1,
+				maxHp: 0,
+				temporaryHp: 0,
+			}),
+		).toThrow();
 	});
 });
 
-describe("CharacterResponseSchema", () => {
-	it("describes JSON-safe character responses", () => {
-		expect(
-			CharacterResponseSchema.parse({
-				id: "00000000-0000-4000-8000-000000000000",
-				name: "Brann",
-				class: "Fighter",
-				level: 1,
-				createdAt: "2026-05-31T12:00:00.000Z",
-				updatedAt: "2026-05-31T12:00:00.000Z",
-			}),
-		).toMatchObject({ name: "Brann", class: "Fighter", level: 1 });
+describe("CharacterDetailResponseSchema", () => {
+	it("describes the detail payload used by the character detail page", () => {
+		const response = {
+			character: {
+				id: "00000000-0000-4000-8000-000000000001",
+				name: "Mira",
+				className: "Fighter",
+				level: 3,
+				health: {
+					currentHp: 28,
+					maxHp: 28,
+					temporaryHp: 0,
+					effectiveMaxHp: 28,
+				},
+				recentHealthChanges: [],
+			},
+		};
+
+		expect(CharacterDetailResponseSchema.parse(response)).toEqual(response);
 	});
 });

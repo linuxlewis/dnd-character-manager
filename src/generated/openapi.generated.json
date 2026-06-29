@@ -55,81 +55,6 @@
 			}
 		},
 		"/api/characters": {
-			"get": {
-				"operationId": "listCharacters",
-				"summary": "List characters",
-				"tags": [
-					"characters"
-				],
-				"responses": {
-					"200": {
-						"description": "Characters available to the current session",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "array",
-									"items": {
-										"type": "object",
-										"properties": {
-											"name": {
-												"type": "string",
-												"minLength": 1,
-												"maxLength": 120
-											},
-											"class": {
-												"type": "string",
-												"enum": [
-													"Barbarian",
-													"Bard",
-													"Cleric",
-													"Druid",
-													"Fighter",
-													"Monk",
-													"Paladin",
-													"Ranger",
-													"Rogue",
-													"Sorcerer",
-													"Warlock",
-													"Wizard"
-												]
-											},
-											"level": {
-												"type": "integer",
-												"minimum": 1,
-												"maximum": 20
-											},
-											"id": {
-												"type": "string",
-												"format": "uuid",
-												"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-											},
-											"createdAt": {
-												"type": "string",
-												"format": "date-time",
-												"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-											},
-											"updatedAt": {
-												"type": "string",
-												"format": "date-time",
-												"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-											}
-										},
-										"required": [
-											"name",
-											"class",
-											"level",
-											"id",
-											"createdAt",
-											"updatedAt"
-										],
-										"additionalProperties": false
-									}
-								}
-							}
-						}
-					}
-				}
-			},
 			"post": {
 				"operationId": "createCharacter",
 				"summary": "Create character",
@@ -146,9 +71,10 @@
 									"name": {
 										"type": "string",
 										"minLength": 1,
-										"maxLength": 120
+										"maxLength": 120,
+										"pattern": "\\S"
 									},
-									"class": {
+									"className": {
 										"type": "string",
 										"enum": [
 											"Barbarian",
@@ -169,12 +95,18 @@
 										"type": "integer",
 										"minimum": 1,
 										"maximum": 20
+									},
+									"maxHp": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9999
 									}
 								},
 								"required": [
 									"name",
-									"class",
-									"level"
+									"className",
+									"level",
+									"maxHp"
 								],
 								"additionalProperties": false
 							}
@@ -189,56 +121,196 @@
 								"schema": {
 									"type": "object",
 									"properties": {
-										"name": {
-											"type": "string",
-											"minLength": 1,
-											"maxLength": 120
-										},
-										"class": {
-											"type": "string",
-											"enum": [
-												"Barbarian",
-												"Bard",
-												"Cleric",
-												"Druid",
-												"Fighter",
-												"Monk",
-												"Paladin",
-												"Ranger",
-												"Rogue",
-												"Sorcerer",
-												"Warlock",
-												"Wizard"
-											]
-										},
-										"level": {
-											"type": "integer",
-											"minimum": 1,
-											"maximum": 20
-										},
-										"id": {
-											"type": "string",
-											"format": "uuid",
-											"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-										},
-										"createdAt": {
-											"type": "string",
-											"format": "date-time",
-											"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-										},
-										"updatedAt": {
-											"type": "string",
-											"format": "date-time",
-											"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+										"character": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string",
+													"format": "uuid",
+													"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+												},
+												"name": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "\\S"
+												},
+												"className": {
+													"type": "string",
+													"enum": [
+														"Barbarian",
+														"Bard",
+														"Cleric",
+														"Druid",
+														"Fighter",
+														"Monk",
+														"Paladin",
+														"Ranger",
+														"Rogue",
+														"Sorcerer",
+														"Warlock",
+														"Wizard"
+													]
+												},
+												"level": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 20
+												},
+												"health": {
+													"type": "object",
+													"properties": {
+														"currentHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														},
+														"maxHp": {
+															"type": "integer",
+															"minimum": 1,
+															"maximum": 9999
+														},
+														"temporaryHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														},
+														"effectiveMaxHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														}
+													},
+													"required": [
+														"currentHp",
+														"maxHp",
+														"temporaryHp",
+														"effectiveMaxHp"
+													],
+													"additionalProperties": false
+												},
+												"recentHealthChanges": {
+													"maxItems": 5,
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "string",
+																"format": "uuid",
+																"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+															},
+															"previous": {
+																"type": "object",
+																"properties": {
+																	"currentHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"maxHp": {
+																		"type": "integer",
+																		"minimum": 1,
+																		"maximum": 9999
+																	},
+																	"temporaryHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"effectiveMaxHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	}
+																},
+																"required": [
+																	"currentHp",
+																	"maxHp",
+																	"temporaryHp",
+																	"effectiveMaxHp"
+																],
+																"additionalProperties": false
+															},
+															"next": {
+																"type": "object",
+																"properties": {
+																	"currentHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"maxHp": {
+																		"type": "integer",
+																		"minimum": 1,
+																		"maximum": 9999
+																	},
+																	"temporaryHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"effectiveMaxHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	}
+																},
+																"required": [
+																	"currentHp",
+																	"maxHp",
+																	"temporaryHp",
+																	"effectiveMaxHp"
+																],
+																"additionalProperties": false
+															},
+															"currentHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"maxHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"temporaryHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"createdAt": {
+																"type": "string",
+																"format": "date-time",
+																"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+															}
+														},
+														"required": [
+															"id",
+															"previous",
+															"next",
+															"currentHpDelta",
+															"maxHpDelta",
+															"temporaryHpDelta",
+															"createdAt"
+														],
+														"additionalProperties": false
+													}
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"className",
+												"level",
+												"health",
+												"recentHealthChanges"
+											],
+											"additionalProperties": false
 										}
 									},
 									"required": [
-										"name",
-										"class",
-										"level",
-										"id",
-										"createdAt",
-										"updatedAt"
+										"character"
 									],
 									"additionalProperties": false
 								}
@@ -265,9 +337,82 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "listCharacters",
+				"summary": "List characters",
+				"tags": [
+					"characters"
+				],
+				"responses": {
+					"200": {
+						"description": "Characters",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"characters": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"name": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "\\S"
+													},
+													"className": {
+														"type": "string",
+														"enum": [
+															"Barbarian",
+															"Bard",
+															"Cleric",
+															"Druid",
+															"Fighter",
+															"Monk",
+															"Paladin",
+															"Ranger",
+															"Rogue",
+															"Sorcerer",
+															"Warlock",
+															"Wizard"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 20
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"className",
+													"level"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"characters"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
 			}
 		},
-		"/api/characters/{id}": {
+		"/api/characters/{characterId}": {
 			"get": {
 				"operationId": "getCharacter",
 				"summary": "Get character",
@@ -276,7 +421,7 @@
 				],
 				"parameters": [
 					{
-						"name": "id",
+						"name": "characterId",
 						"in": "path",
 						"required": true,
 						"schema": {
@@ -288,62 +433,434 @@
 				],
 				"responses": {
 					"200": {
-						"description": "Character",
+						"description": "Character detail",
 						"content": {
 							"application/json": {
 								"schema": {
 									"type": "object",
 									"properties": {
-										"name": {
-											"type": "string",
-											"minLength": 1,
-											"maxLength": 120
-										},
-										"class": {
-											"type": "string",
-											"enum": [
-												"Barbarian",
-												"Bard",
-												"Cleric",
-												"Druid",
-												"Fighter",
-												"Monk",
-												"Paladin",
-												"Ranger",
-												"Rogue",
-												"Sorcerer",
-												"Warlock",
-												"Wizard"
-											]
-										},
-										"level": {
-											"type": "integer",
-											"minimum": 1,
-											"maximum": 20
-										},
-										"id": {
-											"type": "string",
-											"format": "uuid",
-											"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-										},
-										"createdAt": {
-											"type": "string",
-											"format": "date-time",
-											"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-										},
-										"updatedAt": {
-											"type": "string",
-											"format": "date-time",
-											"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+										"character": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string",
+													"format": "uuid",
+													"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+												},
+												"name": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "\\S"
+												},
+												"className": {
+													"type": "string",
+													"enum": [
+														"Barbarian",
+														"Bard",
+														"Cleric",
+														"Druid",
+														"Fighter",
+														"Monk",
+														"Paladin",
+														"Ranger",
+														"Rogue",
+														"Sorcerer",
+														"Warlock",
+														"Wizard"
+													]
+												},
+												"level": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 20
+												},
+												"health": {
+													"type": "object",
+													"properties": {
+														"currentHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														},
+														"maxHp": {
+															"type": "integer",
+															"minimum": 1,
+															"maximum": 9999
+														},
+														"temporaryHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														},
+														"effectiveMaxHp": {
+															"type": "integer",
+															"minimum": 0,
+															"maximum": 9999
+														}
+													},
+													"required": [
+														"currentHp",
+														"maxHp",
+														"temporaryHp",
+														"effectiveMaxHp"
+													],
+													"additionalProperties": false
+												},
+												"recentHealthChanges": {
+													"maxItems": 5,
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "string",
+																"format": "uuid",
+																"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+															},
+															"previous": {
+																"type": "object",
+																"properties": {
+																	"currentHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"maxHp": {
+																		"type": "integer",
+																		"minimum": 1,
+																		"maximum": 9999
+																	},
+																	"temporaryHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"effectiveMaxHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	}
+																},
+																"required": [
+																	"currentHp",
+																	"maxHp",
+																	"temporaryHp",
+																	"effectiveMaxHp"
+																],
+																"additionalProperties": false
+															},
+															"next": {
+																"type": "object",
+																"properties": {
+																	"currentHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"maxHp": {
+																		"type": "integer",
+																		"minimum": 1,
+																		"maximum": 9999
+																	},
+																	"temporaryHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	},
+																	"effectiveMaxHp": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9999
+																	}
+																},
+																"required": [
+																	"currentHp",
+																	"maxHp",
+																	"temporaryHp",
+																	"effectiveMaxHp"
+																],
+																"additionalProperties": false
+															},
+															"currentHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"maxHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"temporaryHpDelta": {
+																"type": "integer",
+																"minimum": -9007199254740991,
+																"maximum": 9007199254740991
+															},
+															"createdAt": {
+																"type": "string",
+																"format": "date-time",
+																"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+															}
+														},
+														"required": [
+															"id",
+															"previous",
+															"next",
+															"currentHpDelta",
+															"maxHpDelta",
+															"temporaryHpDelta",
+															"createdAt"
+														],
+														"additionalProperties": false
+													}
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"className",
+												"level",
+												"health",
+												"recentHealthChanges"
+											],
+											"additionalProperties": false
 										}
 									},
 									"required": [
-										"name",
-										"class",
-										"level",
-										"id",
-										"createdAt",
-										"updatedAt"
+										"character"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/health": {
+			"put": {
+				"operationId": "updateCharacterHealth",
+				"summary": "Update character health",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"currentHp": {
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 9999
+									},
+									"maxHp": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9999
+									},
+									"temporaryHp": {
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 9999
+									}
+								},
+								"required": [
+									"currentHp",
+									"maxHp",
+									"temporaryHp"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Updated character health",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"health": {
+											"type": "object",
+											"properties": {
+												"currentHp": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 9999
+												},
+												"maxHp": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 9999
+												},
+												"temporaryHp": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 9999
+												},
+												"effectiveMaxHp": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 9999
+												}
+											},
+											"required": [
+												"currentHp",
+												"maxHp",
+												"temporaryHp",
+												"effectiveMaxHp"
+											],
+											"additionalProperties": false
+										},
+										"recentHealthChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"currentHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															},
+															"maxHp": {
+																"type": "integer",
+																"minimum": 1,
+																"maximum": 9999
+															},
+															"temporaryHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															},
+															"effectiveMaxHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															}
+														},
+														"required": [
+															"currentHp",
+															"maxHp",
+															"temporaryHp",
+															"effectiveMaxHp"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"currentHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															},
+															"maxHp": {
+																"type": "integer",
+																"minimum": 1,
+																"maximum": 9999
+															},
+															"temporaryHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															},
+															"effectiveMaxHp": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 9999
+															}
+														},
+														"required": [
+															"currentHp",
+															"maxHp",
+															"temporaryHp",
+															"effectiveMaxHp"
+														],
+														"additionalProperties": false
+													},
+													"currentHpDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"maxHpDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"temporaryHpDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"previous",
+													"next",
+													"currentHpDelta",
+													"maxHpDelta",
+													"temporaryHpDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"health",
+										"recentHealthChanges"
 									],
 									"additionalProperties": false
 								}
@@ -351,7 +868,7 @@
 						}
 					},
 					"400": {
-						"description": "Invalid character id",
+						"description": "Invalid health data",
 						"content": {
 							"application/json": {
 								"schema": {

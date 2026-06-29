@@ -22,6 +22,15 @@ describe("CreateCharacterForm", () => {
 				</MantineProvider>,
 			),
 		).toContain("Create character");
+		expect(
+			renderToString(
+				<MantineProvider>
+					<QueryClientProvider client={queryClient}>
+						<CreateCharacterForm onNavigate={vi.fn()} />
+					</QueryClientProvider>
+				</MantineProvider>,
+			),
+		).not.toContain("Initial Max HP");
 	});
 });
 

@@ -5,17 +5,17 @@ import { describe, expect, it } from "vitest";
 import { CharacterWorkspace } from "./character-workspace.js";
 
 describe("CharacterWorkspace", () => {
-	it("renders the character list as the default route", () => {
+	it("renders the character creation surface", () => {
 		const queryClient = new QueryClient();
+		const html = renderToString(
+			<MantineProvider>
+				<QueryClientProvider client={queryClient}>
+					<CharacterWorkspace />
+				</QueryClientProvider>
+			</MantineProvider>,
+		);
 
-		expect(
-			renderToString(
-				<MantineProvider>
-					<QueryClientProvider client={queryClient}>
-						<CharacterWorkspace />
-					</QueryClientProvider>
-				</MantineProvider>,
-			),
-		).toContain("Characters");
+		expect(html).toContain("Characters");
+		expect(html).toContain("Create character");
 	});
 });

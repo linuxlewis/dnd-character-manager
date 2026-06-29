@@ -40,6 +40,17 @@ src/providers/
 └── feature-flags/ # Feature flag evaluation
 ```
 
+### Database Schema And Migrations
+
+Domain repository layers define Drizzle table mappings for the physical database schema they use.
+Manual SQL migrations live under `migrations/` and are applied through the `schema_migrations`
+ledger.
+
+Once a migration may have run in production or another shared environment, treat that migration file
+as immutable. Do not edit it for follow-up SQL. Add a new numbered migration file for additional
+schema or data changes, and include explicit backfills when existing rows need new required data.
+Keep Drizzle table mappings aligned to the physical schema that already exists in production.
+
 ### Dependency Rules (Enforced)
 
 These rules are enforced by the custom linter at `lints/check-deps.ts`:

@@ -1,6 +1,6 @@
 # Character Creation MVP Product Spec
 
-Last verified: 2026-05-31
+Last verified: 2026-06-02
 
 Status: Draft
 
@@ -10,25 +10,29 @@ The first product slice lets a player create a minimal D&D 5e character, see tha
 roster, and open a dedicated detail page for that character. Characters are scoped to an automatic
 browser session through a server-owned session cookie; visible accounts can be layered in later.
 
-This slice intentionally stores only user-entered identity data: name, class, and level. It does not
-try to calculate rules, generate character options, or model a full character sheet.
+This slice stores only user-entered identity data plus the initial max HP needed to initialize the
+separate character health module. It does not try to calculate rules, generate character options, or
+model a full character sheet.
 
 ## User Outcome
 
 A player can:
 
-- Create a character with a name, class, and level.
+- Create a character with a name, class, level, and initial max HP.
 - See all available characters in a list after creation.
 - Click a character in the list and land on that character's detail page.
 - Return from a detail page to the character list.
+- See the character's health initialized on the detail page with current HP equal to max HP.
 
 ## Primary User Flow
 
 1. The player opens the character area.
 2. If no characters exist, the page shows an empty state and a clear way to create one.
 3. The player opens the create-character form.
-4. The player enters a character name, chooses a class, chooses a level, and submits the form.
-5. The app persists the character and opens the new character's detail page.
+4. The player enters a character name, chooses a class, chooses a level, enters initial max HP, and
+   submits the form.
+5. The app persists the character, initializes health with current HP equal to max HP, and opens the
+   new character's detail page.
 6. The player can return to the character list and see the new character there.
 
 ## Functional Requirements
@@ -47,25 +51,37 @@ A player can:
 - A character has a required name.
 - A character has a required class.
 - A character has a required level.
+- A character has an initial max HP value used only to initialize the health module.
 - Name is trimmed before persistence.
 - Name must be at least 1 character and at most 120 characters after trimming.
 - Class must be selected from the fixed D&D 5e class dropdown: Barbarian, Bard, Cleric, Druid,
   Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Warlock, or Wizard.
 - Level must be a whole number from 1 through 20.
+- Initial max HP must be a whole number greater than or equal to 1.
 - Duplicate character names are allowed; identity comes from the stable ID.
 - Created and updated timestamps may be stored for ordering and future workflows, but they are not
   required to appear in the UI.
 
 ### Create Character
 
-- The create form includes fields for name, class, and level.
+- The create form includes fields for name, class, level, and initial max HP.
 - Name accepts plain text.
 - Class is a single choice.
 - Level defaults to 1.
+- Max HP is not entered during creation; the UI submits a temporary default of 10.
 - Submit is blocked when required fields are missing or invalid.
 - Validation errors appear next to the relevant field.
 - Failed persistence keeps the user's entered form values visible and shows a recoverable error.
 - Successful creation opens the new character's detail page.
+
+### Character Health Initialization
+
+- Character creation creates a health record for the character.
+- Initial `maxHp` is set to the create workflow's default value of 10.
+- Initial `currentHp` is equal to `maxHp`.
+- Initial `temporaryHp` is 0.
+- `effectiveMaxHp` is derived as `maxHp + temporaryHp`.
+- Health editing controls live on the detail page, not in the create workflow.
 
 ### Character List
 
@@ -81,9 +97,9 @@ A player can:
 - The detail page is directly addressable by character ID.
 - The page displays the character name, class, and level.
 - The page includes a way back to the character list.
-- The page may host separate feature modules, such as the
+- The page hosts separate feature modules, including the
   [character health module](./character-health-mvp-spec.md), without expanding the character
-  creation fields.
+  identity model.
 - If the character ID does not exist or is not available in the current scope, show a not-found state
   with a way back to the list.
 
@@ -100,8 +116,8 @@ A player can:
 - Sign-up, sign-in, account management, or external auth provider flows.
 - Editing a character after creation.
 - Deleting or archiving characters.
-- Race, background, subclass, ability scores, hit points, proficiencies, inventory, spells, or notes.
-- Health tracking inside the create form; health tracking is a separate detail-page module.
+- Race, background, subclass, ability scores, proficiencies, inventory, spells, or notes.
+- Health controls inside the create form.
 - Rules validation beyond the level range and required fields.
 - Character import/export.
 - Campaign management.
@@ -117,14 +133,16 @@ A player can:
 - The character list sorts newest-first unless a later product decision changes it.
 - Character names have a 120-character maximum.
 - Successful creation navigates directly to the new character detail page.
+- Initial max HP is collected only to seed the separate health module.
 - Future character sheet areas should be separate feature modules until their scope is explicit.
 
 ## Acceptance Criteria
 
 - Given no characters exist, when the player opens the character list, then they see an empty state
   and a create action.
-- Given valid name, class, and level values, when the player submits the create form, then the
-  character is persisted and the app opens that character's detail page.
+- Given valid name, class, level, and initial max HP values, when the player submits the create form,
+  then the character is persisted, health is initialized, and the app opens that character's detail
+  page.
 - Given the player returns to the list after creating a character, when the list loads, then the
   created character appears there.
 - Given an invalid create form, when the player tries to submit it, then no character is persisted

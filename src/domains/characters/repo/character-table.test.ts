@@ -1,11 +1,15 @@
 import { getTableName } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
-import { characterTable } from "./character-table.js";
+import {
+	characterHealthEventsTable,
+	characterHealthTable,
+	charactersTable,
+} from "./character-table.js";
 
-describe("characterTable", () => {
-	it("maps the character domain to the characters table", () => {
-		expect(getTableName(characterTable)).toBe("characters");
-		expect(characterTable.userId).toBeDefined();
-		expect(characterTable.characterClass.name).toBe("class");
+describe("character tables", () => {
+	it("uses the expected table names for manual migrations", () => {
+		expect(getTableName(charactersTable)).toBe("characters");
+		expect(getTableName(characterHealthTable)).toBe("character_health");
+		expect(getTableName(characterHealthEventsTable)).toBe("character_health_events");
 	});
 });

@@ -1,6 +1,6 @@
 # Feature Implementation Process
 
-Last verified: 2026-05-05
+Last verified: 2026-06-02
 
 Use this process when adding or changing application behavior. Keep changes small, preserve the layered architecture, and let tests follow the testing pyramid.
 

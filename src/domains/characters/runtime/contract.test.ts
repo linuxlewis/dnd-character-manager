@@ -2,25 +2,25 @@ import { describe, expect, it } from "vitest";
 import { characterRouteContracts } from "./contract.js";
 
 describe("characterRouteContracts", () => {
-	it("defines the browser-callable character routes", () => {
+	it("declares stable operation ids and generated client names", () => {
 		expect(characterRouteContracts.map((route) => route.operationId)).toEqual([
-			"listCharacters",
 			"createCharacter",
+			"listCharacters",
 			"getCharacter",
+			"updateCharacterHealth",
 		]);
 		expect(characterRouteContracts.map((route) => route.client?.functionName)).toEqual([
-			"listCharacters",
 			"createCharacter",
+			"listCharacters",
 			"getCharacter",
+			"updateCharacterHealth",
 		]);
 	});
 
-	it("uses path params for character detail routes", () => {
-		const detailContract = characterRouteContracts.find(
-			(route) => route.operationId === "getCharacter",
-		);
+	it("uses characterId path params for detail and health routes", () => {
+		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(detailContract?.path).toBe("/api/characters/:id");
-		expect(detailContract?.client?.pathParamsType).toBe("CharacterParams");
+		expect(routeWithParams).toHaveLength(2);
+		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

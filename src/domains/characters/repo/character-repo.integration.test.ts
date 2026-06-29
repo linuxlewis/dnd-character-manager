@@ -1,12 +1,16 @@
 import { closeDb, getDatabaseUrl } from "@providers/database/index.js";
 import postgres from "postgres";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { createCharacterRepo } from "./character-repo.js";
 
 const sql = postgres(getDatabaseUrl(), { max: 1 });
+const createdUserIds: string[] = [];
 
-beforeEach(async () => {
-	await sql`TRUNCATE TABLE characters, "session", account, verification, "user" RESTART IDENTITY CASCADE`;
+afterEach(async () => {
+	for (const userId of createdUserIds) {
+		await sql`DELETE FROM "user" WHERE id = ${userId}`;
+	}
+	createdUserIds.length = 0;
 });
 
 afterAll(async () => {
@@ -61,5 +65,6 @@ async function createUser() {
 	`;
 
 	if (!user) throw new Error("User insert did not return a row.");
+	createdUserIds.push(user.id);
 	return user.id;
 }

@@ -1,50 +1,48 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
-import type { CharacterService } from "../service/index.js";
-import { registerCharacterRoutes, toCharacterResponse } from "./routes.js";
+import {
+	type CharacterHealthService,
+	CharacterNotFoundError,
+	type CharacterService,
+} from "../service/index.js";
+import { registerCharacterRoutes } from "./routes.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
 const character = {
 	id: "00000000-0000-4000-8000-000000000002",
-	userId,
 	name: "Nyx",
-	class: "Warlock" as const,
+	className: "Warlock",
 	level: 6,
-	createdAt: new Date("2026-05-31T12:00:00.000Z"),
-	updatedAt: new Date("2026-05-31T12:30:00.000Z"),
+	health: {
+		currentHp: 33,
+		maxHp: 28,
+		temporaryHp: 5,
+		effectiveMaxHp: 33,
+	},
+	recentHealthChanges: [],
 };
-
-describe("toCharacterResponse", () => {
-	it("serializes service characters as JSON-safe responses", () => {
-		expect(toCharacterResponse(character)).toEqual({
-			id: character.id,
-			name: "Nyx",
-			class: "Warlock",
-			level: 6,
-			createdAt: "2026-05-31T12:00:00.000Z",
-			updatedAt: "2026-05-31T12:30:00.000Z",
-		});
-	});
-});
 
 describe("registerCharacterRoutes", () => {
 	it("creates a character for the current user", async () => {
-		const service = fakeService();
+		const services = fakeServices();
+		const service = services.characterService;
 		service.createCharacter.mockResolvedValue(character);
-		const app = await buildApp(service);
+		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
 				method: "POST",
 				url: "/api/characters",
-				payload: { name: " Nyx ", class: "Warlock", level: 6 },
+				payload: { name: " Nyx ", className: "Warlock", level: 6, maxHp: 28 },
 			});
 
 			expect(response.statusCode).toBe(201);
-			expect(response.json()).toMatchObject({ name: "Nyx", class: "Warlock", level: 6 });
-			expect(service.createCharacter).toHaveBeenCalledWith({
-				userId,
-				character: { name: "Nyx", class: "Warlock", level: 6 },
+			expect(response.json()).toEqual({ character });
+			expect(service.createCharacter).toHaveBeenCalledWith(userId, {
+				name: " Nyx ",
+				className: "Warlock",
+				level: 6,
+				maxHp: 28,
 			});
 		} finally {
 			await app.close();
@@ -52,29 +50,30 @@ describe("registerCharacterRoutes", () => {
 	});
 
 	it("rejects invalid create payloads before calling the service", async () => {
-		const service = fakeService();
-		const app = await buildApp(service);
+		const services = fakeServices();
+		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
 				method: "POST",
 				url: "/api/characters",
-				payload: { name: "", class: "Commoner", level: 0 },
+				payload: { name: "", className: "", level: 0, maxHp: 0 },
 			});
 
 			expect(response.statusCode).toBe(400);
 			expect(response.json()).toHaveProperty("error");
-			expect(service.createCharacter).not.toHaveBeenCalled();
+			expect(services.characterService.createCharacter).not.toHaveBeenCalled();
 		} finally {
 			await app.close();
 		}
 	});
 
 	it("lists and reads characters for the current user", async () => {
-		const service = fakeService();
+		const services = fakeServices();
+		const service = services.characterService;
 		service.listCharacters.mockResolvedValue([character]);
 		service.getCharacter.mockResolvedValue(character);
-		const app = await buildApp(service);
+		const app = await buildApp(services);
 
 		try {
 			const listResponse = await app.inject({ method: "GET", url: "/api/characters" });
@@ -83,17 +82,48 @@ describe("registerCharacterRoutes", () => {
 				url: `/api/characters/${character.id}`,
 			});
 
-			expect(listResponse.json()).toHaveLength(1);
-			expect(detailResponse.json()).toMatchObject({ id: character.id, name: "Nyx" });
+			expect(listResponse.json()).toEqual({ characters: [character] });
+			expect(detailResponse.json()).toEqual({ character });
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("updates character health for the current user", async () => {
+		const services = fakeServices();
+		services.characterHealthService.updateCharacterHealth.mockResolvedValue({
+			health: character.health,
+			recentHealthChanges: [],
+		});
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/health`,
+				payload: { currentHp: 28, maxHp: 28, temporaryHp: 5 },
+			});
+
+			expect(response.statusCode).toBe(200);
+			expect(response.json()).toEqual({
+				health: character.health,
+				recentHealthChanges: [],
+			});
+			expect(services.characterHealthService.updateCharacterHealth).toHaveBeenCalledWith(
+				userId,
+				character.id,
+				{ currentHp: 28, maxHp: 28, temporaryHp: 5 },
+			);
 		} finally {
 			await app.close();
 		}
 	});
 
 	it("returns not found for a missing character", async () => {
-		const service = fakeService();
-		service.getCharacter.mockResolvedValue(null);
-		const app = await buildApp(service);
+		const services = fakeServices();
+		const service = services.characterService;
+		service.getCharacter.mockRejectedValue(new CharacterNotFoundError());
+		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
@@ -109,10 +139,11 @@ describe("registerCharacterRoutes", () => {
 	});
 });
 
-async function buildApp(service: ReturnType<typeof fakeService>) {
+async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
 	await registerCharacterRoutes(app, {
-		service,
+		characterService: services.characterService,
+		characterHealthService: services.characterHealthService,
 		getCurrentUser: async () => ({
 			user: {
 				id: userId,
@@ -130,4 +161,17 @@ function fakeService() {
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
 	} satisfies CharacterService;
+}
+
+function fakeHealthService() {
+	return {
+		updateCharacterHealth: vi.fn(),
+	} satisfies CharacterHealthService;
+}
+
+function fakeServices() {
+	return {
+		characterService: fakeService(),
+		characterHealthService: fakeHealthService(),
+	};
 }

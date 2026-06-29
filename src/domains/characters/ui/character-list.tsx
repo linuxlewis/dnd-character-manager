@@ -1,7 +1,7 @@
 import { Alert, Anchor, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { apiQueries } from "../../../generated/api-client.generated.js";
-import type { CharacterResponse } from "../types/index.js";
+import type { CharacterSummary } from "../types/index.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
 
@@ -42,7 +42,10 @@ export function CharacterList({ onNavigate }: CharacterListProps) {
 			)}
 
 			{charactersQuery.data && (
-				<CharacterListContent characters={charactersQuery.data} onNavigate={onNavigate} />
+				<CharacterListContent
+					characters={charactersQuery.data.characters}
+					onNavigate={onNavigate}
+				/>
 			)}
 		</Stack>
 	);
@@ -52,7 +55,7 @@ function CharacterListContent({
 	characters,
 	onNavigate,
 }: {
-	characters: CharacterResponse[];
+	characters: CharacterSummary[];
 	onNavigate: NavigateToCharacterRoute;
 }) {
 	if (characters.length === 0) {
@@ -94,7 +97,7 @@ function CharacterListItem({
 	character,
 	onNavigate,
 }: {
-	character: CharacterResponse;
+	character: CharacterSummary;
 	onNavigate: NavigateToCharacterRoute;
 }) {
 	const route = { screen: "detail", id: character.id } as const;
@@ -115,7 +118,7 @@ function CharacterListItem({
 						{character.name}
 					</Anchor>
 					<Group gap="xs">
-						<Badge variant="light">{character.class}</Badge>
+						<Badge variant="light">{character.className}</Badge>
 						<Badge color="candle" variant="light">
 							Level {character.level}
 						</Badge>

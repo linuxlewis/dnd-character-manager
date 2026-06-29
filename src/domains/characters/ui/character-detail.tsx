@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
+import { CharacterHealthPanel } from "./health-panel.js";
 
 interface CharacterDetailProps {
 	id: string;
@@ -10,7 +11,7 @@ interface CharacterDetailProps {
 }
 
 export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
-	const characterQuery = useQuery(apiQueries.getCharacter({ id }));
+	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
 
 	return (
 		<Stack gap="lg">
@@ -40,13 +41,18 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 			{characterQuery.data && (
 				<Paper withBorder p="lg">
 					<Stack gap="md">
-						<Title order={3}>{characterQuery.data.name}</Title>
+						<Title order={3}>{characterQuery.data.character.name}</Title>
 						<Group gap="xs">
-							<Badge variant="light">{characterQuery.data.class}</Badge>
+							<Badge variant="light">{characterQuery.data.character.className}</Badge>
 							<Badge color="candle" variant="light">
-								Level {characterQuery.data.level}
+								Level {characterQuery.data.character.level}
 							</Badge>
 						</Group>
+						<CharacterHealthPanel
+							characterId={characterQuery.data.character.id}
+							health={characterQuery.data.character.health}
+							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
+						/>
 					</Stack>
 				</Paper>
 			)}

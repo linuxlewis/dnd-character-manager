@@ -14,7 +14,7 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| characters | B | B | B | B | B | B | B | Character creation vertical slice with unit, repository integration, route, and e2e coverage |
+| characters | B | B | B | B | B | B | B | Character create/list/detail and detail-page health tracking have unit, integration, route, and e2e coverage |
 
 ## Cross-Cutting
 
@@ -32,7 +32,8 @@ Track the health of each domain and architectural layer. Update this when you im
 
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
+- [ ] Character health does not yet include death saves, rest automation, damage types, or rules-derived max HP
 
 ---
 
-*Last updated: 2026-05-31*
+*Last updated: 2026-06-02*

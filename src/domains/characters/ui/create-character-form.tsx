@@ -21,10 +21,12 @@ interface CreateCharacterFormProps {
 }
 
 interface CharacterFormValues {
-	class: CharacterClass | "";
+	className: CharacterClass | "";
 	level: number | string;
 	name: string;
 }
+
+export const DEFAULT_CHARACTER_MAX_HP = 10;
 
 const characterClassOptions = CHARACTER_CLASSES.map((characterClass) => ({
 	value: characterClass,
@@ -37,22 +39,25 @@ export function CreateCharacterForm({ onNavigate }: CreateCharacterFormProps) {
 		mode: "controlled",
 		initialValues: {
 			name: "",
-			class: "",
+			className: "",
 			level: 1,
 		},
 		validate: {
 			name: validateCharacterName,
-			class: validateCharacterClass,
+			className: validateCharacterClass,
 			level: validateCharacterLevel,
 		},
 	});
 	const createMutation = useMutation({
 		...apiMutations.createCharacter(),
-		onSuccess: async (character) => {
-			queryClient.setQueryData(apiQueryKeys.getCharacter({ id: character.id }), character);
+		onSuccess: async (response) => {
+			queryClient.setQueryData(
+				apiQueryKeys.getCharacter({ characterId: response.character.id }),
+				response,
+			);
 			await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
 			form.reset();
-			onNavigate({ screen: "detail", id: character.id });
+			onNavigate({ screen: "detail", id: response.character.id });
 		},
 	});
 
@@ -85,8 +90,9 @@ export function CreateCharacterForm({ onNavigate }: CreateCharacterFormProps) {
 				onSubmit={form.onSubmit((values) => {
 					createMutation.mutate({
 						name: values.name.trim(),
-						class: values.class as CharacterClass,
+						className: values.className as CharacterClass,
 						level: Number(values.level),
+						maxHp: DEFAULT_CHARACTER_MAX_HP,
 					});
 				})}
 			>
@@ -99,7 +105,7 @@ export function CreateCharacterForm({ onNavigate }: CreateCharacterFormProps) {
 						withAsterisk
 					/>
 					<Select
-						{...form.getInputProps("class")}
+						{...form.getInputProps("className")}
 						data={characterClassOptions}
 						label="Class"
 						placeholder="Select a class"
@@ -110,6 +116,7 @@ export function CreateCharacterForm({ onNavigate }: CreateCharacterFormProps) {
 						allowDecimal={false}
 						allowNegative={false}
 						label="Level"
+						hideControls
 						max={20}
 						min={1}
 						withAsterisk

@@ -23,7 +23,8 @@ describe("buildServer", () => {
 				paths: {
 					"/api/current-user": expect.any(Object),
 					"/api/characters": expect.any(Object),
-					"/api/characters/{id}": expect.any(Object),
+					"/api/characters/{characterId}": expect.any(Object),
+					"/api/characters/{characterId}/health": expect.any(Object),
 				},
 			});
 		} finally {
