@@ -30,6 +30,7 @@ Route contracts live in `runtime/contract.ts` because they describe the HTTP bou
 ### Cross-Cutting Concerns (Providers)
 
 Database, telemetry, auth, feature flags, and shared connectors (cache, queue) live in `src/providers/`. Any layer may import from providers — this is the **only** exception to the forward-only rule.
+The current authentication and session model is documented in [auth.md](./auth.md).
 
 ```
 src/providers/

@@ -52,7 +52,8 @@ The first product slice should target:
 
 ## Architecture
 
-See [docs/architecture.md](./docs/architecture.md) for the full picture.
+See [docs/architecture.md](./docs/architecture.md) for the full picture. Current authentication
+and browser-session behavior is documented in [docs/auth.md](./docs/auth.md).
 
 Each business domain follows a strict layered model. The React UI uses TanStack Query for
 server-state fetching, mutation, caching, and invalidation. HTTP route contracts generate the
@@ -88,7 +89,7 @@ When an agent needs the running app URL, use `pnpm health` or read
 5. Keep [AGENTS.md](./AGENTS.md), [docs/implementation.md](./docs/implementation.md),
    [docs/testing.md](./docs/testing.md), [docs/openapi.md](./docs/openapi.md), [docs/pwa.md](./docs/pwa.md),
    [docs/production.md](./docs/production.md), [docs/deployment.md](./docs/deployment.md),
-   [docs/react.md](./docs/react.md), and
+   [docs/react.md](./docs/react.md), [docs/auth.md](./docs/auth.md), and
    [docs/mvp.md](./docs/mvp.md) current as the project develops.
 
 ## For Agents
