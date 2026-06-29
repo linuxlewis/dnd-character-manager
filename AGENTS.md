@@ -12,6 +12,7 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 |------|-------|
 | Feature implementation process | [docs/implementation.md](./docs/implementation.md) |
 | Architecture & dependency rules | [docs/architecture.md](./docs/architecture.md) |
+| Authentication & session model | [docs/auth.md](./docs/auth.md) |
 | Testing procedure | [docs/testing.md](./docs/testing.md) |
 | React and Mantine UI conventions | [docs/react.md](./docs/react.md) |
 | OpenAPI and typed client generation | [docs/openapi.md](./docs/openapi.md) |
