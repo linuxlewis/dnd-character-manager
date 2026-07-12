@@ -109,7 +109,7 @@ describe("Character spell schemas", () => {
 					index: "magic-missile",
 					name: "Magic Missile",
 					level: 1,
-					url: "/api/2014/spells/magic-missile",
+					url: "/api/2024/spells/magic-missile",
 					source: "spell",
 				},
 				{

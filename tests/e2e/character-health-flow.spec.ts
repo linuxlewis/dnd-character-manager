@@ -104,7 +104,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
 	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden();
 	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeVisible();
-	await expect(page.getByText("2nd-level feature")).toBeVisible();
+	await expect(page.getByText("1st-level spell")).toBeVisible();
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
 	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
 	await expect(addSpellDialog).toBeVisible();
@@ -122,7 +122,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(addSpellDialog).toBeHidden();
 	await page.getByRole("button", { name: "View Divine Smite details" }).click();
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeVisible();
-	await expect(page.getByText("Feature 2nd-level")).toBeVisible();
+	await expect(page.getByText("Spell 1st-level")).toBeVisible();
 	await expect(page.getByText(/radiant damage/i)).toBeVisible();
 	await page.keyboard.press("Escape");
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeHidden();
