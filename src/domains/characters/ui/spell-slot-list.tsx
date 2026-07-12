@@ -70,7 +70,6 @@ export function SpellSlotList({
 									label={`${formatSpellLevel(slot.level)} slot total`}
 									min={0}
 									onChange={(value) => onDraftTotalChange(slot.level, toDraft(value))}
-									size="xs"
 									style={{ flex: "1 1 7rem" }}
 									value={draftTotals[slot.level] ?? slot.total}
 								/>

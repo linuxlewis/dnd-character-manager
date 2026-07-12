@@ -8,4 +8,19 @@ describe("theme", () => {
 		expect(theme.colors?.candle).toHaveLength(10);
 		expect(theme.defaultRadius).toBe("sm");
 	});
+
+	it("keeps editable controls at mobile-safe sizing", () => {
+		expect(theme.components?.TextInput?.defaultProps).toMatchObject({
+			radius: "sm",
+			size: "md",
+		});
+		expect(theme.components?.NumberInput?.defaultProps).toMatchObject({
+			radius: "sm",
+			size: "md",
+		});
+		expect(theme.components?.Select?.defaultProps).toMatchObject({
+			radius: "sm",
+			size: "md",
+		});
+	});
 });
