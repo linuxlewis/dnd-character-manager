@@ -43,6 +43,8 @@ jobs:
 
       - name: Deploy exact revision through host Docker
         shell: bash
+        env:
+          GH_FETCH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -58,7 +60,7 @@ jobs:
             exit 1
           fi
 
-          git fetch --prune origin
+          git fetch "https://x-access-token:${GH_FETCH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "+refs/heads/*:refs/remotes/origin/*"
           git checkout --detach "$deploy_sha"
 
           "${compose[@]}" up -d --build
@@ -74,4 +76,3 @@ jobs:
           "${compose[@]}" exec -T app node -e "fetch('http://127.0.0.1:4000/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
           "${compose[@]}" exec -T app node -e "fetch('http://127.0.0.1:4000/openapi.json').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
           curl --fail --retry 6 --retry-delay 5 -I https://characters.dndinventorymanager.com
-
