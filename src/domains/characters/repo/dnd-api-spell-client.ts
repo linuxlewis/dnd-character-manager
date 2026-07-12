@@ -171,8 +171,7 @@ async function getDetails(
 
 	try {
 		return parseOpen5eSpellDetails(await fetchOpen5eDetail(open5eBaseUrl, fetcher, spellIndex));
-	} catch (error) {
-		if (!(error instanceof DndApiSpellClientError)) throw error;
+	} catch {
 		return getLegacySpellDetails(legacyBaseUrl, fetcher, spellIndex, source);
 	}
 }
@@ -218,11 +217,10 @@ function formatComponents(components: string[], material?: string) {
 }
 
 function formatOpen5eComponents(entry: z.infer<typeof Open5eSpellDetailResponseSchema>) {
-	const components = [
-		entry.verbal ? "V" : null,
-		entry.somatic ? "S" : null,
-		entry.material ? "M" : null,
-	].filter((component) => component !== null);
+	const components: string[] = [];
+	if (entry.verbal) components.push("V");
+	if (entry.somatic) components.push("S");
+	if (entry.material) components.push("M");
 	return formatComponents(components, entry.material_specified);
 }
 
@@ -249,8 +247,10 @@ function spellIndexFromOpen5eKey(key: string) {
 
 function textArray(value: string | string[]) {
 	if (Array.isArray(value)) return value.map((item) => item.trim()).filter(Boolean);
-	const normalized = value.trim();
-	return normalized ? [normalized] : [];
+	return value
+		.split(/\r?\n\r?\n/)
+		.map((item) => item.trim())
+		.filter(Boolean);
 }
 
 function trimTrailingSlash(value: string) {

@@ -134,6 +134,25 @@ describe("createDndApiSpellClient", () => {
 		});
 	});
 
+	it("splits SRD 2024 spell description paragraphs", async () => {
+		const fetcher = vi.fn().mockResolvedValue(
+			jsonResponse({
+				key: "srd-2024_magic-missile",
+				name: "Magic Missile",
+				level: 1,
+				desc: "First paragraph.\n\nSecond paragraph.",
+				higher_level: "First higher-level paragraph.\n\nSecond higher-level paragraph.",
+			}),
+		);
+
+		const client = createDndApiSpellClient({ fetcher });
+
+		await expect(client.getSpellDetails("magic-missile", "spell")).resolves.toMatchObject({
+			desc: ["First paragraph.", "Second paragraph."],
+			higherLevel: ["First higher-level paragraph.", "Second higher-level paragraph."],
+		});
+	});
+
 	it("falls back to 2014 spell details when a saved spell is unavailable in SRD 2024", async () => {
 		const fetcher = vi
 			.fn()
@@ -182,6 +201,52 @@ describe("createDndApiSpellClient", () => {
 			2,
 			"https://www.dnd5eapi.co/api/2014/spells/branding-smite",
 		);
+	});
+
+	it("falls back to 2014 spell details when SRD 2024 details cannot be parsed", async () => {
+		const fetcher = vi
+			.fn()
+			.mockResolvedValueOnce(jsonResponse({ key: "srd-2024_branding-smite" }))
+			.mockResolvedValueOnce(
+				jsonResponse({
+					index: "branding-smite",
+					name: "Branding Smite",
+					level: 2,
+					url: "/api/2014/spells/branding-smite",
+					desc: ["The weapon gleams with astral radiance as you strike."],
+				}),
+			);
+
+		const client = createDndApiSpellClient({ fetcher });
+
+		await expect(client.getSpellDetails("branding-smite", "spell")).resolves.toMatchObject({
+			index: "branding-smite",
+			name: "Branding Smite",
+			url: "/api/2014/spells/branding-smite",
+		});
+	});
+
+	it("falls back to 2014 spell details when SRD 2024 detail loading fails", async () => {
+		const fetcher = vi
+			.fn()
+			.mockRejectedValueOnce(new TypeError("Failed to fetch"))
+			.mockResolvedValueOnce(
+				jsonResponse({
+					index: "branding-smite",
+					name: "Branding Smite",
+					level: 2,
+					url: "/api/2014/spells/branding-smite",
+					desc: ["The weapon gleams with astral radiance as you strike."],
+				}),
+			);
+
+		const client = createDndApiSpellClient({ fetcher });
+
+		await expect(client.getSpellDetails("branding-smite", "spell")).resolves.toMatchObject({
+			index: "branding-smite",
+			name: "Branding Smite",
+			url: "/api/2014/spells/branding-smite",
+		});
 	});
 
 	it("loads feature details with feature metadata", async () => {
