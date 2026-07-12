@@ -5,6 +5,9 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
+import type { MagicLinkRequest, MagicLinkRequestResponse, SignOutResponse } from "../providers/auth/magic-link-types.js";
+export type { MagicLinkRequest, MagicLinkRequestResponse, SignOutResponse } from "../providers/auth/magic-link-types.js";
+import { MagicLinkRequestResponseSchema, SignOutResponseSchema } from "../providers/auth/magic-link-types.js";
 import type { CharacterDetailResponse, CreateCharacterRequest, ListCharactersResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse } from "../domains/characters/types/index.js";
 export type { CharacterDetailResponse, CreateCharacterRequest, ListCharactersResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse } from "../domains/characters/types/index.js";
 import { CharacterDetailResponseSchema, ListCharactersResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
@@ -38,6 +41,14 @@ export function createApiClient(options: ApiClientOptions = {}) {
 	return {
 		getCurrentUser(options: ApiRequestOptions = {}): Promise<CurrentUserResponse> {
 			return request<CurrentUserResponse>(fetchImpl, baseUrl, "GET", "/api/current-user", options, undefined, (body: unknown) => CurrentUserResponseSchema.parse(body));
+		},
+
+		requestMagicLinkSignIn(body: MagicLinkRequest, options: ApiRequestOptions = {}): Promise<MagicLinkRequestResponse> {
+			return request<MagicLinkRequestResponse>(fetchImpl, baseUrl, "POST", "/api/magic-link-requests", options, body, (body: unknown) => MagicLinkRequestResponseSchema.parse(body));
+		},
+
+		signOutCurrentUser(options: ApiRequestOptions = {}): Promise<SignOutResponse> {
+			return request<SignOutResponse>(fetchImpl, baseUrl, "POST", "/api/sign-out", options, undefined, (body: unknown) => SignOutResponseSchema.parse(body));
 		},
 
 		createCharacter(body: CreateCharacterRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
@@ -89,6 +100,16 @@ export const apiQueries = createApiQueryOptions();
 
 export function createApiMutationOptions(client = apiClient) {
 	return {
+		requestMagicLinkSignIn: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "requestMagicLinkSignIn"] as const,
+			mutationFn: (body: MagicLinkRequest) => client.requestMagicLinkSignIn(body, options),
+		}),
+
+		signOutCurrentUser: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "signOutCurrentUser"] as const,
+			mutationFn: () => client.signOutCurrentUser(options),
+		}),
+
 		createCharacter: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "createCharacter"] as const,
 			mutationFn: (body: CreateCharacterRequest) => client.createCharacter(body, options),

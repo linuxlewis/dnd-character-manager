@@ -5,6 +5,8 @@ describe("apiRouteContracts", () => {
 	it("aggregates app route contracts for OpenAPI and client generation", () => {
 		expect(apiRouteContracts.map((route) => route.operationId)).toEqual([
 			"getCurrentUser",
+			"requestMagicLinkSignIn",
+			"signOutCurrentUser",
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",

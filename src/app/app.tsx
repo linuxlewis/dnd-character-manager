@@ -7,6 +7,7 @@
 import { Alert, Badge, Container, Divider, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { CharacterWorkspace } from "../domains/characters/ui/index.js";
 import { useCurrentUser } from "./current-user-provider.js";
+import { MagicLinkLoginPanel } from "./magic-link-login.js";
 
 export function App() {
 	const { currentUser, error, isLoading } = useCurrentUser();
@@ -46,6 +47,7 @@ export function App() {
 					</Paper>
 				) : (
 					<Stack gap="md">
+						<MagicLinkLoginPanel currentUser={currentUser} />
 						<CharacterWorkspace />
 						<Text c="dimmed" size="xs">
 							Session user {currentUser.id}

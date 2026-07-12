@@ -160,6 +160,7 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		transferCharactersToUser: vi.fn(),
 	} satisfies CharacterService;
 }
 

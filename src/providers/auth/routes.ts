@@ -1,9 +1,26 @@
 import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { getAuth } from "./auth.js";
+import { requestMagicLinkSignIn, signOutCurrentUser } from "./magic-link.js";
 import { getOrCreateCurrentUser } from "./session.js";
 
 export async function registerAuthRoutes(app: FastifyInstance) {
+	app.post("/api/magic-link-requests", async (request, reply) => {
+		return requestMagicLinkSignIn(request, reply);
+	});
+
+	app.post("/api/sign-out", async (request, reply) => {
+		return signOutCurrentUser(request, reply);
+	});
+
+	app.route({
+		method: ["GET", "POST"],
+		url: "/api/auth/sign-in/magic-link",
+		handler: async (_request, reply) => {
+			return reply.status(404).send({ error: "Not found" });
+		},
+	});
+
 	app.route({
 		method: ["GET", "POST"],
 		url: "/api/auth/*",

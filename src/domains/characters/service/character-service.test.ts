@@ -35,4 +35,31 @@ describe("createCharacterService", () => {
 			maxHp: 18,
 		});
 	});
+
+	it("delegates anonymous character transfer for linked accounts", async () => {
+		const repository = {
+			transferCharactersToUser: vi.fn(async () => 2),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).transferCharactersToUser("anonymous-user", "linked-user"),
+		).resolves.toBe(2);
+
+		expect(repository.transferCharactersToUser).toHaveBeenCalledWith(
+			"anonymous-user",
+			"linked-user",
+		);
+	});
+
+	it("skips transfer when the anonymous and linked account ids match", async () => {
+		const repository = {
+			transferCharactersToUser: vi.fn(async () => 1),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).transferCharactersToUser("same-user", "same-user"),
+		).resolves.toBe(0);
+
+		expect(repository.transferCharactersToUser).not.toHaveBeenCalled();
+	});
 });

@@ -1,10 +1,11 @@
-import { registerAuthRoutes } from "@providers/auth/index.js";
+import { registerAnonymousAccountLinkHandler, registerAuthRoutes } from "@providers/auth/index.js";
 import { closeDb } from "@providers/database/index.js";
 import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
+import { createCharacterService } from "./domains/characters/service/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -45,14 +46,21 @@ export async function buildServer(options: BuildServerOptions = {}) {
 			routes: apiRouteContracts,
 		}),
 	);
+	const characterService = createCharacterService();
+	const unregisterAccountLinkHandler = registerAnonymousAccountLinkHandler(
+		async ({ anonymousUserId, linkedUserId }) => {
+			await characterService.transferCharactersToUser(anonymousUserId, linkedUserId);
+		},
+	);
 	await registerAuthRoutes(app);
-	await registerCharacterRoutes(app);
+	await registerCharacterRoutes(app, { characterService });
 
 	if (options.staticRoot) {
 		registerStaticAssetFallback(app, options.staticRoot);
 	}
 
 	app.addHook("onClose", async () => {
+		unregisterAccountLinkHandler();
 		await closeDb();
 	});
 

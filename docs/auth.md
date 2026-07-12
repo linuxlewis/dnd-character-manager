@@ -1,20 +1,23 @@
 # Authentication
 
-Last verified: 2026-06-29
+Last verified: 2026-07-12
 
 This document describes the authentication system as it exists today. It is not a future account
 roadmap.
 
 ## Current State
 
-Authentication is implemented as an anonymous browser-session baseline:
+Authentication is implemented as an anonymous browser-session baseline with a visible magic-link
+account flow layered on top:
 
 - The server uses Better Auth with the anonymous plugin.
+- The server uses Better Auth's magic-link plugin for passwordless email sign-in.
 - Session and user records are stored in Postgres through the Drizzle adapter.
 - The browser receives a server-owned session cookie from Better Auth.
 - The React app bootstraps the current user with `GET /api/current-user`.
-- User-visible sign-up, sign-in, sign-out, account linking, recovery, and account settings do not
-  exist yet.
+- User-visible magic-link sign-in and sign-out exist.
+- Passwords, external identity providers, account recovery, profile settings, and session management
+  UI do not exist yet.
 
 This matches the MVP direction in [mvp.md](./mvp.md): scope character data to a browser session now
 and layer visible accounts on top later.
@@ -26,6 +29,8 @@ The server registers auth routes from `src/providers/auth/routes.ts`:
 | Route | Purpose |
 |-------|---------|
 | `/api/auth/*` | Pass-through route for Better Auth handlers |
+| `POST /api/magic-link-requests` | App-owned route that validates an email address and asks Better Auth to create a magic link |
+| `POST /api/sign-out` | App-owned route that signs out the current Better Auth session |
 | `GET /api/current-user` | App bootstrap route that returns or creates the current anonymous user |
 
 `GET /api/current-user` is intentionally stateful:
@@ -52,16 +57,33 @@ The public response shape is:
 The app does not expose Better Auth's internal session, token, account, or verification records to
 the browser.
 
+Magic-link sign-in is intentionally split between app-owned and Better Auth-owned routes:
+
+1. The browser posts an email address to `POST /api/magic-link-requests`.
+2. The route trims and lowercases the email address with a Zod boundary schema.
+3. The route calls `auth.api.signInMagicLink` with a root callback URL.
+4. Better Auth stores a single-use verification token in the `verification` table.
+5. Local development delivery writes the generated URL through structured logging under the
+   `auth.magic-link` logger. In production, log delivery is disabled unless
+   `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly.
+6. The user opens the generated `/api/auth/magic-link/verify` link.
+7. Better Auth verifies and consumes the token, creates a session for the email account, sets the
+   session cookie, and redirects to `/`.
+8. If the browser had an anonymous session, the anonymous-link callback transfers owned characters
+   from the anonymous user ID to the linked account ID before Better Auth deletes the anonymous user.
+
 ## Frontend Flow
 
 `src/app/current-user-provider.tsx` calls the generated `apiQueries.getCurrentUser()` helper.
 `App` waits for this query before rendering character workflows.
 
-The UI treats the session as a browser-local workspace:
+The UI treats an anonymous session as a browser-local workspace:
 
 - While the query is loading, the app shows a session startup state.
 - If the query fails, the app shows a recoverable session error.
 - If the query succeeds, child UI can assume a current user exists.
+- Anonymous users see an email form for requesting a magic link.
+- Signed-in users see the account name and a sign-out action.
 
 The generated API client currently relies on same-origin requests. Development uses the Vite `/api`
 proxy, and production serves the built React app and API from the same Fastify origin. If the web app
@@ -81,8 +103,8 @@ Auth tables are defined in `src/providers/auth/schema.ts` and created by
 | `verification` | Future verification tokens such as email or recovery flows |
 
 The schema already supports account rows, provider IDs, tokens, and verification records because it
-uses Better Auth's table shape. The application does not currently provide any user-facing flow that
-creates or manages non-anonymous accounts.
+uses Better Auth's table shape. Magic-link requests now use `verification` rows as Better Auth's
+single-use token store.
 
 Deleting a `user` cascades to its `session`, `account`, and character records through foreign keys.
 
@@ -126,19 +148,22 @@ Production configuration is documented in [production.md](./production.md) and
 
 ## Account Management
 
-Account management is not implemented.
+Account management is limited to magic-link sign-in and sign-out.
 
-There is currently no:
+There is currently:
 
-- sign-up page
-- sign-in page
-- sign-out button
-- password or email flow
+- a magic-link email form for anonymous users
+- a sign-out button for signed-in users
+- automatic anonymous-to-account character transfer during magic-link verification
+
+There is not currently:
+
+- a separate sign-up page
+- password authentication
 - external identity provider
-- account linking flow
-- anonymous-to-permanent-account migration
 - profile or account settings UI
 - session management UI
+- production email delivery configuration
 
 The `account` and `verification` tables are present so those features can be layered in later without
 remodeling user ownership. Until then, the browser session cookie is the user's only handle to their
@@ -155,8 +180,14 @@ Current coverage includes:
 - Current-user response schema tests in `src/providers/auth/current-user.test.ts`.
 - Session cookie forwarding tests in `src/providers/auth/session.test.ts`.
 - Auth route adapter tests in `src/providers/auth/routes.test.ts`.
+- Magic-link schema and delivery unit tests in `src/providers/auth/magic-link-types.test.ts` and
+  `src/providers/auth/magic-link.test.ts`.
+- Magic-link route integration tests in `src/providers/auth/routes.integration.test.ts`.
 - Current-user provider UI tests in `src/app/current-user-provider.test.tsx`.
+- Magic-link login panel UI tests in `src/app/magic-link-login.test.tsx`.
 - Session reuse e2e coverage in `tests/e2e/session-flow.spec.ts`.
+- Magic-link sign-in and anonymous character transfer e2e coverage in
+  `tests/e2e/magic-link-login.spec.ts`.
 - Character route integration coverage proving another session user's character is not exposed.
 
 ## Known Limitations
@@ -164,6 +195,10 @@ Current coverage includes:
 - `GET /api/current-user` creates anonymous users as a side effect. This is intentional for the MVP,
   but production should eventually add cleanup, rate limiting, or another guard against unbounded
   anonymous account/session growth.
+- Magic-link delivery is local-development only by default: generated URLs are written to structured
+  logs outside production. Production needs an SMTP or transactional email adapter before users can
+  receive links by email; log delivery requires an explicit `MAGIC_LINK_ENABLE_LOG_DELIVERY=true`
+  opt-in.
 - There is no account recovery. Losing the browser cookie means losing access to that anonymous
   workspace through normal app flows.
 - There is no user-facing way to inspect, revoke, or transfer sessions.

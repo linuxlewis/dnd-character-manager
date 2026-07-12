@@ -20,7 +20,7 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Provider | Grade | Notes |
 |----------|-------|-------|
-| auth | B | Better Auth anonymous session provider, Postgres-backed tables, current-user bootstrap route, and current-state documentation are wired |
+| auth | B | Better Auth anonymous sessions, magic-link sign-in/sign-out, anonymous character transfer, Postgres-backed tables, and current-state documentation are wired; production email delivery remains future work |
 | database | B | Postgres provider wired through Docker Compose stack |
 | telemetry | B | Pino logger, request IDs, route timings, and stack log files are wired; metrics/traces are future work |
 | openapi | B | Route contracts generate `openapi.generated.json` and a typed frontend client; broader coverage should grow as domains are added |
@@ -32,9 +32,9 @@ Track the health of each domain and architectural layer. Update this when you im
 
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
-- [ ] Auth has no anonymous user/session cleanup, recovery, or visible account management flow yet
+- [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, session management UI, or production email delivery yet
 - [ ] Character health does not yet include death saves, rest automation, damage types, or rules-derived max HP
 
 ---
 
-*Last updated: 2026-06-29*
+*Last updated: 2026-07-12*

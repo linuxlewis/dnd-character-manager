@@ -57,6 +57,46 @@ describe("createCharacterRepository", () => {
 			health: { currentHp: 28, maxHp: 28, temporaryHp: 0, effectiveMaxHp: 28 },
 		});
 	});
+
+	it("transfers all characters from an anonymous user to a linked account", async () => {
+		const anonymousUserId = await createUser();
+		const linkedUserId = await createUser();
+		const repository = createCharacterRepository();
+		const firstCharacter = await repository.createCharacter({
+			userId: anonymousUserId,
+			name: "Mira",
+			className: "Fighter",
+			level: 3,
+			maxHp: 28,
+		});
+		const secondCharacter = await repository.createCharacter({
+			userId: anonymousUserId,
+			name: "Nyx",
+			className: "Rogue",
+			level: 4,
+			maxHp: 24,
+		});
+
+		await expect(repository.transferCharactersToUser(anonymousUserId, linkedUserId)).resolves.toBe(
+			2,
+		);
+
+		await expect(repository.listCharacters(anonymousUserId)).resolves.toEqual([]);
+		await expect(repository.listCharacters(linkedUserId)).resolves.toEqual([
+			{
+				id: firstCharacter.id,
+				name: "Mira",
+				className: "Fighter",
+				level: 3,
+			},
+			{
+				id: secondCharacter.id,
+				name: "Nyx",
+				className: "Rogue",
+				level: 4,
+			},
+		]);
+	});
 });
 
 async function createUser() {
