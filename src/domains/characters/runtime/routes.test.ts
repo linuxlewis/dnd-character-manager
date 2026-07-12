@@ -4,6 +4,10 @@ import {
 	type CharacterHealthService,
 	CharacterNotFoundError,
 	type CharacterService,
+	type CharacterSpellService,
+	type CharacterSpellSlotService,
+	SpellSlotDefaultsUnavailableError,
+	SpellSlotUnavailableError,
 } from "../service/index.js";
 import { registerCharacterRoutes } from "./routes.js";
 
@@ -119,6 +123,102 @@ describe("registerCharacterRoutes", () => {
 		}
 	});
 
+	it("reads, configures, uses, restores, and applies defaults for character spell slots", async () => {
+		const services = fakeServices();
+		const spellSlots = {
+			spellSlots: [{ level: 1, total: 2, used: 1, remaining: 1 }],
+			recentSpellSlotChanges: [],
+		};
+		services.characterSpellSlotService.getCharacterSpellSlots.mockResolvedValue(spellSlots);
+		services.characterSpellSlotService.updateCharacterSpellSlots.mockResolvedValue(spellSlots);
+		services.characterSpellSlotService.expendCharacterSpellSlot.mockResolvedValue(spellSlots);
+		services.characterSpellSlotService.restoreCharacterSpellSlot.mockResolvedValue(spellSlots);
+		services.characterSpellSlotService.applyDefaultSpellSlots.mockResolvedValue(spellSlots);
+		const app = await buildApp(services);
+
+		try {
+			const getResponse = await app.inject({
+				method: "GET",
+				url: `/api/characters/${character.id}/spell-slots`,
+			});
+			const updateResponse = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/spell-slots`,
+				payload: { slots: [{ level: 1, total: 2 }] },
+			});
+			const useResponse = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/use`,
+				payload: { level: 1 },
+			});
+			const restoreResponse = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/restore`,
+				payload: { level: 1 },
+			});
+			const defaultsResponse = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/apply-defaults`,
+			});
+
+			expect(getResponse.json()).toEqual(spellSlots);
+			expect(updateResponse.json()).toEqual(spellSlots);
+			expect(useResponse.json()).toEqual(spellSlots);
+			expect(restoreResponse.json()).toEqual(spellSlots);
+			expect(defaultsResponse.json()).toEqual(spellSlots);
+			expect(services.characterSpellSlotService.updateCharacterSpellSlots).toHaveBeenCalledWith(
+				userId,
+				character.id,
+				{ slots: [{ level: 1, total: 2 }] },
+			);
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("returns bad request when spell slot usage is unavailable", async () => {
+		const services = fakeServices();
+		services.characterSpellSlotService.expendCharacterSpellSlot.mockRejectedValue(
+			new SpellSlotUnavailableError("No spell slots remain."),
+		);
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/use`,
+				payload: { level: 1 },
+			});
+
+			expect(response.statusCode).toBe(400);
+			expect(response.json()).toEqual({ error: "No spell slots remain." });
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("returns bad gateway when D&D spell slot defaults cannot be loaded", async () => {
+		const services = fakeServices();
+		services.characterSpellSlotService.applyDefaultSpellSlots.mockRejectedValue(
+			new SpellSlotDefaultsUnavailableError(),
+		);
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/apply-defaults`,
+			});
+
+			expect(response.statusCode).toBe(502);
+			expect(response.json()).toEqual({
+				error: "D&D spell slot defaults could not be loaded.",
+			});
+		} finally {
+			await app.close();
+		}
+	});
+
 	it("returns not found for a missing character", async () => {
 		const services = fakeServices();
 		const service = services.characterService;
@@ -144,6 +244,8 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 	await registerCharacterRoutes(app, {
 		characterService: services.characterService,
 		characterHealthService: services.characterHealthService,
+		characterSpellService: services.characterSpellService,
+		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({
 			user: {
 				id: userId,
@@ -153,6 +255,15 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 		}),
 	});
 	return app;
+}
+
+function fakeServices() {
+	return {
+		characterService: fakeService(),
+		characterHealthService: fakeHealthService(),
+		characterSpellService: fakeSpellService(),
+		characterSpellSlotService: fakeSpellSlotService(),
+	};
 }
 
 function fakeService() {
@@ -168,10 +279,21 @@ function fakeHealthService() {
 		updateCharacterHealth: vi.fn(),
 	} satisfies CharacterHealthService;
 }
-
-function fakeServices() {
+function fakeSpellService() {
 	return {
-		characterService: fakeService(),
-		characterHealthService: fakeHealthService(),
-	};
+		getCharacterSpellDetails: vi.fn(),
+		listCharacterSpells: vi.fn(),
+		saveCharacterSpell: vi.fn(),
+		searchCharacterSpells: vi.fn(),
+	} satisfies CharacterSpellService;
+}
+
+function fakeSpellSlotService() {
+	return {
+		applyDefaultSpellSlots: vi.fn(),
+		expendCharacterSpellSlot: vi.fn(),
+		getCharacterSpellSlots: vi.fn(),
+		restoreCharacterSpellSlot: vi.fn(),
+		updateCharacterSpellSlots: vi.fn(),
+	} satisfies CharacterSpellSlotService;
 }

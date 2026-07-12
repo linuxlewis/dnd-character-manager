@@ -8,19 +8,37 @@ describe("characterRouteContracts", () => {
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterHealth",
+			"getCharacterSpellSlots",
+			"updateCharacterSpellSlots",
+			"useCharacterSpellSlot",
+			"restoreCharacterSpellSlot",
+			"applyCharacterSpellSlotDefaults",
+			"listCharacterSpells",
+			"getCharacterSpellDetails",
+			"searchCharacterSpells",
+			"saveCharacterSpell",
 		]);
 		expect(characterRouteContracts.map((route) => route.client?.functionName)).toEqual([
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterHealth",
+			"getCharacterSpellSlots",
+			"updateCharacterSpellSlots",
+			"useCharacterSpellSlot",
+			"restoreCharacterSpellSlot",
+			"applyCharacterSpellSlotDefaults",
+			"listCharacterSpells",
+			"getCharacterSpellDetails",
+			"searchCharacterSpells",
+			"saveCharacterSpell",
 		]);
 	});
 
-	it("uses characterId path params for detail and health routes", () => {
+	it("uses characterId path params for detail, health, and spell slot routes", () => {
 		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(2);
+		expect(routeWithParams).toHaveLength(11);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

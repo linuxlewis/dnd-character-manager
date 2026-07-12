@@ -9,6 +9,15 @@ describe("apiRouteContracts", () => {
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterHealth",
+			"getCharacterSpellSlots",
+			"updateCharacterSpellSlots",
+			"useCharacterSpellSlot",
+			"restoreCharacterSpellSlot",
+			"applyCharacterSpellSlotDefaults",
+			"listCharacterSpells",
+			"getCharacterSpellDetails",
+			"searchCharacterSpells",
+			"saveCharacterSpell",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

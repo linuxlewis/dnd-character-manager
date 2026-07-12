@@ -907,6 +907,1832 @@
 					}
 				}
 			}
+		},
+		"/api/characters/{characterId}/spell-slots": {
+			"get": {
+				"operationId": "getCharacterSpellSlots",
+				"summary": "Get character spell slots",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Character spell slots",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spellSlots": {
+											"maxItems": 9,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"total": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"used": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"remaining": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													}
+												},
+												"required": [
+													"level",
+													"total",
+													"used",
+													"remaining"
+												],
+												"additionalProperties": false
+											}
+										},
+										"recentSpellSlotChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"configured",
+															"used",
+															"restored",
+															"defaults-applied"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"totalDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"usedDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"level",
+													"previous",
+													"next",
+													"totalDelta",
+													"usedDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spellSlots",
+										"recentSpellSlotChanges"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "updateCharacterSpellSlots",
+				"summary": "Update character spell slots",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"slots": {
+										"maxItems": 9,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"level": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 9
+												},
+												"total": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 99
+												}
+											},
+											"required": [
+												"level",
+												"total"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"slots"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Updated character spell slots",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spellSlots": {
+											"maxItems": 9,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"total": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"used": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"remaining": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													}
+												},
+												"required": [
+													"level",
+													"total",
+													"used",
+													"remaining"
+												],
+												"additionalProperties": false
+											}
+										},
+										"recentSpellSlotChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"configured",
+															"used",
+															"restored",
+															"defaults-applied"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"totalDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"usedDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"level",
+													"previous",
+													"next",
+													"totalDelta",
+													"usedDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spellSlots",
+										"recentSpellSlotChanges"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid spell slot data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spell-slots/use": {
+			"post": {
+				"operationId": "useCharacterSpellSlot",
+				"summary": "Use character spell slot",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"level": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9
+									}
+								},
+								"required": [
+									"level"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Used character spell slot",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spellSlots": {
+											"maxItems": 9,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"total": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"used": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"remaining": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													}
+												},
+												"required": [
+													"level",
+													"total",
+													"used",
+													"remaining"
+												],
+												"additionalProperties": false
+											}
+										},
+										"recentSpellSlotChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"configured",
+															"used",
+															"restored",
+															"defaults-applied"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"totalDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"usedDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"level",
+													"previous",
+													"next",
+													"totalDelta",
+													"usedDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spellSlots",
+										"recentSpellSlotChanges"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Spell slot unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spell-slots/restore": {
+			"post": {
+				"operationId": "restoreCharacterSpellSlot",
+				"summary": "Restore character spell slot",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"level": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9
+									}
+								},
+								"required": [
+									"level"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Restored character spell slot",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spellSlots": {
+											"maxItems": 9,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"total": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"used": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"remaining": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													}
+												},
+												"required": [
+													"level",
+													"total",
+													"used",
+													"remaining"
+												],
+												"additionalProperties": false
+											}
+										},
+										"recentSpellSlotChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"configured",
+															"used",
+															"restored",
+															"defaults-applied"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"totalDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"usedDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"level",
+													"previous",
+													"next",
+													"totalDelta",
+													"usedDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spellSlots",
+										"recentSpellSlotChanges"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Spell slot unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spell-slots/apply-defaults": {
+			"post": {
+				"operationId": "applyCharacterSpellSlotDefaults",
+				"summary": "Apply character spell slot defaults",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Applied D&D API spell slot defaults",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spellSlots": {
+											"maxItems": 9,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"total": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"used": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													},
+													"remaining": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 99
+													}
+												},
+												"required": [
+													"level",
+													"total",
+													"used",
+													"remaining"
+												],
+												"additionalProperties": false
+											}
+										},
+										"recentSpellSlotChanges": {
+											"maxItems": 5,
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"configured",
+															"used",
+															"restored",
+															"defaults-applied"
+														]
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"previous": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"next": {
+														"type": "object",
+														"properties": {
+															"total": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"used": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															},
+															"remaining": {
+																"type": "integer",
+																"minimum": 0,
+																"maximum": 99
+															}
+														},
+														"required": [
+															"total",
+															"used",
+															"remaining"
+														],
+														"additionalProperties": false
+													},
+													"totalDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"usedDelta": {
+														"type": "integer",
+														"minimum": -9007199254740991,
+														"maximum": 9007199254740991
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"level",
+													"previous",
+													"next",
+													"totalDelta",
+													"usedDelta",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spellSlots",
+										"recentSpellSlotChanges"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"502": {
+						"description": "D&D API unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spells": {
+			"get": {
+				"operationId": "listCharacterSpells",
+				"summary": "List character spells",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Saved character spells",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spells": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"slotLevel": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"spellIndex": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "^[a-z0-9-]+$"
+													},
+													"name": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "\\S"
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 20
+													},
+													"url": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 240,
+														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+													},
+													"source": {
+														"default": "spell",
+														"type": "string",
+														"enum": [
+															"spell",
+															"feature"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"slotLevel",
+													"spellIndex",
+													"name",
+													"level",
+													"url",
+													"source"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spells"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "saveCharacterSpell",
+				"summary": "Save character spell",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"slotLevel": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9
+									},
+									"spellIndex": {
+										"type": "string",
+										"minLength": 1,
+										"maxLength": 120,
+										"pattern": "^[a-z0-9-]+$"
+									},
+									"source": {
+										"default": "spell",
+										"type": "string",
+										"enum": [
+											"spell",
+											"feature"
+										]
+									}
+								},
+								"required": [
+									"slotLevel",
+									"spellIndex",
+									"source"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Saved character spell",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spells": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"slotLevel": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"spellIndex": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "^[a-z0-9-]+$"
+													},
+													"name": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "\\S"
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 20
+													},
+													"url": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 240,
+														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+													},
+													"source": {
+														"default": "spell",
+														"type": "string",
+														"enum": [
+															"spell",
+															"feature"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"slotLevel",
+													"spellIndex",
+													"name",
+													"level",
+													"url",
+													"source"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spells"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid spell selection",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"502": {
+						"description": "D&D API unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spells/{spellId}": {
+			"get": {
+				"operationId": "getCharacterSpellDetails",
+				"summary": "Get character spell details",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					},
+					{
+						"name": "spellId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Saved character spell details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spell": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string",
+													"format": "uuid",
+													"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+												},
+												"slotLevel": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 9
+												},
+												"spellIndex": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "^[a-z0-9-]+$"
+												},
+												"name": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "\\S"
+												},
+												"level": {
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 20
+												},
+												"url": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 240,
+													"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+												},
+												"source": {
+													"default": "spell",
+													"type": "string",
+													"enum": [
+														"spell",
+														"feature"
+													]
+												},
+												"desc": {
+													"minItems": 1,
+													"maxItems": 20,
+													"type": "array",
+													"items": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 4000
+													}
+												},
+												"higherLevel": {
+													"maxItems": 10,
+													"type": "array",
+													"items": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 4000
+													}
+												},
+												"metadata": {
+													"maxItems": 12,
+													"type": "array",
+													"items": {
+														"type": "object",
+														"properties": {
+															"label": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 60
+															},
+															"value": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 500
+															}
+														},
+														"required": [
+															"label",
+															"value"
+														],
+														"additionalProperties": false
+													}
+												}
+											},
+											"required": [
+												"id",
+												"slotLevel",
+												"spellIndex",
+												"name",
+												"level",
+												"url",
+												"source",
+												"desc",
+												"higherLevel",
+												"metadata"
+											],
+											"additionalProperties": false
+										}
+									},
+									"required": [
+										"spell"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character spell not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"502": {
+						"description": "D&D API unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/spells/search": {
+			"post": {
+				"operationId": "searchCharacterSpells",
+				"summary": "Search character spells",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"slotLevel": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9
+									},
+									"query": {
+										"type": "string",
+										"maxLength": 120
+									}
+								},
+								"required": [
+									"slotLevel",
+									"query"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "D&D spell search results",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spells": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"index": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "^[a-z0-9-]+$"
+													},
+													"name": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "\\S"
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 20
+													},
+													"url": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 240,
+														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+													},
+													"source": {
+														"default": "spell",
+														"type": "string",
+														"enum": [
+															"spell",
+															"feature"
+														]
+													}
+												},
+												"required": [
+													"index",
+													"name",
+													"level",
+													"url",
+													"source"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spells"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid spell search data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"502": {
+						"description": "D&D API unavailable",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -5,9 +5,9 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
-import type { CharacterDetailResponse, CreateCharacterRequest, ListCharactersResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse } from "../domains/characters/types/index.js";
-export type { CharacterDetailResponse, CreateCharacterRequest, ListCharactersResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse } from "../domains/characters/types/index.js";
-import { CharacterDetailResponseSchema, ListCharactersResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
+import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+import { CharacterDetailResponseSchema, CharacterSpellDetailsResponseSchema, CharacterSpellSlotsResponseSchema, CharacterSpellsResponseSchema, ListCharactersResponseSchema, SearchCharacterSpellsResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
 
 export interface ApiClientOptions {
 	baseUrl?: string;
@@ -54,6 +54,42 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
 		updateCharacterHealth(params: { characterId: string }, body: UpdateCharacterHealthRequest, options: ApiRequestOptions = {}): Promise<UpdateCharacterHealthResponse> {
 			return request<UpdateCharacterHealthResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/health`, options, body, (body: unknown) => UpdateCharacterHealthResponseSchema.parse(body));
+		},
+
+		getCharacterSpellSlots(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
+			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spell-slots`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
+		},
+
+		updateCharacterSpellSlots(params: { characterId: string }, body: UpdateCharacterSpellSlotsRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
+			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/spell-slots`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
+		},
+
+		useCharacterSpellSlot(params: { characterId: string }, body: UseCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
+			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/use`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
+		},
+
+		restoreCharacterSpellSlot(params: { characterId: string }, body: RestoreCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
+			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/restore`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
+		},
+
+		applyCharacterSpellSlotDefaults(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
+			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/apply-defaults`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
+		},
+
+		listCharacterSpells(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
+			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
+		},
+
+		getCharacterSpellDetails(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellDetailsResponse> {
+			return request<CharacterSpellDetailsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellDetailsResponseSchema.parse(body));
+		},
+
+		searchCharacterSpells(params: { characterId: string }, body: SearchCharacterSpellsRequest, options: ApiRequestOptions = {}): Promise<SearchCharacterSpellsResponse> {
+			return request<SearchCharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells/search`, options, body, (body: unknown) => SearchCharacterSpellsResponseSchema.parse(body));
+		},
+
+		saveCharacterSpell(params: { characterId: string }, body: SaveCharacterSpellRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
+			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells`, options, body, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
 		}
 	};
 }
@@ -64,6 +100,9 @@ export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
 	listCharacters: () => ["api", "listCharacters"] as const,
 	getCharacter: (params: { characterId: string }) => ["api", "getCharacter", params] as const,
+	getCharacterSpellSlots: (params: { characterId: string }) => ["api", "getCharacterSpellSlots", params] as const,
+	listCharacterSpells: (params: { characterId: string }) => ["api", "listCharacterSpells", params] as const,
+	getCharacterSpellDetails: (params: { characterId: string; spellId: string }) => ["api", "getCharacterSpellDetails", params] as const,
 } as const;
 
 export function createApiQueryOptions(client = apiClient) {
@@ -82,6 +121,21 @@ export function createApiQueryOptions(client = apiClient) {
 			queryKey: apiQueryKeys.getCharacter(params),
 			queryFn: () => client.getCharacter(params, options),
 		}),
+
+		getCharacterSpellSlots: (params: { characterId: string }, options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.getCharacterSpellSlots(params),
+			queryFn: () => client.getCharacterSpellSlots(params, options),
+		}),
+
+		listCharacterSpells: (params: { characterId: string }, options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.listCharacterSpells(params),
+			queryFn: () => client.listCharacterSpells(params, options),
+		}),
+
+		getCharacterSpellDetails: (params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.getCharacterSpellDetails(params),
+			queryFn: () => client.getCharacterSpellDetails(params, options),
+		}),
 	};
 }
 
@@ -97,6 +151,36 @@ export function createApiMutationOptions(client = apiClient) {
 		updateCharacterHealth: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "updateCharacterHealth"] as const,
 			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterHealthRequest }) => client.updateCharacterHealth(variables.params, variables.body, options),
+		}),
+
+		updateCharacterSpellSlots: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "updateCharacterSpellSlots"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterSpellSlotsRequest }) => client.updateCharacterSpellSlots(variables.params, variables.body, options),
+		}),
+
+		useCharacterSpellSlot: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "useCharacterSpellSlot"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UseCharacterSpellSlotRequest }) => client.useCharacterSpellSlot(variables.params, variables.body, options),
+		}),
+
+		restoreCharacterSpellSlot: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "restoreCharacterSpellSlot"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: RestoreCharacterSpellSlotRequest }) => client.restoreCharacterSpellSlot(variables.params, variables.body, options),
+		}),
+
+		applyCharacterSpellSlotDefaults: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "applyCharacterSpellSlotDefaults"] as const,
+			mutationFn: (params: { characterId: string }) => client.applyCharacterSpellSlotDefaults(params, options),
+		}),
+
+		searchCharacterSpells: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "searchCharacterSpells"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: SearchCharacterSpellsRequest }) => client.searchCharacterSpells(variables.params, variables.body, options),
+		}),
+
+		saveCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "saveCharacterSpell"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: SaveCharacterSpellRequest }) => client.saveCharacterSpell(variables.params, variables.body, options),
 		}),
 	};
 }

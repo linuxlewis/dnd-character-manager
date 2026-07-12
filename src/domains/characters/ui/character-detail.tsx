@@ -4,6 +4,7 @@ import { ApiClientError, apiQueries } from "../../../generated/api-client.genera
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
 import { CharacterHealthPanel } from "./health-panel.js";
+import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
 interface CharacterDetailProps {
 	id: string;
@@ -52,6 +53,10 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 							characterId={characterQuery.data.character.id}
 							health={characterQuery.data.character.health}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
+						/>
+						<CharacterSpellSlotsPanel
+							characterId={characterQuery.data.character.id}
+							level={characterQuery.data.character.level}
 						/>
 					</Stack>
 				</Paper>
