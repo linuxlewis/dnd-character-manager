@@ -1,9 +1,5 @@
 import type { CharacterSpellRepository, DndApiSpellClient } from "../repo/index.js";
-import {
-	createCharacterSpellRepository,
-	createDndApiSpellClient,
-	DndApiSpellClientError,
-} from "../repo/index.js";
+import { createCharacterSpellRepository, DndApiSpellClientError } from "../repo/index.js";
 import type {
 	CharacterSpellDetailsResponse,
 	CharacterSpellsResponse,
@@ -15,6 +11,7 @@ import {
 	CharacterSpellDetailsResponseSchema,
 	SearchCharacterSpellsResponseSchema,
 } from "../types/index.js";
+import { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
 import {
 	CharacterNotFoundError,
 	SpellSearchUnavailableError,
@@ -47,7 +44,7 @@ export interface CharacterSpellService {
 
 export function createCharacterSpellService(
 	repository: CharacterSpellRepository = createCharacterSpellRepository(),
-	spellsClient: DndApiSpellClient = createDndApiSpellClient(),
+	spellsClient: DndApiSpellClient = createCatalogueBackedSpellClient(),
 ): CharacterSpellService {
 	return {
 		async getCharacterSpellDetails(userId, characterId, spellId) {
