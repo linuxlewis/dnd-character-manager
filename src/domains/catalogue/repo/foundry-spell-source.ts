@@ -121,7 +121,9 @@ function decodeHtmlEntities(value: string) {
 		.replace(/&lt;/g, "<")
 		.replace(/&gt;/g, ">")
 		.replace(/&quot;/g, '"')
-		.replace(/&#39;/g, "'");
+		.replace(/&#39;/g, "'")
+		.replace(/&apos;/g, "'")
+		.replace(/&nbsp;/g, " ");
 }
 
 function extractHigherLevel(paragraphs: string[]) {

@@ -82,6 +82,68 @@ describe("createCatalogueSpellService", () => {
 		]);
 	});
 
+	it("fetches Foundry spell source files with bounded concurrency", async () => {
+		const repository = fakeRepository();
+		let currentRawFetches = 0;
+		let maxRawFetches = 0;
+		const files = Object.fromEntries(
+			Array.from({ length: 12 }, (_, index) => {
+				const spellNumber = index + 1;
+				const spellIndex = `batch-spell-${spellNumber}`;
+				return [
+					`packs/_source/spells24/1st-level/${spellIndex}.yml`,
+					foundrySpellYaml({
+						identifier: spellIndex,
+						name: `Batch Spell ${spellNumber}`,
+					}),
+				];
+			}),
+		);
+		const fetcher = fakeFoundryFetcher(files, {
+			onRawFetchEnd: () => {
+				currentRawFetches -= 1;
+			},
+			onRawFetchStart: () => {
+				currentRawFetches += 1;
+				maxRawFetches = Math.max(maxRawFetches, currentRawFetches);
+			},
+			rawDelayMs: 5,
+		});
+		const service = createCatalogueSpellService({ fetcher, repository });
+
+		const result = await service.seedFoundrySrd2024Spells();
+
+		expect(result).toEqual({ processed: 12 });
+		expect(maxRawFetches).toBeGreaterThan(1);
+		expect(maxRawFetches).toBeLessThanOrEqual(10);
+	});
+
+	it("reports the source path and parse detail for invalid Foundry spell source files", async () => {
+		const repository = fakeRepository();
+		const service = createCatalogueSpellService({
+			repository,
+			fetcher: fakeFoundryFetcher({
+				"packs/_source/spells24/1st-level/broken-spell.yml": "name: Broken Spell",
+			}),
+		});
+
+		let thrown: unknown;
+		try {
+			await service.seedFoundrySrd2024Spells();
+		} catch (error) {
+			thrown = error;
+		}
+
+		expect(thrown).toBeInstanceOf(CatalogueSpellSeedError);
+		expect(thrown).toMatchObject({
+			message: expect.stringContaining("packs/_source/spells24/1st-level/broken-spell.yml"),
+		});
+		expect(thrown).toMatchObject({
+			message: expect.stringContaining("Invalid input"),
+		});
+		expect(repository.upsertSpells).not.toHaveBeenCalled();
+	});
+
 	it("reports catalogue seed errors for failed Foundry downloads", async () => {
 		const repository = fakeRepository();
 		const service = createCatalogueSpellService({
@@ -141,9 +203,16 @@ function fakeRepository() {
 	};
 }
 
-function fakeFoundryFetcher(files: Record<string, string>) {
+function fakeFoundryFetcher(
+	files: Record<string, string>,
+	options: {
+		onRawFetchEnd?: () => void;
+		onRawFetchStart?: () => void;
+		rawDelayMs?: number;
+	} = {},
+) {
 	const paths = Object.keys(files);
-	return async (url: string | URL | Request) => {
+	return async (url: string | URL | Request): Promise<Response> => {
 		const value = String(url);
 		if (value.includes("/git/trees/")) {
 			return Response.json({
@@ -152,8 +221,29 @@ function fakeFoundryFetcher(files: Record<string, string>) {
 		}
 
 		const path = paths.find((candidate) => value.endsWith(candidate));
-		return path
-			? new Response(files[path], { status: 200 })
-			: new Response("not found", { status: 404 });
+		if (!path) return new Response("not found", { status: 404 });
+
+		options.onRawFetchStart?.();
+		if (options.rawDelayMs) {
+			await new Promise((resolve) => setTimeout(resolve, options.rawDelayMs));
+		}
+		options.onRawFetchEnd?.();
+		return new Response(files[path], { status: 200 });
 	};
+}
+
+function foundrySpellYaml({ identifier, name }: { identifier: string; name: string }) {
+	return `
+name: ${name}
+system:
+  description:
+    value: <p>${name} description.</p>
+  source:
+    rules: '2024'
+    license: CC-BY-4.0
+  level: 1
+  identifier: ${identifier}
+_id: source${identifier.replaceAll("-", "")}
+type: spell
+`;
 }

@@ -26,6 +26,8 @@ const FoundryTreeResponseSchema = z.object({
 	),
 });
 
+const FOUNDRY_SPELL_FETCH_CONCURRENCY = 10;
+
 export class CatalogueSpellSeedError extends Error {
 	constructor(message = "D&D spell catalogue seed data could not be loaded.") {
 		super(message);
@@ -57,19 +59,13 @@ export function createCatalogueSpellService(
 		async seedFoundrySrd2024Spells() {
 			try {
 				const paths = await fetchFoundrySpellPaths(fetcher, foundryRef);
-				const spells: CatalogueSpellSeed[] = [];
-				for (const path of paths) {
-					spells.push(
-						parseFoundrySpellSource({
-							path,
-							yaml: await fetchFoundrySpellYaml(fetcher, path, foundryRef),
-						}),
-					);
-				}
+				const spells = await fetchFoundrySpellSeeds(fetcher, paths, foundryRef);
 				return { processed: await repository.upsertSpells(spells) };
 			} catch (error) {
 				if (error instanceof CatalogueSpellSeedError) throw error;
-				throw new CatalogueSpellSeedError();
+				throw new CatalogueSpellSeedError(
+					`D&D spell catalogue seed failed: ${errorMessage(error)}`,
+				);
 			}
 		},
 
@@ -87,6 +83,35 @@ export function createCatalogueSpellService(
 	};
 }
 
+async function fetchFoundrySpellSeeds(
+	fetcher: typeof fetch,
+	paths: string[],
+	ref: string | undefined,
+) {
+	const spells: CatalogueSpellSeed[] = [];
+	for (let index = 0; index < paths.length; index += FOUNDRY_SPELL_FETCH_CONCURRENCY) {
+		const batch = paths.slice(index, index + FOUNDRY_SPELL_FETCH_CONCURRENCY);
+		spells.push(
+			...(await Promise.all(batch.map((path) => fetchFoundrySpellSeed(fetcher, path, ref)))),
+		);
+	}
+	return spells;
+}
+
+async function fetchFoundrySpellSeed(fetcher: typeof fetch, path: string, ref: string | undefined) {
+	try {
+		return parseFoundrySpellSource({
+			path,
+			yaml: await fetchFoundrySpellYaml(fetcher, path, ref),
+		});
+	} catch (error) {
+		if (error instanceof CatalogueSpellSeedError) throw error;
+		throw new CatalogueSpellSeedError(
+			`Foundry spell source failed: ${path}: ${errorMessage(error)}`,
+		);
+	}
+}
+
 async function fetchFoundrySpellPaths(fetcher: typeof fetch, ref: string | undefined) {
 	const response = await fetcher(foundryDnd5eTreeUrl(ref));
 	if (!response.ok) throw new CatalogueSpellSeedError();
@@ -100,7 +125,9 @@ async function fetchFoundrySpellPaths(fetcher: typeof fetch, ref: string | undef
 
 async function fetchFoundrySpellYaml(fetcher: typeof fetch, path: string, ref: string | undefined) {
 	const response = await fetcher(foundryDnd5eRawUrl(path, ref));
-	if (!response.ok) throw new CatalogueSpellSeedError(`Foundry spell source failed: ${path}`);
+	if (!response.ok) {
+		throw new CatalogueSpellSeedError(`Foundry spell source failed: ${path} (${response.status})`);
+	}
 	return response.text();
 }
 
@@ -111,4 +138,8 @@ function isFoundrySpellSourcePath(path: string) {
 		!path.includes("/supplemental-items/") &&
 		!path.endsWith("/_folder.yml")
 	);
+}
+
+function errorMessage(error: unknown) {
+	return error instanceof Error ? error.message : String(error);
 }

@@ -138,4 +138,25 @@ type: spell
 			spellIndex: "ice-knife",
 		});
 	});
+
+	it("decodes common rich text HTML entities from Foundry descriptions", () => {
+		const spell = parseFoundrySpellSource({
+			path: "packs/_source/spells24/cantrips/light.yml",
+			yaml: `
+name: Light
+system:
+  description:
+    value: <p>You touch&nbsp;a spell&apos;s object.</p>
+  source:
+    rules: '2024'
+    license: CC-BY-4.0
+  level: 0
+  identifier: light
+_id: phbsplLight00000
+type: spell
+`,
+		});
+
+		expect(spell.desc).toEqual(["You touch a spell's object."]);
+	});
 });
