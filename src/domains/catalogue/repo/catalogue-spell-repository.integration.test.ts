@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createCatalogueSpellRepository } from "./catalogue-spell-repository.js";
 import { catalogueSpellsTable } from "./catalogue-spell-table.js";
 
-const spellIndexes = ["divine-smite", "ice-knife", "light", "searing-smite"];
+const spellIndexes = ["divine-smite-test", "ice-knife-test", "light-test", "searing-smite-test"];
 
 afterEach(async () => {
 	await getDb()
@@ -18,45 +18,45 @@ describe("createCatalogueSpellRepository", () => {
 		const repository = createCatalogueSpellRepository();
 
 		await repository.upsertSpells([
-			seedSpell({ spellIndex: "divine-smite", name: "Divine Smite", level: 1 }),
-			seedSpell({ spellIndex: "ice-knife", name: "Ice Knife", level: 1, license: "" }),
-			seedSpell({ spellIndex: "light", name: "Light", level: 0 }),
-			seedSpell({ spellIndex: "searing-smite", name: "Searing Smite", level: 1 }),
+			seedSpell({ spellIndex: "divine-smite-test", name: "Divine Smite Test", level: 1 }),
+			seedSpell({ spellIndex: "ice-knife-test", name: "Ice Knife Test", level: 1, license: "" }),
+			seedSpell({ spellIndex: "light-test", name: "Light Test", level: 0 }),
+			seedSpell({ spellIndex: "searing-smite-test", name: "Searing Smite Test", level: 1 }),
 		]);
 
 		await repository.upsertSpells([
 			seedSpell({
-				spellIndex: "divine-smite",
-				name: "Divine Smite",
+				spellIndex: "divine-smite-test",
+				name: "Divine Smite Test",
 				level: 1,
 				desc: ["Updated radiant damage text."],
 			}),
 		]);
 
 		const count = await repository.countSpells();
-		const smiteResults = await repository.searchSpells({ query: "smite", slotLevel: 1 });
-		const lightResults = await repository.searchSpells({ query: "light", slotLevel: 1 });
-		const details = await repository.findSpell("divine-smite");
-		const spellWithMissingLicense = await repository.findSpell("ice-knife");
+		const smiteResults = await repository.searchSpells({ query: "smite test", slotLevel: 1 });
+		const lightResults = await repository.searchSpells({ query: "light test", slotLevel: 1 });
+		const details = await repository.findSpell("divine-smite-test");
+		const spellWithMissingLicense = await repository.findSpell("ice-knife-test");
 
 		expect(count).toBeGreaterThanOrEqual(4);
 		expect(smiteResults).toEqual([
 			{
-				spellIndex: "divine-smite",
-				name: "Divine Smite",
+				spellIndex: "divine-smite-test",
+				name: "Divine Smite Test",
 				level: 1,
-				url: "/api/2024/spells/divine-smite",
+				url: "/api/2024/spells/divine-smite-test",
 			},
 			{
-				spellIndex: "searing-smite",
-				name: "Searing Smite",
+				spellIndex: "searing-smite-test",
+				name: "Searing Smite Test",
 				level: 1,
-				url: "/api/2024/spells/searing-smite",
+				url: "/api/2024/spells/searing-smite-test",
 			},
 		]);
 		expect(lightResults).toEqual([]);
 		expect(details?.desc).toEqual(["Updated radiant damage text."]);
-		expect(details?.sourcePayload).toEqual({ system: { identifier: "divine-smite" } });
+		expect(details?.sourcePayload).toEqual({ system: { identifier: "divine-smite-test" } });
 		expect(spellWithMissingLicense?.license).toBe("");
 	});
 });

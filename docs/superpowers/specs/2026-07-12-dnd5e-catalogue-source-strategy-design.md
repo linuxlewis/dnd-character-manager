@@ -129,6 +129,11 @@ coverage is verified, runtime spell lookup should prefer local records and use O
 refresh/reference source rather than as the only runtime dependency. No feature flag is needed for
 the local-catalogue preference once the seed/import path is verified.
 
+Local spell search should still fall back to the remote client when a seeded catalogue returns no
+matches. The Foundry `spells24` pack currently seeds 340 spell records and includes Divine Smite,
+Searing Smite, and Shining Smite, but not Wrathful Smite or Staggering Smite; those spells require
+another redistributable source before the app can surface them.
+
 The first implementation pass should process spells. Equipment source coverage remains documented
 for the broader catalogue strategy, but equipment workflows and equipment import can wait.
 
@@ -142,7 +147,9 @@ for the broader catalogue strategy, but equipment workflows and equipment import
   catalogue domain.
 - Import failures should identify the source file/key and fail the import batch before partial
   catalogue state is promoted.
-- License/source attribution must be required on imported source batches.
+- License/source attribution should be preserved on imported source batches. Some Foundry records do
+  not include `system.source.license`; keep the raw source payload and store an empty normalized
+  license for those records rather than inventing a license value.
 
 ## Testing Strategy
 
@@ -167,7 +174,8 @@ Before considering the catalogue comprehensive, verify at least:
 - SRD 2024 spells are present from Open5e and Foundry source packs.
 - Mundane equipment is present, including weapons and armor.
 - Magic items are represented distinctly from mundane equipment.
-- Every imported record includes source name, source key/path, rules version, and license metadata.
+- Every imported record includes source name, source key/path, rules version, and preserved license
+  metadata when present.
 - Existing 2014 saved spell/feature URLs remain parseable and displayable.
 
 ## Implementation Decisions
@@ -175,7 +183,8 @@ Before considering the catalogue comprehensive, verify at least:
 - Foundry data should be loaded through a seed command that downloads and processes source data,
   rather than by committing source snapshots directly as the primary workflow.
 - Runtime spell lookup should move to the seeded local catalogue after the seed/import path is
-  verified; no feature flag is needed for that switch.
+  verified; no feature flag is needed for that switch. Remote fallback should remain for unseeded
+  catalogues and local source gaps.
 - Preserve as much Foundry source detail as possible. Normalized app fields should cover the current
   UI needs, and the importer should retain source detail payloads needed for future rules
   automation.

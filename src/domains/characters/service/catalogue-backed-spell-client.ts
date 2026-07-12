@@ -30,7 +30,8 @@ export function createCatalogueBackedSpellClient(
 					return fallbackClient.searchSpells(input);
 				}
 
-				return (await catalogueService.searchSpells(input)).map(toDndSpellSearchResult);
+				const spells = (await catalogueService.searchSpells(input)).map(toDndSpellSearchResult);
+				return spells.length > 0 ? spells : fallbackClient.searchSpells(input);
 			});
 		},
 

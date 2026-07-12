@@ -31,15 +31,32 @@ describe("createCatalogueBackedSpellClient", () => {
 		expect(fallbackClient.searchSpells).not.toHaveBeenCalled();
 	});
 
-	it("does not fall back to remote search when seeded local search has no matches", async () => {
+	it("falls back to remote search when seeded local search has no matches", async () => {
 		const catalogueService = fakeCatalogueService();
 		const fallbackClient = fakeFallbackClient();
 		catalogueService.hasSeededSpells.mockResolvedValue(true);
 		catalogueService.searchSpells.mockResolvedValue([]);
+		fallbackClient.searchSpells.mockResolvedValue([
+			{
+				index: "branding-smite",
+				name: "Branding Smite",
+				level: 2,
+				url: "/api/2014/spells/branding-smite",
+				source: "spell",
+			},
+		]);
 		const client = createCatalogueBackedSpellClient({ catalogueService, fallbackClient });
 
-		await expect(client.searchSpells({ query: "zzzz", slotLevel: 1 })).resolves.toEqual([]);
-		expect(fallbackClient.searchSpells).not.toHaveBeenCalled();
+		await expect(client.searchSpells({ query: "branding", slotLevel: 2 })).resolves.toEqual([
+			{
+				index: "branding-smite",
+				name: "Branding Smite",
+				level: 2,
+				url: "/api/2014/spells/branding-smite",
+				source: "spell",
+			},
+		]);
+		expect(fallbackClient.searchSpells).toHaveBeenCalledWith({ query: "branding", slotLevel: 2 });
 	});
 
 	it("falls back to remote search when the local catalogue has not been seeded", async () => {
