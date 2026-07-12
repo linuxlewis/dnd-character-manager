@@ -34,17 +34,24 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByText("Level 7")).toBeVisible();
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 
+	await page.getByRole("button", { name: "Edit level" }).click();
+	await page.getByLabel("Character level").fill("8");
+	await page.getByRole("button", { name: "Save level" }).click();
+	await expect(page.getByText("Level 8")).toBeVisible();
+
 	await page.getByText("Back to characters").click();
 	await expect(page).toHaveURL(/\/characters$/);
 	await expect(page.getByRole("link", { name: "Lyria Dawn" })).toBeVisible();
+	await expect(page.getByText("Level 8")).toBeVisible();
 
 	await page.reload();
 	await expect(page.getByRole("link", { name: "Lyria Dawn" })).toBeVisible();
+	await expect(page.getByText("Level 8")).toBeVisible();
 
 	await page.getByRole("link", { name: "Lyria Dawn" }).click();
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
-	await expect(page.getByText("Level 7")).toBeVisible();
+	await expect(page.getByText("Level 8")).toBeVisible();
 
 	await page.goBack();
 	await expect(page).toHaveURL(/\/characters$/);
@@ -53,6 +60,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await page.goForward();
 	await expect(page).toHaveURL(/\/characters\/[0-9a-f-]{36}$/);
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
+	await expect(page.getByText("Level 8")).toBeVisible();
 });
 
 test("shows a not-found state for a missing character id", async ({ page }) => {

@@ -5,8 +5,8 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
-import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
-export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
 import { CharacterDetailResponseSchema, CharacterSpellDetailsResponseSchema, CharacterSpellSlotsResponseSchema, CharacterSpellsResponseSchema, ListCharactersResponseSchema, SearchCharacterSpellsResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
 
 export interface ApiClientOptions {
@@ -50,6 +50,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
 		getCharacter(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
 			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}`, options, undefined, (body: unknown) => CharacterDetailResponseSchema.parse(body));
+		},
+
+		updateCharacterLevel(params: { characterId: string }, body: UpdateCharacterLevelRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
+			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/level`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
 		},
 
 		updateCharacterHealth(params: { characterId: string }, body: UpdateCharacterHealthRequest, options: ApiRequestOptions = {}): Promise<UpdateCharacterHealthResponse> {
@@ -150,6 +154,11 @@ export function createApiMutationOptions(client = apiClient) {
 		createCharacter: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "createCharacter"] as const,
 			mutationFn: (body: CreateCharacterRequest) => client.createCharacter(body, options),
+		}),
+
+		updateCharacterLevel: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "updateCharacterLevel"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterLevelRequest }) => client.updateCharacterLevel(variables.params, variables.body, options),
 		}),
 
 		updateCharacterHealth: (options: ApiRequestOptions = {}) => mutationOptions({
