@@ -9,6 +9,7 @@ import {
 	SearchCharacterSpellsRequestSchema,
 	SearchCharacterSpellsResponseSchema,
 	UpdateCharacterHealthRequestSchema,
+	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
@@ -202,6 +203,17 @@ describe("UpdateCharacterHealthRequestSchema", () => {
 				temporaryHp: 0,
 			}),
 		).toThrow();
+	});
+});
+
+describe("UpdateCharacterLevelRequestSchema", () => {
+	it("accepts a valid character level update", () => {
+		expect(UpdateCharacterLevelRequestSchema.parse({ level: 8 })).toEqual({ level: 8 });
+	});
+
+	it("rejects levels outside the D&D character range", () => {
+		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 0 })).toThrow();
+		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 21 })).toThrow();
 	});
 });
 
