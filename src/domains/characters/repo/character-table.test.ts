@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
 	characterHealthEventsTable,
 	characterHealthTable,
+	characterSpellSlotEventsTable,
+	characterSpellSlotsTable,
+	characterSpellsTable,
 	charactersTable,
 } from "./character-table.js";
 
@@ -11,5 +14,8 @@ describe("character tables", () => {
 		expect(getTableName(charactersTable)).toBe("characters");
 		expect(getTableName(characterHealthTable)).toBe("character_health");
 		expect(getTableName(characterHealthEventsTable)).toBe("character_health_events");
+		expect(getTableName(characterSpellSlotsTable)).toBe("character_spell_slots");
+		expect(getTableName(characterSpellSlotEventsTable)).toBe("character_spell_slot_events");
+		expect(getTableName(characterSpellsTable)).toBe("character_spells");
 	});
 });

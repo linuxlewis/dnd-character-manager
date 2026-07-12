@@ -108,6 +108,77 @@ describe("character routes", () => {
 			await app.close();
 		}
 	});
+
+	it("configures spell slots, tracks usage history, and keeps it session-scoped", async () => {
+		const app = await buildServer();
+		try {
+			const cookie = await createSessionCookie(app);
+			const created = await app.inject({
+				method: "POST",
+				url: "/api/characters",
+				headers: { cookie },
+				payload: {
+					name: "Tamsin",
+					className: "Wizard",
+					level: 7,
+					maxHp: 30,
+				},
+			});
+			const character = created.json().character;
+
+			const configured = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/spell-slots`,
+				headers: { cookie },
+				payload: { slots: [{ level: 1, total: 2 }] },
+			});
+			expect(configured.statusCode).toBe(200);
+			expect(configured.json().spellSlots[0]).toEqual({
+				level: 1,
+				total: 2,
+				used: 0,
+				remaining: 2,
+			});
+
+			const used = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spell-slots/use`,
+				headers: { cookie },
+				payload: { level: 1 },
+			});
+			expect(used.statusCode).toBe(200);
+			expect(used.json().spellSlots[0]).toEqual({
+				level: 1,
+				total: 2,
+				used: 1,
+				remaining: 1,
+			});
+			expect(used.json().recentSpellSlotChanges[0]).toMatchObject({
+				action: "used",
+				level: 1,
+				usedDelta: 1,
+			});
+			expect(used.json().recentSpellSlotChanges).toHaveLength(2);
+
+			const detail = await app.inject({
+				method: "GET",
+				url: `/api/characters/${character.id}/spell-slots`,
+				headers: { cookie },
+			});
+			expect(detail.statusCode).toBe(200);
+			expect(detail.json().recentSpellSlotChanges).toHaveLength(2);
+
+			const otherCookie = await createSessionCookie(app);
+			const otherResponse = await app.inject({
+				method: "GET",
+				url: `/api/characters/${character.id}/spell-slots`,
+				headers: { cookie: otherCookie },
+			});
+			expect(otherResponse.statusCode).toBe(404);
+		} finally {
+			await app.close();
+		}
+	});
 });
 
 async function createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>) {
