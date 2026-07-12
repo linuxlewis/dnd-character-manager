@@ -135,6 +135,7 @@ function fakeSpellService() {
 	return {
 		getCharacterSpellDetails: vi.fn(),
 		listCharacterSpells: vi.fn(),
+		removeCharacterSpell: vi.fn(),
 		saveCharacterSpell: vi.fn(),
 		searchCharacterSpells: vi.fn(),
 	} satisfies CharacterSpellService;
