@@ -81,7 +81,18 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
-	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeVisible();
+	let addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
+	await expect(addSpellDialog).toBeVisible();
+	await expect(
+		addSpellDialog.getByRole("button", { name: "Close add spell dialog" }),
+	).toBeVisible();
+	let closeButtonBox = await addSpellDialog
+		.getByRole("button", { name: "Close add spell dialog" })
+		.boundingBox();
+	expect(closeButtonBox?.width ?? 0).toBeGreaterThanOrEqual(44);
+	expect(closeButtonBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+	await expect(page.getByLabel("Search spells")).toBeFocused();
+	await expect(page.getByLabel("Search spells")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("Search spells").fill("haste");
 	await expect(page.getByRole("button", { name: /Haste/ })).toBeVisible();
 	await page.getByLabel("Search spells").fill("divine smite");
@@ -89,6 +100,21 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden();
 	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeVisible();
 	await expect(page.getByText("2nd-level feature")).toBeVisible();
+	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
+	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
+	await expect(addSpellDialog).toBeVisible();
+	await expect(
+		addSpellDialog.getByRole("button", { name: "Close add spell dialog" }),
+	).toBeVisible();
+	closeButtonBox = await addSpellDialog
+		.getByRole("button", { name: "Close add spell dialog" })
+		.boundingBox();
+	expect(closeButtonBox?.width ?? 0).toBeGreaterThanOrEqual(44);
+	expect(closeButtonBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+	await expect(page.getByLabel("Search spells")).toBeFocused();
+	await expect(page.getByLabel("Search spells")).toHaveCSS("font-size", "16px");
+	await addSpellDialog.getByRole("button", { name: "Close add spell dialog" }).click();
+	await expect(addSpellDialog).toBeHidden();
 	await page.getByRole("button", { name: "View Divine Smite details" }).click();
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeVisible();
 	await expect(page.getByText("Feature 2nd-level")).toBeVisible();
