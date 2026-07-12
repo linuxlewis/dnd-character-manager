@@ -16,10 +16,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
 	ApiClientError,
-	type CharacterDetailResponse,
 	apiMutations,
 	apiQueries,
 	apiQueryKeys,
+	type CharacterDetailResponse,
 } from "../../../generated/api-client.generated.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
@@ -121,7 +121,12 @@ function CharacterLevelEditor({ characterId, level }: { characterId: string; lev
 			<Button onClick={openEditor} size="compact-xs" variant="subtle">
 				Edit level
 			</Button>
-			<Modal onClose={() => setOpened(false)} opened={opened} title="Edit level" withinPortal={false}>
+			<Modal
+				onClose={() => setOpened(false)}
+				opened={opened}
+				title="Edit level"
+				withinPortal={false}
+			>
 				<Box
 					component="form"
 					onSubmit={form.onSubmit((values) => {

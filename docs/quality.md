@@ -14,7 +14,7 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| characters | B | B | B | B | B | B | B | Character create/list/detail, detail-page health tracking, spell slot tracking, mobile-safe editable input sizing, add/remove-spell flows, and saved spell details have unit, integration, route, generated-client, and e2e coverage |
+| characters | B | B | B | B | B | B | B | Character create/list/detail, detail-page level editing, health tracking, spell slot tracking, mobile-safe editable input sizing, add/remove-spell flows, and saved spell details have unit, integration, route, generated-client, and e2e coverage |
 
 ## Cross-Cutting
 

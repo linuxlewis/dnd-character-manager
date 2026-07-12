@@ -6,8 +6,8 @@ import {
 	ListCharactersResponseSchema,
 	RestoreCharacterSpellSlotRequestSchema,
 	UpdateCharacterHealthRequestSchema,
-	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterHealthResponseSchema,
+	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
