@@ -271,9 +271,9 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		updateCharacterLevel: vi.fn(),
 	} satisfies CharacterService;
 }
-
 function fakeHealthService() {
 	return { updateCharacterHealth: vi.fn() } satisfies CharacterHealthService;
 }

@@ -130,11 +130,15 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await addSpellDialog.getByRole("button", { name: "Close add spell dialog" }).click();
 	await expect(addSpellDialog).toBeHidden();
 	await page.getByRole("button", { name: "View Divine Smite details" }).click();
-	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeVisible();
+	const spellDetailsDialog = page.getByRole("dialog", {
+		name: /^(Divine Smite|Spell details)$/,
+	});
+	await expect(spellDetailsDialog).toBeVisible();
 	await expect(page.getByText("Spell 1st-level")).toBeVisible({ timeout: spellApiTimeoutMs });
+	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeVisible();
 	await expect(page.getByText(/radiant damage/i)).toBeVisible({ timeout: spellApiTimeoutMs });
 	await page.keyboard.press("Escape");
-	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeHidden();
+	await expect(spellDetailsDialog).toBeHidden();
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
 	await page.getByRole("button", { name: "Remove Divine Smite" }).click();

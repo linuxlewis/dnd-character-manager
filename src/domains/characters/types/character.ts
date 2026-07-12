@@ -137,6 +137,11 @@ export const CharacterDetailResponseSchema = z.object({
 });
 export type CharacterDetailResponse = z.infer<typeof CharacterDetailResponseSchema>;
 
+export const UpdateCharacterLevelRequestSchema = z.object({
+	level: CharacterLevelSchema,
+});
+export type UpdateCharacterLevelRequest = z.infer<typeof UpdateCharacterLevelRequestSchema>;
+
 export const UpdateCharacterHealthRequestSchema = z.object({
 	currentHp: HitPointsSchema,
 	maxHp: MaxHitPointsSchema,

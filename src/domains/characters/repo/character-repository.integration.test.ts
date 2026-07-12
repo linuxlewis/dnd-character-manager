@@ -54,8 +54,32 @@ describe("createCharacterRepository", () => {
 		]);
 		await expect(repository.findCharacterDetail(userId, created.id)).resolves.toMatchObject({
 			id: created.id,
+			level: 3,
 			health: { currentHp: 28, maxHp: 28, temporaryHp: 0, effectiveMaxHp: 28 },
 		});
+
+		const updated = await repository.updateCharacterLevel(userId, created.id, 8);
+
+		expect(updated).toMatchObject({
+			id: created.id,
+			name: "Mira",
+			className: "Fighter",
+			level: 8,
+			health: {
+				currentHp: 28,
+				maxHp: 28,
+				temporaryHp: 0,
+				effectiveMaxHp: 28,
+			},
+		});
+		await expect(repository.listCharacters(userId)).resolves.toEqual([
+			{
+				id: created.id,
+				name: "Mira",
+				className: "Fighter",
+				level: 8,
+			},
+		]);
 	});
 });
 

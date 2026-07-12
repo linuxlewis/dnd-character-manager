@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 describe("character routes", () => {
-	it("creates, returns detail health, updates health, and lists recent changes", async () => {
+	it("creates, updates level, returns detail health, updates health, and lists recent changes", async () => {
 		const app = await buildServer();
 		try {
 			const cookie = await createSessionCookie(app);
@@ -43,6 +43,41 @@ describe("character routes", () => {
 				temporaryHp: 0,
 				effectiveMaxHp: 28,
 			});
+
+			const levelUpdated = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/level`,
+				headers: { cookie },
+				payload: { level: 8 },
+			});
+			expect(levelUpdated.statusCode).toBe(200);
+			expect(levelUpdated.json().character).toMatchObject({
+				id: character.id,
+				name: "Mira",
+				className: "Fighter",
+				level: 8,
+				health: {
+					currentHp: 28,
+					maxHp: 28,
+					temporaryHp: 0,
+					effectiveMaxHp: 28,
+				},
+			});
+
+			const list = await app.inject({
+				method: "GET",
+				url: "/api/characters",
+				headers: { cookie },
+			});
+			expect(list.statusCode).toBe(200);
+			expect(list.json().characters).toEqual([
+				{
+					id: character.id,
+					name: "Mira",
+					className: "Fighter",
+					level: 8,
+				},
+			]);
 
 			const updated = await app.inject({
 				method: "PUT",
@@ -78,6 +113,7 @@ describe("character routes", () => {
 				headers: { cookie },
 			});
 			expect(detail.statusCode).toBe(200);
+			expect(detail.json().character.level).toBe(8);
 			expect(detail.json().character.recentHealthChanges).toHaveLength(1);
 		} finally {
 			await app.close();
@@ -102,8 +138,15 @@ describe("character routes", () => {
 				url: `/api/characters/${ownerCharacter.id}`,
 				headers: { cookie: otherCookie },
 			});
+			const updateResponse = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${ownerCharacter.id}/level`,
+				headers: { cookie: otherCookie },
+				payload: { level: 8 },
+			});
 
 			expect(response.statusCode).toBe(404);
+			expect(updateResponse.statusCode).toBe(404);
 		} finally {
 			await app.close();
 		}

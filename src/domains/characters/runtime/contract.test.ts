@@ -7,6 +7,7 @@ describe("characterRouteContracts", () => {
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
+			"updateCharacterLevel",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -23,6 +24,7 @@ describe("characterRouteContracts", () => {
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
+			"updateCharacterLevel",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -37,10 +39,10 @@ describe("characterRouteContracts", () => {
 		]);
 	});
 
-	it("uses characterId path params for detail, health, and spell slot routes", () => {
+	it("uses path params for character detail and update routes", () => {
 		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(12);
+		expect(routeWithParams).toHaveLength(13);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });
