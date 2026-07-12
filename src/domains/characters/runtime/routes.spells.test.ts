@@ -51,6 +51,17 @@ describe("registerCharacterRoutes spell routes", () => {
 				},
 			],
 		};
+		const nonSlotSearch = {
+			spells: [
+				{
+					index: "light",
+					name: "Light",
+					level: 0,
+					url: "/api/2024/spells/light",
+					source: "spell",
+				},
+			],
+		};
 		const details = {
 			spell: {
 				id: "00000000-0000-4000-8000-000000000030",
@@ -67,7 +78,9 @@ describe("registerCharacterRoutes spell routes", () => {
 		};
 		services.characterSpellService.listCharacterSpells.mockResolvedValue(spells);
 		services.characterSpellService.getCharacterSpellDetails.mockResolvedValue(details);
-		services.characterSpellService.searchCharacterSpells.mockResolvedValue(search);
+		services.characterSpellService.searchCharacterSpells
+			.mockResolvedValueOnce(search)
+			.mockResolvedValueOnce(nonSlotSearch);
 		services.characterSpellService.saveCharacterSpell.mockResolvedValue(spells);
 		services.characterSpellService.removeCharacterSpell.mockResolvedValue({ spells: [] });
 		const app = await buildApp(services);
@@ -95,6 +108,16 @@ describe("registerCharacterRoutes spell routes", () => {
 				method: "DELETE",
 				url: `/api/characters/${character.id}/spells/00000000-0000-4000-8000-000000000030`,
 			});
+			const nonSlotSearchResponse = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spells/search`,
+				payload: { slotLevel: 0, query: "light" },
+			});
+			const nonSlotSaveResponse = await app.inject({
+				method: "POST",
+				url: `/api/characters/${character.id}/spells`,
+				payload: { slotLevel: 0, spellIndex: "light", source: "spell" },
+			});
 
 			expect(listResponse.json()).toEqual(spells);
 			expect(searchResponse.json()).toEqual(search);
@@ -102,6 +125,9 @@ describe("registerCharacterRoutes spell routes", () => {
 			expect(saveResponse.json()).toEqual(spells);
 			expect(removeResponse.statusCode).toBe(200);
 			expect(removeResponse.json()).toEqual({ spells: [] });
+			expect(nonSlotSearchResponse.statusCode).toBe(200);
+			expect(nonSlotSearchResponse.json()).toEqual(nonSlotSearch);
+			expect(nonSlotSaveResponse.statusCode).toBe(200);
 			expect(services.characterSpellService.getCharacterSpellDetails).toHaveBeenCalledWith(
 				userId,
 				character.id,
@@ -112,6 +138,11 @@ describe("registerCharacterRoutes spell routes", () => {
 				character.id,
 				{ slotLevel: 3, query: "miss" },
 			);
+			expect(services.characterSpellService.searchCharacterSpells).toHaveBeenCalledWith(
+				userId,
+				character.id,
+				{ slotLevel: 0, query: "light" },
+			);
 			expect(services.characterSpellService.saveCharacterSpell).toHaveBeenCalledWith(
 				userId,
 				character.id,
@@ -121,6 +152,11 @@ describe("registerCharacterRoutes spell routes", () => {
 				userId,
 				character.id,
 				"00000000-0000-4000-8000-000000000030",
+			);
+			expect(services.characterSpellService.saveCharacterSpell).toHaveBeenCalledWith(
+				userId,
+				character.id,
+				{ slotLevel: 0, spellIndex: "light", source: "spell" },
 			);
 		} finally {
 			await app.close();

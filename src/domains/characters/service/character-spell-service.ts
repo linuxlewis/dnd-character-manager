@@ -110,9 +110,7 @@ export function createCharacterSpellService(
 			try {
 				const source = input.source ?? "spell";
 				const spell = await spellsClient.findSpell(input.spellIndex, source);
-				if (spell.source === "spell" && spell.level > input.slotLevel) {
-					throw new SpellSlotUnavailableError("Spell level is too high for this slot.");
-				}
+				assertSpellCanSaveToBucket(spell, input.slotLevel);
 
 				const response = await repository.saveCharacterSpell(userId, characterId, {
 					slotLevel: input.slotLevel,
@@ -138,4 +136,31 @@ export function createCharacterSpellService(
 			return response;
 		},
 	};
+}
+
+function assertSpellCanSaveToBucket(
+	spell: { level: number; source: "feature" | "spell" },
+	slotLevel: number,
+) {
+	if (spell.source === "feature") {
+		if (slotLevel !== 0) {
+			throw new SpellSlotUnavailableError("Features must be saved outside spell slots.");
+		}
+		return;
+	}
+
+	if (slotLevel === 0) {
+		if (spell.level !== 0) {
+			throw new SpellSlotUnavailableError("Leveled spells require a spell slot.");
+		}
+		return;
+	}
+
+	if (spell.level === 0) {
+		throw new SpellSlotUnavailableError("Cantrips must be saved outside spell slots.");
+	}
+
+	if (spell.level > slotLevel) {
+		throw new SpellSlotUnavailableError("Spell level is too high for this slot.");
+	}
 }

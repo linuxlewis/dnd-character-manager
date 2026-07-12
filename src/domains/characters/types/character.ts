@@ -28,6 +28,7 @@ export const CharacterLevelSchema = z.number().int().min(1).max(20);
 export const HitPointsSchema = z.number().int().min(0).max(9999);
 export const MaxHitPointsSchema = z.number().int().min(1).max(9999);
 export const SpellSlotLevelSchema = z.number().int().min(1).max(9);
+export const SpellListBucketLevelSchema = z.number().int().min(0).max(9);
 export const SpellSlotCountSchema = z.number().int().min(0).max(99);
 export const SpellSlotActionSchema = z.enum(["configured", "used", "restored", "defaults-applied"]);
 export type SpellSlotAction = z.infer<typeof SpellSlotActionSchema>;
@@ -38,7 +39,7 @@ export const SpellIndexSchema = z
 	.regex(/^[a-z0-9-]+$/);
 export type SpellIndex = z.infer<typeof SpellIndexSchema>;
 export const SpellNameSchema = z.string().min(1).max(120).regex(/\S/);
-export const SpellLevelSchema = z.number().int().min(1).max(20);
+export const SpellLevelSchema = z.number().int().min(0).max(20);
 export type SpellLevel = z.infer<typeof SpellLevelSchema>;
 export const SpellEntrySourceSchema = z.enum(["spell", "feature"]);
 export type SpellEntrySource = z.infer<typeof SpellEntrySourceSchema>;
@@ -215,7 +216,7 @@ export type CharacterSpellSlotsResponse = z.infer<typeof CharacterSpellSlotsResp
 
 export const CharacterSpellSchema = z.object({
 	id: CharacterSpellIdSchema,
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	spellIndex: SpellIndexSchema,
 	name: SpellNameSchema,
 	level: SpellLevelSchema,
@@ -263,7 +264,7 @@ export const CharacterSpellDetailsResponseSchema = z.object({
 export type CharacterSpellDetailsResponse = z.infer<typeof CharacterSpellDetailsResponseSchema>;
 
 export const SearchCharacterSpellsRequestSchema = z.object({
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	query: z.string().max(120),
 });
 export type SearchCharacterSpellsRequest = z.infer<typeof SearchCharacterSpellsRequestSchema>;
@@ -274,7 +275,7 @@ export const SearchCharacterSpellsResponseSchema = z.object({
 export type SearchCharacterSpellsResponse = z.infer<typeof SearchCharacterSpellsResponseSchema>;
 
 export const SaveCharacterSpellRequestSchema = z.object({
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	spellIndex: SpellIndexSchema,
 	source: SpellEntrySourceSchema.default("spell"),
 });

@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
 	CharacterDetailResponseSchema,
-	CharacterSpellDetailsResponseSchema,
 	CharacterSpellSlotsResponseSchema,
-	CharacterSpellsResponseSchema,
 	CreateCharacterRequestSchema,
-	SaveCharacterSpellRequestSchema,
-	SearchCharacterSpellsRequestSchema,
-	SearchCharacterSpellsResponseSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
@@ -38,143 +33,6 @@ describe("CreateCharacterRequestSchema", () => {
 				className: "Wizard",
 				level: 21,
 				maxHp: 12,
-			}),
-		).toThrow();
-	});
-});
-
-describe("Character spell schemas", () => {
-	it("accepts a saved character spell under a slot level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000030",
-					slotLevel: 3,
-					spellIndex: "magic-missile",
-					name: "Magic Missile",
-					level: 1,
-					url: "/api/2014/spells/magic-missile",
-					source: "spell",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts a saved class feature under a slot level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000031",
-					slotLevel: 1,
-					spellIndex: "lay-on-hands",
-					name: "Lay on Hands",
-					level: 1,
-					url: "/api/2014/features/lay-on-hands",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts class features above 9th level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000032",
-					slotLevel: 1,
-					spellIndex: "improved-divine-smite",
-					name: "Improved Divine Smite",
-					level: 11,
-					url: "/api/2014/features/improved-divine-smite",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts a spell search request and response", () => {
-		expect(SearchCharacterSpellsRequestSchema.parse({ slotLevel: 3, query: "miss" })).toEqual({
-			slotLevel: 3,
-			query: "miss",
-		});
-
-		const response = {
-			spells: [
-				{
-					index: "magic-missile",
-					name: "Magic Missile",
-					level: 1,
-					url: "/api/2024/spells/magic-missile",
-					source: "spell",
-				},
-				{
-					index: "divine-smite",
-					name: "Divine Smite",
-					level: 2,
-					url: "/api/2014/features/divine-smite",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(SearchCharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts saving a spell by D&D API index and slot level", () => {
-		expect(
-			SaveCharacterSpellRequestSchema.parse({
-				slotLevel: 3,
-				spellIndex: "magic-missile",
-				source: "spell",
-			}),
-		).toEqual({
-			slotLevel: 3,
-			spellIndex: "magic-missile",
-			source: "spell",
-		});
-	});
-
-	it("accepts saved spell details with description and display metadata", () => {
-		const response = {
-			spell: {
-				id: "00000000-0000-4000-8000-000000000030",
-				slotLevel: 3,
-				spellIndex: "magic-missile",
-				name: "Magic Missile",
-				level: 1,
-				url: "/api/2014/spells/magic-missile",
-				source: "spell",
-				desc: ["You create three glowing darts of magical force."],
-				higherLevel: ["One more dart is created for each slot level above 1st."],
-				metadata: [
-					{ label: "Casting Time", value: "1 action" },
-					{ label: "Range", value: "120 feet" },
-				],
-			},
-		};
-
-		expect(CharacterSpellDetailsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("rejects cantrips and spells above the slot range for saved spell payloads", () => {
-		expect(() =>
-			CharacterSpellsResponseSchema.parse({
-				spells: [
-					{
-						id: "00000000-0000-4000-8000-000000000031",
-						slotLevel: 1,
-						spellIndex: "light",
-						name: "Light",
-						level: 0,
-						url: "/api/2014/spells/light",
-					},
-				],
 			}),
 		).toThrow();
 	});

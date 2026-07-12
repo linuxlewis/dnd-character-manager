@@ -2393,7 +2393,7 @@
 													},
 													"slotLevel": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 9
 													},
 													"spellIndex": {
@@ -2410,7 +2410,7 @@
 													},
 													"level": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 20
 													},
 													"url": {
@@ -2497,7 +2497,7 @@
 								"properties": {
 									"slotLevel": {
 										"type": "integer",
-										"minimum": 1,
+										"minimum": 0,
 										"maximum": 9
 									},
 									"spellIndex": {
@@ -2545,7 +2545,7 @@
 													},
 													"slotLevel": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 9
 													},
 													"spellIndex": {
@@ -2562,7 +2562,7 @@
 													},
 													"level": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 20
 													},
 													"url": {
@@ -2708,7 +2708,7 @@
 												},
 												"slotLevel": {
 													"type": "integer",
-													"minimum": 1,
+													"minimum": 0,
 													"maximum": 9
 												},
 												"spellIndex": {
@@ -2725,7 +2725,7 @@
 												},
 												"level": {
 													"type": "integer",
-													"minimum": 1,
+													"minimum": 0,
 													"maximum": 20
 												},
 												"url": {
@@ -2897,7 +2897,7 @@
 													},
 													"slotLevel": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 9
 													},
 													"spellIndex": {
@@ -2914,7 +2914,7 @@
 													},
 													"level": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 20
 													},
 													"url": {
@@ -3003,7 +3003,7 @@
 								"properties": {
 									"slotLevel": {
 										"type": "integer",
-										"minimum": 1,
+										"minimum": 0,
 										"maximum": 9
 									},
 									"query": {
@@ -3047,7 +3047,7 @@
 													},
 													"level": {
 														"type": "integer",
-														"minimum": 1,
+														"minimum": 0,
 														"maximum": 20
 													},
 													"url": {

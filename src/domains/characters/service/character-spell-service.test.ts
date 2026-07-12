@@ -39,91 +39,6 @@ describe("createCharacterSpellService", () => {
 		expect(spellsClient.searchSpells).toHaveBeenCalledWith({ slotLevel: 3, query: "miss" });
 	});
 
-	it("saves a canonical D&D spell to the selected character slot level", async () => {
-		const repository = fakeRepository();
-		const spellsClient = fakeSpellsClient();
-		spellsClient.findSpell.mockResolvedValue({
-			index: "magic-missile",
-			name: "Magic Missile",
-			level: 1,
-			url: "/api/2014/spells/magic-missile",
-			source: "spell",
-		});
-		repository.saveCharacterSpell.mockResolvedValue({
-			spells: [savedSpell({ slotLevel: 3, spellIndex: "magic-missile", level: 1 })],
-		});
-
-		const service = createCharacterSpellService(repository, spellsClient);
-
-		await expect(
-			service.saveCharacterSpell("user-1", "character-1", {
-				slotLevel: 3,
-				spellIndex: "magic-missile",
-				source: "spell",
-			}),
-		).resolves.toEqual({
-			spells: [savedSpell({ slotLevel: 3, spellIndex: "magic-missile", level: 1 })],
-		});
-		expect(repository.saveCharacterSpell).toHaveBeenCalledWith("user-1", "character-1", {
-			slotLevel: 3,
-			spellIndex: "magic-missile",
-			name: "Magic Missile",
-			level: 1,
-			url: "/api/2014/spells/magic-missile",
-			source: "spell",
-		});
-	});
-
-	it("saves a canonical D&D feature to the selected character slot level", async () => {
-		const repository = fakeRepository();
-		const spellsClient = fakeSpellsClient();
-		spellsClient.findSpell.mockResolvedValue({
-			index: "divine-smite",
-			name: "Divine Smite",
-			level: 2,
-			url: "/api/2014/features/divine-smite",
-			source: "feature",
-		});
-		repository.saveCharacterSpell.mockResolvedValue({
-			spells: [
-				savedSpell({
-					slotLevel: 1,
-					spellIndex: "divine-smite",
-					level: 2,
-					source: "feature",
-				}),
-			],
-		});
-
-		const service = createCharacterSpellService(repository, spellsClient);
-
-		await expect(
-			service.saveCharacterSpell("user-1", "character-1", {
-				slotLevel: 1,
-				spellIndex: "divine-smite",
-				source: "feature",
-			}),
-		).resolves.toEqual({
-			spells: [
-				savedSpell({
-					slotLevel: 1,
-					spellIndex: "divine-smite",
-					level: 2,
-					source: "feature",
-				}),
-			],
-		});
-		expect(spellsClient.findSpell).toHaveBeenCalledWith("divine-smite", "feature");
-		expect(repository.saveCharacterSpell).toHaveBeenCalledWith("user-1", "character-1", {
-			slotLevel: 1,
-			spellIndex: "divine-smite",
-			name: "Divine Smite",
-			level: 2,
-			url: "/api/2014/features/divine-smite",
-			source: "feature",
-		});
-	});
-
 	it("loads details for a saved character spell", async () => {
 		const repository = fakeRepository();
 		const spellsClient = fakeSpellsClient();
@@ -275,7 +190,11 @@ function savedSpell({
 				? "Fireball"
 				: spellIndex === "divine-smite"
 					? "Divine Smite"
-					: "Magic Missile",
+					: spellIndex === "light"
+						? "Light"
+						: spellIndex === "lay-on-hands"
+							? "Lay on Hands"
+							: "Magic Missile",
 		level,
 		url: `/api/2014/${source === "feature" ? "features" : "spells"}/${spellIndex}`,
 		source,

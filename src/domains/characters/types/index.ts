@@ -79,6 +79,7 @@ export {
 	SpellEntrySourceSchema,
 	SpellIndexSchema,
 	SpellLevelSchema,
+	SpellListBucketLevelSchema,
 	SpellNameSchema,
 	SpellSlotActionSchema,
 	SpellSlotChangeResponseSchema,

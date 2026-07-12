@@ -1,4 +1,4 @@
-import { Alert, Anchor, Button, Divider, Group, Stack, Text, Title } from "@mantine/core";
+import { Anchor, Button, Divider, Group, Stack, Text, Title } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -14,11 +14,14 @@ import {
 } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
 import type { NumberDraft } from "./health-dialogs.js";
+import { NonSlotSpellList } from "./non-slot-spell-list.js";
 import { SpellDetailsModal } from "./spell-details-modal.js";
 import { SpellRemoveModal } from "./spell-remove-modal.js";
 import { SpellSearchModal, type SpellSearchResult } from "./spell-search-modal.js";
+import { SpellSlotEditActions } from "./spell-slot-edit-actions.js";
 import { SpellSlotHistory } from "./spell-slot-history.js";
 import { SpellSlotList } from "./spell-slot-list.js";
+import { SpellSlotPanelAlerts } from "./spell-slot-panel-alerts.js";
 
 interface SpellSearchState {
 	query: string;
@@ -45,6 +48,8 @@ export function CharacterSpellSlotsPanel({
 	const queryClient = useQueryClient();
 	const spellSlots = spellSlotsQuery.data?.spellSlots ?? [];
 	const characterSpells = characterSpellsQuery.data?.spells ?? [];
+	const nonSlotSpells = characterSpells.filter((spell) => spell.slotLevel === 0);
+	const numberedSpells = characterSpells.filter((spell) => spell.slotLevel > 0);
 	const spellSearchInputText = spellSearch?.query.trim() ?? "";
 	const [debouncedSpellSearchInputText] = useDebouncedValue(spellSearchInputText, 300);
 	const spellSearchQueryText =
@@ -106,6 +111,20 @@ export function CharacterSpellSlotsPanel({
 			setSpellToRemove(null);
 		},
 	});
+	const spellSlotsUnavailable = Boolean(
+		spellSlotsQuery.error ||
+			updateMutation.error ||
+			expendMutation.error ||
+			restoreMutation.error ||
+			defaultsMutation.error,
+	);
+	const spellsUnavailable = Boolean(
+		characterSpellsQuery.error ||
+			spellSearchQuery.error ||
+			spellDetailsQuery.error ||
+			removeSpellMutation.error ||
+			saveSpellMutation.error,
+	);
 
 	function setDraftTotal(slotLevel: number, value: NumberDraft) {
 		setDraftTotals((current) => ({ ...current, [slotLevel]: value }));
@@ -209,33 +228,25 @@ export function CharacterSpellSlotsPanel({
 				opened={historyOpen}
 			/>
 
-			{isEditing && (
-				<Group gap="xs" wrap="wrap">
-					<Button
-						color="gray"
-						loading={defaultsMutation.isPending}
-						onClick={applyDefaults}
-						size="xs"
-						style={{ flex: "1 1 11rem" }}
-						variant="default"
-					>
-						Apply class defaults
-					</Button>
-					<Button
-						disabled={spellSlots.length === 0}
-						loading={updateMutation.isPending}
-						onClick={saveConfiguration}
-						size="xs"
-						style={{ flex: "1 1 11rem" }}
-						variant="default"
-					>
-						Apply changes
-					</Button>
-				</Group>
-			)}
+			<SpellSlotEditActions
+				defaultsPending={defaultsMutation.isPending}
+				disabled={spellSlots.length === 0}
+				isEditing={isEditing}
+				onApplyDefaults={applyDefaults}
+				onSaveConfiguration={saveConfiguration}
+				updatePending={updateMutation.isPending}
+			/>
+
+			<NonSlotSpellList
+				characterSpells={nonSlotSpells}
+				isEditing={isEditing}
+				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
+				onOpenSpellSearch={() => openSpellSearch(0)}
+				onRemoveSpell={setSpellToRemove}
+			/>
 
 			<SpellSlotList
-				characterSpells={characterSpells}
+				characterSpells={numberedSpells}
 				draftTotals={draftTotals}
 				isEditing={isEditing}
 				onDraftTotalChange={setDraftTotal}
@@ -247,24 +258,10 @@ export function CharacterSpellSlotsPanel({
 				spellSlots={spellSlots}
 			/>
 
-			{(spellSlotsQuery.error ||
-				updateMutation.error ||
-				expendMutation.error ||
-				restoreMutation.error ||
-				defaultsMutation.error) && (
-				<Alert color="red" title="Spell slots unavailable" variant="light">
-					Try the spell slot change again.
-				</Alert>
-			)}
-			{(characterSpellsQuery.error ||
-				spellSearchQuery.error ||
-				spellDetailsQuery.error ||
-				removeSpellMutation.error ||
-				saveSpellMutation.error) && (
-				<Alert color="red" title="Spells unavailable" variant="light">
-					Try the spell change again.
-				</Alert>
-			)}
+			<SpellSlotPanelAlerts
+				spellSlotsUnavailable={spellSlotsUnavailable}
+				spellsUnavailable={spellsUnavailable}
+			/>
 
 			<SpellSearchModal
 				onChangeQuery={updateSpellSearchQuery}
