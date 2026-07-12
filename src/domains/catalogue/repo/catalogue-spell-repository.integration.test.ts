@@ -35,6 +35,7 @@ describe("createCatalogueSpellRepository", () => {
 
 		const count = await repository.countSpells();
 		const smiteResults = await repository.searchSpells({ query: "smite test", slotLevel: 1 });
+		const cantripResults = await repository.searchSpells({ query: "light test", slotLevel: 0 });
 		const lightResults = await repository.searchSpells({ query: "light test", slotLevel: 1 });
 		const details = await repository.findSpell("divine-smite-test");
 		const spellWithMissingLicense = await repository.findSpell("ice-knife-test");
@@ -52,6 +53,14 @@ describe("createCatalogueSpellRepository", () => {
 				name: "Searing Smite Test",
 				level: 1,
 				url: "/api/2024/spells/searing-smite-test",
+			},
+		]);
+		expect(cantripResults).toEqual([
+			{
+				spellIndex: "light-test",
+				name: "Light Test",
+				level: 0,
+				url: "/api/2024/spells/light-test",
 			},
 		]);
 		expect(lightResults).toEqual([]);

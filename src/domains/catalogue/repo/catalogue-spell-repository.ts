@@ -90,8 +90,7 @@ export function createCatalogueSpellRepository(): CatalogueSpellRepository {
 				.from(catalogueSpellsTable)
 				.where(
 					and(
-						gt(catalogueSpellsTable.spellLevel, 0),
-						lte(catalogueSpellsTable.spellLevel, input.slotLevel),
+						spellBucketCondition(input.slotLevel),
 						ilike(catalogueSpellsTable.spellName, `%${query}%`),
 					),
 				)
@@ -110,6 +109,14 @@ export function createCatalogueSpellRepository(): CatalogueSpellRepository {
 			return row ? toCatalogueSpellDetails(row) : null;
 		},
 	};
+}
+
+function spellBucketCondition(slotLevel: number) {
+	if (slotLevel === 0) return eq(catalogueSpellsTable.spellLevel, 0);
+	return and(
+		gt(catalogueSpellsTable.spellLevel, 0),
+		lte(catalogueSpellsTable.spellLevel, slotLevel),
+	);
 }
 
 export function toCatalogueSpellSearchResult(row: unknown): CatalogueSpellSearchResult {
