@@ -46,7 +46,7 @@ export const SpellApiUrlSchema = z
 	.string()
 	.min(1)
 	.max(240)
-	.regex(/^\/api\/2014\/(?:features|spells)\/[a-z0-9-]+$/);
+	.regex(/^\/api\/(?:2014|2024)\/(?:features|spells)\/[a-z0-9-]+$/);
 export const CharacterSpellIdSchema = z.string().uuid();
 export type CharacterSpellId = z.infer<typeof CharacterSpellIdSchema>;
 

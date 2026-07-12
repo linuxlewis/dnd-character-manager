@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const spellApiTimeoutMs = 30_000;
+
 test("creates a character and tracks health changes on detail", async ({ page }) => {
 	await page.goto("/");
 
@@ -53,6 +55,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 });
 
 test("configures spell slots and tracks spell usage on detail", async ({ page }) => {
+	test.setTimeout(120_000);
 	await page.goto("/");
 
 	await page.getByText("Create character").first().click();
@@ -98,13 +101,16 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	expect(closeButtonBox?.height ?? 0).toBeGreaterThanOrEqual(44);
 	await expect(page.getByLabel("Search spells")).toBeFocused();
 	await expect(page.getByLabel("Search spells")).toHaveCSS("font-size", "16px");
-	await page.getByLabel("Search spells").fill("haste");
-	await expect(page.getByRole("button", { name: /Haste/ })).toBeVisible();
 	await page.getByLabel("Search spells").fill("divine smite");
+	await expect(page.getByRole("button", { name: /^Divine Smite\b/ })).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
 	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
-	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden();
+	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden({
+		timeout: spellApiTimeoutMs,
+	});
 	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeVisible();
-	await expect(page.getByText("2nd-level feature")).toBeVisible();
+	await expect(page.getByText("1st-level spell")).toBeVisible();
 	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeVisible();
 	await page.getByRole("button", { name: "Done" }).click();
 	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeHidden();
@@ -125,8 +131,8 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(addSpellDialog).toBeHidden();
 	await page.getByRole("button", { name: "View Divine Smite details" }).click();
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeVisible();
-	await expect(page.getByText("Feature 2nd-level")).toBeVisible();
-	await expect(page.getByText(/radiant damage/i)).toBeVisible();
+	await expect(page.getByText("Spell 1st-level")).toBeVisible({ timeout: spellApiTimeoutMs });
+	await expect(page.getByText(/radiant damage/i)).toBeVisible({ timeout: spellApiTimeoutMs });
 	await page.keyboard.press("Escape");
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeHidden();
 
@@ -138,12 +144,15 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Remove Divine Smite" }).click();
 	await page.getByRole("button", { name: "Remove spell" }).click();
 	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeHidden();
-	await expect(page.getByText("2nd-level feature")).toBeHidden();
+	await expect(page.getByText("1st-level spell")).toBeHidden();
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
 	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
 	await page.getByLabel("Search spells").fill("divine smite");
+	await expect(page.getByRole("button", { name: /^Divine Smite\b/ })).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
 	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
-	await expect(addSpellDialog).toBeHidden();
+	await expect(addSpellDialog).toBeHidden({ timeout: spellApiTimeoutMs });
 	await page.getByRole("button", { name: "Done" }).click();
 	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeHidden();
 

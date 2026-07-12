@@ -2132,7 +2132,7 @@
 														"type": "string",
 														"minLength": 1,
 														"maxLength": 240,
-														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+														"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
 													},
 													"source": {
 														"default": "spell",
@@ -2284,7 +2284,7 @@
 														"type": "string",
 														"minLength": 1,
 														"maxLength": 240,
-														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+														"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
 													},
 													"source": {
 														"default": "spell",
@@ -2447,7 +2447,7 @@
 													"type": "string",
 													"minLength": 1,
 													"maxLength": 240,
-													"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+													"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
 												},
 												"source": {
 													"default": "spell",
@@ -2636,7 +2636,7 @@
 														"type": "string",
 														"minLength": 1,
 														"maxLength": 240,
-														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+														"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
 													},
 													"source": {
 														"default": "spell",
@@ -2769,7 +2769,7 @@
 														"type": "string",
 														"minLength": 1,
 														"maxLength": 240,
-														"pattern": "^\\/api\\/2014\\/(?:features|spells)\\/[a-z0-9-]+$"
+														"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
 													},
 													"source": {
 														"default": "spell",
