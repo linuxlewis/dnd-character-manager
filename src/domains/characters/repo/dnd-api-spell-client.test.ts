@@ -2,31 +2,25 @@ import { describe, expect, it, vi } from "vitest";
 import { createDndApiSpellClient } from "./dnd-api-spell-client.js";
 
 describe("createDndApiSpellClient", () => {
+	it("returns no search results without calling the API for an empty query", async () => {
+		const fetcher = vi.fn();
+		const client = createDndApiSpellClient({ fetcher });
+
+		await expect(client.searchSpells({ slotLevel: 3, query: " " })).resolves.toEqual([]);
+		expect(fetcher).not.toHaveBeenCalled();
+	});
+
 	it("searches SRD spells by name and includes spell levels up to the selected slot level", async () => {
 		const fetcher = vi.fn().mockResolvedValue(
 			jsonResponse({
-				count: 4,
-				results: [
-					{ index: "light", name: "Light", level: 0, url: "/api/2014/spells/light" },
-					{
-						index: "magic-missile",
-						name: "Magic Missile",
-						level: 1,
-						url: "/api/2014/spells/magic-missile",
-					},
-					{
-						index: "acid-arrow",
-						name: "Acid Arrow",
-						level: 2,
-						url: "/api/2014/spells/acid-arrow",
-					},
-					{
-						index: "fireball",
-						name: "Fireball",
-						level: 3,
-						url: "/api/2014/spells/fireball",
-					},
-				],
+				data: {
+					spells: [
+						{ index: "light", name: "Light", level: 0 },
+						{ index: "magic-missile", name: "Magic Missile", level: 1 },
+						{ index: "acid-arrow", name: "Acid Arrow", level: 2 },
+						{ index: "fireball", name: "Fireball", level: 3 },
+					],
+				},
 			}),
 		);
 
@@ -48,44 +42,29 @@ describe("createDndApiSpellClient", () => {
 				source: "spell",
 			},
 		]);
-		expect(fetcher).toHaveBeenCalledWith("https://www.dnd5eapi.co/api/2014/spells");
+		expect(fetcher).toHaveBeenCalledOnce();
+		expect(fetcher).toHaveBeenCalledWith(
+			"https://www.dnd5eapi.co/graphql",
+			expect.objectContaining({
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: expect.stringContaining('"levels":[1,2]'),
+			}),
+		);
 	});
 
-	it("searches matching class features by name and feature level", async () => {
-		const fetcher = vi.fn(
-			async (input: Parameters<typeof fetch>[0], _init?: Parameters<typeof fetch>[1]) => {
-				const url = String(input);
-				if (url.endsWith("/api/2014/spells")) {
-					return jsonResponse({ count: 0, results: [] });
-				}
-				if (url.endsWith("/api/2014/features")) {
-					return jsonResponse({
-						count: 2,
-						results: [
-							{
-								index: "divine-smite",
-								name: "Divine Smite",
-								url: "/api/2014/features/divine-smite",
-							},
-							{
-								index: "lay-on-hands",
-								name: "Lay on Hands",
-								url: "/api/2014/features/lay-on-hands",
-							},
-						],
-					});
-				}
-				if (url.endsWith("/api/2014/features/divine-smite")) {
-					return jsonResponse({
-						index: "divine-smite",
-						name: "Divine Smite",
-						level: 2,
-						url: "/api/2014/features/divine-smite",
-						desc: ["You can expend one spell slot to deal radiant damage."],
-					});
-				}
-				throw new Error(`Unexpected URL: ${url}`);
-			},
+	it("searches matching class features by name and feature level in the same request", async () => {
+		const fetcher = vi.fn().mockResolvedValue(
+			jsonResponse({
+				data: {
+					spells: [],
+					features: [
+						{ index: "divine-smite", name: "Divine Smite", level: 2 },
+						{ index: "improved-divine-smite", name: "Improved Divine Smite", level: 11 },
+						{ index: "lay-on-hands", name: "Lay on Hands", level: 1 },
+					],
+				},
+			}),
 		);
 
 		const client = createDndApiSpellClient({ fetcher });
@@ -98,8 +77,22 @@ describe("createDndApiSpellClient", () => {
 				url: "/api/2014/features/divine-smite",
 				source: "feature",
 			},
+			{
+				index: "improved-divine-smite",
+				name: "Improved Divine Smite",
+				level: 11,
+				url: "/api/2014/features/improved-divine-smite",
+				source: "feature",
+			},
 		]);
-		expect(fetcher).toHaveBeenCalledWith("https://www.dnd5eapi.co/api/2014/features");
+		expect(fetcher).toHaveBeenCalledOnce();
+		expect(fetcher).toHaveBeenCalledWith(
+			"https://www.dnd5eapi.co/graphql",
+			expect.objectContaining({
+				method: "POST",
+				body: expect.stringContaining('"includeFeatures":true'),
+			}),
+		);
 	});
 
 	it("loads a canonical spell by index before saving", async () => {
@@ -222,7 +215,7 @@ describe("createDndApiSpellClient", () => {
 			fetcher: vi.fn().mockResolvedValue(jsonResponse({ results: [{ level: 0 }] })),
 		});
 
-		await expect(client.searchSpells({ slotLevel: 1, query: "" })).rejects.toThrow(
+		await expect(client.searchSpells({ slotLevel: 1, query: "miss" })).rejects.toThrow(
 			"D&D spells could not be loaded.",
 		);
 	});

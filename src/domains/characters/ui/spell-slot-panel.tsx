@@ -1,4 +1,5 @@
 import { Alert, Anchor, Button, Divider, Group, Stack, Text, Title } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type {
@@ -40,7 +41,10 @@ export function CharacterSpellSlotsPanel({
 	const queryClient = useQueryClient();
 	const spellSlots = spellSlotsQuery.data?.spellSlots ?? [];
 	const characterSpells = characterSpellsQuery.data?.spells ?? [];
-	const spellSearchQueryText = spellSearch?.query.trim() ?? "";
+	const spellSearchInputText = spellSearch?.query.trim() ?? "";
+	const [debouncedSpellSearchInputText] = useDebouncedValue(spellSearchInputText, 300);
+	const spellSearchQueryText =
+		debouncedSpellSearchInputText === spellSearchInputText ? debouncedSpellSearchInputText : "";
 	const spellSearchQuery = useQuery({
 		enabled: spellSearch !== null && spellSearchQueryText.length > 0,
 		queryKey: ["characterSpellSearch", characterId, spellSearch?.slotLevel, spellSearchQueryText],

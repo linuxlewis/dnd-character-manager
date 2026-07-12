@@ -8,18 +8,6 @@ import {
 
 const DND_API_REST_BASE_URL = "https://www.dnd5eapi.co";
 
-const DndApiSpellListResponseSchema = z.object({
-	count: z.number().int().min(0),
-	results: z.array(
-		z.object({
-			index: z.string(),
-			name: z.string(),
-			level: z.number().int(),
-			url: z.string(),
-		}),
-	),
-});
-
 const DndApiReferenceSchema = z.object({
 	name: z.string(),
 });
@@ -40,17 +28,6 @@ const DndApiSpellDetailResponseSchema = z.object({
 	classes: z.array(DndApiReferenceSchema).optional().default([]),
 });
 
-const DndApiFeatureListResponseSchema = z.object({
-	count: z.number().int().min(0),
-	results: z.array(
-		z.object({
-			index: z.string(),
-			name: z.string(),
-			url: z.string(),
-		}),
-	),
-});
-
 const DndApiFeatureDetailResponseSchema = z.object({
 	index: z.string(),
 	name: z.string(),
@@ -60,6 +37,43 @@ const DndApiFeatureDetailResponseSchema = z.object({
 	class: DndApiReferenceSchema.optional(),
 	subclass: DndApiReferenceSchema.optional(),
 });
+
+const DndApiSearchResponseSchema = z.object({
+	data: z.object({
+		spells: z.array(
+			z.object({
+				index: z.string(),
+				name: z.string(),
+				level: z.number().int(),
+			}),
+		),
+		features: z
+			.array(
+				z.object({
+					index: z.string(),
+					name: z.string(),
+					level: z.number().int(),
+				}),
+			)
+			.optional()
+			.default([]),
+	}),
+});
+
+const SEARCH_SPELL_ENTRIES = `
+	query SearchSpellEntries($name: String!, $levels: [Int!], $includeFeatures: Boolean!) {
+		spells(name: $name, level: $levels, limit: 50) {
+			index
+			name
+			level
+		}
+		features(name: $name, limit: 20) @include(if: $includeFeatures) {
+			index
+			name
+			level
+		}
+	}
+`;
 
 export interface SearchSpellsInput {
 	slotLevel: number;
@@ -74,6 +88,7 @@ export interface DndApiSpellClient {
 
 export interface DndApiSpellClientOptions {
 	baseUrl?: string;
+	graphqlEndpoint?: string;
 	fetcher?: typeof fetch;
 }
 
@@ -86,16 +101,20 @@ export class DndApiSpellClientError extends Error {
 
 export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}): DndApiSpellClient {
 	const baseUrl = options.baseUrl ?? DND_API_REST_BASE_URL;
+	const graphqlEndpoint = options.graphqlEndpoint ?? `${baseUrl}/graphql`;
 	const fetcher = options.fetcher ?? fetch;
 
 	return {
 		async searchSpells(input) {
 			try {
 				const query = input.query.trim().toLowerCase();
-				const [spells, features] = await Promise.all([
-					searchSpellEntries(baseUrl, fetcher, input.slotLevel, query),
-					query.length >= 3 ? searchFeatureEntries(baseUrl, fetcher, query) : [],
-				]);
+				if (query.length === 0) return [];
+				const { spells, features } = await searchEntries(
+					graphqlEndpoint,
+					fetcher,
+					input.slotLevel,
+					query,
+				);
 				return [...spells, ...features].sort(compareSearchResults);
 			} catch (error) {
 				if (error instanceof DndApiSpellClientError) throw error;
@@ -124,38 +143,36 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 	};
 }
 
-async function searchSpellEntries(
-	baseUrl: string,
+async function searchEntries(
+	graphqlEndpoint: string,
 	fetcher: typeof fetch,
 	slotLevel: number,
 	query: string,
 ) {
-	const response = await fetcher(`${baseUrl}/api/2014/spells`);
+	const response = await fetcher(graphqlEndpoint, {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({
+			query: SEARCH_SPELL_ENTRIES,
+			variables: {
+				name: query,
+				levels: spellLevelsUpTo(slotLevel),
+				includeFeatures: query.length >= 3,
+			},
+		}),
+	});
 	if (!response.ok) throw new DndApiSpellClientError();
 
-	const parsed = DndApiSpellListResponseSchema.parse(await response.json());
-	return parsed.results
+	const parsed = DndApiSearchResponseSchema.parse(await response.json());
+	const spells = parsed.data.spells
 		.filter((spell) => spell.level >= 1 && spell.level <= slotLevel)
 		.filter((spell) => query.length === 0 || matchesName(spell.name, query))
-		.map((spell) => parseSearchResult(spell, "spell"));
-}
+		.map((spell) => parseGraphqlSearchResult(spell, "spell"));
+	const features = parsed.data.features
+		.filter((feature) => query.length >= 3 && matchesName(feature.name, query))
+		.map((feature) => parseGraphqlSearchResult(feature, "feature"));
 
-async function searchFeatureEntries(baseUrl: string, fetcher: typeof fetch, query: string) {
-	const response = await fetcher(`${baseUrl}/api/2014/features`);
-	if (!response.ok) throw new DndApiSpellClientError();
-
-	const parsed = DndApiFeatureListResponseSchema.parse(await response.json());
-	const matchingFeatures = parsed.results
-		.filter((feature) => matchesName(feature.name, query))
-		.slice(0, 20);
-	const details = await Promise.all(
-		matchingFeatures.map(async (feature) => {
-			const detailResponse = await fetcher(`${baseUrl}${feature.url}`);
-			if (!detailResponse.ok) throw new DndApiSpellClientError();
-			return DndApiFeatureDetailResponseSchema.parse(await detailResponse.json());
-		}),
-	);
-	return details.map((feature) => parseSearchResult(feature, "feature"));
+	return { spells, features };
 }
 
 function parseSearchResult(
@@ -163,6 +180,22 @@ function parseSearchResult(
 	source: SpellEntrySource,
 ) {
 	return DndSpellSearchResultSchema.parse({ ...entry, source });
+}
+
+function parseGraphqlSearchResult(
+	entry: { index: string; level: number; name: string },
+	source: SpellEntrySource,
+) {
+	return parseSearchResult({ ...entry, url: spellApiUrl(entry.index, source) }, source);
+}
+
+function spellLevelsUpTo(slotLevel: number) {
+	return Array.from({ length: slotLevel }, (_, index) => index + 1);
+}
+
+function spellApiUrl(index: string, source: SpellEntrySource) {
+	const resource = source === "feature" ? "features" : "spells";
+	return `/api/2014/${resource}/${index}`;
 }
 
 async function fetchDetail(

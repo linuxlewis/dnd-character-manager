@@ -88,6 +88,37 @@ describe("createCharacterSpellRepository", () => {
 			expect.objectContaining({ spellIndex: "acid-arrow" }),
 		]);
 	});
+
+	it("persists high-level class features saved under a spell slot", async () => {
+		const userId = await createUser();
+		const character = await createCharacterRepository().createCharacter({
+			userId,
+			name: "Corren",
+			className: "Paladin",
+			level: 11,
+			maxHp: 82,
+		});
+		const repository = createCharacterSpellRepository();
+
+		const saved = await repository.saveCharacterSpell(userId, character.id, {
+			slotLevel: 1,
+			source: "feature",
+			spellIndex: "improved-divine-smite",
+			name: "Improved Divine Smite",
+			level: 11,
+			url: "/api/2014/features/improved-divine-smite",
+		});
+
+		expect(saved?.spells).toEqual([
+			expect.objectContaining({
+				slotLevel: 1,
+				spellIndex: "improved-divine-smite",
+				name: "Improved Divine Smite",
+				level: 11,
+				source: "feature",
+			}),
+		]);
+	});
 });
 
 async function createUser() {
