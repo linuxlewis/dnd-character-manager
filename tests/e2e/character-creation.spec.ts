@@ -10,6 +10,9 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 
 	await page.getByText("Create character").first().click();
 	await expect(page).toHaveURL(/\/characters\/new$/);
+	await expect(page.getByLabel("Name")).toHaveCSS("font-size", "16px");
+	await expect(page.getByRole("combobox", { name: "Class" })).toHaveCSS("font-size", "16px");
+	await expect(page.getByLabel("Level")).toHaveCSS("font-size", "16px");
 
 	await page.getByRole("button", { name: "Create character" }).click();
 	await expect(page.getByText("Name is required")).toBeVisible();

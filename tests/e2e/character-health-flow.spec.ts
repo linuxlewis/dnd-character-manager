@@ -15,6 +15,8 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeHidden();
 
 	await page.getByRole("button", { exact: true, name: "Edit" }).click();
+	await expect(page.getByLabel("Max HP")).toHaveCSS("font-size", "16px");
+	await expect(page.getByLabel("Temp HP")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("Temp HP").fill("5");
 	await page.getByRole("button", { name: "Save" }).click();
 	await expect(page.getByText("15 / 15 HP (Temp HP +5)")).toBeVisible();
@@ -24,10 +26,12 @@ test("creates a character and tracks health changes on detail", async ({ page })
 
 	await page.getByRole("button", { name: "Heal" }).click();
 	await expect(page.getByLabel("Amount")).toBeFocused();
+	await expect(page.getByLabel("Amount")).toHaveCSS("font-size", "16px");
 	await page.getByRole("button", { name: "Cancel" }).click();
 
 	await page.getByRole("button", { name: "Damage" }).click();
 	await expect(page.getByLabel("Amount")).toBeFocused();
+	await expect(page.getByLabel("Amount")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("Amount").fill("4");
 	await page.getByRole("button", { name: "Save" }).click();
 	await expect(page.getByText("11 / 15 HP (Temp HP +5)")).toBeVisible();
@@ -68,6 +72,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: /Spell history/ }).click();
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
+	await expect(page.getByLabel("1st-level slot total")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("1st-level slot total").fill("2");
 	await page.getByRole("button", { name: "Apply changes" }).click();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
