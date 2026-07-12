@@ -134,12 +134,10 @@ describe("createCatalogueSpellService", () => {
 
 function fakeRepository() {
 	return {
-		upsertSpells: vi.fn(async (spells) => spells.length),
-		countSpells: vi.fn(async () => 0),
-		searchSpells: vi.fn(async () => []),
-		findSpell: vi.fn(async () => null),
-	} satisfies {
-		[K in keyof CatalogueSpellRepository]: CatalogueSpellRepository[K] & ReturnType<typeof vi.fn>;
+		upsertSpells: vi.fn<CatalogueSpellRepository["upsertSpells"]>(async (spells) => spells.length),
+		countSpells: vi.fn<CatalogueSpellRepository["countSpells"]>(async () => 0),
+		searchSpells: vi.fn<CatalogueSpellRepository["searchSpells"]>(async () => []),
+		findSpell: vi.fn<CatalogueSpellRepository["findSpell"]>(async () => null),
 	};
 }
 
