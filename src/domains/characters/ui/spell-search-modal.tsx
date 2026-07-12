@@ -29,7 +29,7 @@ export function SpellSearchModal({
 }) {
 	return (
 		<Modal
-			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl", variant: "light" }}
+			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl" }}
 			fullScreen
 			onClose={onClose}
 			opened={opened}
