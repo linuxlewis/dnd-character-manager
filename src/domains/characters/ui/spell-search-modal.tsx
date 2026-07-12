@@ -29,6 +29,7 @@ export function SpellSearchModal({
 }) {
 	return (
 		<Modal
+			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl" }}
 			fullScreen
 			onClose={onClose}
 			opened={opened}
@@ -38,9 +39,11 @@ export function SpellSearchModal({
 		>
 			<Stack gap="md">
 				<TextInput
+					data-autofocus
 					label="Search spells"
 					onChange={(event) => onChangeQuery(event.currentTarget.value)}
 					placeholder="Spell name"
+					size="md"
 					value={query}
 				/>
 

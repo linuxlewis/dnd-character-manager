@@ -34,7 +34,6 @@ export function HealthAmountModal({
 					<NumberInput
 						allowDecimal={false}
 						allowNegative={false}
-						autoFocus
 						data-autofocus
 						hideControls
 						label="Amount"

@@ -135,6 +135,15 @@ curl -I https://characters.dndinventorymanager.com
 
 Use this when the tunnel route and host service already exist.
 
+The preferred routine path is the `Deploy Local Production` GitHub Actions workflow. It runs on the
+`dev-server-1` self-hosted runner after `CI` succeeds on `main`, checks out the exact commit in
+`/home/sbolgert/workspace/dnd-character-manager`, rebuilds the production Compose stack through the
+host Docker socket, and verifies the app container plus public hostname. The production workspace
+must be clean; the workflow refuses to deploy over uncommitted local changes.
+
+Use the manual shell path below for first deployment, rollback, or when GitHub Actions is
+unavailable.
+
 1. Pull or checkout the intended revision in `/home/sbolgert/workspace/dnd-character-manager`.
 2. Run validation locally.
 3. Restart the production service:
@@ -231,4 +240,3 @@ Inspect containers:
 ```bash
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 ```
-
