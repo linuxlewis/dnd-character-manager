@@ -87,6 +87,17 @@ describe("createCharacterSpellRepository", () => {
 			expect.objectContaining({ spellIndex: "magic-missile" }),
 			expect.objectContaining({ spellIndex: "acid-arrow" }),
 		]);
+		await expect(
+			repository.removeCharacterSpell(crypto.randomUUID(), character.id, savedSpellId),
+		).resolves.toBeNull();
+		await expect(
+			repository.removeCharacterSpell(userId, character.id, savedSpellId),
+		).resolves.toEqual({
+			spells: [expect.objectContaining({ spellIndex: "acid-arrow" })],
+		});
+		await expect(
+			repository.getCharacterSpell(userId, character.id, savedSpellId),
+		).resolves.toBeNull();
 	});
 
 	it("persists high-level class features saved under a spell slot", async () => {

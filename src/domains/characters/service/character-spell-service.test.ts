@@ -165,6 +165,21 @@ describe("createCharacterSpellService", () => {
 		expect(spellsClient.getSpellDetails).toHaveBeenCalledWith("magic-missile", "spell");
 	});
 
+	it("removes a saved character spell and returns the updated spell list", async () => {
+		const repository = fakeRepository();
+		repository.removeCharacterSpell.mockResolvedValue({ spells: [] });
+		const service = createCharacterSpellService(repository, fakeSpellsClient());
+
+		await expect(
+			service.removeCharacterSpell("user-1", "character-1", "00000000-0000-4000-8000-000000000030"),
+		).resolves.toEqual({ spells: [] });
+		expect(repository.removeCharacterSpell).toHaveBeenCalledWith(
+			"user-1",
+			"character-1",
+			"00000000-0000-4000-8000-000000000030",
+		);
+	});
+
 	it("rejects saving a spell above the selected slot level", async () => {
 		const repository = fakeRepository();
 		const spellsClient = fakeSpellsClient();
@@ -204,6 +219,9 @@ describe("createCharacterSpellService", () => {
 				source: "spell",
 			}),
 		).rejects.toThrow(CharacterNotFoundError);
+		await expect(
+			service.removeCharacterSpell("user-2", "character-1", "00000000-0000-4000-8000-000000000030"),
+		).rejects.toThrow(CharacterNotFoundError);
 		expect(spellsClient.searchSpells).not.toHaveBeenCalled();
 		expect(spellsClient.findSpell).not.toHaveBeenCalled();
 	});
@@ -214,6 +232,7 @@ function fakeRepository() {
 		characterExists: vi.fn().mockResolvedValue(true),
 		getCharacterSpell: vi.fn(),
 		listCharacterSpells: vi.fn().mockResolvedValue([]),
+		removeCharacterSpell: vi.fn(),
 		saveCharacterSpell: vi.fn(),
 	} satisfies {
 		[K in keyof CharacterSpellRepository]: CharacterSpellRepository[K] extends (

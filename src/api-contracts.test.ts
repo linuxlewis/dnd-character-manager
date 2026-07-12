@@ -18,6 +18,7 @@ describe("apiRouteContracts", () => {
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

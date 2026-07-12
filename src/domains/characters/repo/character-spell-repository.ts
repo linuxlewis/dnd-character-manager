@@ -27,6 +27,11 @@ export interface CharacterSpellRepository {
 		characterId: string,
 		spell: NewCharacterSpell,
 	): Promise<CharacterSpellsResponse | null>;
+	removeCharacterSpell(
+		userId: string,
+		characterId: string,
+		spellId: string,
+	): Promise<CharacterSpellsResponse | null>;
 }
 
 export function createCharacterSpellRepository(): CharacterSpellRepository {
@@ -96,6 +101,23 @@ export function createCharacterSpellRepository(): CharacterSpellRepository {
 						characterSpellsTable.spellIndex,
 					],
 				});
+
+			const spells = await this.listCharacterSpells(userId, characterId);
+			if (!spells) return null;
+			return CharacterSpellsResponseSchema.parse({ spells });
+		},
+
+		async removeCharacterSpell(userId, characterId, spellId) {
+			if (!(await this.characterExists(userId, characterId))) return null;
+
+			await getDb()
+				.delete(characterSpellsTable)
+				.where(
+					and(
+						eq(characterSpellsTable.characterId, characterId),
+						eq(characterSpellsTable.id, spellId),
+					),
+				);
 
 			const spells = await this.listCharacterSpells(userId, characterId);
 			if (!spells) return null;

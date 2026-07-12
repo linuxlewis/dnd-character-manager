@@ -11,6 +11,7 @@ interface SpellSlotListProps {
 	onDraftTotalChange: (slotLevel: number, value: NumberDraft) => void;
 	onOpenSpellDetails: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onOpenSpellSearch: (slotLevel: number) => void;
+	onRemoveSpell: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onRestoreSlot: (slot: CharacterSpellSlot) => void;
 	onUseSlot: (slot: CharacterSpellSlot) => void;
 	spellSlots: CharacterSpellSlot[];
@@ -23,6 +24,7 @@ export function SpellSlotList({
 	onDraftTotalChange,
 	onOpenSpellDetails,
 	onOpenSpellSearch,
+	onRemoveSpell,
 	onRestoreSlot,
 	onUseSlot,
 	spellSlots,
@@ -103,20 +105,33 @@ export function SpellSlotList({
 							<Stack gap={2}>
 								{savedSpells.map((spell) => (
 									<Group key={spell.id} justify="space-between" gap="xs" wrap="nowrap">
-										<Anchor
-											aria-label={`View ${spell.name} details`}
-											component="button"
-											onClick={() => onOpenSpellDetails(spell)}
-											size="sm"
-											ta="left"
-											type="button"
-										>
-											{spell.name}
-										</Anchor>
-										<Text c="dimmed" size="xs">
-											{formatSpellLevel(spell.level)}{" "}
-											{spell.source === "feature" ? "feature" : "spell"}
-										</Text>
+										<Stack gap={0} style={{ flex: "1 1 auto", minWidth: 0 }}>
+											<Anchor
+												aria-label={`View ${spell.name} details`}
+												component="button"
+												onClick={() => onOpenSpellDetails(spell)}
+												size="sm"
+												ta="left"
+												type="button"
+											>
+												{spell.name}
+											</Anchor>
+											<Text c="dimmed" size="xs">
+												{formatSpellLevel(spell.level)}{" "}
+												{spell.source === "feature" ? "feature" : "spell"}
+											</Text>
+										</Stack>
+										{isEditing && (
+											<Button
+												aria-label={`Remove ${spell.name}`}
+												color="red"
+												onClick={() => onRemoveSpell(spell)}
+												size="compact-xs"
+												variant="subtle"
+											>
+												Remove
+											</Button>
+										)}
 									</Group>
 								))}
 							</Stack>

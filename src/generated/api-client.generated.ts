@@ -90,6 +90,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
 		saveCharacterSpell(params: { characterId: string }, body: SaveCharacterSpellRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
 			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells`, options, body, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
+		},
+
+		removeCharacterSpell(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
+			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "DELETE", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
 		}
 	};
 }
@@ -181,6 +185,11 @@ export function createApiMutationOptions(client = apiClient) {
 		saveCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "saveCharacterSpell"] as const,
 			mutationFn: (variables: { params: { characterId: string }; body: SaveCharacterSpellRequest }) => client.saveCharacterSpell(variables.params, variables.body, options),
+		}),
+
+		removeCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "removeCharacterSpell"] as const,
+			mutationFn: (params: { characterId: string; spellId: string }) => client.removeCharacterSpell(params, options),
 		}),
 	};
 }

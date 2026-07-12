@@ -2563,6 +2563,131 @@
 						}
 					}
 				}
+			},
+			"delete": {
+				"operationId": "removeCharacterSpell",
+				"summary": "Remove character spell",
+				"tags": [
+					"characters"
+				],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					},
+					{
+						"name": "spellId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Updated saved character spells",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"spells": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"slotLevel": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 9
+													},
+													"spellIndex": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "^[a-z0-9-]+$"
+													},
+													"name": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 120,
+														"pattern": "\\S"
+													},
+													"level": {
+														"type": "integer",
+														"minimum": 1,
+														"maximum": 20
+													},
+													"url": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 240,
+														"pattern": "^\\/api\\/(?:2014|2024)\\/(?:features|spells)\\/[a-z0-9-]+$"
+													},
+													"source": {
+														"default": "spell",
+														"type": "string",
+														"enum": [
+															"spell",
+															"feature"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"slotLevel",
+													"spellIndex",
+													"name",
+													"level",
+													"url",
+													"source"
+												],
+												"additionalProperties": false
+											}
+										}
+									},
+									"required": [
+										"spells"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"error"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
 			}
 		},
 		"/api/characters/{characterId}/spells/search": {
