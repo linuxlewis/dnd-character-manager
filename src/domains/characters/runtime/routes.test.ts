@@ -275,14 +275,13 @@ function fakeService() {
 }
 
 function fakeHealthService() {
-	return {
-		updateCharacterHealth: vi.fn(),
-	} satisfies CharacterHealthService;
+	return { updateCharacterHealth: vi.fn() } satisfies CharacterHealthService;
 }
 function fakeSpellService() {
 	return {
 		getCharacterSpellDetails: vi.fn(),
 		listCharacterSpells: vi.fn(),
+		removeCharacterSpell: vi.fn(),
 		saveCharacterSpell: vi.fn(),
 		searchCharacterSpells: vi.fn(),
 	} satisfies CharacterSpellService;

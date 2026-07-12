@@ -24,6 +24,7 @@ describe("SpellSlotList", () => {
 					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
 					onRestoreSlot={vi.fn()}
 					onUseSlot={vi.fn()}
 					spellSlots={[
@@ -55,6 +56,7 @@ describe("SpellSlotList", () => {
 					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
 					onRestoreSlot={vi.fn()}
 					onUseSlot={vi.fn()}
 					spellSlots={[
@@ -91,6 +93,7 @@ describe("SpellSlotList", () => {
 					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
 					onRestoreSlot={vi.fn()}
 					onUseSlot={vi.fn()}
 					spellSlots={[
@@ -106,5 +109,52 @@ describe("SpellSlotList", () => {
 		expect(html).not.toContain('aria-label="Add spell to 5th-level"');
 		expect(readableHtml).toContain("Divine Smite");
 		expect(readableHtml).toContain("2nd-level feature");
+	});
+
+	it("shows saved spell remove controls only while editing", () => {
+		const spell = {
+			id: "00000000-0000-4000-8000-000000000030",
+			slotLevel: 3,
+			spellIndex: "magic-missile",
+			name: "Magic Missile",
+			level: 1,
+			url: "/api/2014/spells/magic-missile",
+			source: "spell" as const,
+		};
+		const viewHtml = renderToString(
+			<MantineProvider>
+				<SpellSlotList
+					characterSpells={[spell]}
+					draftTotals={{}}
+					isEditing={false}
+					onDraftTotalChange={vi.fn()}
+					onOpenSpellDetails={vi.fn()}
+					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
+					onRestoreSlot={vi.fn()}
+					onUseSlot={vi.fn()}
+					spellSlots={[{ level: 3, total: 2, used: 0, remaining: 2 }]}
+				/>
+			</MantineProvider>,
+		);
+		const editHtml = renderToString(
+			<MantineProvider>
+				<SpellSlotList
+					characterSpells={[spell]}
+					draftTotals={{}}
+					isEditing={true}
+					onDraftTotalChange={vi.fn()}
+					onOpenSpellDetails={vi.fn()}
+					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
+					onRestoreSlot={vi.fn()}
+					onUseSlot={vi.fn()}
+					spellSlots={[{ level: 3, total: 2, used: 0, remaining: 2 }]}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(viewHtml).not.toContain('aria-label="Remove Magic Missile"');
+		expect(editHtml).toContain('aria-label="Remove Magic Missile"');
 	});
 });

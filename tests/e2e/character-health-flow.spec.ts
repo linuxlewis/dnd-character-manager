@@ -105,6 +105,9 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden();
 	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeVisible();
 	await expect(page.getByText("2nd-level feature")).toBeVisible();
+	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeVisible();
+	await page.getByRole("button", { name: "Done" }).click();
+	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeHidden();
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
 	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
 	await expect(addSpellDialog).toBeVisible();
@@ -126,6 +129,23 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByText(/radiant damage/i)).toBeVisible();
 	await page.keyboard.press("Escape");
 	await expect(page.getByRole("dialog", { name: "Divine Smite" })).toBeHidden();
+
+	await page.getByRole("button", { name: "Edit spells" }).click();
+	await page.getByRole("button", { name: "Remove Divine Smite" }).click();
+	await expect(page.getByRole("dialog", { name: "Remove Divine Smite?" })).toBeVisible();
+	await page.getByRole("button", { name: "Cancel" }).click();
+	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeVisible();
+	await page.getByRole("button", { name: "Remove Divine Smite" }).click();
+	await page.getByRole("button", { name: "Remove spell" }).click();
+	await expect(page.getByRole("button", { name: "View Divine Smite details" })).toBeHidden();
+	await expect(page.getByText("2nd-level feature")).toBeHidden();
+	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
+	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
+	await page.getByLabel("Search spells").fill("divine smite");
+	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
+	await expect(addSpellDialog).toBeHidden();
+	await page.getByRole("button", { name: "Done" }).click();
+	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeHidden();
 
 	await page.getByRole("button", { name: "Use 1st-level" }).click();
 	await expect(page.getByText("1 / 2 remaining")).toBeVisible();

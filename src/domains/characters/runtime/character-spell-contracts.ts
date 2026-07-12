@@ -112,4 +112,26 @@ export const characterSpellRouteContracts = [
 			responseType: "CharacterSpellsResponse",
 		},
 	},
+	{
+		method: "delete",
+		operationId: "removeCharacterSpell",
+		path: "/api/characters/:characterId/spells/:spellId",
+		pathParams: CharacterSpellPathParamsSchema,
+		responses: {
+			200: {
+				description: "Updated saved character spells",
+				schema: CharacterSpellsResponseSchema,
+			},
+			404: { description: "Character not found", schema: ErrorResponseSchema },
+		},
+		summary: "Remove character spell",
+		tags: ["characters"],
+		client: {
+			functionName: "removeCharacterSpell",
+			imports: [...characterTypeImports, ...characterSchemaImports],
+			pathParamsType: "{ characterId: string; spellId: string }",
+			responseParser: "CharacterSpellsResponseSchema",
+			responseType: "CharacterSpellsResponse",
+		},
+	},
 ] as const satisfies readonly ApiRouteContract[];

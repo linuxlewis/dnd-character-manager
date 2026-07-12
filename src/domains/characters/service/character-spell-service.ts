@@ -38,6 +38,11 @@ export interface CharacterSpellService {
 		characterId: string,
 		input: SaveCharacterSpellRequest,
 	): Promise<CharacterSpellsResponse>;
+	removeCharacterSpell(
+		userId: string,
+		characterId: string,
+		spellId: string,
+	): Promise<CharacterSpellsResponse>;
 }
 
 export function createCharacterSpellService(
@@ -125,6 +130,12 @@ export function createCharacterSpellService(
 				}
 				throw error;
 			}
+		},
+
+		async removeCharacterSpell(userId, characterId, spellId) {
+			const response = await repository.removeCharacterSpell(userId, characterId, spellId);
+			if (!response) throw new CharacterNotFoundError();
+			return response;
 		},
 	};
 }
