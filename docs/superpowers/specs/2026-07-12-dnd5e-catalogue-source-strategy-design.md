@@ -26,6 +26,7 @@ artifact only; implementation planning follows after review.
   this use.
 - Do not design a full character-builder rules engine in this source strategy.
 - Do not replace current saved character spell behavior during the source-strategy phase.
+- Do not implement equipment catalogue workflows in the first implementation pass.
 
 ## Source Roles
 
@@ -122,9 +123,14 @@ the local importer exists.
 
 ### Phase 3: Local Seeded Catalogue
 
-Add an importer that reads Foundry `dnd5e` SRD 2024 packs and writes normalized catalogue records to
-Postgres. Once local catalogue coverage is verified, runtime lookup can prefer local records and use
-Open5e as a refresh/reference source rather than as the only runtime dependency.
+Add a seed command that downloads Foundry `dnd5e` SRD 2024 source data, processes the relevant
+source packs, and writes normalized catalogue records to Postgres. Once local spell catalogue
+coverage is verified, runtime spell lookup should prefer local records and use Open5e as a
+refresh/reference source rather than as the only runtime dependency. No feature flag is needed for
+the local-catalogue preference once the seed/import path is verified.
+
+The first implementation pass should process spells. Equipment source coverage remains documented
+for the broader catalogue strategy, but equipment workflows and equipment import can wait.
 
 ## Error Handling
 
@@ -141,15 +147,16 @@ Open5e as a refresh/reference source rather than as the only runtime dependency.
 ## Testing Strategy
 
 - Unit tests for source mappers:
-  - Open5e spell/item/weapon/armor/magic-item responses.
-  - Foundry `spells24` and `equipment24` YAML fixtures.
+  - Open5e spell responses.
+  - Foundry `spells24` YAML fixtures.
   - 5e-bits legacy spell/detail fallback.
 - Integration tests for local catalogue persistence and search/detail routes.
 - Contract tests for generated OpenAPI catalogue routes.
 - E2E tests for user-visible catalogue workflows:
   - Spell search still finds SRD 2024 spells.
-  - Equipment search returns mundane equipment and magic-item variants.
   - Saved spell details survive fallback behavior.
+- Equipment mapper, route, and e2e tests should be added when equipment import/search is pulled into
+  implementation scope.
 - A source-audit test or script should assert minimum expected SRD 2024 counts before generated
   source snapshots are accepted.
 
@@ -163,6 +170,18 @@ Before considering the catalogue comprehensive, verify at least:
 - Every imported record includes source name, source key/path, rules version, and license metadata.
 - Existing 2014 saved spell/feature URLs remain parseable and displayable.
 
+## Implementation Decisions
+
+- Foundry data should be loaded through a seed command that downloads and processes source data,
+  rather than by committing source snapshots directly as the primary workflow.
+- Runtime spell lookup should move to the seeded local catalogue after the seed/import path is
+  verified; no feature flag is needed for that switch.
+- Preserve as much Foundry source detail as possible. Normalized app fields should cover the current
+  UI needs, and the importer should retain source detail payloads needed for future rules
+  automation.
+- Equipment can be ignored for the first implementation pass. The source strategy still records
+  equipment coverage so the catalogue can expand later without redoing source research.
+
 ## Source References
 
 - Official SRD 5.2.1: `https://www.dndbeyond.com/srd`
@@ -171,13 +190,3 @@ Before considering the catalogue comprehensive, verify at least:
 - Open5e legal page: `https://open5e.com/legal`
 - Foundry `dnd5e` repository: `https://github.com/foundryvtt/dnd5e`
 - 5e-bits / dnd5eapi docs: `https://5e-bits.github.io/docs/`
-
-## Open Questions For Implementation Planning
-
-- Whether to snapshot Foundry/Open5e source data in the repo or fetch during a seed/import command.
-- Whether local catalogue search should replace Open5e immediately after import or run behind a
-  feature flag.
-- How much Foundry activity/damage data to preserve in v1 versus storing source detail payloads for
-  later rules automation.
-- Whether equipment should become a new domain or a catalogue subdomain consumed by a future
-  inventory domain.
