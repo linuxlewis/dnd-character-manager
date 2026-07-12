@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createCatalogueSpellRepository } from "./catalogue-spell-repository.js";
 import { catalogueSpellsTable } from "./catalogue-spell-table.js";
 
-const spellIndexes = ["divine-smite", "light", "searing-smite"];
+const spellIndexes = ["divine-smite", "ice-knife", "light", "searing-smite"];
 
 afterEach(async () => {
 	await getDb()
@@ -19,6 +19,7 @@ describe("createCatalogueSpellRepository", () => {
 
 		await repository.upsertSpells([
 			seedSpell({ spellIndex: "divine-smite", name: "Divine Smite", level: 1 }),
+			seedSpell({ spellIndex: "ice-knife", name: "Ice Knife", level: 1, license: "" }),
 			seedSpell({ spellIndex: "light", name: "Light", level: 0 }),
 			seedSpell({ spellIndex: "searing-smite", name: "Searing Smite", level: 1 }),
 		]);
@@ -36,8 +37,9 @@ describe("createCatalogueSpellRepository", () => {
 		const smiteResults = await repository.searchSpells({ query: "smite", slotLevel: 1 });
 		const lightResults = await repository.searchSpells({ query: "light", slotLevel: 1 });
 		const details = await repository.findSpell("divine-smite");
+		const spellWithMissingLicense = await repository.findSpell("ice-knife");
 
-		expect(count).toBeGreaterThanOrEqual(3);
+		expect(count).toBeGreaterThanOrEqual(4);
 		expect(smiteResults).toEqual([
 			{
 				spellIndex: "divine-smite",
@@ -55,6 +57,7 @@ describe("createCatalogueSpellRepository", () => {
 		expect(lightResults).toEqual([]);
 		expect(details?.desc).toEqual(["Updated radiant damage text."]);
 		expect(details?.sourcePayload).toEqual({ system: { identifier: "divine-smite" } });
+		expect(spellWithMissingLicense?.license).toBe("");
 	});
 });
 
@@ -63,18 +66,20 @@ function seedSpell({
 	name,
 	level,
 	desc = ["The target takes extra radiant damage."],
+	license = "CC-BY-4.0",
 }: {
 	spellIndex: string;
 	name: string;
 	level: number;
 	desc?: string[];
+	license?: string;
 }) {
 	return {
 		source: "foundry-dnd5e" as const,
 		sourceKey: `source-${spellIndex}`,
 		sourcePath: `packs/_source/spells24/${spellIndex}.yml`,
 		rulesVersion: "2024" as const,
-		license: "CC-BY-4.0",
+		license,
 		spellIndex,
 		name,
 		level,

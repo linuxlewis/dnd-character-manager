@@ -31,7 +31,7 @@ export const CatalogueSpellSeedSchema = z.object({
 	sourceKey: z.string().min(1).max(240),
 	sourcePath: z.string().min(1).max(500),
 	rulesVersion: RulesVersionSchema,
-	license: z.string().min(1).max(120),
+	license: z.string().max(120),
 	spellIndex: CatalogueSpellIndexSchema,
 	name: CatalogueSpellNameSchema,
 	level: CatalogueSpellLevelSchema,

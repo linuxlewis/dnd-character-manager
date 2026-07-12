@@ -107,4 +107,35 @@ describe("parseFoundrySpellSource", () => {
 			{ label: "School", value: "Evocation" },
 		]);
 	});
+
+	it("preserves spells when Foundry source license metadata is absent", () => {
+		const spell = parseFoundrySpellSource({
+			path: "packs/_source/spells24/1st-level/ice-knife.yml",
+			yaml: `
+name: Ice Knife
+system:
+  description:
+    value: <p>You create a shard of ice and fling it at one creature.</p>
+  source:
+    custom: ''
+    rules: '2024'
+  level: 1
+  identifier: ice-knife
+_id: phbsplIceKnife0
+type: spell
+`,
+		});
+
+		expect(spell).toMatchObject({
+			license: "",
+			sourcePayload: {
+				system: {
+					source: {
+						rules: "2024",
+					},
+				},
+			},
+			spellIndex: "ice-knife",
+		});
+	});
 });

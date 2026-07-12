@@ -23,7 +23,7 @@ const FoundrySpellSourceSchema = z
 				source: z
 					.object({
 						rules: z.string(),
-						license: z.string(),
+						license: z.string().optional(),
 					})
 					.passthrough(),
 				activation: z
@@ -78,7 +78,7 @@ export function parseFoundrySpellSource(input: FoundrySpellSourceInput): Catalog
 		sourceKey: sourcePayload._id ?? spellIndex,
 		sourcePath: input.path,
 		rulesVersion: RulesVersionSchema.parse(sourcePayload.system.source.rules),
-		license: sourcePayload.system.source.license,
+		license: sourcePayload.system.source.license ?? "",
 		spellIndex,
 		name: sourcePayload.name,
 		level: sourcePayload.system.level,

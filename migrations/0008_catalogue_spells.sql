@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS catalogue_spells (
 	source_key text NOT NULL CHECK (length(source_key) > 0),
 	source_path text NOT NULL CHECK (length(source_path) > 0),
 	rules_version text NOT NULL CHECK (rules_version IN ('2014', '2024')),
-	license text NOT NULL CHECK (length(license) > 0),
+	license text NOT NULL,
 	spell_index text NOT NULL CHECK (length(spell_index) > 0),
 	spell_name text NOT NULL CHECK (length(spell_name) > 0),
 	spell_level integer NOT NULL CHECK (spell_level BETWEEN 0 AND 9),
