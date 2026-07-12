@@ -34,6 +34,7 @@ export type {
 	SpellSlotSnapshot,
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
+	UpdateCharacterLevelRequest,
 	UpdateCharacterSpellSlotsRequest,
 	UseCharacterSpellSlotRequest,
 } from "./character.js";
@@ -86,6 +87,7 @@ export {
 	SpellSlotSnapshotSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterHealthResponseSchema,
+	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";

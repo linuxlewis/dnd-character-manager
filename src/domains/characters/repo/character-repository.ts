@@ -14,6 +14,11 @@ export interface CharacterRepository {
 	createCharacter(input: CreateCharacterRecord): Promise<CharacterDetail>;
 	listCharacters(userId: string): Promise<CharacterSummary[]>;
 	findCharacterDetail(userId: string, characterId: string): Promise<CharacterDetail | null>;
+	updateCharacterLevel(
+		userId: string,
+		characterId: string,
+		level: number,
+	): Promise<CharacterDetail | null>;
 }
 
 export function createCharacterRepository(
@@ -88,6 +93,17 @@ export function createCharacterRepository(
 			if (!row) return null;
 
 			return toCharacterDetail(row, await healthRepository.listRecentHealthChanges(characterId));
+		},
+
+		async updateCharacterLevel(userId, characterId, level) {
+			const [updated] = await getDb()
+				.update(charactersTable)
+				.set({ level, updatedAt: new Date() })
+				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
+				.returning({ id: charactersTable.id });
+
+			if (!updated) return null;
+			return this.findCharacterDetail(userId, characterId);
 		},
 	};
 }

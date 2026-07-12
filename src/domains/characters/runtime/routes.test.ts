@@ -93,6 +93,69 @@ describe("registerCharacterRoutes", () => {
 		}
 	});
 
+	it("updates a character level for the current user", async () => {
+		const services = fakeServices();
+		const updatedCharacter = { ...character, level: 8 };
+		services.characterService.updateCharacterLevel.mockResolvedValue(updatedCharacter);
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/level`,
+				payload: { level: 8 },
+			});
+
+			expect(response.statusCode).toBe(200);
+			expect(response.json()).toEqual({ character: updatedCharacter });
+			expect(services.characterService.updateCharacterLevel).toHaveBeenCalledWith(
+				userId,
+				character.id,
+				{ level: 8 },
+			);
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("rejects invalid character level updates before calling the service", async () => {
+		const services = fakeServices();
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/level`,
+				payload: { level: 21 },
+			});
+
+			expect(response.statusCode).toBe(400);
+			expect(response.json()).toHaveProperty("error");
+			expect(services.characterService.updateCharacterLevel).not.toHaveBeenCalled();
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("returns not found when a character level update cannot find the character", async () => {
+		const services = fakeServices();
+		services.characterService.updateCharacterLevel.mockRejectedValue(new CharacterNotFoundError());
+		const app = await buildApp(services);
+
+		try {
+			const response = await app.inject({
+				method: "PUT",
+				url: "/api/characters/00000000-0000-4000-8000-000000000099/level",
+				payload: { level: 8 },
+			});
+
+			expect(response.statusCode).toBe(404);
+			expect(response.json()).toEqual({ error: "Character not found." });
+		} finally {
+			await app.close();
+		}
+	});
+
 	it("updates character health for the current user", async () => {
 		const services = fakeServices();
 		services.characterHealthService.updateCharacterHealth.mockResolvedValue({
@@ -271,6 +334,7 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		updateCharacterLevel: vi.fn(),
 	} satisfies CharacterService;
 }
 

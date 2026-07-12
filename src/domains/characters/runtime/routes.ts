@@ -18,6 +18,7 @@ import {
 	SaveCharacterSpellRequestSchema,
 	SearchCharacterSpellsRequestSchema,
 	UpdateCharacterHealthRequestSchema,
+	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
@@ -77,6 +78,29 @@ export async function registerCharacterRoutes(
 			const character = await characterService.getCharacter(
 				currentUser.user.id,
 				params.characterId,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
+		}
+	});
+
+	app.put("/api/characters/:characterId/level", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const body = parseBody(UpdateCharacterLevelRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.updateCharacterLevel(
+				currentUser.user.id,
+				params.characterId,
+				body,
 			);
 			return { character };
 		} catch (error) {
