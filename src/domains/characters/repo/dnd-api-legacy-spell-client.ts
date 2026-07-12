@@ -1,6 +1,10 @@
 import { z } from "zod";
-import type { DndSpellDetails, SpellEntrySource } from "../types/index.js";
-import { DndSpellDetailsSchema, SpellIndexSchema } from "../types/index.js";
+import type { DndSpellDetails, DndSpellSearchResult, SpellEntrySource } from "../types/index.js";
+import {
+	DndSpellDetailsSchema,
+	DndSpellSearchResultSchema,
+	SpellIndexSchema,
+} from "../types/index.js";
 
 const DndApiReferenceSchema = z.object({
 	name: z.string(),
@@ -31,6 +35,43 @@ const DndApiFeatureDetailResponseSchema = z.object({
 	class: DndApiReferenceSchema.optional(),
 	subclass: DndApiReferenceSchema.optional(),
 });
+
+const DndApiFeatureSearchResponseSchema = z.object({
+	results: z.array(
+		z.object({
+			index: z.string(),
+			name: z.string(),
+		}),
+	),
+});
+
+export async function searchLegacyFeatures(
+	legacyBaseUrl: string,
+	fetcher: typeof fetch,
+	query: string,
+): Promise<DndSpellSearchResult[]> {
+	const response = await fetcher(
+		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(query)}`,
+	);
+	if (!response.ok) throw new Error("Legacy D&D feature search request failed.");
+
+	const parsed = DndApiFeatureSearchResponseSchema.parse(await response.json());
+	const details = await Promise.all(
+		parsed.results
+			.filter((feature) => matchesName(feature.name, query))
+			.map((feature) => getLegacySpellDetails(legacyBaseUrl, fetcher, feature.index, "feature")),
+	);
+
+	return details.map((feature) =>
+		DndSpellSearchResultSchema.parse({
+			index: feature.index,
+			name: feature.name,
+			level: feature.level,
+			url: feature.url,
+			source: "feature",
+		}),
+	);
+}
 
 export async function getLegacySpellDetails(
 	legacyBaseUrl: string,
@@ -107,4 +148,8 @@ function formatComponents(components: string[], material?: string) {
 	if (components.length === 0) return "";
 	const componentText = components.join(", ");
 	return material ? `${componentText} (${material})` : componentText;
+}
+
+function matchesName(name: string, query: string) {
+	return name.toLowerCase().includes(query);
 }

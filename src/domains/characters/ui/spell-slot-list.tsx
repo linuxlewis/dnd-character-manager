@@ -2,7 +2,7 @@ import { Anchor, Button, Group, NumberInput, Stack, Text } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
 import type { NumberDraft } from "./health-dialogs.js";
-import { formatSpellLevel } from "./spell-slot-format.js";
+import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
 interface SpellSlotListProps {
 	characterSpells: CharacterSpellsResponse["spells"];
@@ -117,8 +117,7 @@ export function SpellSlotList({
 												{spell.name}
 											</Anchor>
 											<Text c="dimmed" size="xs">
-												{formatSpellLevel(spell.level)}{" "}
-												{spell.source === "feature" ? "feature" : "spell"}
+												{formatSpellEntryDetail(spell)}
 											</Text>
 										</Stack>
 										{isEditing && (

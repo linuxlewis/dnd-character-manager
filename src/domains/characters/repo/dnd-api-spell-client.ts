@@ -5,7 +5,7 @@ import {
 	DndSpellSearchResultSchema,
 	SpellIndexSchema,
 } from "../types/index.js";
-import { getLegacySpellDetails } from "./dnd-api-legacy-spell-client.js";
+import { getLegacySpellDetails, searchLegacyFeatures } from "./dnd-api-legacy-spell-client.js";
 
 const OPEN5E_API_BASE_URL = "https://api.open5e.com/v2";
 const DND_API_2014_REST_BASE_URL = "https://www.dnd5eapi.co";
@@ -81,9 +81,9 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 			try {
 				const query = input.query.trim().toLowerCase();
 				if (query.length === 0) return [];
-				return (await searchEntries(open5eBaseUrl, fetcher, input.slotLevel, query)).sort(
-					compareSearchResults,
-				);
+				return (
+					await searchEntries(open5eBaseUrl, legacyBaseUrl, fetcher, input.slotLevel, query)
+				).sort(compareSearchResults);
 			} catch (error) {
 				if (error instanceof DndApiSpellClientError) throw error;
 				throw new DndApiSpellClientError();
@@ -119,6 +119,20 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 
 async function searchEntries(
 	open5eBaseUrl: string,
+	legacyBaseUrl: string,
+	fetcher: typeof fetch,
+	slotLevel: number,
+	query: string,
+) {
+	const spells = await searchOpen5eSpells(open5eBaseUrl, fetcher, slotLevel, query);
+	if (slotLevel !== 0) return spells;
+
+	const features = await searchLegacyFeatures(legacyBaseUrl, fetcher, query);
+	return [...spells, ...features];
+}
+
+async function searchOpen5eSpells(
+	open5eBaseUrl: string,
 	fetcher: typeof fetch,
 	slotLevel: number,
 	query: string,
@@ -128,7 +142,7 @@ async function searchEntries(
 
 	const parsed = Open5eSearchResponseSchema.parse(await response.json());
 	return parsed.results
-		.filter((spell) => spell.level >= 1 && spell.level <= slotLevel)
+		.filter((spell) => isSpellInBucket(spell.level, slotLevel))
 		.filter((spell) => matchesName(spell.name, query))
 		.map(parseOpen5eSearchResult);
 }
@@ -142,6 +156,11 @@ function parseOpen5eSearchResult(entry: { key: string; level: number; name: stri
 		url: spellApiUrl(index, "spell", "2024"),
 		source: "spell",
 	});
+}
+
+function isSpellInBucket(spellLevel: number, slotLevel: number) {
+	if (slotLevel === 0) return spellLevel === 0;
+	return spellLevel >= 1 && spellLevel <= slotLevel;
 }
 
 function spellApiUrl(index: string, source: SpellEntrySource, version: "2014" | "2024") {

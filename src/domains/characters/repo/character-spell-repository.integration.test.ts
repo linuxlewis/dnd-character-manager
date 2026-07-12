@@ -100,7 +100,7 @@ describe("createCharacterSpellRepository", () => {
 		).resolves.toBeNull();
 	});
 
-	it("persists high-level class features saved under a spell slot", async () => {
+	it("persists high-level class features saved in the non-slot bucket", async () => {
 		const userId = await createUser();
 		const character = await createCharacterRepository().createCharacter({
 			userId,
@@ -112,7 +112,7 @@ describe("createCharacterSpellRepository", () => {
 		const repository = createCharacterSpellRepository();
 
 		const saved = await repository.saveCharacterSpell(userId, character.id, {
-			slotLevel: 1,
+			slotLevel: 0,
 			source: "feature",
 			spellIndex: "improved-divine-smite",
 			name: "Improved Divine Smite",
@@ -122,11 +122,64 @@ describe("createCharacterSpellRepository", () => {
 
 		expect(saved?.spells).toEqual([
 			expect.objectContaining({
-				slotLevel: 1,
+				slotLevel: 0,
 				spellIndex: "improved-divine-smite",
 				name: "Improved Divine Smite",
 				level: 11,
 				source: "feature",
+			}),
+		]);
+	});
+
+	it("persists cantrips and features in the non-slot bucket before numbered spells", async () => {
+		const userId = await createUser();
+		const character = await createCharacterRepository().createCharacter({
+			userId,
+			name: "Aurelia",
+			className: "Paladin",
+			level: 7,
+			maxHp: 58,
+		});
+		const repository = createCharacterSpellRepository();
+
+		await repository.saveCharacterSpell(userId, character.id, {
+			slotLevel: 3,
+			source: "spell",
+			spellIndex: "magic-missile",
+			name: "Magic Missile",
+			level: 1,
+			url: "/api/2014/spells/magic-missile",
+		});
+		await repository.saveCharacterSpell(userId, character.id, {
+			slotLevel: 0,
+			source: "spell",
+			spellIndex: "light",
+			name: "Light",
+			level: 0,
+			url: "/api/2014/spells/light",
+		});
+		await repository.saveCharacterSpell(userId, character.id, {
+			slotLevel: 0,
+			source: "feature",
+			spellIndex: "lay-on-hands",
+			name: "Lay on Hands",
+			level: 1,
+			url: "/api/2014/features/lay-on-hands",
+		});
+
+		await expect(repository.listCharacterSpells(userId, character.id)).resolves.toEqual([
+			expect.objectContaining({ slotLevel: 0, spellIndex: "light", level: 0, source: "spell" }),
+			expect.objectContaining({
+				slotLevel: 0,
+				spellIndex: "lay-on-hands",
+				level: 1,
+				source: "feature",
+			}),
+			expect.objectContaining({
+				slotLevel: 3,
+				spellIndex: "magic-missile",
+				level: 1,
+				source: "spell",
 			}),
 		]);
 	});

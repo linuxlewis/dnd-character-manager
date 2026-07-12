@@ -10,6 +10,15 @@ describe("SpellSlotList", () => {
 				<SpellSlotList
 					characterSpells={[
 						{
+							id: "00000000-0000-4000-8000-000000000029",
+							slotLevel: 0,
+							spellIndex: "light",
+							name: "Light",
+							level: 0,
+							url: "/api/2014/spells/light",
+							source: "spell",
+						},
+						{
 							id: "00000000-0000-4000-8000-000000000030",
 							slotLevel: 3,
 							spellIndex: "magic-missile",
@@ -43,6 +52,7 @@ describe("SpellSlotList", () => {
 		expect(html).toContain('aria-label="View Magic Missile details"');
 		expect(readableHtml).toContain("Magic Missile");
 		expect(readableHtml).toContain("1st-level spell");
+		expect(readableHtml).not.toContain("Light");
 		expect(readableHtml).toContain("Total 2");
 	});
 

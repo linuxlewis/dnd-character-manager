@@ -67,8 +67,31 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 
 	await expect(page.getByRole("heading", { name: "Tamsin" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
+	await expect(page.getByText("Cantrips & features")).toBeVisible();
 	await expect(page.getByText("0 / 0 remaining").first()).toBeHidden();
 	await expect(page.getByLabel("1st-level slot total")).toBeHidden();
+
+	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
+	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeVisible();
+	await page.getByLabel("Search cantrips and features").fill("light");
+	await expect(page.getByRole("button", { name: /^Light\b/ })).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
+	await page.getByRole("button", { name: /^Light\b/ }).click();
+	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden();
+	await expect(page.getByRole("button", { name: "View Light details" })).toBeVisible();
+	await expect(page.getByText("Cantrip", { exact: true })).toBeVisible();
+	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
+	await page.getByLabel("Search cantrips and features").fill("lay on hands");
+	await expect(page.getByRole("button", { name: /^Lay on Hands\b/ })).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
+	await page.getByRole("button", { name: /^Lay on Hands\b/ }).click();
+	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden({
+		timeout: spellApiTimeoutMs,
+	});
+	await expect(page.getByRole("button", { name: "View Lay on Hands details" })).toBeVisible();
+	await expect(page.getByText("1st-level feature")).toBeVisible();
 
 	await page.getByRole("button", { name: /Spell history/ }).click();
 	await expect(page.getByText("No spell slot changes yet.")).toBeVisible();
@@ -172,6 +195,8 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 
 	await page.reload();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
+	await expect(page.getByText("Light")).toBeVisible();
+	await expect(page.getByText("Lay on Hands")).toBeVisible();
 	await expect(page.getByText("Divine Smite")).toBeVisible();
 	await expect(page.getByText("Restored 1st-level slot")).toBeHidden();
 	await page.getByRole("button", { name: /Spell history/ }).click();

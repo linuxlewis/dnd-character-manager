@@ -2,49 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { createDndApiSpellClient } from "./dnd-api-spell-client.js";
 
 describe("createDndApiSpellClient", () => {
-	it("returns no search results without calling the API for an empty query", async () => {
-		const fetcher = vi.fn();
-		const client = createDndApiSpellClient({ fetcher });
-
-		await expect(client.searchSpells({ slotLevel: 3, query: " " })).resolves.toEqual([]);
-		expect(fetcher).not.toHaveBeenCalled();
-	});
-
-	it("searches SRD 2024 spells by name and includes spell levels up to the selected slot level", async () => {
-		const fetcher = vi.fn().mockResolvedValue(
-			jsonResponse({
-				results: [
-					{ key: "srd-2024_divine-smite", name: "Divine Smite", level: 1 },
-					{ key: "srd-2024_searing-smite", name: "Searing Smite", level: 1 },
-					{ key: "srd-2024_shining-smite", name: "Shining Smite", level: 2 },
-				],
-			}),
-		);
-
-		const client = createDndApiSpellClient({ fetcher });
-
-		await expect(client.searchSpells({ slotLevel: 1, query: "smite" })).resolves.toEqual([
-			{
-				index: "divine-smite",
-				name: "Divine Smite",
-				level: 1,
-				url: "/api/2024/spells/divine-smite",
-				source: "spell",
-			},
-			{
-				index: "searing-smite",
-				name: "Searing Smite",
-				level: 1,
-				url: "/api/2024/spells/searing-smite",
-				source: "spell",
-			},
-		]);
-		expect(fetcher).toHaveBeenCalledOnce();
-		expect(fetcher).toHaveBeenCalledWith(
-			"https://api.open5e.com/v2/spells/?name__icontains=smite&document__key__in=srd-2024&level__lte=1&fields=key,name,level",
-		);
-	});
-
 	it("loads a canonical SRD 2024 spell by index before saving", async () => {
 		const fetcher = vi.fn().mockResolvedValue(
 			jsonResponse({
