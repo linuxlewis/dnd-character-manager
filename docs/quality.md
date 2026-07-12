@@ -14,7 +14,8 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| characters | B | B | B | B | B | B | B | Character create/list/detail, detail-page level editing, health tracking, spell slot tracking, mobile-safe editable input sizing, add/remove-spell flows, cantrip and feature spell-list entries, and saved spell details have unit, integration, route, generated-client, and e2e coverage |
+| catalogue | B | B | B | B | N/A | N/A | B | Local SRD 2024 spell catalogue has Foundry source parsing, persistence, seed-service, and database integration coverage |
+| characters | B | B | B | B | B | B | B | Character create/list/detail, detail-page level editing, health tracking, spell slot tracking, mobile-safe editable input sizing, add/remove-spell flows, cantrip and feature spell-list entries, saved spell details, and local-catalogue spell search/save/details have unit, integration, route, generated-client, and e2e coverage |
 
 ## Cross-Cutting
 
