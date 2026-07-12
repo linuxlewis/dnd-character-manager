@@ -121,12 +121,7 @@ function CharacterLevelEditor({ characterId, level }: { characterId: string; lev
 			<Button onClick={openEditor} size="compact-xs" variant="subtle">
 				Edit level
 			</Button>
-			<Modal
-				onClose={() => setOpened(false)}
-				opened={opened}
-				title="Edit level"
-				withinPortal={false}
-			>
+			<Modal onClose={() => setOpened(false)} opened={opened} title="Edit level">
 				<Box
 					component="form"
 					onSubmit={form.onSubmit((values) => {
