@@ -39,7 +39,6 @@ export function SpellSearchModal({
 		>
 			<Stack gap="md">
 				<TextInput
-					autoFocus
 					data-autofocus
 					label="Search spells"
 					onChange={(event) => onChangeQuery(event.currentTarget.value)}
