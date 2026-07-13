@@ -5,8 +5,8 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
-import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
-export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterExperienceRequest, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterNameRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
+export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterExperienceRequest, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterNameRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
 import { CharacterDetailResponseSchema, CharacterSpellDetailsResponseSchema, CharacterSpellSlotsResponseSchema, CharacterSpellsResponseSchema, ListCharactersResponseSchema, SearchCharacterSpellsResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
 
 export interface ApiClientOptions {
@@ -52,6 +52,18 @@ export function createApiClient(options: ApiClientOptions = {}) {
 			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}`, options, undefined, (body: unknown) => CharacterDetailResponseSchema.parse(body));
 		},
 
+		updateCharacterLevel(params: { characterId: string }, body: UpdateCharacterLevelRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
+			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/level`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
+		},
+
+		updateCharacterName(params: { characterId: string }, body: UpdateCharacterNameRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
+			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/name`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
+		},
+
+		updateCharacterExperience(params: { characterId: string }, body: UpdateCharacterExperienceRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
+			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/experience`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
+		},
+
 		updateCharacterHealth(params: { characterId: string }, body: UpdateCharacterHealthRequest, options: ApiRequestOptions = {}): Promise<UpdateCharacterHealthResponse> {
 			return request<UpdateCharacterHealthResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/health`, options, body, (body: unknown) => UpdateCharacterHealthResponseSchema.parse(body));
 		},
@@ -90,6 +102,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
 
 		saveCharacterSpell(params: { characterId: string }, body: SaveCharacterSpellRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
 			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells`, options, body, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
+		},
+
+		removeCharacterSpell(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
+			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "DELETE", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
 		}
 	};
 }
@@ -148,6 +164,21 @@ export function createApiMutationOptions(client = apiClient) {
 			mutationFn: (body: CreateCharacterRequest) => client.createCharacter(body, options),
 		}),
 
+		updateCharacterLevel: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "updateCharacterLevel"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterLevelRequest }) => client.updateCharacterLevel(variables.params, variables.body, options),
+		}),
+
+		updateCharacterName: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "updateCharacterName"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterNameRequest }) => client.updateCharacterName(variables.params, variables.body, options),
+		}),
+
+		updateCharacterExperience: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "updateCharacterExperience"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterExperienceRequest }) => client.updateCharacterExperience(variables.params, variables.body, options),
+		}),
+
 		updateCharacterHealth: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "updateCharacterHealth"] as const,
 			mutationFn: (variables: { params: { characterId: string }; body: UpdateCharacterHealthRequest }) => client.updateCharacterHealth(variables.params, variables.body, options),
@@ -181,6 +212,11 @@ export function createApiMutationOptions(client = apiClient) {
 		saveCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "saveCharacterSpell"] as const,
 			mutationFn: (variables: { params: { characterId: string }; body: SaveCharacterSpellRequest }) => client.saveCharacterSpell(variables.params, variables.body, options),
+		}),
+
+		removeCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "removeCharacterSpell"] as const,
+			mutationFn: (params: { characterId: string; spellId: string }) => client.removeCharacterSpell(params, options),
 		}),
 	};
 }

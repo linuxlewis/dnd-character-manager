@@ -48,11 +48,12 @@ describe("createCharacterRepo", () => {
 			name: "Mira",
 			class: "Rogue",
 			level: 2,
+			experiencePoints: 0,
 		});
 		await expect(repo.findByIdForUser({ id: first.id, userId: otherUserId })).resolves.toBeNull();
 		await expect(repo.listByUser(userId)).resolves.toMatchObject([
-			{ id: second.id, name: "Mira" },
-			{ id: first.id, name: "Mira" },
+			{ id: second.id, name: "Mira", experiencePoints: 0 },
+			{ id: first.id, name: "Mira", experiencePoints: 0 },
 		]);
 	});
 });

@@ -14,16 +14,21 @@ import {
 	CharacterSpellSchema,
 	CharacterSpellSlotSchema,
 	CharacterSummarySchema,
+	getCharacterExperienceProgress,
 	HealthChangeResponseSchema,
 	SpellSlotActionSchema,
 	SpellSlotChangeResponseSchema,
 } from "../types/index.js";
 
-const CharacterRowSchema = z.object({
+const CharacterSummaryRowSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string(),
 	className: z.string(),
 	level: z.number().int(),
+});
+
+const CharacterDetailRowSchema = CharacterSummaryRowSchema.extend({
+	experiencePoints: z.number().int(),
 });
 
 const HealthRowSchema = z.object({
@@ -76,19 +81,21 @@ const CharacterSpellRowSchema = z.object({
 });
 
 export function toCharacterSummary(row: unknown): CharacterSummary {
-	return CharacterSummarySchema.parse(CharacterRowSchema.parse(row));
+	return CharacterSummarySchema.parse(CharacterSummaryRowSchema.parse(row));
 }
 
 export function toCharacterDetail(
 	row: unknown,
 	recentHealthChanges: HealthChangeResponse[],
 ): CharacterDetail {
-	const character = CharacterRowSchema.merge(HealthRowSchema).parse(row);
+	const character = CharacterDetailRowSchema.merge(HealthRowSchema).parse(row);
 	return CharacterDetailSchema.parse({
 		id: character.id,
 		name: character.name,
 		className: character.className,
 		level: character.level,
+		experiencePoints: character.experiencePoints,
+		experience: getCharacterExperienceProgress(character.level, character.experiencePoints),
 		health: toCharacterHealth(character),
 		recentHealthChanges,
 	});

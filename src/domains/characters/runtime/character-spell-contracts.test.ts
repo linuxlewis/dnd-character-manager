@@ -8,12 +8,14 @@ describe("characterSpellRouteContracts", () => {
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 		expect(characterSpellRouteContracts.map((route) => route.client?.functionName)).toEqual([
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 	});
 

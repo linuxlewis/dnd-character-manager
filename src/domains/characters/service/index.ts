@@ -1,3 +1,5 @@
+export type { CatalogueBackedSpellClientOptions } from "./catalogue-backed-spell-client.js";
+export { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
 export {
 	CharacterNotFoundError,
 	SpellSearchUnavailableError,

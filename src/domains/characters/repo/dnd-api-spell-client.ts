@@ -5,75 +5,47 @@ import {
 	DndSpellSearchResultSchema,
 	SpellIndexSchema,
 } from "../types/index.js";
+import { getLegacySpellDetails, searchLegacyFeatures } from "./dnd-api-legacy-spell-client.js";
 
-const DND_API_REST_BASE_URL = "https://www.dnd5eapi.co";
+const OPEN5E_API_BASE_URL = "https://api.open5e.com/v2";
+const DND_API_2014_REST_BASE_URL = "https://www.dnd5eapi.co";
+const OPEN5E_SRD_2024_DOCUMENT_KEY = "srd-2024";
+const OPEN5E_DETAIL_FIELDS =
+	"key,name,level,desc,higher_level,casting_time,range_text,duration,verbal,somatic,material,material_specified,school,classes";
 
 const DndApiReferenceSchema = z.object({
 	name: z.string(),
 });
 
-const DndApiSpellDetailResponseSchema = z.object({
-	index: z.string(),
+const Open5eSearchResponseSchema = z.object({
+	results: z.array(
+		z.object({
+			key: z.string(),
+			name: z.string(),
+			level: z.number().int(),
+		}),
+	),
+});
+
+const Open5eSpellDetailResponseSchema = z.object({
+	key: z.string(),
 	name: z.string(),
 	level: z.number().int(),
-	url: z.string(),
-	desc: z.array(z.string()).min(1),
-	higher_level: z.array(z.string()).optional().default([]),
+	desc: z.union([z.string(), z.array(z.string()).min(1)]),
+	higher_level: z
+		.union([z.string(), z.array(z.string())])
+		.optional()
+		.default(""),
 	casting_time: z.string().optional(),
-	range: z.string().optional(),
+	range_text: z.string().optional(),
 	duration: z.string().optional(),
-	components: z.array(z.string()).optional().default([]),
-	material: z.string().optional(),
+	verbal: z.boolean().optional().default(false),
+	somatic: z.boolean().optional().default(false),
+	material: z.boolean().optional().default(false),
+	material_specified: z.string().optional(),
 	school: DndApiReferenceSchema.optional(),
 	classes: z.array(DndApiReferenceSchema).optional().default([]),
 });
-
-const DndApiFeatureDetailResponseSchema = z.object({
-	index: z.string(),
-	name: z.string(),
-	level: z.number().int(),
-	url: z.string(),
-	desc: z.array(z.string()).min(1),
-	class: DndApiReferenceSchema.optional(),
-	subclass: DndApiReferenceSchema.optional(),
-});
-
-const DndApiSearchResponseSchema = z.object({
-	data: z.object({
-		spells: z.array(
-			z.object({
-				index: z.string(),
-				name: z.string(),
-				level: z.number().int(),
-			}),
-		),
-		features: z
-			.array(
-				z.object({
-					index: z.string(),
-					name: z.string(),
-					level: z.number().int(),
-				}),
-			)
-			.optional()
-			.default([]),
-	}),
-});
-
-const SEARCH_SPELL_ENTRIES = `
-	query SearchSpellEntries($name: String!, $levels: [Int!], $includeFeatures: Boolean!) {
-		spells(name: $name, level: $levels, limit: 50) {
-			index
-			name
-			level
-		}
-		features(name: $name, limit: 20) @include(if: $includeFeatures) {
-			index
-			name
-			level
-		}
-	}
-`;
 
 export interface SearchSpellsInput {
 	slotLevel: number;
@@ -87,8 +59,8 @@ export interface DndApiSpellClient {
 }
 
 export interface DndApiSpellClientOptions {
-	baseUrl?: string;
-	graphqlEndpoint?: string;
+	open5eBaseUrl?: string;
+	legacyBaseUrl?: string;
 	fetcher?: typeof fetch;
 }
 
@@ -100,8 +72,8 @@ export class DndApiSpellClientError extends Error {
 }
 
 export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}): DndApiSpellClient {
-	const baseUrl = options.baseUrl ?? DND_API_REST_BASE_URL;
-	const graphqlEndpoint = options.graphqlEndpoint ?? `${baseUrl}/graphql`;
+	const open5eBaseUrl = trimTrailingSlash(options.open5eBaseUrl ?? OPEN5E_API_BASE_URL);
+	const legacyBaseUrl = trimTrailingSlash(options.legacyBaseUrl ?? DND_API_2014_REST_BASE_URL);
 	const fetcher = options.fetcher ?? fetch;
 
 	return {
@@ -109,13 +81,9 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 			try {
 				const query = input.query.trim().toLowerCase();
 				if (query.length === 0) return [];
-				const { spells, features } = await searchEntries(
-					graphqlEndpoint,
-					fetcher,
-					input.slotLevel,
-					query,
-				);
-				return [...spells, ...features].sort(compareSearchResults);
+				return (
+					await searchEntries(open5eBaseUrl, legacyBaseUrl, fetcher, input.slotLevel, query)
+				).sort(compareSearchResults);
 			} catch (error) {
 				if (error instanceof DndApiSpellClientError) throw error;
 				throw new DndApiSpellClientError();
@@ -124,7 +92,14 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 
 		async findSpell(spellIndex, source = "spell") {
 			try {
-				return parseSearchResult(await fetchDetail(baseUrl, fetcher, spellIndex, source), source);
+				const details = await getDetails(open5eBaseUrl, legacyBaseUrl, fetcher, spellIndex, source);
+				return DndSpellSearchResultSchema.parse({
+					index: details.index,
+					name: details.name,
+					level: details.level,
+					url: details.url,
+					source: details.source,
+				});
 			} catch (error) {
 				if (error instanceof DndApiSpellClientError) throw error;
 				throw new DndApiSpellClientError();
@@ -133,8 +108,7 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 
 		async getSpellDetails(spellIndex, source = "spell") {
 			try {
-				const detail = await fetchDetail(baseUrl, fetcher, spellIndex, source);
-				return parseSpellDetails(detail, source);
+				return getDetails(open5eBaseUrl, legacyBaseUrl, fetcher, spellIndex, source);
 			} catch (error) {
 				if (error instanceof DndApiSpellClientError) throw error;
 				throw new DndApiSpellClientError();
@@ -144,119 +118,105 @@ export function createDndApiSpellClient(options: DndApiSpellClientOptions = {}):
 }
 
 async function searchEntries(
-	graphqlEndpoint: string,
+	open5eBaseUrl: string,
+	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	slotLevel: number,
 	query: string,
 ) {
-	const response = await fetcher(graphqlEndpoint, {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({
-			query: SEARCH_SPELL_ENTRIES,
-			variables: {
-				name: query,
-				levels: spellLevelsUpTo(slotLevel),
-				includeFeatures: query.length >= 3,
-			},
-		}),
-	});
+	const spells = await searchOpen5eSpells(open5eBaseUrl, fetcher, slotLevel, query);
+	if (slotLevel !== 0) return spells;
+
+	const features = await searchLegacyFeatures(legacyBaseUrl, fetcher, query);
+	return [...spells, ...features];
+}
+
+async function searchOpen5eSpells(
+	open5eBaseUrl: string,
+	fetcher: typeof fetch,
+	slotLevel: number,
+	query: string,
+) {
+	const response = await fetcher(searchUrl(open5eBaseUrl, slotLevel, query));
 	if (!response.ok) throw new DndApiSpellClientError();
 
-	const parsed = DndApiSearchResponseSchema.parse(await response.json());
-	const spells = parsed.data.spells
-		.filter((spell) => spell.level >= 1 && spell.level <= slotLevel)
-		.filter((spell) => query.length === 0 || matchesName(spell.name, query))
-		.map((spell) => parseGraphqlSearchResult(spell, "spell"));
-	const features = parsed.data.features
-		.filter((feature) => query.length >= 3 && matchesName(feature.name, query))
-		.map((feature) => parseGraphqlSearchResult(feature, "feature"));
-
-	return { spells, features };
+	const parsed = Open5eSearchResponseSchema.parse(await response.json());
+	return parsed.results
+		.filter((spell) => isSpellInBucket(spell.level, slotLevel))
+		.filter((spell) => matchesName(spell.name, query))
+		.map(parseOpen5eSearchResult);
 }
 
-function parseSearchResult(
-	entry: { index: string; level: number; name: string; url: string },
-	source: SpellEntrySource,
-) {
-	return DndSpellSearchResultSchema.parse({ ...entry, source });
+function parseOpen5eSearchResult(entry: { key: string; level: number; name: string }) {
+	const index = spellIndexFromOpen5eKey(entry.key);
+	return DndSpellSearchResultSchema.parse({
+		index,
+		name: entry.name,
+		level: entry.level,
+		url: spellApiUrl(index, "spell", "2024"),
+		source: "spell",
+	});
 }
 
-function parseGraphqlSearchResult(
-	entry: { index: string; level: number; name: string },
-	source: SpellEntrySource,
-) {
-	return parseSearchResult({ ...entry, url: spellApiUrl(entry.index, source) }, source);
+function isSpellInBucket(spellLevel: number, slotLevel: number) {
+	if (slotLevel === 0) return spellLevel === 0;
+	return spellLevel >= 1 && spellLevel <= slotLevel;
 }
 
-function spellLevelsUpTo(slotLevel: number) {
-	return Array.from({ length: slotLevel }, (_, index) => index + 1);
-}
-
-function spellApiUrl(index: string, source: SpellEntrySource) {
+function spellApiUrl(index: string, source: SpellEntrySource, version: "2014" | "2024") {
 	const resource = source === "feature" ? "features" : "spells";
-	return `/api/2014/${resource}/${index}`;
+	return `/api/${version}/${resource}/${index}`;
 }
 
-async function fetchDetail(
-	baseUrl: string,
+async function fetchOpen5eDetail(open5eBaseUrl: string, fetcher: typeof fetch, spellIndex: string) {
+	const index = SpellIndexSchema.parse(spellIndex);
+	const response = await fetcher(
+		`${open5eBaseUrl}/spells/${open5eSpellKey(index)}/?fields=${OPEN5E_DETAIL_FIELDS}`,
+	);
+	if (!response.ok) throw new DndApiSpellClientError();
+	return Open5eSpellDetailResponseSchema.parse(await response.json());
+}
+
+async function getDetails(
+	open5eBaseUrl: string,
+	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	spellIndex: string,
 	source: SpellEntrySource,
 ) {
-	const index = SpellIndexSchema.parse(spellIndex);
-	const resource = source === "feature" ? "features" : "spells";
-	const response = await fetcher(`${baseUrl}/api/2014/${resource}/${index}`);
-	if (!response.ok) throw new DndApiSpellClientError();
-	const schema =
-		source === "feature" ? DndApiFeatureDetailResponseSchema : DndApiSpellDetailResponseSchema;
-	return schema.parse(await response.json());
+	if (source === "feature") {
+		return getLegacySpellDetails(legacyBaseUrl, fetcher, spellIndex, source);
+	}
+
+	try {
+		return parseOpen5eSpellDetails(await fetchOpen5eDetail(open5eBaseUrl, fetcher, spellIndex));
+	} catch {
+		return getLegacySpellDetails(legacyBaseUrl, fetcher, spellIndex, source);
+	}
 }
 
-function parseSpellDetails(
-	entry:
-		| z.infer<typeof DndApiFeatureDetailResponseSchema>
-		| z.infer<typeof DndApiSpellDetailResponseSchema>,
-	source: SpellEntrySource,
-) {
-	const details =
-		source === "feature"
-			? {
-					higherLevel: [],
-					metadata: featureMetadata(entry as z.infer<typeof DndApiFeatureDetailResponseSchema>),
-				}
-			: {
-					higherLevel: (entry as z.infer<typeof DndApiSpellDetailResponseSchema>).higher_level,
-					metadata: spellMetadata(entry as z.infer<typeof DndApiSpellDetailResponseSchema>),
-				};
-
+function parseOpen5eSpellDetails(entry: z.infer<typeof Open5eSpellDetailResponseSchema>) {
+	const index = spellIndexFromOpen5eKey(entry.key);
 	return DndSpellDetailsSchema.parse({
-		index: entry.index,
+		index,
 		name: entry.name,
 		level: entry.level,
-		url: entry.url,
-		source,
-		desc: entry.desc,
-		...details,
+		url: spellApiUrl(index, "spell", "2024"),
+		source: "spell",
+		desc: textArray(entry.desc),
+		higherLevel: textArray(entry.higher_level),
+		metadata: open5eSpellMetadata(entry),
 	});
 }
 
-function spellMetadata(entry: z.infer<typeof DndApiSpellDetailResponseSchema>) {
+function open5eSpellMetadata(entry: z.infer<typeof Open5eSpellDetailResponseSchema>) {
 	return [
 		metadata("Casting Time", entry.casting_time),
-		metadata("Range", entry.range),
+		metadata("Range", entry.range_text),
 		metadata("Duration", entry.duration),
-		metadata("Components", formatComponents(entry.components, entry.material)),
+		metadata("Components", formatOpen5eComponents(entry)),
 		metadata("School", entry.school?.name),
 		metadata("Classes", formatReferences(entry.classes)),
-	].filter((item) => item !== null);
-}
-
-function featureMetadata(entry: z.infer<typeof DndApiFeatureDetailResponseSchema>) {
-	return [
-		metadata("Feature Level", String(entry.level)),
-		metadata("Class", entry.class?.name),
-		metadata("Subclass", entry.subclass?.name),
 	].filter((item) => item !== null);
 }
 
@@ -275,10 +235,43 @@ function formatComponents(components: string[], material?: string) {
 	return material ? `${componentText} (${material})` : componentText;
 }
 
+function formatOpen5eComponents(entry: z.infer<typeof Open5eSpellDetailResponseSchema>) {
+	const components: string[] = [];
+	if (entry.verbal) components.push("V");
+	if (entry.somatic) components.push("S");
+	if (entry.material) components.push("M");
+	return formatComponents(components, entry.material_specified);
+}
+
 function matchesName(name: string, query: string) {
 	return name.toLowerCase().includes(query);
 }
 
 function compareSearchResults(left: DndSpellSearchResult, right: DndSpellSearchResult) {
 	return left.level - right.level || left.name.localeCompare(right.name);
+}
+
+function searchUrl(open5eBaseUrl: string, slotLevel: number, query: string) {
+	return `${open5eBaseUrl}/spells/?name__icontains=${encodeURIComponent(query)}&document__key__in=${OPEN5E_SRD_2024_DOCUMENT_KEY}&level__lte=${slotLevel}&fields=key,name,level`;
+}
+
+function open5eSpellKey(index: string) {
+	return `${OPEN5E_SRD_2024_DOCUMENT_KEY}_${index}`;
+}
+
+function spellIndexFromOpen5eKey(key: string) {
+	const prefix = `${OPEN5E_SRD_2024_DOCUMENT_KEY}_`;
+	return SpellIndexSchema.parse(key.startsWith(prefix) ? key.slice(prefix.length) : key);
+}
+
+function textArray(value: string | string[]) {
+	if (Array.isArray(value)) return value.map((item) => item.trim()).filter(Boolean);
+	return value
+		.split(/\r?\n\r?\n/)
+		.map((item) => item.trim())
+		.filter(Boolean);
+}
+
+function trimTrailingSlash(value: string) {
+	return value.replace(/\/+$/, "");
 }

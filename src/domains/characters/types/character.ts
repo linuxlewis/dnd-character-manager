@@ -1,25 +1,12 @@
 import { z } from "zod";
+import { CharacterClassSchema } from "./character-class.js";
+import {
+	CharacterExperiencePointsSchema,
+	CharacterExperienceProgressSchema,
+} from "./character-experience.js";
 
 export const CharacterIdSchema = z.string().uuid();
 export type CharacterId = z.infer<typeof CharacterIdSchema>;
-
-export const CHARACTER_CLASSES = [
-	"Barbarian",
-	"Bard",
-	"Cleric",
-	"Druid",
-	"Fighter",
-	"Monk",
-	"Paladin",
-	"Ranger",
-	"Rogue",
-	"Sorcerer",
-	"Warlock",
-	"Wizard",
-] as const;
-
-export const CharacterClassSchema = z.enum(CHARACTER_CLASSES);
-export type CharacterClass = z.infer<typeof CharacterClassSchema>;
 
 export const CharacterUserIdSchema = z.string().uuid();
 export const CharacterNameSchema = z.string().min(1).max(120).regex(/\S/);
@@ -28,6 +15,7 @@ export const CharacterLevelSchema = z.number().int().min(1).max(20);
 export const HitPointsSchema = z.number().int().min(0).max(9999);
 export const MaxHitPointsSchema = z.number().int().min(1).max(9999);
 export const SpellSlotLevelSchema = z.number().int().min(1).max(9);
+export const SpellListBucketLevelSchema = z.number().int().min(0).max(9);
 export const SpellSlotCountSchema = z.number().int().min(0).max(99);
 export const SpellSlotActionSchema = z.enum(["configured", "used", "restored", "defaults-applied"]);
 export type SpellSlotAction = z.infer<typeof SpellSlotActionSchema>;
@@ -38,7 +26,7 @@ export const SpellIndexSchema = z
 	.regex(/^[a-z0-9-]+$/);
 export type SpellIndex = z.infer<typeof SpellIndexSchema>;
 export const SpellNameSchema = z.string().min(1).max(120).regex(/\S/);
-export const SpellLevelSchema = z.number().int().min(1).max(20);
+export const SpellLevelSchema = z.number().int().min(0).max(20);
 export type SpellLevel = z.infer<typeof SpellLevelSchema>;
 export const SpellEntrySourceSchema = z.enum(["spell", "feature"]);
 export type SpellEntrySource = z.infer<typeof SpellEntrySourceSchema>;
@@ -46,7 +34,7 @@ export const SpellApiUrlSchema = z
 	.string()
 	.min(1)
 	.max(240)
-	.regex(/^\/api\/2014\/(?:features|spells)\/[a-z0-9-]+$/);
+	.regex(/^\/api\/(?:2014|2024)\/(?:features|spells)\/[a-z0-9-]+$/);
 export const CharacterSpellIdSchema = z.string().uuid();
 export type CharacterSpellId = z.infer<typeof CharacterSpellIdSchema>;
 
@@ -98,6 +86,7 @@ export const CharacterSchema = z.object({
 	name: CharacterNameSchema,
 	class: CharacterClassSchema,
 	level: CharacterLevelSchema,
+	experiencePoints: CharacterExperiencePointsSchema,
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });
@@ -108,6 +97,7 @@ export const CharacterResponseSchema = z.object({
 	name: CharacterNameSchema,
 	class: CharacterClassSchema,
 	level: CharacterLevelSchema,
+	experiencePoints: CharacterExperiencePointsSchema,
 	createdAt: z.iso.datetime().optional(),
 	updatedAt: z.iso.datetime().optional(),
 });
@@ -122,6 +112,8 @@ export const CharacterSummarySchema = z.object({
 export type CharacterSummary = z.infer<typeof CharacterSummarySchema>;
 
 export const CharacterDetailSchema = CharacterSummarySchema.extend({
+	experiencePoints: CharacterExperiencePointsSchema,
+	experience: CharacterExperienceProgressSchema,
 	health: CharacterHealthSchema,
 	recentHealthChanges: z.array(HealthChangeResponseSchema).max(5),
 });
@@ -136,6 +128,23 @@ export const CharacterDetailResponseSchema = z.object({
 	character: CharacterDetailSchema,
 });
 export type CharacterDetailResponse = z.infer<typeof CharacterDetailResponseSchema>;
+
+export const UpdateCharacterLevelRequestSchema = z.object({
+	level: CharacterLevelSchema,
+});
+export type UpdateCharacterLevelRequest = z.infer<typeof UpdateCharacterLevelRequestSchema>;
+
+export const UpdateCharacterNameRequestSchema = z.object({
+	name: CharacterNameSchema,
+});
+export type UpdateCharacterNameRequest = z.infer<typeof UpdateCharacterNameRequestSchema>;
+
+export const UpdateCharacterExperienceRequestSchema = z.object({
+	experiencePoints: CharacterExperiencePointsSchema,
+});
+export type UpdateCharacterExperienceRequest = z.infer<
+	typeof UpdateCharacterExperienceRequestSchema
+>;
 
 export const UpdateCharacterHealthRequestSchema = z.object({
 	currentHp: HitPointsSchema,
@@ -210,7 +219,7 @@ export type CharacterSpellSlotsResponse = z.infer<typeof CharacterSpellSlotsResp
 
 export const CharacterSpellSchema = z.object({
 	id: CharacterSpellIdSchema,
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	spellIndex: SpellIndexSchema,
 	name: SpellNameSchema,
 	level: SpellLevelSchema,
@@ -258,7 +267,7 @@ export const CharacterSpellDetailsResponseSchema = z.object({
 export type CharacterSpellDetailsResponse = z.infer<typeof CharacterSpellDetailsResponseSchema>;
 
 export const SearchCharacterSpellsRequestSchema = z.object({
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	query: z.string().max(120),
 });
 export type SearchCharacterSpellsRequest = z.infer<typeof SearchCharacterSpellsRequestSchema>;
@@ -269,7 +278,7 @@ export const SearchCharacterSpellsResponseSchema = z.object({
 export type SearchCharacterSpellsResponse = z.infer<typeof SearchCharacterSpellsResponseSchema>;
 
 export const SaveCharacterSpellRequestSchema = z.object({
-	slotLevel: SpellSlotLevelSchema,
+	slotLevel: SpellListBucketLevelSchema,
 	spellIndex: SpellIndexSchema,
 	source: SpellEntrySourceSchema.default("spell"),
 });

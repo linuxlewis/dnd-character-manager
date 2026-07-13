@@ -7,6 +7,9 @@ describe("characterRouteContracts", () => {
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
+			"updateCharacterLevel",
+			"updateCharacterName",
+			"updateCharacterExperience",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -17,11 +20,15 @@ describe("characterRouteContracts", () => {
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 		expect(characterRouteContracts.map((route) => route.client?.functionName)).toEqual([
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
+			"updateCharacterLevel",
+			"updateCharacterName",
+			"updateCharacterExperience",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -32,13 +39,14 @@ describe("characterRouteContracts", () => {
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 	});
 
-	it("uses characterId path params for detail, health, and spell slot routes", () => {
+	it("uses path params for character detail and update routes", () => {
 		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(11);
+		expect(routeWithParams).toHaveLength(15);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

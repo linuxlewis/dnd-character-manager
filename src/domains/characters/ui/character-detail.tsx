@@ -1,6 +1,8 @@
 import { Alert, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
+import { CharacterEditor } from "./character-editor.js";
+import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
 import { CharacterHealthPanel } from "./health-panel.js";
@@ -42,13 +44,22 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 			{characterQuery.data && (
 				<Paper withBorder p="lg">
 					<Stack gap="md">
-						<Title order={3}>{characterQuery.data.character.name}</Title>
+						<Group gap="xs" align="center">
+							<Title order={3}>{characterQuery.data.character.name}</Title>
+							<CharacterEditor
+								characterId={characterQuery.data.character.id}
+								experiencePoints={characterQuery.data.character.experiencePoints}
+								level={characterQuery.data.character.level}
+								name={characterQuery.data.character.name}
+							/>
+						</Group>
 						<Group gap="xs">
 							<Badge variant="light">{characterQuery.data.character.className}</Badge>
 							<Badge color="candle" variant="light">
 								Level {characterQuery.data.character.level}
 							</Badge>
 						</Group>
+						<CharacterExperiencePanel character={characterQuery.data.character} />
 						<CharacterHealthPanel
 							characterId={characterQuery.data.character.id}
 							health={characterQuery.data.character.health}

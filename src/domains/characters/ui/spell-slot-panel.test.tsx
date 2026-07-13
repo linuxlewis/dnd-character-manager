@@ -30,6 +30,15 @@ describe("CharacterSpellSlotsPanel", () => {
 		queryClient.setQueryData(apiQueryKeys.listCharacterSpells({ characterId }), {
 			spells: [
 				{
+					id: "00000000-0000-4000-8000-000000000029",
+					slotLevel: 0,
+					spellIndex: "light",
+					name: "Light",
+					level: 0,
+					url: "/api/2014/spells/light",
+					source: "spell",
+				},
+				{
 					id: "00000000-0000-4000-8000-000000000030",
 					slotLevel: 2,
 					spellIndex: "magic-missile",
@@ -52,6 +61,10 @@ describe("CharacterSpellSlotsPanel", () => {
 		const readableHtml = html.replaceAll("<!-- -->", "");
 		expect(readableHtml).toContain("Spell slots");
 		expect(readableHtml).toContain("Default profile: tier 7");
+		expect(readableHtml).toContain("Cantrips &amp; features");
+		expect(html).toContain('aria-label="Add cantrip or feature"');
+		expect(readableHtml).toContain("Light");
+		expect(readableHtml).toContain("Cantrip");
 		expect(readableHtml).toContain("1st-level");
 		expect(readableHtml).toContain("1 / 2 remaining");
 		expect(readableHtml).toContain("Total 2");

@@ -1,6 +1,6 @@
 import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
 import type { SearchCharacterSpellsResponse } from "../../../generated/api-client.generated.js";
-import { formatSpellLevel } from "./spell-slot-format.js";
+import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
 export type SpellSearchResult = SearchCharacterSpellsResponse["spells"][number];
 
@@ -29,18 +29,23 @@ export function SpellSearchModal({
 }) {
 	return (
 		<Modal
+			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl" }}
 			fullScreen
 			onClose={onClose}
 			opened={opened}
-			title={`Add spell to ${formatSpellLevel(slotLevel)}`}
+			title={
+				slotLevel === 0 ? "Add cantrip or feature" : `Add spell to ${formatSpellLevel(slotLevel)}`
+			}
 			transitionProps={{ duration: 0 }}
 			withinPortal={withinPortal}
 		>
 			<Stack gap="md">
 				<TextInput
-					label="Search spells"
+					data-autofocus
+					label={slotLevel === 0 ? "Search cantrips and features" : "Search spells"}
 					onChange={(event) => onChangeQuery(event.currentTarget.value)}
-					placeholder="Spell name"
+					placeholder={slotLevel === 0 ? "Name" : "Spell name"}
+					size="md"
 					value={query}
 				/>
 
@@ -76,6 +81,5 @@ export function SpellSearchModal({
 }
 
 function formatSearchResultDetail(spell: SpellSearchResult) {
-	const entryType = spell.source === "feature" ? "Feature" : "Spell";
-	return `${entryType} ${formatSpellLevel(spell.level)}`;
+	return formatSpellEntryDetail(spell);
 }

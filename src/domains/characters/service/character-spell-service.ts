@@ -1,9 +1,5 @@
 import type { CharacterSpellRepository, DndApiSpellClient } from "../repo/index.js";
-import {
-	createCharacterSpellRepository,
-	createDndApiSpellClient,
-	DndApiSpellClientError,
-} from "../repo/index.js";
+import { createCharacterSpellRepository, DndApiSpellClientError } from "../repo/index.js";
 import type {
 	CharacterSpellDetailsResponse,
 	CharacterSpellsResponse,
@@ -15,6 +11,7 @@ import {
 	CharacterSpellDetailsResponseSchema,
 	SearchCharacterSpellsResponseSchema,
 } from "../types/index.js";
+import { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
 import {
 	CharacterNotFoundError,
 	SpellSearchUnavailableError,
@@ -38,11 +35,16 @@ export interface CharacterSpellService {
 		characterId: string,
 		input: SaveCharacterSpellRequest,
 	): Promise<CharacterSpellsResponse>;
+	removeCharacterSpell(
+		userId: string,
+		characterId: string,
+		spellId: string,
+	): Promise<CharacterSpellsResponse>;
 }
 
 export function createCharacterSpellService(
 	repository: CharacterSpellRepository = createCharacterSpellRepository(),
-	spellsClient: DndApiSpellClient = createDndApiSpellClient(),
+	spellsClient: DndApiSpellClient = createCatalogueBackedSpellClient(),
 ): CharacterSpellService {
 	return {
 		async getCharacterSpellDetails(userId, characterId, spellId) {
@@ -105,9 +107,7 @@ export function createCharacterSpellService(
 			try {
 				const source = input.source ?? "spell";
 				const spell = await spellsClient.findSpell(input.spellIndex, source);
-				if (spell.source === "spell" && spell.level > input.slotLevel) {
-					throw new SpellSlotUnavailableError("Spell level is too high for this slot.");
-				}
+				assertSpellCanSaveToBucket(spell, input.slotLevel);
 
 				const response = await repository.saveCharacterSpell(userId, characterId, {
 					slotLevel: input.slotLevel,
@@ -126,5 +126,38 @@ export function createCharacterSpellService(
 				throw error;
 			}
 		},
+
+		async removeCharacterSpell(userId, characterId, spellId) {
+			const response = await repository.removeCharacterSpell(userId, characterId, spellId);
+			if (!response) throw new CharacterNotFoundError();
+			return response;
+		},
 	};
+}
+
+function assertSpellCanSaveToBucket(
+	spell: { level: number; source: "feature" | "spell" },
+	slotLevel: number,
+) {
+	if (spell.source === "feature") {
+		if (slotLevel !== 0) {
+			throw new SpellSlotUnavailableError("Features must be saved outside spell slots.");
+		}
+		return;
+	}
+
+	if (slotLevel === 0) {
+		if (spell.level !== 0) {
+			throw new SpellSlotUnavailableError("Leveled spells require a spell slot.");
+		}
+		return;
+	}
+
+	if (spell.level === 0) {
+		throw new SpellSlotUnavailableError("Cantrips must be saved outside spell slots.");
+	}
+
+	if (spell.level > slotLevel) {
+		throw new SpellSlotUnavailableError("Spell level is too high for this slot.");
+	}
 }

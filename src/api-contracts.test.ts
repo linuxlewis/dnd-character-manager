@@ -8,6 +8,9 @@ describe("apiRouteContracts", () => {
 			"createCharacter",
 			"listCharacters",
 			"getCharacter",
+			"updateCharacterLevel",
+			"updateCharacterName",
+			"updateCharacterExperience",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -18,6 +21,7 @@ describe("apiRouteContracts", () => {
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
 			"saveCharacterSpell",
+			"removeCharacterSpell",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

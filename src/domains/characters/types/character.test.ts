@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
 	CharacterDetailResponseSchema,
-	CharacterSpellDetailsResponseSchema,
 	CharacterSpellSlotsResponseSchema,
-	CharacterSpellsResponseSchema,
 	CreateCharacterRequestSchema,
-	SaveCharacterSpellRequestSchema,
-	SearchCharacterSpellsRequestSchema,
-	SearchCharacterSpellsResponseSchema,
+	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
+	UpdateCharacterLevelRequestSchema,
+	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
@@ -42,143 +40,6 @@ describe("CreateCharacterRequestSchema", () => {
 	});
 });
 
-describe("Character spell schemas", () => {
-	it("accepts a saved character spell under a slot level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000030",
-					slotLevel: 3,
-					spellIndex: "magic-missile",
-					name: "Magic Missile",
-					level: 1,
-					url: "/api/2014/spells/magic-missile",
-					source: "spell",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts a saved class feature under a slot level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000031",
-					slotLevel: 1,
-					spellIndex: "lay-on-hands",
-					name: "Lay on Hands",
-					level: 1,
-					url: "/api/2014/features/lay-on-hands",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts class features above 9th level", () => {
-		const response = {
-			spells: [
-				{
-					id: "00000000-0000-4000-8000-000000000032",
-					slotLevel: 1,
-					spellIndex: "improved-divine-smite",
-					name: "Improved Divine Smite",
-					level: 11,
-					url: "/api/2014/features/improved-divine-smite",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(CharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts a spell search request and response", () => {
-		expect(SearchCharacterSpellsRequestSchema.parse({ slotLevel: 3, query: "miss" })).toEqual({
-			slotLevel: 3,
-			query: "miss",
-		});
-
-		const response = {
-			spells: [
-				{
-					index: "magic-missile",
-					name: "Magic Missile",
-					level: 1,
-					url: "/api/2014/spells/magic-missile",
-					source: "spell",
-				},
-				{
-					index: "divine-smite",
-					name: "Divine Smite",
-					level: 2,
-					url: "/api/2014/features/divine-smite",
-					source: "feature",
-				},
-			],
-		};
-
-		expect(SearchCharacterSpellsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("accepts saving a spell by D&D API index and slot level", () => {
-		expect(
-			SaveCharacterSpellRequestSchema.parse({
-				slotLevel: 3,
-				spellIndex: "magic-missile",
-				source: "spell",
-			}),
-		).toEqual({
-			slotLevel: 3,
-			spellIndex: "magic-missile",
-			source: "spell",
-		});
-	});
-
-	it("accepts saved spell details with description and display metadata", () => {
-		const response = {
-			spell: {
-				id: "00000000-0000-4000-8000-000000000030",
-				slotLevel: 3,
-				spellIndex: "magic-missile",
-				name: "Magic Missile",
-				level: 1,
-				url: "/api/2014/spells/magic-missile",
-				source: "spell",
-				desc: ["You create three glowing darts of magical force."],
-				higherLevel: ["One more dart is created for each slot level above 1st."],
-				metadata: [
-					{ label: "Casting Time", value: "1 action" },
-					{ label: "Range", value: "120 feet" },
-				],
-			},
-		};
-
-		expect(CharacterSpellDetailsResponseSchema.parse(response)).toEqual(response);
-	});
-
-	it("rejects cantrips and spells above the slot range for saved spell payloads", () => {
-		expect(() =>
-			CharacterSpellsResponseSchema.parse({
-				spells: [
-					{
-						id: "00000000-0000-4000-8000-000000000031",
-						slotLevel: 1,
-						spellIndex: "light",
-						name: "Light",
-						level: 0,
-						url: "/api/2014/spells/light",
-					},
-				],
-			}),
-		).toThrow();
-	});
-});
-
 describe("UpdateCharacterHealthRequestSchema", () => {
 	it("allows editable current, max, and temporary HP values", () => {
 		expect(
@@ -205,6 +66,45 @@ describe("UpdateCharacterHealthRequestSchema", () => {
 	});
 });
 
+describe("UpdateCharacterLevelRequestSchema", () => {
+	it("accepts a valid character level update", () => {
+		expect(UpdateCharacterLevelRequestSchema.parse({ level: 8 })).toEqual({ level: 8 });
+	});
+
+	it("rejects levels outside the D&D character range", () => {
+		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 0 })).toThrow();
+		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 21 })).toThrow();
+	});
+});
+
+describe("UpdateCharacterNameRequestSchema", () => {
+	it("accepts a valid character name update", () => {
+		expect(UpdateCharacterNameRequestSchema.parse({ name: "Mira Dawn" })).toEqual({
+			name: "Mira Dawn",
+		});
+	});
+
+	it("rejects blank and overlong names", () => {
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "   " })).toThrow();
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "x".repeat(121) })).toThrow();
+	});
+});
+
+describe("UpdateCharacterExperienceRequestSchema", () => {
+	it("accepts editable experience points", () => {
+		expect(UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: 27_000 })).toEqual({
+			experiencePoints: 27_000,
+		});
+	});
+
+	it("rejects negative or fractional experience points", () => {
+		expect(() => UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: -1 })).toThrow();
+		expect(() =>
+			UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: 12.5 }),
+		).toThrow();
+	});
+});
+
 describe("CharacterDetailResponseSchema", () => {
 	it("describes the detail payload used by the character detail page", () => {
 		const response = {
@@ -213,6 +113,19 @@ describe("CharacterDetailResponseSchema", () => {
 				name: "Mira",
 				className: "Fighter",
 				level: 3,
+				experiencePoints: 900,
+				experience: {
+					level: 3,
+					experiencePoints: 900,
+					currentLevelMinimum: 900,
+					nextLevel: 4,
+					nextLevelMinimum: 2_700,
+					experienceIntoLevel: 0,
+					experienceForNextLevel: 1_800,
+					experienceRemaining: 1_800,
+					progressPercent: 0,
+					isMaxLevel: false,
+				},
 				health: {
 					currentHp: 28,
 					maxHp: 28,

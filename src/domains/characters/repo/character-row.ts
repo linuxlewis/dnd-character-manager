@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
 	type Character,
 	CharacterClassSchema,
+	CharacterExperiencePointsSchema,
 	CharacterIdSchema,
 	CharacterLevelSchema,
 	CharacterNameSchema,
@@ -15,6 +16,7 @@ export const CharacterRowSchema = z.object({
 	name: CharacterNameSchema,
 	characterClass: CharacterClassSchema,
 	level: CharacterLevelSchema,
+	experiencePoints: CharacterExperiencePointsSchema,
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });
@@ -29,6 +31,7 @@ export function characterFromRow(row: unknown): Character {
 		name: parsed.name,
 		class: parsed.characterClass,
 		level: parsed.level,
+		experiencePoints: parsed.experiencePoints,
 		createdAt: parsed.createdAt,
 		updatedAt: parsed.updatedAt,
 	});

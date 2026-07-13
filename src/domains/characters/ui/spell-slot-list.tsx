@@ -2,7 +2,7 @@ import { Anchor, Button, Group, NumberInput, Stack, Text } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
 import type { NumberDraft } from "./health-dialogs.js";
-import { formatSpellLevel } from "./spell-slot-format.js";
+import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
 interface SpellSlotListProps {
 	characterSpells: CharacterSpellsResponse["spells"];
@@ -11,6 +11,7 @@ interface SpellSlotListProps {
 	onDraftTotalChange: (slotLevel: number, value: NumberDraft) => void;
 	onOpenSpellDetails: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onOpenSpellSearch: (slotLevel: number) => void;
+	onRemoveSpell: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onRestoreSlot: (slot: CharacterSpellSlot) => void;
 	onUseSlot: (slot: CharacterSpellSlot) => void;
 	spellSlots: CharacterSpellSlot[];
@@ -23,6 +24,7 @@ export function SpellSlotList({
 	onDraftTotalChange,
 	onOpenSpellDetails,
 	onOpenSpellSearch,
+	onRemoveSpell,
 	onRestoreSlot,
 	onUseSlot,
 	spellSlots,
@@ -70,7 +72,6 @@ export function SpellSlotList({
 									label={`${formatSpellLevel(slot.level)} slot total`}
 									min={0}
 									onChange={(value) => onDraftTotalChange(slot.level, toDraft(value))}
-									size="xs"
 									style={{ flex: "1 1 7rem" }}
 									value={draftTotals[slot.level] ?? slot.total}
 								/>
@@ -104,20 +105,32 @@ export function SpellSlotList({
 							<Stack gap={2}>
 								{savedSpells.map((spell) => (
 									<Group key={spell.id} justify="space-between" gap="xs" wrap="nowrap">
-										<Anchor
-											aria-label={`View ${spell.name} details`}
-											component="button"
-											onClick={() => onOpenSpellDetails(spell)}
-											size="sm"
-											ta="left"
-											type="button"
-										>
-											{spell.name}
-										</Anchor>
-										<Text c="dimmed" size="xs">
-											{formatSpellLevel(spell.level)}{" "}
-											{spell.source === "feature" ? "feature" : "spell"}
-										</Text>
+										<Stack gap={0} style={{ flex: "1 1 auto", minWidth: 0 }}>
+											<Anchor
+												aria-label={`View ${spell.name} details`}
+												component="button"
+												onClick={() => onOpenSpellDetails(spell)}
+												size="sm"
+												ta="left"
+												type="button"
+											>
+												{spell.name}
+											</Anchor>
+											<Text c="dimmed" size="xs">
+												{formatSpellEntryDetail(spell)}
+											</Text>
+										</Stack>
+										{isEditing && (
+											<Button
+												aria-label={`Remove ${spell.name}`}
+												color="red"
+												onClick={() => onRemoveSpell(spell)}
+												size="compact-xs"
+												variant="subtle"
+											>
+												Remove
+											</Button>
+										)}
 									</Group>
 								))}
 							</Stack>

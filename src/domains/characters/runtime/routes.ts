@@ -15,19 +15,15 @@ import {
 import {
 	CreateCharacterRequestSchema,
 	RestoreCharacterSpellSlotRequestSchema,
-	SaveCharacterSpellRequestSchema,
-	SearchCharacterSpellsRequestSchema,
+	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
+	UpdateCharacterLevelRequestSchema,
+	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
-import {
-	parseBody,
-	parseParams,
-	parseSpellParams,
-	sendSpellError,
-	sendSpellSlotError,
-} from "./route-helpers.js";
+import { parseBody, parseParams, sendSpellSlotError } from "./route-helpers.js";
+import { registerCharacterSpellRoutes } from "./routes.spells.js";
 
 const defaultCharacterService = createCharacterService();
 const defaultCharacterHealthService = createCharacterHealthService();
@@ -77,6 +73,75 @@ export async function registerCharacterRoutes(
 			const character = await characterService.getCharacter(
 				currentUser.user.id,
 				params.characterId,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
+		}
+	});
+
+	app.put("/api/characters/:characterId/level", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const body = parseBody(UpdateCharacterLevelRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.updateCharacterLevel(
+				currentUser.user.id,
+				params.characterId,
+				body,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
+		}
+	});
+
+	app.put("/api/characters/:characterId/name", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const body = parseBody(UpdateCharacterNameRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.updateCharacterName(
+				currentUser.user.id,
+				params.characterId,
+				body,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
+		}
+	});
+
+	app.put("/api/characters/:characterId/experience", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const body = parseBody(UpdateCharacterExperienceRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.updateCharacterExperience(
+				currentUser.user.id,
+				params.characterId,
+				body,
 			);
 			return { character };
 		} catch (error) {
@@ -196,72 +261,8 @@ export async function registerCharacterRoutes(
 		}
 	});
 
-	app.get("/api/characters/:characterId/spells", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellService.listCharacterSpells(
-				currentUser.user.id,
-				params.characterId,
-			);
-		} catch (error) {
-			return sendSpellError(error, reply);
-		}
-	});
-
-	app.get("/api/characters/:characterId/spells/:spellId", async (request, reply) => {
-		const params = parseSpellParams(request, reply);
-		if (!params) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellService.getCharacterSpellDetails(
-				currentUser.user.id,
-				params.characterId,
-				params.spellId,
-			);
-		} catch (error) {
-			return sendSpellError(error, reply);
-		}
-	});
-
-	app.post("/api/characters/:characterId/spells/search", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(SearchCharacterSpellsRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellService.searchCharacterSpells(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			return sendSpellError(error, reply);
-		}
-	});
-
-	app.post("/api/characters/:characterId/spells", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(SaveCharacterSpellRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellService.saveCharacterSpell(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			return sendSpellError(error, reply);
-		}
+	await registerCharacterSpellRoutes(app, {
+		characterSpellService,
+		getCurrentUser,
 	});
 }
