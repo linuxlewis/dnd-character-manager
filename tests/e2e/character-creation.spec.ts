@@ -34,15 +34,12 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByText("Level 7")).toBeVisible();
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 
-	await page.getByRole("button", { name: "Edit level" }).click();
-	await page.getByLabel("Character level").fill("8");
-	await page.getByRole("button", { name: "Save level" }).click();
-	await expect(page.getByText("Level 8")).toBeVisible();
-
-	await page.getByRole("button", { name: "Edit name" }).click();
+	await page.getByRole("button", { name: "Edit character" }).click();
 	await page.getByLabel("Character name").fill("Lyria Starfall");
-	await page.getByRole("button", { name: "Save name" }).click();
+	await page.getByLabel("Character level").fill("8");
+	await page.getByRole("button", { name: "Save character" }).click();
 	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
+	await expect(page.getByText("Level 8")).toBeVisible();
 
 	await page.getByText("Back to characters").click();
 	await expect(page).toHaveURL(/\/characters$/);

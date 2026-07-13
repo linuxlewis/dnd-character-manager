@@ -6,7 +6,7 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { CharacterDetail } from "./character-detail.js";
 
 describe("CharacterDetail", () => {
-	it("renders the detail shell with name and level edit affordances", () => {
+	it("renders the detail shell with a single character edit affordance", () => {
 		const queryClient = new QueryClient();
 		const characterId = "00000000-0000-4000-8000-000000000000";
 		queryClient.setQueryData(apiQueryKeys.getCharacter({ characterId }), {
@@ -34,7 +34,8 @@ describe("CharacterDetail", () => {
 		);
 
 		expect(html).toContain("Character details");
-		expect(html).toContain("Edit name");
-		expect(html).toContain("Edit level");
+		expect(html).toContain("Edit character");
+		expect(html).not.toContain("Edit name");
+		expect(html).not.toContain("Edit level");
 	});
 });
