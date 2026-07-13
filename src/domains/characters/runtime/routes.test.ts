@@ -271,6 +271,7 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),
 	} satisfies CharacterService;
@@ -287,7 +288,6 @@ function fakeSpellService() {
 		searchCharacterSpells: vi.fn(),
 	} satisfies CharacterSpellService;
 }
-
 function fakeSpellSlotService() {
 	return {
 		applyDefaultSpellSlots: vi.fn(),

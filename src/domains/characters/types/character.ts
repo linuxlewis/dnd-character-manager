@@ -1,25 +1,12 @@
 import { z } from "zod";
+import { CharacterClassSchema } from "./character-class.js";
+import {
+	CharacterExperiencePointsSchema,
+	CharacterExperienceProgressSchema,
+} from "./character-experience.js";
 
 export const CharacterIdSchema = z.string().uuid();
 export type CharacterId = z.infer<typeof CharacterIdSchema>;
-
-export const CHARACTER_CLASSES = [
-	"Barbarian",
-	"Bard",
-	"Cleric",
-	"Druid",
-	"Fighter",
-	"Monk",
-	"Paladin",
-	"Ranger",
-	"Rogue",
-	"Sorcerer",
-	"Warlock",
-	"Wizard",
-] as const;
-
-export const CharacterClassSchema = z.enum(CHARACTER_CLASSES);
-export type CharacterClass = z.infer<typeof CharacterClassSchema>;
 
 export const CharacterUserIdSchema = z.string().uuid();
 export const CharacterNameSchema = z.string().min(1).max(120).regex(/\S/);
@@ -99,6 +86,7 @@ export const CharacterSchema = z.object({
 	name: CharacterNameSchema,
 	class: CharacterClassSchema,
 	level: CharacterLevelSchema,
+	experiencePoints: CharacterExperiencePointsSchema,
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });
@@ -109,6 +97,7 @@ export const CharacterResponseSchema = z.object({
 	name: CharacterNameSchema,
 	class: CharacterClassSchema,
 	level: CharacterLevelSchema,
+	experiencePoints: CharacterExperiencePointsSchema,
 	createdAt: z.iso.datetime().optional(),
 	updatedAt: z.iso.datetime().optional(),
 });
@@ -123,6 +112,8 @@ export const CharacterSummarySchema = z.object({
 export type CharacterSummary = z.infer<typeof CharacterSummarySchema>;
 
 export const CharacterDetailSchema = CharacterSummarySchema.extend({
+	experiencePoints: CharacterExperiencePointsSchema,
+	experience: CharacterExperienceProgressSchema,
 	health: CharacterHealthSchema,
 	recentHealthChanges: z.array(HealthChangeResponseSchema).max(5),
 });
@@ -147,6 +138,13 @@ export const UpdateCharacterNameRequestSchema = z.object({
 	name: CharacterNameSchema,
 });
 export type UpdateCharacterNameRequest = z.infer<typeof UpdateCharacterNameRequestSchema>;
+
+export const UpdateCharacterExperienceRequestSchema = z.object({
+	experiencePoints: CharacterExperiencePointsSchema,
+});
+export type UpdateCharacterExperienceRequest = z.infer<
+	typeof UpdateCharacterExperienceRequestSchema
+>;
 
 export const UpdateCharacterHealthRequestSchema = z.object({
 	currentHp: HitPointsSchema,

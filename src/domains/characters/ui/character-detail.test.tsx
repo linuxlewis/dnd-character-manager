@@ -15,6 +15,19 @@ describe("CharacterDetail", () => {
 				name: "Mira",
 				className: "Fighter",
 				level: 7,
+				experiencePoints: 27_000,
+				experience: {
+					level: 7,
+					experiencePoints: 27_000,
+					currentLevelMinimum: 23_000,
+					nextLevel: 8,
+					nextLevelMinimum: 34_000,
+					experienceIntoLevel: 4_000,
+					experienceForNextLevel: 11_000,
+					experienceRemaining: 7_000,
+					progressPercent: 36,
+					isMaxLevel: false,
+				},
 				health: {
 					currentHp: 28,
 					maxHp: 28,
@@ -34,6 +47,9 @@ describe("CharacterDetail", () => {
 		);
 
 		expect(html).toContain("Character details");
+		expect(html).toContain("Experience");
+		expect(html).toContain("27,000 XP");
+		expect(html).toContain("7,000 XP to level 8");
 		expect(html).toContain("Edit character");
 		expect(html).not.toContain("Edit name");
 		expect(html).not.toContain("Edit level");

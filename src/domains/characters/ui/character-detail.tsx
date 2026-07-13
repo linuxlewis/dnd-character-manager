@@ -1,30 +1,10 @@
-import {
-	Alert,
-	Badge,
-	Box,
-	Button,
-	Group,
-	Modal,
-	NumberInput,
-	Paper,
-	Stack,
-	Text,
-	TextInput,
-	Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import {
-	ApiClientError,
-	apiMutations,
-	apiQueries,
-	apiQueryKeys,
-	type CharacterDetailResponse,
-} from "../../../generated/api-client.generated.js";
+import { Alert, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
+import { CharacterEditor } from "./character-editor.js";
+import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
-import { validateCharacterLevel, validateCharacterName } from "./create-character-form.js";
 import { CharacterHealthPanel } from "./health-panel.js";
 import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
@@ -68,6 +48,7 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 							<Title order={3}>{characterQuery.data.character.name}</Title>
 							<CharacterEditor
 								characterId={characterQuery.data.character.id}
+								experiencePoints={characterQuery.data.character.experiencePoints}
 								level={characterQuery.data.character.level}
 								name={characterQuery.data.character.name}
 							/>
@@ -78,6 +59,7 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 								Level {characterQuery.data.character.level}
 							</Badge>
 						</Group>
+						<CharacterExperiencePanel character={characterQuery.data.character} />
 						<CharacterHealthPanel
 							characterId={characterQuery.data.character.id}
 							health={characterQuery.data.character.health}
@@ -91,143 +73,6 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 				</Paper>
 			)}
 		</Stack>
-	);
-}
-
-function CharacterEditor({
-	characterId,
-	level,
-	name,
-}: {
-	characterId: string;
-	level: number;
-	name: string;
-}) {
-	const [opened, setOpened] = useState(false);
-	const queryClient = useQueryClient();
-	const form = useForm<{ name: string; level: number | string }>({
-		mode: "controlled",
-		initialValues: { level, name },
-		validate: { level: validateCharacterLevel, name: validateCharacterName },
-	});
-	const updateLevelMutation = useMutation(apiMutations.updateCharacterLevel());
-	const updateNameMutation = useMutation(apiMutations.updateCharacterName());
-	const isSaving = updateLevelMutation.isPending || updateNameMutation.isPending;
-	const updateError = updateLevelMutation.error || updateNameMutation.error;
-
-	function openEditor() {
-		updateLevelMutation.reset();
-		updateNameMutation.reset();
-		form.clearErrors();
-		form.setValues({ level, name });
-		setOpened(true);
-	}
-
-	function closeEditor() {
-		if (isSaving) return;
-		setOpened(false);
-	}
-
-	function applyCharacterResponse(response: CharacterDetailResponse) {
-		queryClient.setQueryData(
-			apiQueryKeys.getCharacter({ characterId }),
-			(current: CharacterDetailResponse | undefined) => (current ? response : current),
-		);
-		form.setValues({
-			level: response.character.level,
-			name: response.character.name,
-		});
-	}
-
-	async function saveCharacter(values: { name: string; level: number | string }) {
-		updateLevelMutation.reset();
-		updateNameMutation.reset();
-
-		const nextName = values.name.trim();
-		const nextLevel = Number(values.level);
-		const shouldUpdateName = nextName !== name;
-		const shouldUpdateLevel = nextLevel !== level;
-
-		if (!shouldUpdateName && !shouldUpdateLevel) {
-			setOpened(false);
-			return;
-		}
-
-		let didSave = false;
-		try {
-			if (shouldUpdateName) {
-				const response = await updateNameMutation.mutateAsync({
-					params: { characterId },
-					body: { name: nextName },
-				});
-				applyCharacterResponse(response);
-				didSave = true;
-			}
-
-			if (shouldUpdateLevel) {
-				const response = await updateLevelMutation.mutateAsync({
-					params: { characterId },
-					body: { level: nextLevel },
-				});
-				applyCharacterResponse(response);
-				didSave = true;
-			}
-
-			if (didSave) {
-				await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
-			}
-			setOpened(false);
-		} catch {
-			if (didSave) {
-				await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
-			}
-		}
-	}
-
-	return (
-		<>
-			<Button onClick={openEditor} size="compact-xs" variant="subtle">
-				Edit character
-			</Button>
-			<Modal onClose={closeEditor} opened={opened} title="Edit character">
-				<Box component="form" onSubmit={form.onSubmit(saveCharacter)}>
-					<Stack gap="md">
-						<TextInput
-							{...form.getInputProps("name")}
-							autoComplete="off"
-							data-autofocus
-							label="Character name"
-							maxLength={120}
-							withAsterisk
-						/>
-						<NumberInput
-							{...form.getInputProps("level")}
-							allowDecimal={false}
-							allowNegative={false}
-							data-autofocus
-							hideControls
-							label="Character level"
-							max={20}
-							min={1}
-							withAsterisk
-						/>
-						<Group justify="flex-end">
-							<Button disabled={isSaving} onClick={closeEditor} type="button" variant="default">
-								Cancel
-							</Button>
-							<Button loading={isSaving} type="submit">
-								Save character
-							</Button>
-						</Group>
-						{updateError && (
-							<Alert color="red" title="Character update failed" variant="light">
-								One or more changes could not be saved. Try the change again.
-							</Alert>
-						)}
-					</Stack>
-				</Box>
-			</Modal>
-		</>
 	);
 }
 

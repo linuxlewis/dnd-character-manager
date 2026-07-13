@@ -36,6 +36,19 @@ describe("createCharacterRepository", () => {
 			name: "Mira",
 			className: "Fighter",
 			level: 3,
+			experiencePoints: 0,
+			experience: {
+				level: 3,
+				experiencePoints: 0,
+				currentLevelMinimum: 900,
+				nextLevel: 4,
+				nextLevelMinimum: 2_700,
+				experienceIntoLevel: 0,
+				experienceForNextLevel: 1_800,
+				experienceRemaining: 2_700,
+				progressPercent: 0,
+				isMaxLevel: false,
+			},
 			health: {
 				currentHp: 28,
 				maxHp: 28,
@@ -55,6 +68,7 @@ describe("createCharacterRepository", () => {
 		await expect(repository.findCharacterDetail(userId, created.id)).resolves.toMatchObject({
 			id: created.id,
 			level: 3,
+			experiencePoints: 0,
 			health: { currentHp: 28, maxHp: 28, temporaryHp: 0, effectiveMaxHp: 28 },
 		});
 
@@ -103,6 +117,25 @@ describe("createCharacterRepository", () => {
 				level: 8,
 			},
 		]);
+
+		const updatedExperience = await repository.updateCharacterExperience(
+			userId,
+			created.id,
+			27_000,
+		);
+
+		expect(updatedExperience).toMatchObject({
+			id: created.id,
+			name: "Mira Dawn",
+			level: 8,
+			experiencePoints: 27_000,
+			experience: {
+				level: 8,
+				currentLevelMinimum: 34_000,
+				nextLevel: 9,
+				progressPercent: 0,
+			},
+		});
 	});
 });
 

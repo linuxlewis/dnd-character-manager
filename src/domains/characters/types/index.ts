@@ -1,6 +1,5 @@
 export type {
 	Character,
-	CharacterClass,
 	CharacterDetail,
 	CharacterDetailResponse,
 	CharacterHealth,
@@ -32,6 +31,7 @@ export type {
 	SpellSlotAction,
 	SpellSlotChangeResponse,
 	SpellSlotSnapshot,
+	UpdateCharacterExperienceRequest,
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
 	UpdateCharacterLevelRequest,
@@ -40,9 +40,7 @@ export type {
 	UseCharacterSpellSlotRequest,
 } from "./character.js";
 export {
-	CHARACTER_CLASSES,
 	CharacterClassNameSchema,
-	CharacterClassSchema,
 	CharacterDetailResponseSchema,
 	CharacterDetailSchema,
 	CharacterHealthSchema,
@@ -87,6 +85,7 @@ export {
 	SpellSlotCountSchema,
 	SpellSlotLevelSchema,
 	SpellSlotSnapshotSchema,
+	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterHealthResponseSchema,
 	UpdateCharacterLevelRequestSchema,
@@ -94,3 +93,12 @@ export {
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
+export type { CharacterClass } from "./character-class.js";
+export { CHARACTER_CLASSES, CharacterClassSchema } from "./character-class.js";
+export type { CharacterExperienceProgress } from "./character-experience.js";
+export {
+	CharacterExperiencePointsSchema,
+	CharacterExperienceProgressSchema,
+	DND_5E_EXPERIENCE_THRESHOLDS,
+	getCharacterExperienceProgress,
+} from "./character-experience.js";

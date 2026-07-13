@@ -4,6 +4,7 @@ import type {
 	CharacterDetail,
 	CharacterSummary,
 	CreateCharacterRequest,
+	UpdateCharacterExperienceRequest,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
 } from "../types/index.js";
@@ -22,6 +23,11 @@ export interface CharacterService {
 		userId: string,
 		characterId: string,
 		input: UpdateCharacterNameRequest,
+	): Promise<CharacterDetail>;
+	updateCharacterExperience(
+		userId: string,
+		characterId: string,
+		input: UpdateCharacterExperienceRequest,
 	): Promise<CharacterDetail>;
 }
 
@@ -60,6 +66,16 @@ export function createCharacterService(
 				userId,
 				characterId,
 				input.name.trim(),
+			);
+			if (!character) throw new CharacterNotFoundError();
+			return character;
+		},
+
+		async updateCharacterExperience(userId, characterId, input) {
+			const character = await repository.updateCharacterExperience(
+				userId,
+				characterId,
+				input.experiencePoints,
 			);
 			if (!character) throw new CharacterNotFoundError();
 			return character;

@@ -93,6 +93,49 @@ describe("createCharacterService", () => {
 		);
 	});
 
+	it("updates character experience through the repository", async () => {
+		const repository = {
+			updateCharacterExperience: vi.fn(async (_userId, _characterId, experiencePoints) => ({
+				id: "00000000-0000-4000-8000-000000000001",
+				name: "Mira",
+				className: "Fighter",
+				level: 7,
+				experiencePoints,
+				experience: {
+					level: 7,
+					experiencePoints,
+					currentLevelMinimum: 23_000,
+					nextLevel: 8,
+					nextLevelMinimum: 34_000,
+					experienceIntoLevel: 4_000,
+					experienceForNextLevel: 11_000,
+					experienceRemaining: 7_000,
+					progressPercent: 36,
+					isMaxLevel: false,
+				},
+				health: {
+					currentHp: 18,
+					maxHp: 18,
+					temporaryHp: 0,
+					effectiveMaxHp: 18,
+				},
+				recentHealthChanges: [],
+			})),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).updateCharacterExperience("user-1", "character-1", {
+				experiencePoints: 27_000,
+			}),
+		).resolves.toMatchObject({ experiencePoints: 27_000 });
+
+		expect(repository.updateCharacterExperience).toHaveBeenCalledWith(
+			"user-1",
+			"character-1",
+			27_000,
+		);
+	});
+
 	it("throws not found when a character level cannot be updated", async () => {
 		const repository = {
 			updateCharacterLevel: vi.fn(async () => null),
@@ -101,6 +144,18 @@ describe("createCharacterService", () => {
 		await expect(
 			createCharacterService(repository).updateCharacterLevel("user-1", "missing", {
 				level: 8,
+			}),
+		).rejects.toThrow(CharacterNotFoundError);
+	});
+
+	it("throws not found when character experience cannot be updated", async () => {
+		const repository = {
+			updateCharacterExperience: vi.fn(async () => null),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).updateCharacterExperience("user-1", "missing", {
+				experiencePoints: 27_000,
 			}),
 		).rejects.toThrow(CharacterNotFoundError);
 	});

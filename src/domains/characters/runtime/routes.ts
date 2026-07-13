@@ -15,6 +15,7 @@ import {
 import {
 	CreateCharacterRequestSchema,
 	RestoreCharacterSpellSlotRequestSchema,
+	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterNameRequestSchema,
@@ -115,6 +116,29 @@ export async function registerCharacterRoutes(
 		const currentUser = await getCurrentUser(request, reply);
 		try {
 			const character = await characterService.updateCharacterName(
+				currentUser.user.id,
+				params.characterId,
+				body,
+			);
+			return { character };
+		} catch (error) {
+			if (error instanceof CharacterNotFoundError) {
+				return reply.status(404).send({ error: "Character not found." });
+			}
+			throw error;
+		}
+	});
+
+	app.put("/api/characters/:characterId/experience", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+
+		const body = parseBody(UpdateCharacterExperienceRequestSchema, request.body, reply);
+		if (!body) return;
+
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			const character = await characterService.updateCharacterExperience(
 				currentUser.user.id,
 				params.characterId,
 				body,

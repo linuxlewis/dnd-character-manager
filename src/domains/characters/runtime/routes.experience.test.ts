@@ -14,7 +14,20 @@ const character = {
 	id: "00000000-0000-4000-8000-000000000002",
 	name: "Nyx",
 	className: "Warlock",
-	level: 6,
+	level: 7,
+	experiencePoints: 23_000,
+	experience: {
+		level: 7,
+		experiencePoints: 23_000,
+		currentLevelMinimum: 23_000,
+		nextLevel: 8,
+		nextLevelMinimum: 34_000,
+		experienceIntoLevel: 0,
+		experienceForNextLevel: 11_000,
+		experienceRemaining: 11_000,
+		progressPercent: 0,
+		isMaxLevel: false,
+	},
 	health: {
 		currentHp: 33,
 		maxHp: 28,
@@ -24,61 +37,73 @@ const character = {
 	recentHealthChanges: [],
 };
 
-describe("registerCharacterRoutes level routes", () => {
-	it("updates a character level for the current user", async () => {
+describe("registerCharacterRoutes experience routes", () => {
+	it("updates character experience for the current user", async () => {
 		const services = fakeServices();
-		const updatedCharacter = { ...character, level: 8 };
-		services.characterService.updateCharacterLevel.mockResolvedValue(updatedCharacter);
+		const updatedCharacter = {
+			...character,
+			experiencePoints: 27_000,
+			experience: {
+				...character.experience,
+				experiencePoints: 27_000,
+				experienceIntoLevel: 4_000,
+				experienceRemaining: 7_000,
+				progressPercent: 36,
+			},
+		};
+		services.characterService.updateCharacterExperience.mockResolvedValue(updatedCharacter);
 		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
 				method: "PUT",
-				url: `/api/characters/${character.id}/level`,
-				payload: { level: 8 },
+				url: `/api/characters/${character.id}/experience`,
+				payload: { experiencePoints: 27_000 },
 			});
 
 			expect(response.statusCode).toBe(200);
 			expect(response.json()).toEqual({ character: updatedCharacter });
-			expect(services.characterService.updateCharacterLevel).toHaveBeenCalledWith(
+			expect(services.characterService.updateCharacterExperience).toHaveBeenCalledWith(
 				userId,
 				character.id,
-				{ level: 8 },
+				{ experiencePoints: 27_000 },
 			);
 		} finally {
 			await app.close();
 		}
 	});
 
-	it("rejects invalid character level updates before calling the service", async () => {
+	it("rejects invalid character experience updates before calling the service", async () => {
 		const services = fakeServices();
 		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
 				method: "PUT",
-				url: `/api/characters/${character.id}/level`,
-				payload: { level: 21 },
+				url: `/api/characters/${character.id}/experience`,
+				payload: { experiencePoints: -1 },
 			});
 
 			expect(response.statusCode).toBe(400);
 			expect(response.json()).toHaveProperty("error");
-			expect(services.characterService.updateCharacterLevel).not.toHaveBeenCalled();
+			expect(services.characterService.updateCharacterExperience).not.toHaveBeenCalled();
 		} finally {
 			await app.close();
 		}
 	});
 
-	it("returns not found when a character level update cannot find the character", async () => {
+	it("returns not found when a character experience update cannot find the character", async () => {
 		const services = fakeServices();
-		services.characterService.updateCharacterLevel.mockRejectedValue(new CharacterNotFoundError());
+		services.characterService.updateCharacterExperience.mockRejectedValue(
+			new CharacterNotFoundError(),
+		);
 		const app = await buildApp(services);
 
 		try {
 			const response = await app.inject({
 				method: "PUT",
-				url: "/api/characters/00000000-0000-4000-8000-000000000099/level",
-				payload: { level: 8 },
+				url: "/api/characters/00000000-0000-4000-8000-000000000099/experience",
+				payload: { experiencePoints: 27_000 },
 			});
 
 			expect(response.statusCode).toBe(404);

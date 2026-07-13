@@ -29,6 +29,7 @@ export const characterTypeImports = [
 			"SaveCharacterSpellRequest",
 			"SearchCharacterSpellsRequest",
 			"SearchCharacterSpellsResponse",
+			"UpdateCharacterExperienceRequest",
 			"UpdateCharacterSpellSlotsRequest",
 			"UpdateCharacterHealthRequest",
 			"UpdateCharacterHealthResponse",
