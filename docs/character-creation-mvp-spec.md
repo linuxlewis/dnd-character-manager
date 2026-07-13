@@ -96,6 +96,11 @@ A player can:
 
 - The detail page is directly addressable by character ID.
 - The page displays the character name, class, and level.
+- The page lets the player edit the character name.
+- The page lets the player edit the character level.
+- Edited names are trimmed before persistence.
+- Edited names must be at least 1 character and at most 120 characters after trimming.
+- Failed name persistence keeps the user's entered value visible and shows a recoverable error.
 - The page includes a way back to the character list.
 - The page hosts separate feature modules, including the
   [character health module](./character-health-mvp-spec.md), without expanding the character
@@ -114,7 +119,7 @@ A player can:
 ## Non-Goals
 
 - Sign-up, sign-in, account management, or external auth provider flows.
-- Editing a character after creation.
+- Editing class after creation.
 - Deleting or archiving characters.
 - Race, background, subclass, ability scores, proficiencies, inventory, spells, or notes.
 - Health controls inside the create form.
@@ -151,5 +156,7 @@ A player can:
   for that exact character.
 - Given the player reloads the browser after creating a character, when they open the list again,
   then the character is still present for the same browser session.
+- Given a character detail page is open, when the player edits and saves the character name, then
+  the detail heading and character list show the saved name after reload.
 - Given a missing character ID, when the player opens that detail URL, then the app shows a not-found
   state with a path back to the list.

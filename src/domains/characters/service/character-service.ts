@@ -5,6 +5,7 @@ import type {
 	CharacterSummary,
 	CreateCharacterRequest,
 	UpdateCharacterLevelRequest,
+	UpdateCharacterNameRequest,
 } from "../types/index.js";
 import { CharacterNotFoundError } from "./character-errors.js";
 
@@ -16,6 +17,11 @@ export interface CharacterService {
 		userId: string,
 		characterId: string,
 		input: UpdateCharacterLevelRequest,
+	): Promise<CharacterDetail>;
+	updateCharacterName(
+		userId: string,
+		characterId: string,
+		input: UpdateCharacterNameRequest,
 	): Promise<CharacterDetail>;
 }
 
@@ -45,6 +51,16 @@ export function createCharacterService(
 
 		async updateCharacterLevel(userId, characterId, input) {
 			const character = await repository.updateCharacterLevel(userId, characterId, input.level);
+			if (!character) throw new CharacterNotFoundError();
+			return character;
+		},
+
+		async updateCharacterName(userId, characterId, input) {
+			const character = await repository.updateCharacterName(
+				userId,
+				characterId,
+				input.name.trim(),
+			);
 			if (!character) throw new CharacterNotFoundError();
 			return character;
 		},

@@ -80,6 +80,29 @@ describe("createCharacterRepository", () => {
 				level: 8,
 			},
 		]);
+
+		const renamed = await repository.updateCharacterName(userId, created.id, "Mira Dawn");
+
+		expect(renamed).toMatchObject({
+			id: created.id,
+			name: "Mira Dawn",
+			className: "Fighter",
+			level: 8,
+			health: {
+				currentHp: 28,
+				maxHp: 28,
+				temporaryHp: 0,
+				effectiveMaxHp: 28,
+			},
+		});
+		await expect(repository.listCharacters(userId)).resolves.toEqual([
+			{
+				id: created.id,
+				name: "Mira Dawn",
+				className: "Fighter",
+				level: 8,
+			},
+		]);
 	});
 });
 

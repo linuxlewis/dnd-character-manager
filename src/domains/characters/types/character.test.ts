@@ -5,6 +5,7 @@ import {
 	CreateCharacterRequestSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterLevelRequestSchema,
+	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
@@ -72,6 +73,19 @@ describe("UpdateCharacterLevelRequestSchema", () => {
 	it("rejects levels outside the D&D character range", () => {
 		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 0 })).toThrow();
 		expect(() => UpdateCharacterLevelRequestSchema.parse({ level: 21 })).toThrow();
+	});
+});
+
+describe("UpdateCharacterNameRequestSchema", () => {
+	it("accepts a valid character name update", () => {
+		expect(UpdateCharacterNameRequestSchema.parse({ name: "Mira Dawn" })).toEqual({
+			name: "Mira Dawn",
+		});
+	});
+
+	it("rejects blank and overlong names", () => {
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "   " })).toThrow();
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "x".repeat(121) })).toThrow();
 	});
 });
 

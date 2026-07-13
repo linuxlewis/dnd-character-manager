@@ -218,6 +218,7 @@ function fakeService() {
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
 		updateCharacterLevel: vi.fn(),
+		updateCharacterName: vi.fn(),
 	} satisfies CharacterService;
 }
 

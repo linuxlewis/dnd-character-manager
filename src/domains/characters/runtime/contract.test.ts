@@ -8,6 +8,7 @@ describe("characterRouteContracts", () => {
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterLevel",
+			"updateCharacterName",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -25,6 +26,7 @@ describe("characterRouteContracts", () => {
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterLevel",
+			"updateCharacterName",
 			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
@@ -42,7 +44,7 @@ describe("characterRouteContracts", () => {
 	it("uses path params for character detail and update routes", () => {
 		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(13);
+		expect(routeWithParams).toHaveLength(14);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

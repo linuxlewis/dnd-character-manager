@@ -9,6 +9,7 @@ import {
 	Paper,
 	Stack,
 	Text,
+	TextInput,
 	Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -23,7 +24,7 @@ import {
 } from "../../../generated/api-client.generated.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
-import { validateCharacterLevel } from "./create-character-form.js";
+import { validateCharacterLevel, validateCharacterName } from "./create-character-form.js";
 import { CharacterHealthPanel } from "./health-panel.js";
 import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
@@ -63,7 +64,13 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 			{characterQuery.data && (
 				<Paper withBorder p="lg">
 					<Stack gap="md">
-						<Title order={3}>{characterQuery.data.character.name}</Title>
+						<Group gap="xs" align="center">
+							<Title order={3}>{characterQuery.data.character.name}</Title>
+							<CharacterNameEditor
+								characterId={characterQuery.data.character.id}
+								name={characterQuery.data.character.name}
+							/>
+						</Group>
 						<Group gap="xs">
 							<Badge variant="light">{characterQuery.data.character.className}</Badge>
 							<Badge color="candle" variant="light">
@@ -87,6 +94,76 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 				</Paper>
 			)}
 		</Stack>
+	);
+}
+
+function CharacterNameEditor({ characterId, name }: { characterId: string; name: string }) {
+	const [opened, setOpened] = useState(false);
+	const queryClient = useQueryClient();
+	const form = useForm<{ name: string }>({
+		mode: "controlled",
+		initialValues: { name },
+		validate: { name: validateCharacterName },
+	});
+	const updateMutation = useMutation({
+		...apiMutations.updateCharacterName(),
+		onSuccess: async (response) => {
+			queryClient.setQueryData(
+				apiQueryKeys.getCharacter({ characterId }),
+				(current: CharacterDetailResponse | undefined) => (current ? response : current),
+			);
+			await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
+			form.setValues({ name: response.character.name });
+			setOpened(false);
+		},
+	});
+
+	function openEditor() {
+		form.setValues({ name });
+		setOpened(true);
+	}
+
+	return (
+		<>
+			<Button onClick={openEditor} size="compact-xs" variant="subtle">
+				Edit name
+			</Button>
+			<Modal onClose={() => setOpened(false)} opened={opened} title="Edit name">
+				<Box
+					component="form"
+					onSubmit={form.onSubmit((values) => {
+						updateMutation.mutate({
+							params: { characterId },
+							body: { name: values.name.trim() },
+						});
+					})}
+				>
+					<Stack gap="md">
+						<TextInput
+							{...form.getInputProps("name")}
+							autoComplete="off"
+							data-autofocus
+							label="Character name"
+							maxLength={120}
+							withAsterisk
+						/>
+						<Group justify="flex-end">
+							<Button onClick={() => setOpened(false)} type="button" variant="default">
+								Cancel
+							</Button>
+							<Button loading={updateMutation.isPending} type="submit">
+								Save name
+							</Button>
+						</Group>
+						{updateMutation.error && (
+							<Alert color="red" title="Name update failed" variant="light">
+								Try the change again.
+							</Alert>
+						)}
+					</Stack>
+				</Box>
+			</Modal>
+		</>
 	);
 }
 

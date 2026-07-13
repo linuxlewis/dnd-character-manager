@@ -35,6 +35,7 @@ export type {
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
 	UpdateCharacterLevelRequest,
+	UpdateCharacterNameRequest,
 	UpdateCharacterSpellSlotsRequest,
 	UseCharacterSpellSlotRequest,
 } from "./character.js";
@@ -89,6 +90,7 @@ export {
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterHealthResponseSchema,
 	UpdateCharacterLevelRequestSchema,
+	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";

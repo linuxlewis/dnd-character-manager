@@ -63,6 +63,36 @@ describe("createCharacterService", () => {
 		expect(repository.updateCharacterLevel).toHaveBeenCalledWith("user-1", "character-1", 8);
 	});
 
+	it("trims and updates a character name through the repository", async () => {
+		const repository = {
+			updateCharacterName: vi.fn(async (_userId, _characterId, name) => ({
+				id: "00000000-0000-4000-8000-000000000001",
+				name,
+				className: "Fighter",
+				level: 8,
+				health: {
+					currentHp: 18,
+					maxHp: 18,
+					temporaryHp: 0,
+					effectiveMaxHp: 18,
+				},
+				recentHealthChanges: [],
+			})),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).updateCharacterName("user-1", "character-1", {
+				name: " Mira Dawn ",
+			}),
+		).resolves.toMatchObject({ name: "Mira Dawn" });
+
+		expect(repository.updateCharacterName).toHaveBeenCalledWith(
+			"user-1",
+			"character-1",
+			"Mira Dawn",
+		);
+	});
+
 	it("throws not found when a character level cannot be updated", async () => {
 		const repository = {
 			updateCharacterLevel: vi.fn(async () => null),
@@ -71,6 +101,18 @@ describe("createCharacterService", () => {
 		await expect(
 			createCharacterService(repository).updateCharacterLevel("user-1", "missing", {
 				level: 8,
+			}),
+		).rejects.toThrow(CharacterNotFoundError);
+	});
+
+	it("throws not found when a character name cannot be updated", async () => {
+		const repository = {
+			updateCharacterName: vi.fn(async () => null),
+		} as unknown as CharacterRepository;
+
+		await expect(
+			createCharacterService(repository).updateCharacterName("user-1", "missing", {
+				name: "Mira Dawn",
 			}),
 		).rejects.toThrow(CharacterNotFoundError);
 	});

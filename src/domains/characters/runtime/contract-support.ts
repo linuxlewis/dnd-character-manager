@@ -33,6 +33,7 @@ export const characterTypeImports = [
 			"UpdateCharacterHealthRequest",
 			"UpdateCharacterHealthResponse",
 			"UpdateCharacterLevelRequest",
+			"UpdateCharacterNameRequest",
 			"UseCharacterSpellSlotRequest",
 		],
 	},
