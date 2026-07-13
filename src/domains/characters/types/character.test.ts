@@ -3,8 +3,10 @@ import {
 	CharacterDetailResponseSchema,
 	CharacterSpellSlotsResponseSchema,
 	CreateCharacterRequestSchema,
+	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
 	UpdateCharacterLevelRequestSchema,
+	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
@@ -75,6 +77,34 @@ describe("UpdateCharacterLevelRequestSchema", () => {
 	});
 });
 
+describe("UpdateCharacterNameRequestSchema", () => {
+	it("accepts a valid character name update", () => {
+		expect(UpdateCharacterNameRequestSchema.parse({ name: "Mira Dawn" })).toEqual({
+			name: "Mira Dawn",
+		});
+	});
+
+	it("rejects blank and overlong names", () => {
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "   " })).toThrow();
+		expect(() => UpdateCharacterNameRequestSchema.parse({ name: "x".repeat(121) })).toThrow();
+	});
+});
+
+describe("UpdateCharacterExperienceRequestSchema", () => {
+	it("accepts editable experience points", () => {
+		expect(UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: 27_000 })).toEqual({
+			experiencePoints: 27_000,
+		});
+	});
+
+	it("rejects negative or fractional experience points", () => {
+		expect(() => UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: -1 })).toThrow();
+		expect(() =>
+			UpdateCharacterExperienceRequestSchema.parse({ experiencePoints: 12.5 }),
+		).toThrow();
+	});
+});
+
 describe("CharacterDetailResponseSchema", () => {
 	it("describes the detail payload used by the character detail page", () => {
 		const response = {
@@ -83,6 +113,19 @@ describe("CharacterDetailResponseSchema", () => {
 				name: "Mira",
 				className: "Fighter",
 				level: 3,
+				experiencePoints: 900,
+				experience: {
+					level: 3,
+					experiencePoints: 900,
+					currentLevelMinimum: 900,
+					nextLevel: 4,
+					nextLevelMinimum: 2_700,
+					experienceIntoLevel: 0,
+					experienceForNextLevel: 1_800,
+					experienceRemaining: 1_800,
+					progressPercent: 0,
+					isMaxLevel: false,
+				},
 				health: {
 					currentHp: 28,
 					maxHp: 28,

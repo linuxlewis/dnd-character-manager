@@ -53,7 +53,8 @@ should favor dependable user-entered data and clear workflows over deep automati
 ## Out Of Scope For The Seed
 
 - User-visible sign-up/sign-in unless auth is explicitly pulled into the first implementation pass.
-- Character editing and deletion.
+- Character deletion.
+- Character class editing.
 - Race, background, subclass, ability scores, proficiencies, equipment, spell notes, and feature
   notes.
 - Full hit point rules, temporary hit points, death saves, rests, damage types, and healing

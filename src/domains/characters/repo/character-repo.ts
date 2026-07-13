@@ -78,6 +78,7 @@ function characterFromTableRow(row: typeof charactersTable.$inferSelect): Charac
 		name: row.name,
 		characterClass: CharacterClassSchema.parse(row.className),
 		level: row.level,
+		experiencePoints: row.experiencePoints,
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
 	};

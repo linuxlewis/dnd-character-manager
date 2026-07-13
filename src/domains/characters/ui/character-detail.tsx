@@ -1,29 +1,10 @@
-import {
-	Alert,
-	Badge,
-	Box,
-	Button,
-	Group,
-	Modal,
-	NumberInput,
-	Paper,
-	Stack,
-	Text,
-	Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import {
-	ApiClientError,
-	apiMutations,
-	apiQueries,
-	apiQueryKeys,
-	type CharacterDetailResponse,
-} from "../../../generated/api-client.generated.js";
+import { Alert, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
+import { CharacterEditor } from "./character-editor.js";
+import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
-import { validateCharacterLevel } from "./create-character-form.js";
 import { CharacterHealthPanel } from "./health-panel.js";
 import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
@@ -63,17 +44,22 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 			{characterQuery.data && (
 				<Paper withBorder p="lg">
 					<Stack gap="md">
-						<Title order={3}>{characterQuery.data.character.name}</Title>
+						<Group gap="xs" align="center">
+							<Title order={3}>{characterQuery.data.character.name}</Title>
+							<CharacterEditor
+								characterId={characterQuery.data.character.id}
+								experiencePoints={characterQuery.data.character.experiencePoints}
+								level={characterQuery.data.character.level}
+								name={characterQuery.data.character.name}
+							/>
+						</Group>
 						<Group gap="xs">
 							<Badge variant="light">{characterQuery.data.character.className}</Badge>
 							<Badge color="candle" variant="light">
 								Level {characterQuery.data.character.level}
 							</Badge>
-							<CharacterLevelEditor
-								characterId={characterQuery.data.character.id}
-								level={characterQuery.data.character.level}
-							/>
 						</Group>
+						<CharacterExperiencePanel character={characterQuery.data.character} />
 						<CharacterHealthPanel
 							characterId={characterQuery.data.character.id}
 							health={characterQuery.data.character.health}
@@ -87,79 +73,6 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 				</Paper>
 			)}
 		</Stack>
-	);
-}
-
-function CharacterLevelEditor({ characterId, level }: { characterId: string; level: number }) {
-	const [opened, setOpened] = useState(false);
-	const queryClient = useQueryClient();
-	const form = useForm<{ level: number | string }>({
-		mode: "controlled",
-		initialValues: { level },
-		validate: { level: validateCharacterLevel },
-	});
-	const updateMutation = useMutation({
-		...apiMutations.updateCharacterLevel(),
-		onSuccess: async (response) => {
-			queryClient.setQueryData(
-				apiQueryKeys.getCharacter({ characterId }),
-				(current: CharacterDetailResponse | undefined) => (current ? response : current),
-			);
-			await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
-			form.setValues({ level: response.character.level });
-			setOpened(false);
-		},
-	});
-
-	function openEditor() {
-		form.setValues({ level });
-		setOpened(true);
-	}
-
-	return (
-		<>
-			<Button onClick={openEditor} size="compact-xs" variant="subtle">
-				Edit level
-			</Button>
-			<Modal onClose={() => setOpened(false)} opened={opened} title="Edit level">
-				<Box
-					component="form"
-					onSubmit={form.onSubmit((values) => {
-						updateMutation.mutate({
-							params: { characterId },
-							body: { level: Number(values.level) },
-						});
-					})}
-				>
-					<Stack gap="md">
-						<NumberInput
-							{...form.getInputProps("level")}
-							allowDecimal={false}
-							allowNegative={false}
-							data-autofocus
-							hideControls
-							label="Character level"
-							max={20}
-							min={1}
-							withAsterisk
-						/>
-						<Group justify="flex-end">
-							<Button onClick={() => setOpened(false)} type="button" variant="default">
-								Cancel
-							</Button>
-							<Button loading={updateMutation.isPending} type="submit">
-								Save level
-							</Button>
-						</Group>
-						{updateMutation.error && (
-							<Alert color="red" title="Level update failed" variant="light">
-								Try the change again.
-							</Alert>
-						)}
-					</Stack>
-				</Box>
-			</Modal>
-		</>
 	);
 }
 

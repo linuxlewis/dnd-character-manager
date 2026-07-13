@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 describe("character routes", () => {
-	it("creates, updates level, returns detail health, updates health, and lists recent changes", async () => {
+	it("creates, updates identity fields, returns detail health, updates health, and lists recent changes", async () => {
 		const app = await buildServer();
 		try {
 			const cookie = await createSessionCookie(app);
@@ -64,6 +64,26 @@ describe("character routes", () => {
 				},
 			});
 
+			const nameUpdated = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/name`,
+				headers: { cookie },
+				payload: { name: " Mira Dawn " },
+			});
+			expect(nameUpdated.statusCode).toBe(200);
+			expect(nameUpdated.json().character).toMatchObject({
+				id: character.id,
+				name: "Mira Dawn",
+				className: "Fighter",
+				level: 8,
+				health: {
+					currentHp: 28,
+					maxHp: 28,
+					temporaryHp: 0,
+					effectiveMaxHp: 28,
+				},
+			});
+
 			const list = await app.inject({
 				method: "GET",
 				url: "/api/characters",
@@ -73,7 +93,7 @@ describe("character routes", () => {
 			expect(list.json().characters).toEqual([
 				{
 					id: character.id,
-					name: "Mira",
+					name: "Mira Dawn",
 					className: "Fighter",
 					level: 8,
 				},
@@ -113,6 +133,7 @@ describe("character routes", () => {
 				headers: { cookie },
 			});
 			expect(detail.statusCode).toBe(200);
+			expect(detail.json().character.name).toBe("Mira Dawn");
 			expect(detail.json().character.level).toBe(8);
 			expect(detail.json().character.recentHealthChanges).toHaveLength(1);
 		} finally {
@@ -144,9 +165,16 @@ describe("character routes", () => {
 				headers: { cookie: otherCookie },
 				payload: { level: 8 },
 			});
+			const nameUpdateResponse = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${ownerCharacter.id}/name`,
+				headers: { cookie: otherCookie },
+				payload: { name: "Mira Dawn" },
+			});
 
 			expect(response.statusCode).toBe(404);
 			expect(updateResponse.statusCode).toBe(404);
+			expect(nameUpdateResponse.statusCode).toBe(404);
 		} finally {
 			await app.close();
 		}

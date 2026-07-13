@@ -1,11 +1,41 @@
 import { describe, expect, it } from "vitest";
 import {
+	toCharacterDetail,
 	toCharacterHealth,
 	toCharacterSpell,
 	toHealthChange,
 	toSpellSlotChange,
 	toSpellSlotState,
 } from "./character-mappers.js";
+
+describe("toCharacterDetail", () => {
+	it("maps stored character experience into detail progress", () => {
+		expect(
+			toCharacterDetail(
+				{
+					id: "00000000-0000-4000-8000-000000000001",
+					name: "Mira",
+					className: "Fighter",
+					level: 7,
+					experiencePoints: 27_000,
+					currentHp: 28,
+					maxHp: 28,
+					temporaryHp: 0,
+				},
+				[],
+			),
+		).toMatchObject({
+			id: "00000000-0000-4000-8000-000000000001",
+			level: 7,
+			experiencePoints: 27_000,
+			experience: {
+				nextLevel: 8,
+				progressPercent: 36,
+				experienceRemaining: 7_000,
+			},
+		});
+	});
+});
 
 describe("toCharacterHealth", () => {
 	it("derives effective max HP from base and temporary HP", () => {
