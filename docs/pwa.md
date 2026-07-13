@@ -10,7 +10,7 @@ This repo uses `vite-plugin-pwa` from the existing Vite build instead of maintai
 - Production web builds emit `manifest.webmanifest`, `sw.js`, and Workbox assets into `dist/app`.
 - `src/app/public/` contains the source logo, favicon, Apple touch icon, required manifest PNG icons, and `robots.txt`.
 - `src/app/index.html` includes description, dark default color scheme metadata, theme color, favicon, SVG icon, and Apple touch icon metadata.
-- `src/static-assets.ts` serves `.webmanifest` as `application/manifest+json`.
+- `src/static-assets.ts` serves `.webmanifest` as `application/manifest+json` and controls cache headers for deploy-sensitive PWA entry points.
 
 ## Scope
 
@@ -18,15 +18,18 @@ The service worker precaches the app shell and static assets only. API data stay
 
 Installability also requires HTTPS outside localhost. Keep TLS and HTTP-to-HTTPS redirects at the deployment or reverse-proxy layer; the app-level PWA setup assumes the production origin is already secure.
 
+The app shell and PWA update entry points must revalidate on every browser check. `/`, `index.html`, SPA fallback routes, `/manifest.webmanifest`, `/registerSW.js`, and `/sw.js` are served with `Cache-Control: no-cache, must-revalidate`. Hashed Vite build assets under `/assets/...` are served with `Cache-Control: public, max-age=31536000, immutable`.
+
 ## When Changing It
 
 1. Keep PWA configuration in `src/app/vite.config.ts`.
 2. Put installability assets under `src/app/public/`, which is the Vite public directory because `src/app` is the Vite root.
 3. Keep `theme_color` in the manifest aligned with the `<meta name="theme-color">` value in `src/app/index.html` and the Mantine dark-mode theme direction.
-4. Regenerate icon files from `src/app/public/logo.svg` only when the source mark changes. The current assets were generated with:
+4. Keep deploy-sensitive cache headers revalidated when changing `src/static-assets.ts` or deployment proxies. The local production deploy workflow checks the public headers for `/`, `/manifest.webmanifest`, `/registerSW.js`, and `/sw.js`.
+5. Regenerate icon files from `src/app/public/logo.svg` only when the source mark changes. The current assets were generated with:
 
 ```bash
 pnpm dlx @vite-pwa/assets-generator --preset minimal-2023 --root src/app public/logo.svg
 ```
 
-5. Run `pnpm build` to verify the manifest and service worker are emitted. Use `pnpm preview` for a pseudo-production browser smoke check.
+6. Run `pnpm build` to verify the manifest and service worker are emitted. Use `pnpm preview` for a pseudo-production browser smoke check.

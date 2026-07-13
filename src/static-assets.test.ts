@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import Fastify from "fastify";
@@ -66,6 +66,50 @@ describe("registerStaticAssetFallback", () => {
 			const robots = await app.inject({ method: "GET", url: "/robots.txt" });
 			expect(robots.statusCode).toBe(200);
 			expect(robots.headers["content-type"]).toContain("text/plain");
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("requires revalidation for deploy-sensitive app entry points", async () => {
+		tempDir = await mkdtemp(join(tmpdir(), "static-assets-"));
+		await writeFile(join(tempDir, "index.html"), "<main>app</main>");
+		await writeFile(join(tempDir, "manifest.webmanifest"), "{}");
+		await writeFile(join(tempDir, "registerSW.js"), "export {};");
+		await writeFile(join(tempDir, "sw.js"), "self.skipWaiting();");
+
+		const app = Fastify();
+		registerStaticAssetFallback(app, tempDir);
+		try {
+			for (const url of [
+				"/",
+				"/index.html",
+				"/characters/123",
+				"/manifest.webmanifest",
+				"/registerSW.js",
+				"/sw.js",
+			]) {
+				const response = await app.inject({ method: "GET", url });
+				expect(response.statusCode).toBe(200);
+				expect(response.headers["cache-control"]).toBe("no-cache, must-revalidate");
+			}
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("serves hashed build assets with an immutable cache policy", async () => {
+		tempDir = await mkdtemp(join(tmpdir(), "static-assets-"));
+		await mkdir(join(tempDir, "assets"));
+		await writeFile(join(tempDir, "index.html"), "<main>app</main>");
+		await writeFile(join(tempDir, "assets", "app.abc123.js"), "export {};");
+
+		const app = Fastify();
+		registerStaticAssetFallback(app, tempDir);
+		try {
+			const response = await app.inject({ method: "GET", url: "/assets/app.abc123.js" });
+			expect(response.statusCode).toBe(200);
+			expect(response.headers["cache-control"]).toBe("public, max-age=31536000, immutable");
 		} finally {
 			await app.close();
 		}
