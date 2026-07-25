@@ -56,6 +56,85 @@ describe("SpellSlotList", () => {
 		expect(readableHtml).toContain("Total 2");
 	});
 
+	it("renders a compact usage bar for each visible spell slot level", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSlotList
+					characterSpells={[]}
+					draftTotals={{}}
+					isEditing={false}
+					onDraftTotalChange={vi.fn()}
+					onOpenSpellDetails={vi.fn()}
+					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
+					onRestoreSlot={vi.fn()}
+					onUseSlot={vi.fn()}
+					spellSlots={[
+						{ level: 3, total: 4, used: 1, remaining: 3 },
+						{ level: 4, total: 1, used: 1, remaining: 0 },
+					]}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain('aria-label="3rd-level spell slots: 3 of 4 remaining"');
+		expect(html).toContain('aria-valuenow="75"');
+		expect(html).toContain('aria-label="4th-level spell slots: 0 of 1 remaining"');
+		expect(html).toContain('aria-valuenow="0"');
+	});
+
+	it("renders the last remaining spell slot in red even when the bar is not empty", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSlotList
+					characterSpells={[]}
+					draftTotals={{}}
+					isEditing={false}
+					onDraftTotalChange={vi.fn()}
+					onOpenSpellDetails={vi.fn()}
+					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
+					onRestoreSlot={vi.fn()}
+					onUseSlot={vi.fn()}
+					spellSlots={[
+						{ level: 3, total: 3, used: 2, remaining: 1 },
+						{ level: 4, total: 4, used: 3, remaining: 1 },
+					]}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain('aria-label="3rd-level spell slots: 1 of 3 remaining"');
+		expect(html).toContain('aria-label="4th-level spell slots: 1 of 4 remaining"');
+		expect(
+			html.match(/--progress-section-color:var\(--mantine-color-red-filled\)/g) ?? [],
+		).toHaveLength(2);
+		expect(html).not.toContain("--progress-section-color:var(--mantine-color-yellow-filled)");
+	});
+
+	it("keeps a one-of-one spell slot in the healthy color", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSlotList
+					characterSpells={[]}
+					draftTotals={{}}
+					isEditing={false}
+					onDraftTotalChange={vi.fn()}
+					onOpenSpellDetails={vi.fn()}
+					onOpenSpellSearch={vi.fn()}
+					onRemoveSpell={vi.fn()}
+					onRestoreSlot={vi.fn()}
+					onUseSlot={vi.fn()}
+					spellSlots={[{ level: 5, total: 1, used: 0, remaining: 1 }]}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain('aria-label="5th-level spell slots: 1 of 1 remaining"');
+		expect(html).toContain("--progress-section-color:var(--mantine-color-green-filled)");
+		expect(html).not.toContain("--progress-section-color:var(--mantine-color-red-filled)");
+	});
+
 	it("shows all slot levels while editing", () => {
 		const html = renderToString(
 			<MantineProvider>
