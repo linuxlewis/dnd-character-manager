@@ -17,6 +17,17 @@ const CONTENT_TYPES: Record<string, string> = {
 	".webp": "image/webp",
 };
 
+const REVALIDATED_CACHE_CONTROL = "no-cache, must-revalidate";
+const IMMUTABLE_ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
+const REVALIDATED_ASSET_PATHS = new Set([
+	"/",
+	"/index.html",
+	"/manifest.webmanifest",
+	"/registerSW.js",
+	"/sw.js",
+]);
+
 export function registerStaticAssetFallback(app: FastifyInstance, staticRoot: string) {
 	const root = resolve(staticRoot);
 
@@ -25,21 +36,28 @@ export function registerStaticAssetFallback(app: FastifyInstance, staticRoot: st
 			return reply.status(404).send({ error: "Not found" });
 		}
 
-		const requested = getAssetPath(root, request.url);
-		const filePath = requested && (await isFile(requested)) ? requested : join(root, "index.html");
+		const pathname = getRequestPathname(request.url);
+		const requested = getAssetPath(root, pathname);
+		const isRequestedFile = requested ? await isFile(requested) : false;
+		const filePath = requested && isRequestedFile ? requested : join(root, "index.html");
 
 		if (!(await isFile(filePath))) {
 			return reply.status(404).send({ error: "Not found" });
 		}
 
-		return reply
-			.type(CONTENT_TYPES[extname(filePath)] ?? "application/octet-stream")
-			.send(createReadStream(filePath));
+		const response = reply.type(CONTENT_TYPES[extname(filePath)] ?? "application/octet-stream");
+		const cacheControl = getCacheControl(pathname, isRequestedFile);
+		if (cacheControl) response.header("Cache-Control", cacheControl);
+
+		return response.send(createReadStream(filePath));
 	});
 }
 
-function getAssetPath(root: string, url: string) {
-	const pathname = new URL(url, "http://localhost").pathname;
+function getRequestPathname(url: string) {
+	return new URL(url, "http://localhost").pathname;
+}
+
+function getAssetPath(root: string, pathname: string) {
 	const decoded = decodeURIComponent(pathname);
 	const normalized = normalize(decoded).replace(/^[/\\]+/, "");
 	const candidate = resolve(root, normalized || "index.html");
@@ -50,6 +68,18 @@ function getAssetPath(root: string, url: string) {
 	}
 
 	return candidate;
+}
+
+function getCacheControl(pathname: string, isRequestedFile: boolean) {
+	if (!isRequestedFile || REVALIDATED_ASSET_PATHS.has(pathname)) {
+		return REVALIDATED_CACHE_CONTROL;
+	}
+
+	if (pathname.startsWith("/assets/")) {
+		return IMMUTABLE_ASSET_CACHE_CONTROL;
+	}
+
+	return undefined;
 }
 
 async function isFile(path: string) {
