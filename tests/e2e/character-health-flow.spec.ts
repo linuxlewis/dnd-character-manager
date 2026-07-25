@@ -78,7 +78,9 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 		timeout: spellApiTimeoutMs,
 	});
 	await page.getByRole("button", { name: /^Light\b/ }).click();
-	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden();
+	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden({
+		timeout: spellApiTimeoutMs,
+	});
 	await expect(page.getByRole("button", { name: "View Light details" })).toBeVisible();
 	await expect(page.getByText("Cantrip", { exact: true })).toBeVisible();
 	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
@@ -102,6 +104,9 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByLabel("1st-level slot total").fill("2");
 	await page.getByRole("button", { name: "Apply changes" }).click();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
+	await expect(
+		page.getByRole("progressbar", { name: "1st-level spell slots: 2 of 2 remaining" }),
+	).toHaveAttribute("aria-valuenow", "100");
 	await expect(page.getByRole("button", { name: "Add spell to 3rd-level" })).toBeHidden();
 	await page.getByRole("button", { name: /Spell history/ }).click();
 	await expect(page.getByText("Configured 1st-level: 2 slots")).toBeVisible();
@@ -185,12 +190,18 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 
 	await page.getByRole("button", { name: "Use 1st-level" }).click();
 	await expect(page.getByText("1 / 2 remaining")).toBeVisible();
+	await expect(
+		page.getByRole("progressbar", { name: "1st-level spell slots: 1 of 2 remaining" }),
+	).toHaveAttribute("aria-valuenow", "50");
 
 	await page.getByRole("button", { name: /Spell history/ }).click();
 	await expect(page.getByText("Used 1st-level slot")).toBeVisible();
 
 	await page.getByRole("button", { name: "Restore 1st-level" }).click();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
+	await expect(
+		page.getByRole("progressbar", { name: "1st-level spell slots: 2 of 2 remaining" }),
+	).toHaveAttribute("aria-valuenow", "100");
 	await expect(page.getByText("Restored 1st-level slot")).toBeVisible();
 
 	await page.reload();

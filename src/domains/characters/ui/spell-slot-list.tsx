@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, NumberInput, Stack, Text } from "@mantine/core";
+import { Anchor, Button, Group, NumberInput, Progress, Stack, Text } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
 import type { NumberDraft } from "./health-dialogs.js";
@@ -63,6 +63,13 @@ export function SpellSlotList({
 								<Text c="dimmed" size="xs">
 									{slot.remaining} / {slot.total} remaining
 								</Text>
+								<Progress
+									aria-label={`${formatSpellLevel(slot.level)} spell slots: ${slot.remaining} of ${slot.total} remaining`}
+									color={getSlotUsageColor(slot)}
+									radius="xs"
+									size="xs"
+									value={getSlotUsagePercent(slot)}
+								/>
 							</Stack>
 							{isEditing ? (
 								<NumberInput
@@ -144,4 +151,16 @@ export function SpellSlotList({
 
 function toDraft(value: number | string): NumberDraft {
 	return typeof value === "number" && Number.isFinite(value) ? value : "";
+}
+
+function getSlotUsagePercent(slot: CharacterSpellSlot) {
+	if (slot.total <= 0) return 0;
+	return Math.round((slot.remaining / slot.total) * 100);
+}
+
+function getSlotUsageColor(slot: CharacterSpellSlot) {
+	const usagePercent = getSlotUsagePercent(slot);
+	if (slot.remaining <= 0 || (slot.total > 1 && slot.remaining === 1)) return "red";
+	if (usagePercent <= 50) return "yellow";
+	return "green";
 }
