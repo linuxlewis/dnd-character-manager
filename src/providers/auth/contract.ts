@@ -1,10 +1,7 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import { CurrentUserResponseSchema } from "./current-user.js";
-import {
-	MagicLinkRequestResponseSchema,
-	MagicLinkRequestSchema,
-	SignOutResponseSchema,
-} from "./magic-link-types.js";
+import { MagicLinkRequestResponseSchema, MagicLinkRequestSchema } from "./magic-link-types.js";
+import { SignOutResponseSchema } from "./sign-out-types.js";
 
 const currentUserImports = [
 	{
@@ -23,12 +20,25 @@ const magicLinkImports = [
 	{
 		kind: "type",
 		module: "../providers/auth/magic-link-types.js",
-		names: ["MagicLinkRequest", "MagicLinkRequestResponse", "SignOutResponse"],
+		names: ["MagicLinkRequest", "MagicLinkRequestResponse"],
 	},
 	{
 		kind: "value",
 		module: "../providers/auth/magic-link-types.js",
-		names: ["MagicLinkRequestResponseSchema", "SignOutResponseSchema"],
+		names: ["MagicLinkRequestResponseSchema"],
+	},
+] as const;
+
+const signOutImports = [
+	{
+		kind: "type",
+		module: "../providers/auth/sign-out-types.js",
+		names: ["SignOutResponse"],
+	},
+	{
+		kind: "value",
+		module: "../providers/auth/sign-out-types.js",
+		names: ["SignOutResponseSchema"],
 	},
 ] as const;
 
@@ -82,7 +92,7 @@ export const authRouteContracts = [
 		tags: ["auth"],
 		client: {
 			functionName: "signOutCurrentUser",
-			imports: magicLinkImports,
+			imports: signOutImports,
 			responseParser: "SignOutResponseSchema",
 			responseType: "SignOutResponse",
 		},

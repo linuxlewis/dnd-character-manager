@@ -12,8 +12,12 @@ services:
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:8080}
       DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-app}
       HOST: 0.0.0.0
+      MAGIC_LINK_DELIVERY: ${MAGIC_LINK_DELIVERY:?Set MAGIC_LINK_DELIVERY in .env.production}
       NODE_ENV: production
       PORT: 4000
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_REPLY_TO_EMAIL: ${RESEND_REPLY_TO_EMAIL:-}
       STATIC_ROOT: /app/dist/app
     ports:
       - "${APP_PORT:-8080}:4000"
@@ -38,7 +42,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
       POSTGRES_USER: ${POSTGRES_USER:-app}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 12

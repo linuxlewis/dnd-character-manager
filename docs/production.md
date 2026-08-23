@@ -1,6 +1,6 @@
 # Production Environment
 
-Last verified: 2026-06-02
+Last verified: 2026-08-23
 
 The production environment runs the API and built React app from one Node 24 container, with PostgreSQL provided by Docker Compose. The image uses a multi-stage Docker build: install/build stages include development tooling, while the runtime stage contains production dependencies, compiled server entries, migrations, and built web assets.
 
@@ -10,7 +10,7 @@ Tunnel routing, rollout, and rollback, see [deployment.md](./deployment.md).
 ## Files
 
 | What | Where |
-|------|-------|
+| ------ | ------- |
 | Multi-stage production image | `Dockerfile` |
 | Production Compose stack | `docker-compose.prod.yml` |
 | Example production env file | `.env.production.example` |
@@ -54,15 +54,22 @@ Set at least `POSTGRES_PASSWORD` and `BETTER_AUTH_SECRET` to deployment-specific
 default values are for local smoke testing only.
 
 | Variable | Default | Purpose |
-|----------|---------|---------|
+| ---------- | --------- | --------- |
 | `APP_PORT` | `8080` | Host port exposed for the app container |
 | `BETTER_AUTH_SECRET` | `change-me-change-me-change-me-change-me` | Secret used to sign Better Auth cookies |
 | `BETTER_AUTH_URL` | `http://localhost:8080` | Public app URL used by Better Auth |
+| `MAGIC_LINK_DELIVERY` | none | Magic-link delivery mode; set to `resend` for production email |
 | `POSTGRES_DB` | `app` | PostgreSQL database name |
 | `POSTGRES_USER` | `app` | PostgreSQL user |
 | `POSTGRES_PASSWORD` | `change-me` | PostgreSQL password |
+| `RESEND_API_KEY` | none | Resend API key used for magic-link email delivery |
+| `RESEND_FROM_EMAIL` | none | Verified Resend sender address, for example `no-reply@dndinventorymanager.com` |
+| `RESEND_REPLY_TO_EMAIL` | none | Optional Resend reply-to address |
 
 The Compose file builds `DATABASE_URL` from the PostgreSQL variables and passes it to the app container.
+Resend delivery uses the `RESEND_API_KEY` from the environment. The sender domain must be verified in
+the Resend dashboard, with its DKIM and related DNS records published, before messages can be
+delivered to ordinary recipient inboxes.
 
 On the shared `dev-server-1` host, do not use the default `APP_PORT=8080`; that port belongs to the
 existing D&D inventory manager production service. Prefer a loopback-bound port for Cloudflare
@@ -71,6 +78,9 @@ Tunnel origins, for example:
 ```env
 APP_PORT=127.0.0.1:8090
 BETTER_AUTH_URL=https://characters.dndinventorymanager.com
+MAGIC_LINK_DELIVERY=resend
+RESEND_API_KEY=<real Resend API key>
+RESEND_FROM_EMAIL=no-reply@dndinventorymanager.com
 ```
 
 ## Commands

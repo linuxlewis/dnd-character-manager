@@ -1,6 +1,6 @@
 # Production Deployment
 
-Last verified: 2026-06-02
+Last verified: 2026-08-23
 
 This document describes the production deployment contract for the shared `dev-server-1` host. See
 [production.md](./production.md) for Docker image, Compose, and runtime internals.
@@ -8,7 +8,7 @@ This document describes the production deployment contract for the shared `dev-s
 ## Environment
 
 | What | Value |
-|------|-------|
+| ------ | ------- |
 | Host | `dev-server-1` |
 | App workspace | `/home/sbolgert/workspace/dnd-character-manager` |
 | App service unit source | `systemd/dnd-character-manager-prod.service` |
@@ -65,7 +65,7 @@ Cloudflare terminates public TLS. The local app origin should stay plain HTTP on
 ## Deployment States
 
 | State | Meaning |
-|-------|---------|
+| ------- | --------- |
 | Local dev | `pnpm start` uses dynamic ports and is not production. |
 | Manual production smoke | `pnpm prod:up` runs the production Compose stack from a shell. Useful before installing or restarting systemd. |
 | Host production | `dnd-character-manager-prod.service` is enabled and running the production Compose stack. |
@@ -83,15 +83,22 @@ Recommended production values for this host:
 ```env
 APP_PORT=127.0.0.1:8090
 BETTER_AUTH_URL=https://characters.dndinventorymanager.com
+MAGIC_LINK_DELIVERY=resend
 POSTGRES_DB=app
 POSTGRES_USER=app
 POSTGRES_PASSWORD=<real password>
 BETTER_AUTH_SECRET=<real secret>
+RESEND_API_KEY=<real Resend API key>
+RESEND_FROM_EMAIL=no-reply@dndinventorymanager.com
 ```
 
 Port `8080` is reserved for the existing D&D inventory manager. Use an exact Cloudflare Tunnel route
 for this app. If the hostname is under `dndinventorymanager.com`, the exact route must be placed
 above the existing `*.dndinventorymanager.com` wildcard route.
+
+Resend delivery requires a Resend API key available to the app process. The
+`dndinventorymanager.com` sender domain must be verified in the Resend dashboard, with its DKIM and
+related DNS records published in Cloudflare, before login emails can be delivered to user inboxes.
 
 ## First Deployment
 
@@ -106,7 +113,7 @@ pnpm build:image
 pnpm check:docs
 ```
 
-3. Smoke test production Compose manually:
+1. Smoke test production Compose manually:
 
 ```bash
 pnpm prod:up
@@ -115,7 +122,7 @@ curl http://127.0.0.1:8090/openapi.json
 pnpm prod:down
 ```
 
-4. Install the host service:
+1. Install the host service:
 
 ```bash
 sudo cp /home/sbolgert/workspace/dnd-character-manager/systemd/dnd-character-manager-prod.service /etc/systemd/system/dnd-character-manager-prod.service
@@ -123,9 +130,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now dnd-character-manager-prod.service
 ```
 
-5. Add the public route in `/home/sbolgert/workspace/cloudflare-tunnel`, validate it, create the DNS
+1. Add the public route in `/home/sbolgert/workspace/cloudflare-tunnel`, validate it, create the DNS
    route, then deploy `/etc/cloudflared/config.yml`.
-6. Verify the public hostname:
+2. Verify the public hostname:
 
 ```bash
 curl -I https://characters.dndinventorymanager.com
@@ -143,7 +150,7 @@ Use this when the tunnel route and host service already exist.
 sudo systemctl restart dnd-character-manager-prod.service
 ```
 
-4. Verify:
+1. Verify:
 
 ```bash
 systemctl status dnd-character-manager-prod.service
@@ -231,4 +238,3 @@ Inspect containers:
 ```bash
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 ```
-

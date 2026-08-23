@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, magicLink } from "better-auth/plugins";
 import { handleAnonymousAccountLinked } from "./account-linking.js";
-import { sendMagicLinkWithLogger } from "./magic-link.js";
+import { sendMagicLink } from "./magic-link.js";
 import { authTables } from "./schema.js";
 
 const LOCAL_AUTH_SECRET = "local-development-auth-secret-for-dnd-character-manager";
@@ -36,7 +36,7 @@ function createAuth() {
 				},
 			}),
 			magicLink({
-				sendMagicLink: (delivery) => sendMagicLinkWithLogger(delivery),
+				sendMagicLink: (delivery) => sendMagicLink(delivery),
 			}),
 		],
 		trustedOrigins: getTrustedOrigins(),

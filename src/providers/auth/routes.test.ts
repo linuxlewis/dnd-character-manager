@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import { afterEach, describe, expect, it } from "vitest";
-import { getResponseCookies, registerAuthRoutes, toAuthRequest } from "./routes.js";
+import { registerAuthRoutes, toAuthRequest } from "./routes.js";
 
 const originalDatabaseUrl = process.env.DATABASE_URL;
 
@@ -36,12 +36,6 @@ describe("toAuthRequest", () => {
 		} finally {
 			await app.close();
 		}
-	});
-});
-
-describe("getResponseCookies", () => {
-	it("reads a Set-Cookie response header", () => {
-		expect(getResponseCookies(new Headers({ "set-cookie": "a=1" }))).toEqual(["a=1"]);
 	});
 });
 

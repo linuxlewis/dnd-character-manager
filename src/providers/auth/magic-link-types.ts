@@ -11,9 +11,3 @@ export const MagicLinkRequestResponseSchema = z.object({
 });
 
 export type MagicLinkRequestResponse = z.infer<typeof MagicLinkRequestResponseSchema>;
-
-export const SignOutResponseSchema = z.object({
-	signedOut: z.boolean(),
-});
-
-export type SignOutResponse = z.infer<typeof SignOutResponseSchema>;

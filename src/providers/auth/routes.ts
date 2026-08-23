@@ -1,8 +1,9 @@
 import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { getAuth } from "./auth.js";
-import { requestMagicLinkSignIn, signOutCurrentUser } from "./magic-link.js";
-import { getOrCreateCurrentUser } from "./session.js";
+import { requestMagicLinkSignIn } from "./magic-link.js";
+import { getOrCreateCurrentUser, getSetCookieHeaders } from "./session.js";
+import { signOutCurrentUser } from "./sign-out.js";
 
 export async function registerAuthRoutes(app: FastifyInstance) {
 	app.post("/api/magic-link-requests", async (request, reply) => {
@@ -52,17 +53,9 @@ export async function sendAuthResponse(reply: FastifyReply, response: Response) 
 		if (key.toLowerCase() !== "set-cookie") reply.header(key, value);
 	}
 
-	const cookies = getResponseCookies(response.headers);
+	const cookies = getSetCookieHeaders(response.headers);
 	if (cookies.length > 0) reply.header("set-cookie", cookies);
 
 	const body = await response.text();
 	return body.length > 0 ? reply.send(body) : reply.send();
-}
-
-export function getResponseCookies(headers: Headers) {
-	const cookies = (headers as Headers & { getSetCookie?: () => string[] }).getSetCookie?.();
-	if (cookies && cookies.length > 0) return cookies;
-
-	const cookie = headers.get("set-cookie");
-	return cookie ? [cookie] : [];
 }

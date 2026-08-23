@@ -1,6 +1,6 @@
 # Authentication
 
-Last verified: 2026-07-12
+Last verified: 2026-08-23
 
 This document describes the authentication system as it exists today. It is not a future account
 roadmap.
@@ -27,7 +27,7 @@ and layer visible accounts on top later.
 The server registers auth routes from `src/providers/auth/routes.ts`:
 
 | Route | Purpose |
-|-------|---------|
+| ------- | --------- |
 | `/api/auth/*` | Pass-through route for Better Auth handlers |
 | `POST /api/magic-link-requests` | App-owned route that validates an email address and asks Better Auth to create a magic link |
 | `POST /api/sign-out` | App-owned route that signs out the current Better Auth session |
@@ -46,11 +46,11 @@ The public response shape is:
 
 ```ts
 {
-	user: {
-		id: string;
-		isAnonymous: boolean;
-		name: string;
-	};
+ user: {
+  id: string;
+  isAnonymous: boolean;
+  name: string;
+ };
 }
 ```
 
@@ -96,7 +96,7 @@ Auth tables are defined in `src/providers/auth/schema.ts` and created by
 `migrations/0001_auth.sql`.
 
 | Table | Purpose |
-|-------|---------|
+| ------- | --------- |
 | `user` | Better Auth user record, including `is_anonymous` |
 | `session` | Server-side session records keyed by Better Auth token |
 | `account` | Provider account records for future linked accounts or credentials |
@@ -128,14 +128,27 @@ The current behavior is:
 `src/providers/auth/auth.ts` owns auth configuration.
 
 | Variable | Purpose |
-|----------|---------|
+| ---------- | --------- |
 | `BETTER_AUTH_SECRET` | Secret used by Better Auth; required when `NODE_ENV=production` |
 | `BETTER_AUTH_URL` | Public app URL used by Better Auth |
 | `BETTER_AUTH_TRUSTED_ORIGINS` | Comma-separated list of browser origins trusted by Better Auth |
+| `MAGIC_LINK_DELIVERY` | `log` or `resend`; required when `NODE_ENV=production` |
+| `MAGIC_LINK_ENABLE_LOG_DELIVERY` | Allows log delivery in production only when set to `true` |
+| `RESEND_API_KEY` | Resend API key used for magic-link email delivery |
+| `RESEND_FROM_EMAIL` | Verified sender address for Resend magic-link delivery |
+| `RESEND_REPLY_TO_EMAIL` | Optional reply-to address for Resend messages |
 | `HOST` / `PORT` | Used only to build a local default auth URL when `BETTER_AUTH_URL` is not set |
 
 Local development uses a built-in development secret when `BETTER_AUTH_SECRET` is absent. Production
 must provide a real secret through the deployment environment.
+
+Magic-link delivery is selected by `MAGIC_LINK_DELIVERY`. Local development defaults to structured-log
+delivery when the variable is absent. Production requires an explicit delivery mode; use
+`MAGIC_LINK_DELIVERY=resend` for real email. Resend delivery sends through the Resend API using the
+`RESEND_API_KEY` and a verified sender domain.
+
+The Resend sender domain `dndinventorymanager.com` must be verified in the Resend dashboard (DKIM and
+related DNS records in Cloudflare) before login emails can be delivered to user inboxes.
 
 The development stack sets:
 
@@ -155,6 +168,7 @@ There is currently:
 - a magic-link email form for anonymous users
 - a sign-out button for signed-in users
 - automatic anonymous-to-account character transfer during magic-link verification
+- Resend-backed magic-link delivery when `MAGIC_LINK_DELIVERY=resend`
 
 There is not currently:
 
@@ -182,6 +196,7 @@ Current coverage includes:
 - Auth route adapter tests in `src/providers/auth/routes.test.ts`.
 - Magic-link schema and delivery unit tests in `src/providers/auth/magic-link-types.test.ts` and
   `src/providers/auth/magic-link.test.ts`.
+- Sign-out response schema tests in `src/providers/auth/sign-out.test.ts`.
 - Magic-link route integration tests in `src/providers/auth/routes.integration.test.ts`.
 - Current-user provider UI tests in `src/app/current-user-provider.test.tsx`.
 - Magic-link login panel UI tests in `src/app/magic-link-login.test.tsx`.
@@ -195,10 +210,10 @@ Current coverage includes:
 - `GET /api/current-user` creates anonymous users as a side effect. This is intentional for the MVP,
   but production should eventually add cleanup, rate limiting, or another guard against unbounded
   anonymous account/session growth.
-- Magic-link delivery is local-development only by default: generated URLs are written to structured
-  logs outside production. Production needs an SMTP or transactional email adapter before users can
-  receive links by email; log delivery requires an explicit `MAGIC_LINK_ENABLE_LOG_DELIVERY=true`
-  opt-in.
+- Magic-link delivery defaults to structured-log delivery outside production: generated URLs are
+  written to logs. Production delivery uses Resend once `MAGIC_LINK_DELIVERY=resend`,
+  `RESEND_API_KEY`, and `RESEND_FROM_EMAIL` are configured and the sender domain is verified. Log
+  delivery in production requires an explicit `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` opt-in.
 - There is no account recovery. Losing the browser cookie means losing access to that anonymous
   workspace through normal app flows.
 - There is no user-facing way to inspect, revoke, or transfer sessions.
