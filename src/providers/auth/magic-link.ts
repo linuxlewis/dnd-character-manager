@@ -182,7 +182,6 @@ function buildMagicLinkHtmlEmail(url: string) {
 	return [
 		"<p>Open this link to sign in to D&amp;D Character Manager:</p>",
 		`<p><a href="${escapedUrl}">Sign in to D&amp;D Character Manager</a></p>`,
-		`<p>${escapedUrl}</p>`,
 		"<p>If you did not request this link, you can ignore this email.</p>",
 	].join("");
 }

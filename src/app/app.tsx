@@ -7,21 +7,30 @@
 import {
 	Alert,
 	Anchor,
-	Badge,
+	Avatar,
 	Box,
+	Button,
 	Container,
 	Divider,
 	Group,
+	Menu,
+	Modal,
 	Paper,
 	Stack,
 	Text,
 	Title,
 } from "@mantine/core";
-import type { ReactNode } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type ReactNode, useState } from "react";
 import { CharacterWorkspace } from "../domains/characters/ui/index.js";
+import {
+	apiMutations,
+	apiQueries,
+	type CurrentUserResponse,
+} from "../generated/api-client.generated.js";
 import { parseAppRoute } from "./app-route.js";
 import { CurrentUserProvider, useCurrentUser } from "./current-user-provider.js";
-import { MagicLinkLoginPanel } from "./magic-link-login.js";
+import { MagicLinkLoginForm } from "./magic-link-login.js";
 import { PrivacyPolicy } from "./privacy-policy.js";
 import { SiteFooter } from "./site-footer.js";
 
@@ -51,20 +60,10 @@ export function App({ pathname = getCurrentPathname() }: AppProps) {
 
 function CharacterApplication() {
 	const { currentUser, error, isLoading } = useCurrentUser();
-	const sessionLabel = isLoading
-		? "Session..."
-		: currentUser?.isAnonymous
-			? "Anonymous session"
-			: "Signed in";
 
 	return (
 		<AppLayout>
-			<SiteHeader
-				session={{
-					color: currentUser ? "green" : "gray",
-					label: sessionLabel,
-				}}
-			/>
+			<SiteHeader currentUser={currentUser} isLoading={isLoading} />
 			<Divider />
 			{error ? (
 				<Alert color="red" title="Session unavailable" variant="light">
@@ -76,11 +75,7 @@ function CharacterApplication() {
 				</Paper>
 			) : (
 				<Stack gap="md">
-					<MagicLinkLoginPanel currentUser={currentUser} />
 					<CharacterWorkspace />
-					<Text c="dimmed" size="xs">
-						Session user {currentUser.id}
-					</Text>
 				</Stack>
 			)}
 		</AppLayout>
@@ -103,28 +98,78 @@ function AppLayout({ children }: { children: ReactNode }) {
 	);
 }
 
-function SiteHeader({ session }: { session?: { color: "gray" | "green"; label: string } }) {
+function SiteHeader({
+	currentUser,
+	isLoading,
+}: {
+	currentUser?: CurrentUserResponse["user"] | null;
+	isLoading?: boolean;
+}) {
+	const [loginOpen, setLoginOpen] = useState(false);
+
 	return (
 		<Stack gap="xs">
-			<Group gap="sm" align="center">
+			<Group justify="space-between" gap="sm" align="center" wrap="nowrap">
 				<Anchor href="/" c="inherit" underline="never">
 					<Title order={1} size="h2">
 						D&amp;D Character Manager
 					</Title>
 				</Anchor>
-				<Badge color="candle" variant="light">
-					D&amp;D 5e
-				</Badge>
-				{session ? (
-					<Badge color={session.color} variant="light">
-						{session.label}
-					</Badge>
+				{isLoading ? (
+					<Avatar color="gray" size="md" variant="light">
+						...
+					</Avatar>
+				) : currentUser && !currentUser.isAnonymous ? (
+					<AccountMenu currentUser={currentUser} />
+				) : currentUser ? (
+					<Button onClick={() => setLoginOpen(true)} size="sm" variant="light">
+						Sign in
+					</Button>
 				) : null}
 			</Group>
 			<Text c="dimmed" maw={640}>
 				A free workspace for your tabletop characters.
 			</Text>
+			<Modal opened={loginOpen} onClose={() => setLoginOpen(false)} title="Sign in" centered>
+				<MagicLinkLoginForm />
+			</Modal>
 		</Stack>
+	);
+}
+
+function AccountMenu({ currentUser }: { currentUser: CurrentUserResponse["user"] }) {
+	const queryClient = useQueryClient();
+	const signOutMutation = useMutation({
+		...apiMutations.signOutCurrentUser(),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["api"] });
+			await queryClient.ensureQueryData(apiQueries.getCurrentUser());
+		},
+	});
+	const avatarLabel = currentUser.name || "Account";
+	const initial = avatarLabel.trim().charAt(0).toUpperCase() || "A";
+
+	return (
+		<Menu closeOnItemClick shadow="md" width={220}>
+			<Menu.Target>
+				<Button aria-label="Open account menu" color="gray" p={0} size="md" variant="subtle">
+					<Avatar color="bloodstone" radius="xl" size="md" variant="light">
+						{initial}
+					</Avatar>
+				</Button>
+			</Menu.Target>
+			<Menu.Dropdown>
+				<Menu.Label>{currentUser.name}</Menu.Label>
+				<Menu.Divider />
+				<Menu.Item
+					color="red"
+					disabled={signOutMutation.isPending}
+					onClick={() => signOutMutation.mutate()}
+				>
+					Sign out
+				</Menu.Item>
+			</Menu.Dropdown>
+		</Menu>
 	);
 }
 
