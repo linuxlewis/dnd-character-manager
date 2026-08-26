@@ -59,6 +59,19 @@ export const theme = createTheme({
 		TextInput: {
 			defaultProps: {
 				radius: "sm",
+				size: "md",
+			},
+		},
+		NumberInput: {
+			defaultProps: {
+				radius: "sm",
+				size: "md",
+			},
+		},
+		Select: {
+			defaultProps: {
+				radius: "sm",
+				size: "md",
 			},
 		},
 	},

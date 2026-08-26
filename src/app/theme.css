@@ -10,6 +10,21 @@ body {
 	color: var(--mantine-color-dark-0);
 }
 
+.app-shell {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+.app-main {
+	flex: 1;
+	width: 100%;
+}
+
+.site-footer {
+	padding-bottom: var(--mantine-spacing-xl);
+}
+
 ::selection {
 	background: var(--mantine-color-bloodstone-7);
 	color: var(--mantine-color-white);

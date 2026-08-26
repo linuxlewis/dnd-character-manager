@@ -15,6 +15,21 @@ export interface CharacterRepository {
 	listCharacters(userId: string): Promise<CharacterSummary[]>;
 	findCharacterDetail(userId: string, characterId: string): Promise<CharacterDetail | null>;
 	transferCharactersToUser(fromUserId: string, toUserId: string): Promise<number>;
+	updateCharacterLevel(
+		userId: string,
+		characterId: string,
+		level: number,
+	): Promise<CharacterDetail | null>;
+	updateCharacterName(
+		userId: string,
+		characterId: string,
+		name: string,
+	): Promise<CharacterDetail | null>;
+	updateCharacterExperience(
+		userId: string,
+		characterId: string,
+		experiencePoints: number,
+	): Promise<CharacterDetail | null>;
 }
 
 export function createCharacterRepository(
@@ -77,6 +92,7 @@ export function createCharacterRepository(
 					name: charactersTable.name,
 					className: charactersTable.className,
 					level: charactersTable.level,
+					experiencePoints: charactersTable.experiencePoints,
 					currentHp: characterHealthTable.currentHp,
 					maxHp: characterHealthTable.maxHp,
 					temporaryHp: characterHealthTable.temporaryHp,
@@ -99,6 +115,39 @@ export function createCharacterRepository(
 				.returning({ id: charactersTable.id });
 
 			return transferred.length;
+		},
+
+		async updateCharacterLevel(userId, characterId, level) {
+			const [updated] = await getDb()
+				.update(charactersTable)
+				.set({ level, updatedAt: new Date() })
+				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
+				.returning({ id: charactersTable.id });
+
+			if (!updated) return null;
+			return this.findCharacterDetail(userId, characterId);
+		},
+
+		async updateCharacterName(userId, characterId, name) {
+			const [updated] = await getDb()
+				.update(charactersTable)
+				.set({ name, updatedAt: new Date() })
+				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
+				.returning({ id: charactersTable.id });
+
+			if (!updated) return null;
+			return this.findCharacterDetail(userId, characterId);
+		},
+
+		async updateCharacterExperience(userId, characterId, experiencePoints) {
+			const [updated] = await getDb()
+				.update(charactersTable)
+				.set({ experiencePoints, updatedAt: new Date() })
+				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
+				.returning({ id: charactersTable.id });
+
+			if (!updated) return null;
+			return this.findCharacterDetail(userId, characterId);
 		},
 	};
 }

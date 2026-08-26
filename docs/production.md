@@ -163,6 +163,8 @@ The runtime container starts as the unprivileged `node` user.
 
 `src/prod-server.ts` calls `buildServer({ staticRoot })`, so production uses the same Fastify app and domain route registration as local development. `src/static-assets.ts` serves files from `dist/app` and falls back to `index.html` for browser routes. Unknown `/api/*` routes still return JSON `404` responses instead of the app shell.
 
+Deploy-sensitive browser entry points are served with `Cache-Control: no-cache, must-revalidate`: `/`, `index.html`, SPA fallback routes, `/manifest.webmanifest`, `/registerSW.js`, and `/sw.js`. Hashed Vite build assets under `/assets/...` are served with `Cache-Control: public, max-age=31536000, immutable`.
+
 ## Validation
 
 Use this before treating production changes as complete:
@@ -181,3 +183,5 @@ For full-stack production smoke testing, start `docker-compose.prod.yml`, then v
 curl http://127.0.0.1:${APP_PORT:-8080}/healthz
 curl http://127.0.0.1:${APP_PORT:-8080}/openapi.json
 ```
+
+The local production deploy workflow also checks the public `Cache-Control` headers for `/`, `/manifest.webmanifest`, `/registerSW.js`, and `/sw.js` so stale service worker or registration files fail the deploy.

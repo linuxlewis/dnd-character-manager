@@ -7,6 +7,7 @@ const row = {
 	name: "Astra",
 	characterClass: "Cleric",
 	level: 4,
+	experiencePoints: 2_700,
 	createdAt: new Date("2026-05-31T12:00:00.000Z"),
 	updatedAt: new Date("2026-05-31T12:00:00.000Z"),
 };
@@ -19,6 +20,7 @@ describe("characterFromRow", () => {
 			name: "Astra",
 			class: "Cleric",
 			level: 4,
+			experiencePoints: 2_700,
 			createdAt: row.createdAt,
 			updatedAt: row.updatedAt,
 		});

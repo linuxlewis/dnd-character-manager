@@ -1,6 +1,6 @@
 # MVP Plan
 
-Last verified: 2026-05-31
+Last verified: 2026-06-02
 
 This document captures the current product direction before the first D&D domain is implemented.
 Keep it short, concrete, and updated when scope changes.
@@ -53,7 +53,8 @@ should favor dependable user-entered data and clear workflows over deep automati
 ## Out Of Scope For The Seed
 
 - User-visible sign-up/sign-in unless auth is explicitly pulled into the first implementation pass.
-- Character editing and deletion.
+- Character deletion.
+- Character class editing.
 - Race, background, subclass, ability scores, proficiencies, equipment, spell notes, and feature
   notes.
 - Full hit point rules, temporary hit points, death saves, rests, damage types, and healing
