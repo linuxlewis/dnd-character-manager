@@ -21,6 +21,7 @@ import type { ReactNode } from "react";
 import { CharacterWorkspace } from "../domains/characters/ui/index.js";
 import { parseAppRoute } from "./app-route.js";
 import { CurrentUserProvider, useCurrentUser } from "./current-user-provider.js";
+import { MagicLinkLoginPanel } from "./magic-link-login.js";
 import { PrivacyPolicy } from "./privacy-policy.js";
 import { SiteFooter } from "./site-footer.js";
 
@@ -75,6 +76,7 @@ function CharacterApplication() {
 				</Paper>
 			) : (
 				<Stack gap="md">
+					<MagicLinkLoginPanel currentUser={currentUser} />
 					<CharacterWorkspace />
 					<Text c="dimmed" size="xs">
 						Session user {currentUser.id}

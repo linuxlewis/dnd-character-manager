@@ -54,6 +54,91 @@
 				}
 			}
 		},
+		"/api/magic-link-requests": {
+			"post": {
+				"operationId": "requestMagicLinkSignIn",
+				"summary": "Request magic link sign-in",
+				"tags": [
+					"auth"
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email",
+										"pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+									}
+								},
+								"required": [
+									"email"
+								],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Magic link request accepted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "string",
+											"const": "sent"
+										}
+									},
+									"required": [
+										"status"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid request body"
+					}
+				}
+			}
+		},
+		"/api/sign-out": {
+			"post": {
+				"operationId": "signOutCurrentUser",
+				"summary": "Sign out current user",
+				"tags": [
+					"auth"
+				],
+				"responses": {
+					"200": {
+						"description": "Signed out current user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"signedOut": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"signedOut"
+									],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/characters": {
 			"post": {
 				"operationId": "createCharacter",

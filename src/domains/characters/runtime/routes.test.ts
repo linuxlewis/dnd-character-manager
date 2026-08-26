@@ -271,14 +271,14 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		transferCharactersToUser: vi.fn(),
 		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),
 	} satisfies CharacterService;
 }
-function fakeHealthService() {
-	return { updateCharacterHealth: vi.fn() } satisfies CharacterHealthService;
-}
+const fakeHealthService = () =>
+	({ updateCharacterHealth: vi.fn() }) satisfies CharacterHealthService;
 function fakeSpellService() {
 	return {
 		getCharacterSpellDetails: vi.fn(),

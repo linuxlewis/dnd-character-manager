@@ -41,7 +41,7 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 				</Alert>
 			)}
 
-			{characterQuery.data && (
+			{characterQuery.data && !characterQuery.error && (
 				<Paper withBorder p="lg">
 					<Stack gap="md">
 						<Group gap="xs" align="center">

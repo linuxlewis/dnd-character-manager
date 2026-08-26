@@ -146,6 +146,7 @@ function fakeService() {
 		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
+		transferCharactersToUser: vi.fn(),
 		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),

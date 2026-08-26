@@ -14,6 +14,7 @@ export interface CharacterService {
 	createCharacter(userId: string, input: CreateCharacterRequest): Promise<CharacterDetail>;
 	listCharacters(userId: string): Promise<CharacterSummary[]>;
 	getCharacter(userId: string, characterId: string): Promise<CharacterDetail>;
+	transferCharactersToUser(fromUserId: string, toUserId: string): Promise<number>;
 	updateCharacterLevel(
 		userId: string,
 		characterId: string,
@@ -53,6 +54,11 @@ export function createCharacterService(
 			const character = await repository.findCharacterDetail(userId, characterId);
 			if (!character) throw new CharacterNotFoundError();
 			return character;
+		},
+
+		transferCharactersToUser(fromUserId, toUserId) {
+			if (fromUserId === toUserId) return Promise.resolve(0);
+			return repository.transferCharactersToUser(fromUserId, toUserId);
 		},
 
 		async updateCharacterLevel(userId, characterId, input) {

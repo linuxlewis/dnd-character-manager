@@ -1,7 +1,9 @@
 import { getDb } from "@providers/database/index.js";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, magicLink } from "better-auth/plugins";
+import { handleAnonymousAccountLinked } from "./account-linking.js";
+import { sendMagicLink } from "./magic-link.js";
 import { authTables } from "./schema.js";
 
 const LOCAL_AUTH_SECRET = "local-development-auth-secret-for-dnd-character-manager";
@@ -24,7 +26,19 @@ function createAuth() {
 				generateId: "uuid",
 			},
 		},
-		plugins: [anonymous()],
+		plugins: [
+			anonymous({
+				onLinkAccount: async ({ anonymousUser, newUser }) => {
+					await handleAnonymousAccountLinked({
+						anonymousUserId: anonymousUser.user.id,
+						linkedUserId: newUser.user.id,
+					});
+				},
+			}),
+			magicLink({
+				sendMagicLink: (delivery) => sendMagicLink(delivery),
+			}),
+		],
 		trustedOrigins: getTrustedOrigins(),
 	});
 }
