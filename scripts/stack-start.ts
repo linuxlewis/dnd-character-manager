@@ -31,6 +31,7 @@ if (existing && isProcessAlive(existing.pids.api) && isProcessAlive(existing.pid
 
 const paths = getStackPaths();
 const seeds = computePortSeeds(paths.hash);
+const host = process.env.HOST ?? "127.0.0.1";
 const ports = {
 	api: await findFreePort(seeds.api),
 	web: await findFreePort(seeds.web),
@@ -60,8 +61,8 @@ const metadata: StackMetadata = {
 	dir: paths.dir,
 	ports,
 	urls: {
-		api: `http://127.0.0.1:${ports.api}`,
-		web: `http://127.0.0.1:${ports.web}`,
+		api: `http://${host}:${ports.api}`,
+		web: `http://${host}:${ports.web}`,
 	},
 	databaseUrl,
 	pids: {},
@@ -73,10 +74,10 @@ const metadata: StackMetadata = {
 };
 
 metadata.pids.api = await spawnLogged("pnpm", ["exec", "tsx", "src/server.ts"], metadata.logs.api, {
-	BETTER_AUTH_TRUSTED_ORIGINS: metadata.urls.web,
-	BETTER_AUTH_URL: metadata.urls.web,
+	BETTER_AUTH_TRUSTED_ORIGINS: `http://${host}:${ports.web}`,
+	BETTER_AUTH_URL: `http://${host}:${ports.web}`,
 	DATABASE_URL: databaseUrl,
-	HOST: "127.0.0.1",
+	HOST: host,
 	PORT: String(ports.api),
 });
 
@@ -95,7 +96,7 @@ metadata.pids.web = await spawnLogged(
 	],
 	metadata.logs.web,
 	{
-		API_ORIGIN: metadata.urls.api,
+		API_ORIGIN: `http://${host}:${ports.api}`,
 	},
 );
 
