@@ -40,6 +40,7 @@ describe("character treasury routes", () => {
 			});
 			expect(addPreview.statusCode).toBe(200);
 			expect(addPreview.json().preview.canApply).toBe(true);
+			expect(addPreview.json().preview).not.toHaveProperty("change");
 			expect(await scopeRowCount(characterId)).toBe(0);
 
 			const added = await app.inject({

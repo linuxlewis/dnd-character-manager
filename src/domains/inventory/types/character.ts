@@ -85,12 +85,38 @@ export type ConvertCharacterTreasuryResponse = z.infer<
 	typeof ConvertCharacterTreasuryResponseSchema
 >;
 
-export const CharacterTreasuryPreviewResponseSchema = z
+const AddCharacterTreasuryPreviewSchema = CurrencyPreviewSchema.omit({ change: true })
+	.extend({ operation: z.literal("add") })
+	.strict();
+
+export const AddCharacterTreasuryPreviewResponseSchema = z
 	.object({
 		treasury: CharacterTreasurySchema,
-		preview: CurrencyPreviewSchema,
+		preview: AddCharacterTreasuryPreviewSchema,
 	})
 	.strict();
+export type AddCharacterTreasuryPreviewResponse = z.infer<
+	typeof AddCharacterTreasuryPreviewResponseSchema
+>;
+
+const SpendCharacterTreasuryPreviewSchema = CurrencyPreviewSchema.extend({
+	operation: z.literal("spend"),
+}).strict();
+
+export const SpendCharacterTreasuryPreviewResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		preview: SpendCharacterTreasuryPreviewSchema,
+	})
+	.strict();
+export type SpendCharacterTreasuryPreviewResponse = z.infer<
+	typeof SpendCharacterTreasuryPreviewResponseSchema
+>;
+
+export const CharacterTreasuryPreviewResponseSchema = z.union([
+	AddCharacterTreasuryPreviewResponseSchema,
+	SpendCharacterTreasuryPreviewResponseSchema,
+]);
 export type CharacterTreasuryPreviewResponse = z.infer<
 	typeof CharacterTreasuryPreviewResponseSchema
 >;

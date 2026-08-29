@@ -3,20 +3,21 @@ import { createCharacterService } from "../../characters/service/index.js";
 import type { CharacterTreasuryRepository } from "../repo/index.js";
 import { createCharacterTreasuryRepository } from "../repo/index.js";
 import {
+	type AddCharacterTreasuryPreviewResponse,
+	AddCharacterTreasuryPreviewResponseSchema,
 	type AddCharacterTreasuryRequest,
 	AddCharacterTreasuryRequestSchema,
 	type AddCharacterTreasuryResponse,
 	AddCharacterTreasuryResponseSchema,
-	type CharacterTreasuryPreviewResponse,
-	CharacterTreasuryPreviewResponseSchema,
 	type CharacterTreasuryResponse,
 	CharacterTreasuryResponseSchema,
 	type ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryRequestSchema,
 	type ConvertCharacterTreasuryResponse,
 	ConvertCharacterTreasuryResponseSchema,
-	type CurrencyBalance,
 	getCurrencyTotalValue,
+	type SpendCharacterTreasuryPreviewResponse,
+	SpendCharacterTreasuryPreviewResponseSchema,
 	type SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryRequestSchema,
 	type SpendCharacterTreasuryResponse,
@@ -52,12 +53,12 @@ export interface CharacterTreasuryService {
 		userId: string,
 		characterId: string,
 		input: AddCharacterTreasuryRequest,
-	): Promise<CharacterTreasuryPreviewResponse>;
+	): Promise<AddCharacterTreasuryPreviewResponse>;
 	previewSpendCharacterTreasury(
 		userId: string,
 		characterId: string,
 		input: SpendCharacterTreasuryRequest,
-	): Promise<CharacterTreasuryPreviewResponse>;
+	): Promise<SpendCharacterTreasuryPreviewResponse>;
 }
 
 export interface CharacterTreasuryServiceOptions {
@@ -140,7 +141,7 @@ export function createCharacterTreasuryService(
 				characterService,
 				repository,
 			);
-			return previewFromPlan(treasury, "add", planAdd(treasury.treasury.balances, request));
+			return previewAddFromPlan(treasury, planAdd(treasury.treasury.balances, request));
 		},
 
 		async previewSpendCharacterTreasury(userId, characterId, input) {
@@ -153,11 +154,11 @@ export function createCharacterTreasuryService(
 			);
 			try {
 				const plan = planSpend(treasury.treasury.balances, request);
-				return previewFromPlan(treasury, "spend", plan, plan.change);
+				return previewSpendFromPlan(treasury, plan);
 			} catch (error) {
 				if (!(error instanceof InsufficientFundsError)) throw error;
 				const balances = treasury.treasury.balances;
-				return CharacterTreasuryPreviewResponseSchema.parse({
+				return SpendCharacterTreasuryPreviewResponseSchema.parse({
 					treasury: treasury.treasury,
 					preview: {
 						operation: "spend",
@@ -186,22 +187,37 @@ async function readAuthorizedTreasury(
 	});
 }
 
-function previewFromPlan(
+function previewAddFromPlan(
 	treasury: CharacterTreasuryResponse,
-	operation: "add" | "spend",
 	plan: CurrencyPlan,
-	change?: CurrencyBalance,
-): CharacterTreasuryPreviewResponse {
-	return CharacterTreasuryPreviewResponseSchema.parse({
+): AddCharacterTreasuryPreviewResponse {
+	return AddCharacterTreasuryPreviewResponseSchema.parse({
 		treasury: treasury.treasury,
 		preview: {
-			operation,
+			operation: "add",
 			previous: plan.previous,
 			next: plan.next,
 			delta: plan.delta,
 			totalValue: getCurrencyTotalValue(plan.next),
 			canApply: true,
-			...(change === undefined ? {} : { change }),
+		},
+	});
+}
+
+function previewSpendFromPlan(
+	treasury: CharacterTreasuryResponse,
+	plan: SpendPlan,
+): SpendCharacterTreasuryPreviewResponse {
+	return SpendCharacterTreasuryPreviewResponseSchema.parse({
+		treasury: treasury.treasury,
+		preview: {
+			operation: "spend",
+			previous: plan.previous,
+			next: plan.next,
+			delta: plan.delta,
+			totalValue: getCurrencyTotalValue(plan.next),
+			canApply: true,
+			...(plan.change === undefined ? {} : { change: plan.change }),
 		},
 	});
 }

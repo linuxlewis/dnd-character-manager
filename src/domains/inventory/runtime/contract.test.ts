@@ -65,4 +65,37 @@ describe("inventoryTreasuryRouteContracts", () => {
 
 		expect(schema?.parse(preview)).toEqual(preview);
 	});
+
+	it("keeps add and spend preview response contracts route-specific", () => {
+		const addRoute = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "previewAddCharacterTreasury",
+		);
+		const spendRoute = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "previewSpendCharacterTreasury",
+		);
+		const addPreview = {
+			treasury: {
+				characterId: "00000000-0000-4000-8000-000000000020",
+				balances: { cp: 0, sp: 0, gp: 0, pp: 0 },
+				totalValue: { copper: 0, gp: 0 },
+			},
+			preview: {
+				operation: "add",
+				previous: { cp: 0, sp: 0, gp: 0, pp: 0 },
+				next: { cp: 1, sp: 0, gp: 0, pp: 0 },
+				delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+				totalValue: { copper: 1, gp: 0.01 },
+				canApply: true,
+			},
+		};
+
+		expect(() =>
+			addRoute?.responses[200]?.schema?.parse({
+				...addPreview,
+				preview: { ...addPreview.preview, change: { cp: 1, sp: 0, gp: 0, pp: 0 } },
+			}),
+		).toThrow();
+		expect(spendRoute?.client?.responseType).toBe("SpendCharacterTreasuryPreviewResponse");
+		expect(addRoute?.client?.responseType).toBe("AddCharacterTreasuryPreviewResponse");
+	});
 });

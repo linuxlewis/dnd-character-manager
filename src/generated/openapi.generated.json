@@ -5131,7 +5131,7 @@
 											"properties": {
 												"operation": {
 													"type": "string",
-													"enum": ["add", "spend", "convert"]
+													"const": "add"
 												},
 												"previous": {
 													"type": "object",
@@ -5232,33 +5232,6 @@
 												},
 												"canApply": {
 													"type": "boolean"
-												},
-												"change": {
-													"type": "object",
-													"properties": {
-														"cp": {
-															"type": "integer",
-															"minimum": 0,
-															"maximum": 2147483647
-														},
-														"sp": {
-															"type": "integer",
-															"minimum": 0,
-															"maximum": 2147483647
-														},
-														"gp": {
-															"type": "integer",
-															"minimum": 0,
-															"maximum": 2147483647
-														},
-														"pp": {
-															"type": "integer",
-															"minimum": 0,
-															"maximum": 2147483647
-														}
-													},
-													"required": ["cp", "sp", "gp", "pp"],
-													"additionalProperties": false
 												},
 												"error": {
 													"type": "object",
@@ -5478,7 +5451,7 @@
 											"properties": {
 												"operation": {
 													"type": "string",
-													"enum": ["add", "spend", "convert"]
+													"const": "spend"
 												},
 												"previous": {
 													"type": "object",

@@ -63,6 +63,25 @@ describe("createCharacterTreasuryService", () => {
 		expect(exactPreview.preview).not.toHaveProperty("change");
 	});
 
+	it("returns a strict add preview without returned change", async () => {
+		const dependencies = fakeDependencies();
+		const service = createCharacterTreasuryService({
+			repository: dependencies.repository,
+			characterService: dependencies.characterService,
+		});
+
+		const preview = await service.previewAddCharacterTreasury(userId, characterId, {
+			delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+		});
+
+		expect(preview.preview).toMatchObject({
+			operation: "add",
+			next: { cp: 1, sp: 0, gp: 0, pp: 0 },
+			canApply: true,
+		});
+		expect(preview.preview).not.toHaveProperty("change");
+	});
+
 	it("previews insufficient spend without mutation and applies it with rollback-safe errors", async () => {
 		const dependencies = fakeDependencies({ cp: 5, sp: 0, gp: 0, pp: 0 });
 		const service = createCharacterTreasuryService({
@@ -80,6 +99,7 @@ describe("createCharacterTreasuryService", () => {
 				requested: { copper: 100, gp: 1 },
 			},
 		});
+		expect(preview.preview).not.toHaveProperty("change");
 		expect(dependencies.repository.mutateCharacterTreasury).not.toHaveBeenCalled();
 
 		await expect(

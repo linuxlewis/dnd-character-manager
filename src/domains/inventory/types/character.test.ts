@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	AddCharacterTreasuryPreviewResponseSchema,
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
 	CharacterItemResponseSchema,
@@ -9,6 +10,7 @@ import {
 	ConvertCharacterTreasuryRequestSchema,
 	CreateCharacterItemRequestSchema,
 	ListCharacterItemsResponseSchema,
+	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryRequestSchema,
 	SpendCharacterTreasuryResponseSchema,
 	UpdateCharacterItemRequestSchema,
@@ -72,6 +74,60 @@ describe("character inventory boundary schemas", () => {
 				},
 			}),
 		).toHaveProperty("preview.canApply", true);
+	});
+
+	it("keeps add previews strict and spend previews change-aware", () => {
+		const addPreview = {
+			treasury,
+			preview: {
+				operation: "add" as const,
+				previous: treasury.balances,
+				next: { cp: 1, sp: 2, gp: 3, pp: 1 },
+				delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+				totalValue: { copper: 1_321, gp: 13.21 },
+				canApply: true,
+			},
+		};
+		expect(AddCharacterTreasuryPreviewResponseSchema.parse(addPreview)).toEqual(addPreview);
+		expect(() =>
+			AddCharacterTreasuryPreviewResponseSchema.parse({
+				...addPreview,
+				preview: { ...addPreview.preview, change: { cp: 1, sp: 0, gp: 0, pp: 0 } },
+			}),
+		).toThrow();
+
+		const spendPreview = {
+			treasury,
+			preview: {
+				operation: "spend" as const,
+				previous: treasury.balances,
+				next: { cp: 0, sp: 7, gp: 2, pp: 1 },
+				delta: { cp: 0, sp: 5, gp: 0, pp: 0 },
+				totalValue: { copper: 1_320, gp: 13.2 },
+				canApply: true,
+				change: { cp: 0, sp: 5, gp: 0, pp: 0 },
+			},
+		};
+		expect(SpendCharacterTreasuryPreviewResponseSchema.parse(spendPreview)).toEqual(spendPreview);
+		expect(
+			SpendCharacterTreasuryPreviewResponseSchema.parse({
+				treasury,
+				preview: {
+					operation: "spend",
+					previous: treasury.balances,
+					next: treasury.balances,
+					delta: { cp: 0, sp: 0, gp: 0, pp: 0 },
+					totalValue: treasury.totalValue,
+					canApply: false,
+					error: {
+						code: "INSUFFICIENT_FUNDS",
+						message: "The treasury does not contain enough currency.",
+						available: { copper: 100, gp: 1 },
+						requested: { copper: 200, gp: 2 },
+					},
+				},
+			}),
+		).toBeDefined();
 	});
 
 	it("parses character item create, update, single, and list shapes", () => {

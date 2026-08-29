@@ -1,13 +1,14 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import {
+	AddCharacterTreasuryPreviewResponseSchema,
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
-	CharacterTreasuryPreviewResponseSchema,
 	CharacterTreasuryResponseSchema,
 	ConvertCharacterTreasuryRequestSchema,
 	ConvertCharacterTreasuryResponseSchema,
 	InsufficientDenominationResponseSchema,
 	InsufficientFundsResponseSchema,
+	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryRequestSchema,
 	SpendCharacterTreasuryResponseSchema,
 } from "../types/index.js";
@@ -128,7 +129,7 @@ export const inventoryTreasuryRouteContracts = [
 		responses: {
 			200: {
 				description: "Character treasury add preview",
-				schema: CharacterTreasuryPreviewResponseSchema,
+				schema: AddCharacterTreasuryPreviewResponseSchema,
 			},
 			400: { description: "Invalid treasury add preview", schema: TreasuryErrorResponseSchema },
 			404: { description: "Character not found", schema: TreasuryErrorResponseSchema },
@@ -140,8 +141,8 @@ export const inventoryTreasuryRouteContracts = [
 			imports: [...inventoryTreasuryTypeImports, ...inventoryTreasurySchemaImports],
 			pathParamsType: "{ characterId: string }",
 			requestBodyType: "AddCharacterTreasuryRequest",
-			responseParser: "CharacterTreasuryPreviewResponseSchema",
-			responseType: "CharacterTreasuryPreviewResponse",
+			responseParser: "AddCharacterTreasuryPreviewResponseSchema",
+			responseType: "AddCharacterTreasuryPreviewResponse",
 		},
 	},
 	{
@@ -153,7 +154,7 @@ export const inventoryTreasuryRouteContracts = [
 		responses: {
 			200: {
 				description: "Character treasury spend preview",
-				schema: CharacterTreasuryPreviewResponseSchema,
+				schema: SpendCharacterTreasuryPreviewResponseSchema,
 			},
 			400: { description: "Invalid treasury spend preview", schema: TreasuryErrorResponseSchema },
 			404: { description: "Character not found", schema: TreasuryErrorResponseSchema },
@@ -165,8 +166,8 @@ export const inventoryTreasuryRouteContracts = [
 			imports: [...inventoryTreasuryTypeImports, ...inventoryTreasurySchemaImports],
 			pathParamsType: "{ characterId: string }",
 			requestBodyType: "SpendCharacterTreasuryRequest",
-			responseParser: "CharacterTreasuryPreviewResponseSchema",
-			responseType: "CharacterTreasuryPreviewResponse",
+			responseParser: "SpendCharacterTreasuryPreviewResponseSchema",
+			responseType: "SpendCharacterTreasuryPreviewResponse",
 		},
 	},
 ] as const satisfies readonly ApiRouteContract[];

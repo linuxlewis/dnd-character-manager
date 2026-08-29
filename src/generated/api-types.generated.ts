@@ -20,12 +20,14 @@ export type {
 	UseCharacterSpellSlotRequest,
 } from "../domains/characters/types/index.js";
 export type {
+	AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryRequest,
 	AddCharacterTreasuryResponse,
 	CharacterTreasuryPreviewResponse,
 	CharacterTreasuryResponse,
 	ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryResponse,
+	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryResponse,
 } from "../domains/inventory/types/index.js";

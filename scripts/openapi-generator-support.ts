@@ -45,9 +45,10 @@ export function identifiersReferencedBy(
 	kind?: "value",
 ) {
 	if (!value) return [];
+	const identifiers = new Set(value.match(/[A-Za-z_$][A-Za-z0-9_$]*/g) ?? []);
 	return (client.imports ?? [])
 		.filter((spec) => kind === undefined || spec.kind === kind)
-		.flatMap((spec) => spec.names.filter((name) => value.includes(name)));
+		.flatMap((spec) => spec.names.filter((name) => identifiers.has(name)));
 }
 
 export function mergeImports(
