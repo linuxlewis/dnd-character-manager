@@ -12,11 +12,7 @@ import {
 	CurrencySpendResponseSchema,
 	CurrencyTotalValueSchema,
 } from "./currency.js";
-import {
-	CatalogueItemIdSchema,
-	InventoryCharacterIdSchema,
-	InventoryScopeIdSchema,
-} from "./ids.js";
+import { CatalogueItemIdSchema, InventoryCharacterIdSchema } from "./ids.js";
 import {
 	CharacterItemFilterSchema,
 	InventoryItemBaseSchema,
@@ -28,7 +24,6 @@ import { PositivePostgresIntegerSchema } from "./numeric.js";
 export const CharacterTreasurySchema = z
 	.object({
 		characterId: InventoryCharacterIdSchema,
-		inventoryScopeId: InventoryScopeIdSchema,
 		balances: CurrencyBalanceSchema,
 		totalValue: CurrencyTotalValueSchema,
 	})

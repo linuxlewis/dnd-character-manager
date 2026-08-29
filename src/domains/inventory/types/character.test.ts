@@ -5,6 +5,7 @@ import {
 	CharacterItemResponseSchema,
 	CharacterTreasuryPreviewResponseSchema,
 	CharacterTreasuryResponseSchema,
+	CharacterTreasurySchema,
 	ConvertCharacterTreasuryRequestSchema,
 	CreateCharacterItemRequestSchema,
 	ListCharacterItemsResponseSchema,
@@ -20,12 +21,24 @@ const itemId = "00000000-0000-4000-8000-000000000022";
 
 const treasury = {
 	characterId,
-	inventoryScopeId: scopeId,
 	balances: { cp: 0, sp: 2, gp: 3, pp: 1 },
 	totalValue: { copper: 1_320, gp: 13.2 },
 };
 
 describe("character inventory boundary schemas", () => {
+	it("accepts a pre-persistence zero treasury without a public scope ID", () => {
+		const zeroTreasury = {
+			characterId,
+			balances: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			totalValue: { copper: 0, gp: 0 },
+		};
+
+		expect(CharacterTreasurySchema.parse(zeroTreasury)).toEqual(zeroTreasury);
+		expect(CharacterTreasuryResponseSchema.parse({ treasury: zeroTreasury })).toEqual({
+			treasury: zeroTreasury,
+		});
+	});
+
 	it("parses treasury requests, responses, and previews", () => {
 		expect(
 			AddCharacterTreasuryRequestSchema.parse({ delta: { cp: 10, sp: 0, gp: 2, pp: 0 } }),
