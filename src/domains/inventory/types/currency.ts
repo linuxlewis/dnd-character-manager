@@ -1,9 +1,17 @@
 import { z } from "zod";
-
-export const CurrencyDenominationSchema = z.enum(["cp", "sp", "gp", "pp"]);
-export type CurrencyDenomination = z.infer<typeof CurrencyDenominationSchema>;
+import {
+	NonNegativeSafeIntegerSchema,
+	PositivePostgresIntegerSchema,
+	PositiveSafeIntegerSchema,
+	PostgresIntegerSchema,
+	PostgresNonNegativeIntegerSchema,
+	SafeIntegerSchema,
+} from "./numeric.js";
 
 export const CURRENCY_DENOMINATIONS = ["cp", "sp", "gp", "pp"] as const;
+
+export const CurrencyDenominationSchema = z.enum(CURRENCY_DENOMINATIONS);
+export type CurrencyDenomination = z.infer<typeof CurrencyDenominationSchema>;
 
 export const DND_CURRENCY_TO_COPPER = {
 	cp: 1,
@@ -12,40 +20,31 @@ export const DND_CURRENCY_TO_COPPER = {
 	pp: 1_000,
 } as const satisfies Record<CurrencyDenomination, number>;
 
-const MAX_CURRENCY_INTEGER = Number.MAX_SAFE_INTEGER;
-const NonNegativeCurrencyIntegerSchema = z.number().int().nonnegative().max(MAX_CURRENCY_INTEGER);
-const SignedCurrencyIntegerSchema = z
-	.number()
-	.int()
-	.min(-MAX_CURRENCY_INTEGER)
-	.max(MAX_CURRENCY_INTEGER);
-const PositiveCurrencyIntegerSchema = z.number().int().positive().max(MAX_CURRENCY_INTEGER);
-
 export const CurrencyAmountSchema = z.object({
 	denomination: CurrencyDenominationSchema,
-	amount: PositiveCurrencyIntegerSchema,
+	amount: PositivePostgresIntegerSchema,
 });
 export type CurrencyAmount = z.infer<typeof CurrencyAmountSchema>;
 
 export const CurrencyBalanceSchema = z.object({
-	cp: NonNegativeCurrencyIntegerSchema,
-	sp: NonNegativeCurrencyIntegerSchema,
-	gp: NonNegativeCurrencyIntegerSchema,
-	pp: NonNegativeCurrencyIntegerSchema,
+	cp: PostgresNonNegativeIntegerSchema,
+	sp: PostgresNonNegativeIntegerSchema,
+	gp: PostgresNonNegativeIntegerSchema,
+	pp: PostgresNonNegativeIntegerSchema,
 });
 export type CurrencyBalance = z.infer<typeof CurrencyBalanceSchema>;
 
 export const CurrencyDeltaSchema = z.object({
-	cp: SignedCurrencyIntegerSchema,
-	sp: SignedCurrencyIntegerSchema,
-	gp: SignedCurrencyIntegerSchema,
-	pp: SignedCurrencyIntegerSchema,
+	cp: PostgresIntegerSchema,
+	sp: PostgresIntegerSchema,
+	gp: PostgresIntegerSchema,
+	pp: PostgresIntegerSchema,
 });
 export type CurrencyDelta = z.infer<typeof CurrencyDeltaSchema>;
 
 export const CurrencyTotalValueSchema = z
 	.object({
-		copper: NonNegativeCurrencyIntegerSchema,
+		copper: NonNegativeSafeIntegerSchema,
 		gp: z.number().nonnegative().finite(),
 	})
 	.refine((value) => value.gp === value.copper / DND_CURRENCY_TO_COPPER.gp, {
@@ -87,7 +86,7 @@ export const CurrencyConversionRequestSchema = z
 	.object({
 		from: CurrencyDenominationSchema,
 		to: CurrencyDenominationSchema,
-		amount: PositiveCurrencyIntegerSchema,
+		amount: PositivePostgresIntegerSchema,
 	})
 	.refine((request) => request.from !== request.to, {
 		message: "A currency conversion must change denomination.",
@@ -135,8 +134,8 @@ export const CurrencyConversionResponseSchema = CurrencyMutationResponseSchema.e
 	operation: z.literal("convert"),
 	from: CurrencyDenominationSchema,
 	to: CurrencyDenominationSchema,
-	amount: PositiveCurrencyIntegerSchema,
-	convertedAmount: PositiveCurrencyIntegerSchema,
+	amount: PositivePostgresIntegerSchema,
+	convertedAmount: PositiveSafeIntegerSchema,
 });
 export type CurrencyConversionResponse = z.infer<typeof CurrencyConversionResponseSchema>;
 
@@ -153,18 +152,20 @@ export type CurrencyPreview = z.infer<typeof CurrencyPreviewSchema>;
 
 export function getCurrencyValueInCopper(balance: CurrencyBalance): number {
 	const parsed = CurrencyBalanceSchema.parse(balance);
-	return CURRENCY_DENOMINATIONS.reduce(
+	const copper = CURRENCY_DENOMINATIONS.reduce(
 		(total, denomination) => total + parsed[denomination] * DND_CURRENCY_TO_COPPER[denomination],
 		0,
 	);
+	return SafeIntegerSchema.parse(copper);
 }
 
 export function getCurrencyDeltaValueInCopper(delta: CurrencyDelta): number {
 	const parsed = CurrencyDeltaSchema.parse(delta);
-	return CURRENCY_DENOMINATIONS.reduce(
+	const copper = CURRENCY_DENOMINATIONS.reduce(
 		(total, denomination) => total + parsed[denomination] * DND_CURRENCY_TO_COPPER[denomination],
 		0,
 	);
+	return SafeIntegerSchema.parse(copper);
 }
 
 export function getCurrencyTotalValue(balance: CurrencyBalance): CurrencyTotalValue {
@@ -178,9 +179,9 @@ export function convertDenominationAmount(
 	to: CurrencyDenomination,
 ): number {
 	const request = CurrencyConversionRequestSchema.parse({ amount, from, to });
-	return (
-		(request.amount * DND_CURRENCY_TO_COPPER[request.from]) / DND_CURRENCY_TO_COPPER[request.to]
-	);
+	const convertedAmount =
+		(request.amount * DND_CURRENCY_TO_COPPER[request.from]) / DND_CURRENCY_TO_COPPER[request.to];
+	return PositiveSafeIntegerSchema.parse(convertedAmount);
 }
 
 function hasAddableDelta(delta: CurrencyDelta) {

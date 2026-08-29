@@ -12,6 +12,7 @@ import {
 	SpendCharacterTreasuryResponseSchema,
 	UpdateCharacterItemRequestSchema,
 } from "./character.js";
+import { InventoryItemSchema } from "./item.js";
 
 const characterId = "00000000-0000-4000-8000-000000000020";
 const scopeId = "00000000-0000-4000-8000-000000000021";
@@ -68,8 +69,42 @@ describe("character inventory boundary schemas", () => {
 			quantity: 1,
 		});
 		expect(request.name).toBe("Rope");
+		const catalogueRequest = CreateCharacterItemRequestSchema.parse({
+			name: "Rope",
+			type: "equipment",
+			category: "Adventuring Gear",
+			catalogueItemId: "00000000-0000-4000-8000-000000000023",
+		});
+		expect(catalogueRequest.catalogueItemId).toBe("00000000-0000-4000-8000-000000000023");
 		expect(UpdateCharacterItemRequestSchema.parse({ quantity: 3 })).toEqual({ quantity: 3 });
 		expect(() => UpdateCharacterItemRequestSchema.parse({})).toThrow();
+		expect(() =>
+			CreateCharacterItemRequestSchema.parse({
+				name: "Rope",
+				type: "equipment",
+				category: "Adventuring Gear",
+				catalogueSourceKey: "catalogue.rope",
+			}),
+		).toThrow();
+		expect(() =>
+			UpdateCharacterItemRequestSchema.parse({ catalogueSourceKey: "catalogue.rope" }),
+		).toThrow();
+		expect(() =>
+			CreateCharacterItemRequestSchema.parse({
+				name: "Rope",
+				type: "equipment",
+				category: "Adventuring Gear",
+				catalogueRulesVersion: "2024",
+			}),
+		).toThrow();
+		expect(() =>
+			CreateCharacterItemRequestSchema.parse({
+				name: "Rope",
+				type: "equipment",
+				category: "Adventuring Gear",
+				catalogue: { catalogueItemId: "00000000-0000-4000-8000-000000000023" },
+			}),
+		).toThrow();
 
 		const item = {
 			id: itemId,
@@ -90,15 +125,13 @@ describe("character inventory boundary schemas", () => {
 			statOverrides: null,
 			catalogueItemId: null,
 			catalogueSourceKey: null,
-			catalogueSource: null,
-			catalogueSourcePath: null,
 			catalogueRulesVersion: null,
-			catalogueLicense: null,
 			createdAt: "2026-08-29T12:00:00.000Z",
 			updatedAt: "2026-08-29T12:00:00.000Z",
 		};
 
 		expect(CharacterItemResponseSchema.parse({ item })).toEqual({ item });
+		expect(() => InventoryItemSchema.parse({ ...item, catalogue: {} })).toThrow();
 		expect(ListCharacterItemsResponseSchema.parse({ items: [item], total: 1 })).toEqual({
 			items: [item],
 			total: 1,

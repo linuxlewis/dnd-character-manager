@@ -12,16 +12,18 @@ import {
 	CurrencySpendResponseSchema,
 	CurrencyTotalValueSchema,
 } from "./currency.js";
-import { InventoryCharacterIdSchema, InventoryScopeIdSchema } from "./ids.js";
 import {
-	InventoryCatalogueProvenanceSchema,
-	InventoryCatalogueSourceSchema,
+	CatalogueItemIdSchema,
+	InventoryCharacterIdSchema,
+	InventoryScopeIdSchema,
+} from "./ids.js";
+import {
+	CharacterItemFilterSchema,
 	InventoryItemBaseSchema,
-	InventoryItemFilterSchema,
 	InventoryItemSchema,
-	InventoryRulesVersionSchema,
 	JsonObjectSchema,
 } from "./item.js";
+import { PositivePostgresIntegerSchema } from "./numeric.js";
 
 export const CharacterTreasurySchema = z.object({
 	characterId: InventoryCharacterIdSchema,
@@ -85,21 +87,16 @@ export type CharacterTreasuryPreviewResponse = z.infer<
 >;
 
 export const CreateCharacterItemRequestSchema = InventoryItemBaseSchema.extend({
-	catalogueItemId: z.string().uuid().nullable().optional(),
-	catalogueSourceKey: z.string().min(1).max(240).nullable().optional(),
-	catalogueSource: InventoryCatalogueSourceSchema.nullable().optional(),
-	catalogueSourcePath: z.string().min(1).max(500).nullable().optional(),
-	catalogueRulesVersion: InventoryRulesVersionSchema.nullable().optional(),
-	catalogueLicense: z.string().max(120).nullable().optional(),
-	catalogue: InventoryCatalogueProvenanceSchema.nullable().optional(),
-});
+	catalogueItemId: CatalogueItemIdSchema.nullable().optional(),
+}).strict();
 export type CreateCharacterItemRequest = z.infer<typeof CreateCharacterItemRequestSchema>;
 
 export const UpdateCharacterItemRequestSchema = CreateCharacterItemRequestSchema.partial()
 	.extend({
-		quantity: z.number().int().positive().optional(),
+		quantity: PositivePostgresIntegerSchema.optional(),
 		properties: JsonObjectSchema.optional(),
 	})
+	.strict()
 	.refine(hasAtLeastOneItemField, {
 		message: "An item update must include at least one field.",
 	});
@@ -110,11 +107,8 @@ export const CharacterItemResponseSchema = z.object({
 });
 export type CharacterItemResponse = z.infer<typeof CharacterItemResponseSchema>;
 
-export const ListCharacterItemsRequestSchema = InventoryItemFilterSchema;
+export const ListCharacterItemsRequestSchema = CharacterItemFilterSchema;
 export type ListCharacterItemsRequest = z.infer<typeof ListCharacterItemsRequestSchema>;
-
-export const CharacterItemFilterSchema = InventoryItemFilterSchema;
-export type CharacterItemFilter = z.infer<typeof CharacterItemFilterSchema>;
 
 export const ListCharacterItemsResponseSchema = z.object({
 	items: z.array(InventoryItemSchema),

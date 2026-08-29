@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-	InventoryCatalogueReferenceSchema,
+	CharacterItemFilterSchema,
 	InventoryItemBaseSchema,
-	InventoryItemFilterSchema,
 	InventoryItemSchema,
 	JsonObjectSchema,
 } from "./item.js";
@@ -42,24 +41,12 @@ describe("inventory item schemas", () => {
 		expect(() => InventoryItemBaseSchema.parse({ ...valid, estimatedValue: -0.01 })).toThrow();
 	});
 
-	it("requires JSON objects for properties and explicit catalogue provenance", () => {
+	it("requires JSON objects for item properties", () => {
 		expect(JsonObjectSchema.parse({ damage: { dice: "1d6" }, tags: ["weapon"] })).toEqual({
 			damage: { dice: "1d6" },
 			tags: ["weapon"],
 		});
 		expect(() => JsonObjectSchema.parse({ invalid: undefined })).toThrow();
-		expect(
-			InventoryCatalogueReferenceSchema.parse({
-				catalogueItemId,
-				provenance: {
-					source: "foundry-dnd5e",
-					sourceKey: "equipment24.healing-potion",
-					sourcePath: "packs/equipment24/healing-potion.yml",
-					rulesVersion: "2024",
-					license: "CC-BY-4.0",
-				},
-			}),
-		).toHaveProperty("provenance.rulesVersion", "2024");
 	});
 
 	it("parses a complete persisted item and typed filters", () => {
@@ -81,23 +68,29 @@ describe("inventory item schemas", () => {
 			statModifiers: { attack: 1 },
 			statOverrides: null,
 			catalogueItemId,
-			catalogueSourceKey: "equipment24.longsword",
-			catalogueSource: "foundry-dnd5e",
-			catalogueSourcePath: "packs/equipment24/longsword.yml",
+			catalogueSourceKey: "catalogue.longsword",
 			catalogueRulesVersion: "2024",
-			catalogueLicense: "CC-BY-4.0",
 			createdAt: "2026-08-29T12:00:00.000Z",
 			updatedAt: "2026-08-29T12:00:00.000Z",
 		};
 
 		expect(InventoryItemSchema.parse(item)).toEqual(item);
 		expect(
-			InventoryItemFilterSchema.parse({ search: "sword", type: "equipment", isEquipped: true }),
+			CharacterItemFilterSchema.parse({ search: "sword", type: "equipment", isEquipped: true }),
 		).toEqual({
 			search: "sword",
 			type: "equipment",
 			isEquipped: true,
 		});
-		expect(() => InventoryItemFilterSchema.parse({ type: "weapon" })).toThrow();
+		expect(() => CharacterItemFilterSchema.parse({ type: "weapon" })).toThrow();
+	});
+
+	it("accepts the PostgreSQL integer quantity boundary and rejects overflow", () => {
+		const valid = { name: "Rope", type: "equipment", category: "Adventuring Gear" };
+
+		expect(InventoryItemBaseSchema.parse({ ...valid, quantity: 2_147_483_647 }).quantity).toBe(
+			2_147_483_647,
+		);
+		expect(() => InventoryItemBaseSchema.parse({ ...valid, quantity: 2_147_483_648 })).toThrow();
 	});
 });

@@ -10,6 +10,18 @@ const characterId = "00000000-0000-4000-8000-000000000001";
 const partyId = "00000000-0000-4000-8000-000000000002";
 
 describe("inventory ownership schemas", () => {
+	it("accepts a fully valid character-owned inventory scope", () => {
+		const scope = {
+			id: "00000000-0000-4000-8000-000000000003",
+			characterId,
+			partyId: null,
+			createdAt: "2026-08-29T12:00:00.000Z",
+			updatedAt: "2026-08-29T12:00:00.000Z",
+		};
+
+		expect(InventoryScopeSchema.parse(scope)).toEqual(scope);
+	});
+
 	it("accepts character and party owners as explicit foreign-key shapes", () => {
 		const characterOwner = { characterId, partyId: null };
 		const partyOwner = { characterId: null, partyId };

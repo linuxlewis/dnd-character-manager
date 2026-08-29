@@ -1,7 +1,6 @@
 export type {
 	AddCharacterTreasuryRequest,
 	AddCharacterTreasuryResponse,
-	CharacterItemFilter,
 	CharacterItemResponse,
 	CharacterTreasury,
 	CharacterTreasuryMutationResponse,
@@ -20,7 +19,6 @@ export type {
 export {
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
-	CharacterItemFilterSchema,
 	CharacterItemResponseSchema,
 	CharacterTreasuryMutationResponseSchema,
 	CharacterTreasuryPreviewResponseSchema,
@@ -107,12 +105,9 @@ export {
 	PartyInventoryScopeOwnerSchema,
 } from "./ids.js";
 export type {
-	InventoryCatalogueProvenance,
-	InventoryCatalogueReference,
-	InventoryCatalogueSource,
+	CharacterItemFilter,
 	InventoryItem,
 	InventoryItemBase,
-	InventoryItemFilter,
 	InventoryItemRarity,
 	InventoryItemType,
 	InventoryRulesVersion,
@@ -120,11 +115,8 @@ export type {
 	JsonValue,
 } from "./item.js";
 export {
-	InventoryCatalogueProvenanceSchema,
-	InventoryCatalogueReferenceSchema,
-	InventoryCatalogueSourceSchema,
+	CharacterItemFilterSchema,
 	InventoryItemBaseSchema,
-	InventoryItemFilterSchema,
 	InventoryItemRaritySchema,
 	InventoryItemSchema,
 	InventoryItemTypeSchema,
@@ -132,3 +124,21 @@ export {
 	JsonObjectSchema,
 	JsonValueSchema,
 } from "./item.js";
+export type {
+	NonNegativeSafeInteger,
+	PositivePostgresInteger,
+	PositiveSafeInteger,
+	PostgresInteger,
+	PostgresNonNegativeInteger,
+	SafeInteger,
+} from "./numeric.js";
+export {
+	NonNegativeSafeIntegerSchema,
+	POSTGRES_INTEGER_MAX,
+	POSTGRES_INTEGER_MIN,
+	PositivePostgresIntegerSchema,
+	PositiveSafeIntegerSchema,
+	PostgresIntegerSchema,
+	PostgresNonNegativeIntegerSchema,
+	SafeIntegerSchema,
+} from "./numeric.js";
