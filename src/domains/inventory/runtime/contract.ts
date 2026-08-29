@@ -1,5 +1,6 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import {
+	AddCharacterTreasuryPreviewRequestSchema,
 	AddCharacterTreasuryPreviewResponseSchema,
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
@@ -7,10 +8,12 @@ import {
 	ConvertCharacterTreasuryRequestSchema,
 	ConvertCharacterTreasuryResponseSchema,
 	InsufficientDenominationResponseSchema,
-	InsufficientFundsResponseSchema,
+	SpendCharacterTreasuryPreviewRequestSchema,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryRequestSchema,
 	SpendCharacterTreasuryResponseSchema,
+	TreasuryConflictResponseSchema,
+	TreasurySpendErrorResponseSchema,
 } from "../types/index.js";
 import {
 	CharacterTreasuryPathParamsSchema,
@@ -53,6 +56,10 @@ export const inventoryTreasuryRouteContracts = [
 			},
 			400: { description: "Invalid treasury add operation", schema: TreasuryErrorResponseSchema },
 			404: { description: "Character not found", schema: TreasuryErrorResponseSchema },
+			409: {
+				description: "Treasury changed after preview",
+				schema: TreasuryConflictResponseSchema,
+			},
 		},
 		summary: "Add funds to character treasury",
 		tags: ["characters", "treasury"],
@@ -78,7 +85,10 @@ export const inventoryTreasuryRouteContracts = [
 			},
 			400: { description: "Invalid treasury spend operation", schema: TreasuryErrorResponseSchema },
 			404: { description: "Character not found", schema: TreasuryErrorResponseSchema },
-			409: { description: "Insufficient funds", schema: InsufficientFundsResponseSchema },
+			409: {
+				description: "Insufficient funds or treasury changed after preview",
+				schema: TreasurySpendErrorResponseSchema,
+			},
 		},
 		summary: "Spend character treasury funds",
 		tags: ["characters", "treasury"],
@@ -125,7 +135,7 @@ export const inventoryTreasuryRouteContracts = [
 		operationId: "previewAddCharacterTreasury",
 		path: "/api/characters/:characterId/treasury/preview/add",
 		pathParams: CharacterTreasuryPathParamsSchema,
-		requestBody: AddCharacterTreasuryRequestSchema,
+		requestBody: AddCharacterTreasuryPreviewRequestSchema,
 		responses: {
 			200: {
 				description: "Character treasury add preview",
@@ -140,7 +150,7 @@ export const inventoryTreasuryRouteContracts = [
 			functionName: "previewAddCharacterTreasury",
 			imports: [...inventoryTreasuryTypeImports, ...inventoryTreasurySchemaImports],
 			pathParamsType: "{ characterId: string }",
-			requestBodyType: "AddCharacterTreasuryRequest",
+			requestBodyType: "AddCharacterTreasuryPreviewRequest",
 			responseParser: "AddCharacterTreasuryPreviewResponseSchema",
 			responseType: "AddCharacterTreasuryPreviewResponse",
 		},
@@ -150,7 +160,7 @@ export const inventoryTreasuryRouteContracts = [
 		operationId: "previewSpendCharacterTreasury",
 		path: "/api/characters/:characterId/treasury/preview/spend",
 		pathParams: CharacterTreasuryPathParamsSchema,
-		requestBody: SpendCharacterTreasuryRequestSchema,
+		requestBody: SpendCharacterTreasuryPreviewRequestSchema,
 		responses: {
 			200: {
 				description: "Character treasury spend preview",
@@ -165,7 +175,7 @@ export const inventoryTreasuryRouteContracts = [
 			functionName: "previewSpendCharacterTreasury",
 			imports: [...inventoryTreasuryTypeImports, ...inventoryTreasurySchemaImports],
 			pathParamsType: "{ characterId: string }",
-			requestBodyType: "SpendCharacterTreasuryRequest",
+			requestBodyType: "SpendCharacterTreasuryPreviewRequest",
 			responseParser: "SpendCharacterTreasuryPreviewResponseSchema",
 			responseType: "SpendCharacterTreasuryPreviewResponse",
 		},

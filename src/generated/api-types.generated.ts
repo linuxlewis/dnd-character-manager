@@ -20,6 +20,7 @@ export type {
 	UseCharacterSpellSlotRequest,
 } from "../domains/characters/types/index.js";
 export type {
+	AddCharacterTreasuryPreviewRequest,
 	AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryRequest,
 	AddCharacterTreasuryResponse,
@@ -27,9 +28,11 @@ export type {
 	CharacterTreasuryResponse,
 	ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryResponse,
+	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryResponse,
+	TreasuryConflictResponse,
 } from "../domains/inventory/types/index.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type {

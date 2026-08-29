@@ -9,11 +9,14 @@ import {
 	createCharacterTreasuryService,
 	InsufficientDenominationError,
 	InsufficientFundsError,
+	TreasuryConflictError,
 	TreasuryOverflowError,
 } from "../service/index.js";
 import {
+	AddCharacterTreasuryPreviewRequestSchema,
 	AddCharacterTreasuryRequestSchema,
 	ConvertCharacterTreasuryRequestSchema,
+	SpendCharacterTreasuryPreviewRequestSchema,
 	SpendCharacterTreasuryRequestSchema,
 } from "../types/index.js";
 import { CharacterTreasuryPathParamsSchema } from "./contract-support.js";
@@ -100,7 +103,7 @@ export async function registerCharacterTreasuryRoutes(
 	app.post("/api/characters/:characterId/treasury/preview/add", async (request, reply) => {
 		const params = parseParams(request, reply);
 		if (!params) return;
-		const body = parseBody(AddCharacterTreasuryRequestSchema, request.body, reply);
+		const body = parseBody(AddCharacterTreasuryPreviewRequestSchema, request.body, reply);
 		if (!body) return;
 		const currentUser = await getCurrentUser(request, reply);
 		try {
@@ -117,7 +120,7 @@ export async function registerCharacterTreasuryRoutes(
 	app.post("/api/characters/:characterId/treasury/preview/spend", async (request, reply) => {
 		const params = parseParams(request, reply);
 		if (!params) return;
-		const body = parseBody(SpendCharacterTreasuryRequestSchema, request.body, reply);
+		const body = parseBody(SpendCharacterTreasuryPreviewRequestSchema, request.body, reply);
 		if (!body) return;
 		const currentUser = await getCurrentUser(request, reply);
 		try {
@@ -158,6 +161,9 @@ export function sendTreasuryError(error: unknown, reply: FastifyReply) {
 		return reply.status(409).send({ error: error.details });
 	}
 	if (error instanceof InsufficientDenominationError) {
+		return reply.status(409).send({ error: error.details });
+	}
+	if (error instanceof TreasuryConflictError) {
 		return reply.status(409).send({ error: error.details });
 	}
 	if (error instanceof TreasuryOverflowError) {

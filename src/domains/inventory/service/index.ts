@@ -1,6 +1,7 @@
 export {
 	InsufficientDenominationError,
 	InsufficientFundsError,
+	TreasuryConflictError,
 	TreasuryOverflowError,
 } from "./character-treasury-errors.js";
 export type {

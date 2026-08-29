@@ -1,8 +1,13 @@
 import type { CharacterService } from "../../characters/service/index.js";
 import { createCharacterService } from "../../characters/service/index.js";
-import type { CharacterTreasuryRepository } from "../repo/index.js";
-import { createCharacterTreasuryRepository } from "../repo/index.js";
 import {
+	CharacterTreasuryPreconditionError,
+	type CharacterTreasuryRepository,
+	createCharacterTreasuryRepository,
+} from "../repo/index.js";
+import {
+	type AddCharacterTreasuryPreviewRequest,
+	AddCharacterTreasuryPreviewRequestSchema,
 	type AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryPreviewResponseSchema,
 	type AddCharacterTreasuryRequest,
@@ -15,7 +20,10 @@ import {
 	ConvertCharacterTreasuryRequestSchema,
 	type ConvertCharacterTreasuryResponse,
 	ConvertCharacterTreasuryResponseSchema,
+	type CurrencyBalance,
 	getCurrencyTotalValue,
+	type SpendCharacterTreasuryPreviewRequest,
+	SpendCharacterTreasuryPreviewRequestSchema,
 	type SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	type SpendCharacterTreasuryRequest,
@@ -23,7 +31,11 @@ import {
 	type SpendCharacterTreasuryResponse,
 	SpendCharacterTreasuryResponseSchema,
 } from "../types/index.js";
-import { InsufficientFundsError, TreasuryOverflowError } from "./character-treasury-errors.js";
+import {
+	InsufficientFundsError,
+	TreasuryConflictError,
+	TreasuryOverflowError,
+} from "./character-treasury-errors.js";
 import {
 	type CurrencyPlan,
 	planAdd,
@@ -52,12 +64,12 @@ export interface CharacterTreasuryService {
 	previewAddCharacterTreasury(
 		userId: string,
 		characterId: string,
-		input: AddCharacterTreasuryRequest,
+		input: AddCharacterTreasuryPreviewRequest,
 	): Promise<AddCharacterTreasuryPreviewResponse>;
 	previewSpendCharacterTreasury(
 		userId: string,
 		characterId: string,
-		input: SpendCharacterTreasuryRequest,
+		input: SpendCharacterTreasuryPreviewRequest,
 	): Promise<SpendCharacterTreasuryPreviewResponse>;
 }
 
@@ -84,11 +96,16 @@ export function createCharacterTreasuryService(
 			const request = AddCharacterTreasuryRequestSchema.parse(input);
 			await characterService.getCharacter(userId, characterId);
 			let plan: CurrencyPlan | undefined;
-			const treasury = await repository.mutateCharacterTreasury(characterId, (current) => {
-				const nextPlan = planAdd(current, request);
-				plan = nextPlan;
-				return nextPlan.next;
-			});
+			const treasury = await mutateWithPreviewPrecondition(
+				repository,
+				characterId,
+				(current) => {
+					const nextPlan = planAdd(current, { delta: request.delta });
+					plan = nextPlan;
+					return nextPlan.next;
+				},
+				request.expectedPrevious,
+			);
 			if (!plan) throw new TreasuryOverflowError("Treasury mutation did not produce a plan.");
 			return AddCharacterTreasuryResponseSchema.parse({
 				treasury,
@@ -100,11 +117,16 @@ export function createCharacterTreasuryService(
 			const request = SpendCharacterTreasuryRequestSchema.parse(input);
 			await characterService.getCharacter(userId, characterId);
 			let plan: SpendPlan | undefined;
-			const treasury = await repository.mutateCharacterTreasury(characterId, (current) => {
-				const nextPlan = planSpend(current, request);
-				plan = nextPlan;
-				return nextPlan.next;
-			});
+			const treasury = await mutateWithPreviewPrecondition(
+				repository,
+				characterId,
+				(current) => {
+					const nextPlan = planSpend(current, { amount: request.amount });
+					plan = nextPlan;
+					return nextPlan.next;
+				},
+				request.expectedPrevious,
+			);
 			if (!plan) throw new TreasuryOverflowError("Treasury mutation did not produce a plan.");
 			return SpendCharacterTreasuryResponseSchema.parse({
 				treasury,
@@ -134,7 +156,7 @@ export function createCharacterTreasuryService(
 		},
 
 		async previewAddCharacterTreasury(userId, characterId, input) {
-			const request = AddCharacterTreasuryRequestSchema.parse(input);
+			const request = AddCharacterTreasuryPreviewRequestSchema.parse(input);
 			const treasury = await readAuthorizedTreasury(
 				userId,
 				characterId,
@@ -145,7 +167,7 @@ export function createCharacterTreasuryService(
 		},
 
 		async previewSpendCharacterTreasury(userId, characterId, input) {
-			const request = SpendCharacterTreasuryRequestSchema.parse(input);
+			const request = SpendCharacterTreasuryPreviewRequestSchema.parse(input);
 			const treasury = await readAuthorizedTreasury(
 				userId,
 				characterId,
@@ -173,6 +195,24 @@ export function createCharacterTreasuryService(
 			}
 		},
 	};
+}
+
+async function mutateWithPreviewPrecondition(
+	repository: CharacterTreasuryRepository,
+	characterId: string,
+	mutation: (current: CurrencyBalance) => CurrencyBalance,
+	expectedPrevious: CurrencyBalance,
+) {
+	try {
+		return await repository.mutateCharacterTreasury(characterId, mutation, { expectedPrevious });
+	} catch (error) {
+		if (!(error instanceof CharacterTreasuryPreconditionError)) throw error;
+		throw new TreasuryConflictError({
+			message: error.message,
+			expectedPrevious: error.expectedPrevious,
+			actualPrevious: error.actualPrevious,
+		});
+	}
 }
 
 async function readAuthorizedTreasury(

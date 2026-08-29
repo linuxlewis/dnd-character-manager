@@ -37,9 +37,43 @@ describe("inventoryTreasuryRouteContracts", () => {
 		expect(inventoryTreasuryRouteContracts[2].requestBody).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[3].requestBody).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[1].responses[200]?.schema).toBeDefined();
+		expect(inventoryTreasuryRouteContracts[1].responses[409]?.schema).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[2].responses[200]?.schema).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[2].responses[409]?.schema).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[3].responses[409]?.schema).toBeDefined();
+	});
+
+	it("requires preview state only on add and spend confirmations", () => {
+		const add = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "addCharacterTreasury",
+		);
+		const spend = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "spendCharacterTreasury",
+		);
+		const previewAdd = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "previewAddCharacterTreasury",
+		);
+		const previewSpend = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "previewSpendCharacterTreasury",
+		);
+		const previous = { cp: 0, sp: 0, gp: 0, pp: 0 };
+
+		expect(add?.requestBody?.safeParse({ delta: previous }).success).toBe(false);
+		expect(
+			add?.requestBody?.safeParse({ delta: { ...previous, cp: 1 }, expectedPrevious: previous })
+				.success,
+		).toBe(true);
+		expect(
+			spend?.requestBody?.safeParse({ amount: { denomination: "cp", amount: 1 } }).success,
+		).toBe(false);
+		expect(previewAdd?.requestBody?.safeParse({ delta: { ...previous, cp: 1 } }).success).toBe(
+			true,
+		);
+		expect(
+			previewSpend?.requestBody?.safeParse({ amount: { denomination: "cp", amount: 1 } }).success,
+		).toBe(true);
+		expect(previewAdd?.client?.requestBodyType).toBe("AddCharacterTreasuryPreviewRequest");
+		expect(previewSpend?.client?.requestBodyType).toBe("SpendCharacterTreasuryPreviewRequest");
 	});
 
 	it("keeps server-computed spend change in the preview response schema", () => {

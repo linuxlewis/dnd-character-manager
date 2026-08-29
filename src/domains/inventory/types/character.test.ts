@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	AddCharacterTreasuryPreviewRequestSchema,
 	AddCharacterTreasuryPreviewResponseSchema,
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
@@ -10,6 +11,7 @@ import {
 	ConvertCharacterTreasuryRequestSchema,
 	CreateCharacterItemRequestSchema,
 	ListCharacterItemsResponseSchema,
+	SpendCharacterTreasuryPreviewRequestSchema,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryRequestSchema,
 	SpendCharacterTreasuryResponseSchema,
@@ -42,16 +44,45 @@ describe("character inventory boundary schemas", () => {
 	});
 
 	it("parses treasury requests, responses, and previews", () => {
+		const expectedPrevious = { cp: 0, sp: 2, gp: 3, pp: 1 };
 		expect(
-			AddCharacterTreasuryRequestSchema.parse({ delta: { cp: 10, sp: 0, gp: 2, pp: 0 } }),
+			AddCharacterTreasuryRequestSchema.parse({
+				delta: { cp: 10, sp: 0, gp: 2, pp: 0 },
+				expectedPrevious,
+			}),
 		).toEqual({
 			delta: { cp: 10, sp: 0, gp: 2, pp: 0 },
+			expectedPrevious,
 		});
 		expect(
-			SpendCharacterTreasuryRequestSchema.parse({ amount: { denomination: "gp", amount: 2 } }),
+			SpendCharacterTreasuryRequestSchema.parse({
+				amount: { denomination: "gp", amount: 2 },
+				expectedPrevious,
+			}),
 		).toEqual({
 			amount: { denomination: "gp", amount: 2 },
+			expectedPrevious,
 		});
+		expect(
+			AddCharacterTreasuryPreviewRequestSchema.parse({
+				delta: { cp: 10, sp: 0, gp: 2, pp: 0 },
+			}),
+		).toEqual({ delta: { cp: 10, sp: 0, gp: 2, pp: 0 } });
+		expect(
+			SpendCharacterTreasuryPreviewRequestSchema.parse({
+				amount: { denomination: "gp", amount: 2 },
+			}),
+		).toEqual({ amount: { denomination: "gp", amount: 2 } });
+		expect(() =>
+			AddCharacterTreasuryRequestSchema.parse({
+				delta: { cp: 10, sp: 0, gp: 2, pp: 0 },
+			}),
+		).toThrow();
+		expect(() =>
+			SpendCharacterTreasuryRequestSchema.parse({
+				amount: { denomination: "gp", amount: 2 },
+			}),
+		).toThrow();
 		expect(
 			ConvertCharacterTreasuryRequestSchema.parse({ from: "pp", to: "gp", amount: 1 }),
 		).toEqual({

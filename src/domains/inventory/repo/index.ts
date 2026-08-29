@@ -1,8 +1,12 @@
 export type {
 	CharacterTreasuryMutation,
+	CharacterTreasuryMutationOptions,
 	CharacterTreasuryRepository,
 } from "./character-treasury-repository.js";
-export { createCharacterTreasuryRepository } from "./character-treasury-repository.js";
+export {
+	CharacterTreasuryPreconditionError,
+	createCharacterTreasuryRepository,
+} from "./character-treasury-repository.js";
 export {
 	toCharacterTreasury,
 	toInventoryScope,

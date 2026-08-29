@@ -2,10 +2,12 @@ import type {
 	CurrencyDenomination,
 	InsufficientDenominationError as InsufficientDenominationDetails,
 	InsufficientFundsError as InsufficientFundsDetails,
+	TreasuryConflictError as TreasuryConflictDetails,
 } from "../types/index.js";
 import {
 	InsufficientDenominationErrorSchema,
 	InsufficientFundsErrorSchema,
+	TreasuryConflictErrorSchema,
 } from "../types/index.js";
 
 export class InsufficientFundsError extends Error {
@@ -44,5 +46,20 @@ export class TreasuryOverflowError extends Error {
 	constructor(message = "The treasury balance exceeds the PostgreSQL integer limit.") {
 		super(message);
 		this.name = "TreasuryOverflowError";
+	}
+}
+
+export class TreasuryConflictError extends Error {
+	readonly code = "TREASURY_CONFLICT" as const;
+	readonly details: TreasuryConflictDetails;
+
+	constructor(details: Omit<TreasuryConflictDetails, "code">) {
+		const parsed = TreasuryConflictErrorSchema.parse({
+			code: "TREASURY_CONFLICT",
+			...details,
+		});
+		super(parsed.message);
+		this.name = "TreasuryConflictError";
+		this.details = parsed;
 	}
 }

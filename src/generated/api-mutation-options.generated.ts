@@ -2,6 +2,7 @@
 import { mutationOptions } from "@tanstack/react-query";
 import { type ApiClient, type ApiRequestOptions, apiClient } from "./api-client-core.generated.js";
 import type {
+	AddCharacterTreasuryPreviewRequest,
 	AddCharacterTreasuryRequest,
 	ConvertCharacterTreasuryRequest,
 	CreateCharacterRequest,
@@ -9,6 +10,7 @@ import type {
 	RestoreCharacterSpellSlotRequest,
 	SaveCharacterSpellRequest,
 	SearchCharacterSpellsRequest,
+	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryRequest,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterHealthRequest,
@@ -164,7 +166,7 @@ export function createApiMutationOptions(client: ApiClient = apiClient) {
 				mutationKey: ["api", "previewAddCharacterTreasury"] as const,
 				mutationFn: (variables: {
 					params: { characterId: string };
-					body: AddCharacterTreasuryRequest;
+					body: AddCharacterTreasuryPreviewRequest;
 				}) => client.previewAddCharacterTreasury(variables.params, variables.body, options),
 			}),
 
@@ -173,7 +175,7 @@ export function createApiMutationOptions(client: ApiClient = apiClient) {
 				mutationKey: ["api", "previewSpendCharacterTreasury"] as const,
 				mutationFn: (variables: {
 					params: { characterId: string };
-					body: SpendCharacterTreasuryRequest;
+					body: SpendCharacterTreasuryPreviewRequest;
 				}) => client.previewSpendCharacterTreasury(variables.params, variables.body, options),
 			}),
 	};

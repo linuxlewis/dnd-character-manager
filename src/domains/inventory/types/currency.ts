@@ -80,6 +80,27 @@ export const InsufficientFundsResponseSchema = z
 	.strict();
 export type InsufficientFundsResponse = z.infer<typeof InsufficientFundsResponseSchema>;
 
+export const TreasuryConflictErrorSchema = z
+	.object({
+		code: z.literal("TREASURY_CONFLICT"),
+		message: z.string().min(1).max(240),
+		expectedPrevious: CurrencyBalanceSchema,
+		actualPrevious: CurrencyBalanceSchema,
+	})
+	.strict();
+export type TreasuryConflictError = z.infer<typeof TreasuryConflictErrorSchema>;
+
+export const TreasuryConflictResponseSchema = z
+	.object({ error: TreasuryConflictErrorSchema })
+	.strict();
+export type TreasuryConflictResponse = z.infer<typeof TreasuryConflictResponseSchema>;
+
+export const TreasurySpendErrorResponseSchema = z.union([
+	InsufficientFundsResponseSchema,
+	TreasuryConflictResponseSchema,
+]);
+export type TreasurySpendErrorResponse = z.infer<typeof TreasurySpendErrorResponseSchema>;
+
 export const InsufficientDenominationErrorSchema = z
 	.object({
 		code: z.literal("INSUFFICIENT_DENOMINATION"),

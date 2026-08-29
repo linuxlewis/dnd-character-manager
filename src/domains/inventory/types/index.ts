@@ -1,4 +1,5 @@
 export type {
+	AddCharacterTreasuryPreviewRequest,
 	AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryRequest,
 	AddCharacterTreasuryResponse,
@@ -12,6 +13,7 @@ export type {
 	CreateCharacterItemRequest,
 	ListCharacterItemsRequest,
 	ListCharacterItemsResponse,
+	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryResponse,
@@ -19,6 +21,7 @@ export type {
 	UpdateCharacterTreasuryRequest,
 } from "./character.js";
 export {
+	AddCharacterTreasuryPreviewRequestSchema,
 	AddCharacterTreasuryPreviewResponseSchema,
 	AddCharacterTreasuryRequestSchema,
 	AddCharacterTreasuryResponseSchema,
@@ -32,6 +35,7 @@ export {
 	CreateCharacterItemRequestSchema,
 	ListCharacterItemsRequestSchema,
 	ListCharacterItemsResponseSchema,
+	SpendCharacterTreasuryPreviewRequestSchema,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryRequestSchema,
 	SpendCharacterTreasuryResponseSchema,
@@ -58,6 +62,9 @@ export type {
 	InsufficientDenominationResponse,
 	InsufficientFundsError,
 	InsufficientFundsResponse,
+	TreasuryConflictError,
+	TreasuryConflictResponse,
+	TreasurySpendErrorResponse,
 } from "./currency.js";
 export {
 	CURRENCY_DENOMINATIONS,
@@ -85,6 +92,9 @@ export {
 	InsufficientDenominationResponseSchema,
 	InsufficientFundsErrorSchema,
 	InsufficientFundsResponseSchema,
+	TreasuryConflictErrorSchema,
+	TreasuryConflictResponseSchema,
+	TreasurySpendErrorResponseSchema,
 } from "./currency.js";
 export type {
 	CatalogueItemId,

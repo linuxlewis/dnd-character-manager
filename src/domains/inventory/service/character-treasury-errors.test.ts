@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	InsufficientDenominationError,
 	InsufficientFundsError,
+	TreasuryConflictError,
 	TreasuryOverflowError,
 } from "./character-treasury-errors.js";
 
@@ -33,5 +34,20 @@ describe("character treasury errors", () => {
 			requested: 2,
 		});
 		expect(new TreasuryOverflowError()).toBeInstanceOf(Error);
+	});
+
+	it("exposes stable typed details for stale treasury previews", () => {
+		const error = new TreasuryConflictError({
+			message: "The character treasury changed after the operation was previewed.",
+			expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			actualPrevious: { cp: 1, sp: 0, gp: 0, pp: 0 },
+		});
+
+		expect(error.code).toBe("TREASURY_CONFLICT");
+		expect(error.details).toMatchObject({
+			code: "TREASURY_CONFLICT",
+			expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			actualPrevious: { cp: 1, sp: 0, gp: 0, pp: 0 },
+		});
 	});
 });

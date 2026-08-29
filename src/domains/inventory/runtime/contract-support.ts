@@ -12,6 +12,7 @@ export const inventoryTreasuryTypeImports = [
 		kind: "type",
 		module: "../domains/inventory/types/index.js",
 		names: [
+			"AddCharacterTreasuryPreviewRequest",
 			"AddCharacterTreasuryRequest",
 			"AddCharacterTreasuryPreviewResponse",
 			"AddCharacterTreasuryResponse",
@@ -19,9 +20,11 @@ export const inventoryTreasuryTypeImports = [
 			"CharacterTreasuryResponse",
 			"ConvertCharacterTreasuryRequest",
 			"ConvertCharacterTreasuryResponse",
+			"SpendCharacterTreasuryPreviewRequest",
 			"SpendCharacterTreasuryRequest",
 			"SpendCharacterTreasuryPreviewResponse",
 			"SpendCharacterTreasuryResponse",
+			"TreasuryConflictResponse",
 		],
 	},
 ] as const;

@@ -12,11 +12,28 @@ import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 export type CharacterTreasuryMutation = (current: CurrencyBalance) => CurrencyBalance;
 
+export interface CharacterTreasuryMutationOptions {
+	expectedPrevious?: CurrencyBalance;
+}
+
+export class CharacterTreasuryPreconditionError extends Error {
+	readonly expectedPrevious: CurrencyBalance;
+	readonly actualPrevious: CurrencyBalance;
+
+	constructor(expectedPrevious: CurrencyBalance, actualPrevious: CurrencyBalance) {
+		super("The character treasury changed after the operation was previewed.");
+		this.name = "CharacterTreasuryPreconditionError";
+		this.expectedPrevious = CurrencyBalanceSchema.parse(expectedPrevious);
+		this.actualPrevious = CurrencyBalanceSchema.parse(actualPrevious);
+	}
+}
+
 export interface CharacterTreasuryRepository {
 	findCharacterTreasury(characterId: string): Promise<CharacterTreasury>;
 	mutateCharacterTreasury(
 		characterId: string,
 		mutation: CharacterTreasuryMutation,
+		options?: CharacterTreasuryMutationOptions,
 	): Promise<CharacterTreasury>;
 }
 
@@ -44,8 +61,11 @@ export function createCharacterTreasuryRepository(): CharacterTreasuryRepository
 				: zeroCharacterTreasury(parsedCharacterId);
 		},
 
-		async mutateCharacterTreasury(characterId, mutation) {
+		async mutateCharacterTreasury(characterId, mutation, options = {}) {
 			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
+			const expectedPrevious = options.expectedPrevious
+				? CurrencyBalanceSchema.parse(options.expectedPrevious)
+				: undefined;
 			return getDb().transaction(async (tx) => {
 				await tx
 					.insert(inventoryScopesTable)
@@ -75,6 +95,12 @@ export function createCharacterTreasuryRepository(): CharacterTreasuryRepository
 
 				if (!treasuryRow) throw new Error("Inventory treasury could not be ensured.");
 				const currentTreasury = toCharacterTreasury(parsedCharacterId, treasuryRow);
+				if (
+					expectedPrevious &&
+					!currencyBalancesEqual(expectedPrevious, currentTreasury.balances)
+				) {
+					throw new CharacterTreasuryPreconditionError(expectedPrevious, currentTreasury.balances);
+				}
 				const nextBalances = CurrencyBalanceSchema.parse(mutation(currentTreasury.balances));
 
 				const [updatedTreasuryRow] = await tx
@@ -94,6 +120,12 @@ export function createCharacterTreasuryRepository(): CharacterTreasuryRepository
 			});
 		},
 	};
+}
+
+function currencyBalancesEqual(left: CurrencyBalance, right: CurrencyBalance) {
+	return (
+		left.cp === right.cp && left.sp === right.sp && left.gp === right.gp && left.pp === right.pp
+	);
 }
 
 function treasuryColumns() {

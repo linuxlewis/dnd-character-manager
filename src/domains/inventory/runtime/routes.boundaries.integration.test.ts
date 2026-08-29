@@ -30,7 +30,10 @@ describe("character treasury route boundaries", () => {
 			method: "POST",
 			url: `/api/characters/${characterId}/treasury/spend`,
 			headers: { cookie },
-			payload: { amount: { denomination: "cp", amount: 1 } },
+			payload: {
+				amount: { denomination: "cp", amount: 1 },
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			},
 		});
 
 		expect(response.statusCode).toBe(409);
@@ -46,7 +49,10 @@ describe("character treasury route boundaries", () => {
 			method: "PUT",
 			url: `/api/characters/${characterId}/treasury`,
 			headers: { cookie: ownerCookie },
-			payload: { delta: { cp: 3, sp: 2, gp: 1, pp: 0 } },
+			payload: {
+				delta: { cp: 3, sp: 2, gp: 1, pp: 0 },
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			},
 		});
 		expect(added.statusCode).toBe(200);
 
@@ -59,12 +65,18 @@ describe("character treasury route boundaries", () => {
 			{
 				method: "PUT",
 				url: `/api/characters/${characterId}/treasury`,
-				payload: { delta: { cp: 1, sp: 0, gp: 0, pp: 0 } },
+				payload: {
+					delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+					expectedPrevious: { cp: 3, sp: 2, gp: 1, pp: 0 },
+				},
 			},
 			{
 				method: "POST",
 				url: `/api/characters/${characterId}/treasury/spend`,
-				payload: { amount: { denomination: "cp", amount: 1 } },
+				payload: {
+					amount: { denomination: "cp", amount: 1 },
+					expectedPrevious: { cp: 3, sp: 2, gp: 1, pp: 0 },
+				},
 			},
 			{
 				method: "POST",
@@ -106,7 +118,10 @@ describe("character treasury route boundaries", () => {
 			method: "PUT",
 			url: `/api/characters/${characterId}/treasury`,
 			headers: { cookie },
-			payload: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+			payload: {
+				delta: { cp: 0, sp: 0, gp: 1, pp: 0 },
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			},
 		});
 		expect(added.statusCode).toBe(200);
 
@@ -132,7 +147,10 @@ describe("character treasury route boundaries", () => {
 			method: "PUT",
 			url: `/api/characters/${characterId}/treasury`,
 			headers: { cookie },
-			payload: { delta: { cp: 2_147_483_647, sp: 0, gp: 0, pp: 0 } },
+			payload: {
+				delta: { cp: 2_147_483_647, sp: 0, gp: 0, pp: 0 },
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			},
 		});
 		expect(maximum.statusCode).toBe(200);
 
@@ -140,7 +158,10 @@ describe("character treasury route boundaries", () => {
 			method: "PUT",
 			url: `/api/characters/${characterId}/treasury`,
 			headers: { cookie },
-			payload: { delta: { cp: 1, sp: 0, gp: 0, pp: 0 } },
+			payload: {
+				delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+				expectedPrevious: { cp: 2_147_483_647, sp: 0, gp: 0, pp: 0 },
+			},
 		});
 		expect(overflow.statusCode).toBe(400);
 		expect(overflow.json()).toEqual({

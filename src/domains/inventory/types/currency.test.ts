@@ -16,6 +16,8 @@ import {
 	getCurrencyTotalValue,
 	getCurrencyValueInCopper,
 	InsufficientFundsResponseSchema,
+	TreasuryConflictResponseSchema,
+	TreasurySpendErrorResponseSchema,
 } from "./currency.js";
 import { POSTGRES_INTEGER_MAX, POSTGRES_INTEGER_MIN } from "./numeric.js";
 
@@ -243,6 +245,20 @@ describe("currency schemas and conversion helpers", () => {
 
 		expect(InsufficientFundsResponseSchema.parse(error)).toEqual(error);
 		expect(CurrencyPreviewSchema.parse(preview)).toEqual(preview);
+	});
+
+	it("parses stale-preview conflicts and the combined spend error boundary", () => {
+		const conflict = {
+			error: {
+				code: "TREASURY_CONFLICT",
+				message: "The character treasury changed after the operation was previewed.",
+				expectedPrevious: balance,
+				actualPrevious: { ...balance, cp: balance.cp + 1 },
+			},
+		};
+
+		expect(TreasuryConflictResponseSchema.parse(conflict)).toEqual(conflict);
+		expect(TreasurySpendErrorResponseSchema.parse(conflict)).toEqual(conflict);
 	});
 
 	it("accepts optional returned change and preserves previews without it", () => {

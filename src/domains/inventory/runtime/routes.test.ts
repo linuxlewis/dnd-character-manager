@@ -2,11 +2,16 @@ import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
 import type { CharacterTreasuryService } from "../service/index.js";
-import { InsufficientDenominationError, InsufficientFundsError } from "../service/index.js";
+import {
+	InsufficientDenominationError,
+	InsufficientFundsError,
+	TreasuryConflictError,
+} from "../service/index.js";
 import { registerCharacterTreasuryRoutes } from "./routes.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
 const characterId = "00000000-0000-4000-8000-000000000002";
+const zeroBalance = { cp: 0, sp: 0, gp: 0, pp: 0 };
 
 describe("registerCharacterTreasuryRoutes", () => {
 	it("authenticates and forwards all treasury operations", async () => {
@@ -45,12 +50,15 @@ describe("registerCharacterTreasuryRoutes", () => {
 			const addResponse = await app.inject({
 				method: "PUT",
 				url: `/api/characters/${characterId}/treasury`,
-				payload: { delta: { cp: 1, sp: 2, gp: 3, pp: 4 } },
+				payload: {
+					delta: { cp: 1, sp: 2, gp: 3, pp: 4 },
+					expectedPrevious: zeroBalance,
+				},
 			});
 			const spendResponse = await app.inject({
 				method: "POST",
 				url: `/api/characters/${characterId}/treasury/spend`,
-				payload: { amount: { denomination: "gp", amount: 1 } },
+				payload: { amount: { denomination: "gp", amount: 1 }, expectedPrevious: zeroBalance },
 			});
 			const convertResponse = await app.inject({
 				method: "POST",
@@ -82,9 +90,17 @@ describe("registerCharacterTreasuryRoutes", () => {
 			});
 			expect(service.addCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
 				delta: { cp: 1, sp: 2, gp: 3, pp: 4 },
+				expectedPrevious: zeroBalance,
 			});
 			expect(service.spendCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
 				amount: { denomination: "gp", amount: 1 },
+				expectedPrevious: zeroBalance,
+			});
+			expect(service.previewAddCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
+				delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
+			});
+			expect(service.previewSpendCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
+				amount: { denomination: "sp", amount: 1 },
 			});
 		} finally {
 			await app.close();
@@ -127,10 +143,29 @@ describe("registerCharacterTreasuryRoutes", () => {
 			const insufficient = await app.inject({
 				method: "POST",
 				url: `/api/characters/${characterId}/treasury/spend`,
-				payload: { amount: { denomination: "gp", amount: 1 } },
+				payload: { amount: { denomination: "gp", amount: 1 }, expectedPrevious: zeroBalance },
 			});
 			expect(insufficient.statusCode).toBe(409);
 			expect(insufficient.json().error.code).toBe("INSUFFICIENT_FUNDS");
+
+			service.addCharacterTreasury.mockRejectedValue(
+				new TreasuryConflictError({
+					message: "The character treasury changed after the operation was previewed.",
+					expectedPrevious: zeroBalance,
+					actualPrevious: { cp: 1, sp: 0, gp: 0, pp: 0 },
+				}),
+			);
+			const conflict = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${characterId}/treasury`,
+				payload: { delta: { cp: 1, sp: 0, gp: 0, pp: 0 }, expectedPrevious: zeroBalance },
+			});
+			expect(conflict.statusCode).toBe(409);
+			expect(conflict.json().error).toMatchObject({
+				code: "TREASURY_CONFLICT",
+				expectedPrevious: zeroBalance,
+				actualPrevious: { cp: 1, sp: 0, gp: 0, pp: 0 },
+			});
 
 			service.convertCharacterTreasury.mockRejectedValue(
 				new InsufficientDenominationError("pp", 1, 0),

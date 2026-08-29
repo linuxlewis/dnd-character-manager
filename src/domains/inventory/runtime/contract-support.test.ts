@@ -20,7 +20,9 @@ describe("inventory treasury contract support", () => {
 	});
 
 	it("declares generated inventory type and schema imports", () => {
+		expect(inventoryTreasuryTypeImports[0].names).toContain("AddCharacterTreasuryPreviewRequest");
 		expect(inventoryTreasuryTypeImports[0].names).toContain("SpendCharacterTreasuryRequest");
+		expect(inventoryTreasuryTypeImports[0].names).toContain("TreasuryConflictResponse");
 		expect(inventoryTreasurySchemaImports[0].names).toContain("CharacterTreasuryResponseSchema");
 		expect(inventoryTreasurySchemaImports[0].names).toContain("InsufficientFundsResponseSchema");
 	});

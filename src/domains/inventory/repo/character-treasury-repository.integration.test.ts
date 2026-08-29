@@ -2,7 +2,11 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createCharacterTreasuryRepository } from "./character-treasury-repository.js";
+import type { CurrencyBalance } from "../types/index.js";
+import {
+	CharacterTreasuryPreconditionError,
+	createCharacterTreasuryRepository,
+} from "./character-treasury-repository.js";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
@@ -12,7 +16,6 @@ beforeEach(async () => {
 	await getDb().delete(inventoryTreasuriesTable);
 	await getDb().delete(inventoryScopesTable);
 });
-
 afterEach(async () => {
 	if (createdUserIds.length === 0) return;
 	await getDb()
@@ -20,11 +23,9 @@ afterEach(async () => {
 		.where(inArray(userTable.id, [...createdUserIds]));
 	createdUserIds.length = 0;
 });
-
 afterAll(async () => {
 	await closeDb();
 });
-
 describe("character treasury persistence", () => {
 	it("applies the migration shape and named database constraints", async () => {
 		const columns = await getDb().execute(sql`
@@ -38,7 +39,6 @@ describe("character treasury persistence", () => {
 			FROM pg_constraint
 			WHERE conrelid IN ('inventory_scopes'::regclass, 'inventory_treasuries'::regclass)
 		`);
-
 		const columnByName = new Map(
 			columns.map((row) => [`${row.table_name}.${row.column_name}`, row]),
 		);
@@ -92,7 +92,6 @@ describe("character treasury persistence", () => {
 	it("enforces one scope per character", async () => {
 		const { characterId } = await createCharacter();
 		await getDb().insert(inventoryScopesTable).values({ characterId });
-
 		await expect(
 			getDb().insert(inventoryScopesTable).values({ characterId }),
 		).rejects.toBeDefined();
@@ -101,7 +100,6 @@ describe("character treasury persistence", () => {
 	it("reads zero without creating scope or treasury rows", async () => {
 		const { characterId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toEqual(
 			zeroTreasury(characterId),
 		);
@@ -117,7 +115,6 @@ describe("character treasury persistence", () => {
 		const { characterId } = await createCharacter();
 		await getDb().insert(inventoryScopesTable).values({ characterId });
 		const repository = createCharacterTreasuryRepository();
-
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toEqual(
 			zeroTreasury(characterId),
 		);
@@ -143,7 +140,6 @@ describe("character treasury persistence", () => {
 				updatedAt: new Date("2026-08-29T12:01:00.000Z"),
 			});
 		const repository = createCharacterTreasuryRepository();
-
 		const treasury = await repository.findCharacterTreasury(characterId);
 		expect(treasury).toEqual({
 			characterId,
@@ -152,7 +148,6 @@ describe("character treasury persistence", () => {
 		});
 		expect(Object.keys(treasury).sort()).toEqual(["balances", "characterId", "totalValue"]);
 		expect("inventoryScopeId" in treasury).toBe(false);
-
 		const mutation = vi.fn(() => ({ cp: 1, sp: 0, gp: 0, pp: 0 }));
 		await expect(repository.findCharacterTreasury("not-a-uuid")).rejects.toThrow();
 		await expect(repository.mutateCharacterTreasury("not-a-uuid", mutation)).rejects.toThrow();
@@ -162,9 +157,10 @@ describe("character treasury persistence", () => {
 	it("creates scope and treasury in the first atomic mutation", async () => {
 		const { characterId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-
 		await expect(
-			repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 2 })),
+			repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 2 }), {
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			}),
 		).resolves.toEqual({
 			characterId,
 			balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
@@ -175,6 +171,16 @@ describe("character treasury persistence", () => {
 		).toBe(1);
 		const [treasuryCount] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
 		expect(Number(treasuryCount?.count ?? 0)).toBe(1);
+		const replay = vi.fn((current: CurrencyBalance) => ({ ...current, gp: current.gp + 2 }));
+		await expect(
+			repository.mutateCharacterTreasury(characterId, replay, {
+				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			}),
+		).rejects.toBeInstanceOf(CharacterTreasuryPreconditionError);
+		expect(replay).not.toHaveBeenCalled();
+		await expect(repository.findCharacterTreasury(characterId)).resolves.toMatchObject({
+			balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
+		});
 
 		const invalid = await createCharacter();
 		await expect(

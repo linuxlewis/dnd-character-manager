@@ -48,7 +48,17 @@ describe("generated API client", () => {
 		expect(barrel?.content).toContain("export { apiMutations, createApiMutationOptions }");
 		expect(barrel?.content).toContain('export type * from "./api-types.generated.js";');
 		const types = first.find((output) => output.relativePath.endsWith("api-types.generated.ts"));
+		const inventoryClient = first.find((output) =>
+			output.relativePath.endsWith("api-client-inventory.generated.ts"),
+		);
 		expect(types?.content).toContain("CharacterTreasuryPreviewResponse");
+		expect(types?.content).toContain("AddCharacterTreasuryPreviewRequest");
+		expect(types?.content).toContain("SpendCharacterTreasuryPreviewRequest");
+		expect(types?.content).toContain("TreasuryConflictResponse");
+		expect(inventoryClient?.content).toContain("body: AddCharacterTreasuryRequest");
+		expect(inventoryClient?.content).toContain("body: AddCharacterTreasuryPreviewRequest");
+		expect(inventoryClient?.content).toContain("body: SpendCharacterTreasuryRequest");
+		expect(inventoryClient?.content).toContain("body: SpendCharacterTreasuryPreviewRequest");
 	});
 
 	it("preserves the public client, query, mutation, type, and error surfaces", () => {
