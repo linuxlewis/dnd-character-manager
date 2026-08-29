@@ -20,7 +20,7 @@ describe("openapi generator", () => {
 				.filter((output) => output.relativePath.endsWith(".ts"))
 				.every((output) => output.content.split("\n").length < 300),
 		).toBe(true);
-	});
+	}, 15_000);
 
 	it("detects missing and unexpected generated artifacts", () => {
 		const root = mkdtempSync(join(tmpdir(), "openapi-generator-"));

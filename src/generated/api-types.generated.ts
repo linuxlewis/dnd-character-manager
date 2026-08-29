@@ -30,15 +30,20 @@ export type {
 	AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryRequest,
 	AddCharacterTreasuryResponse,
+	CharacterItemResponse,
 	CharacterTreasuryPreviewResponse,
 	CharacterTreasuryResponse,
 	ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryResponse,
+	CreateCharacterItemRequest,
+	ListCharacterItemsRequest,
+	ListCharacterItemsResponse,
 	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryResponse,
 	TreasuryConflictResponse,
+	UpdateCharacterItemRequest,
 } from "../domains/inventory/types/index.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type {

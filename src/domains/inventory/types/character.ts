@@ -158,7 +158,9 @@ export const CharacterItemResponseSchema = z
 	.strict();
 export type CharacterItemResponse = z.infer<typeof CharacterItemResponseSchema>;
 
-export const ListCharacterItemsRequestSchema = CharacterItemFilterSchema;
+export const ListCharacterItemsRequestSchema = CharacterItemFilterSchema.extend({
+	isEquipped: z.preprocess(parseBooleanQuery, z.boolean()).optional(),
+}).strict();
 export type ListCharacterItemsRequest = z.infer<typeof ListCharacterItemsRequestSchema>;
 
 export const ListCharacterItemsResponseSchema = z
@@ -171,4 +173,10 @@ export type ListCharacterItemsResponse = z.infer<typeof ListCharacterItemsRespon
 
 function hasAtLeastOneItemField(request: Record<string, unknown>) {
 	return Object.keys(request).length > 0;
+}
+
+function parseBooleanQuery(value: unknown) {
+	if (value === "true") return true;
+	if (value === "false") return false;
+	return value;
 }

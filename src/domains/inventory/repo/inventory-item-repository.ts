@@ -1,8 +1,14 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, count, eq, ilike } from "drizzle-orm";
 import { z } from "zod";
-import type { InventoryItem, InventoryItemFilter, InventoryScopeId } from "../types/index.js";
+import type {
+	InventoryCharacterId,
+	InventoryItem,
+	InventoryItemFilter,
+	InventoryScopeId,
+} from "../types/index.js";
 import {
+	InventoryCharacterIdSchema,
 	InventoryItemFilterSchema,
 	InventoryItemIdSchema,
 	InventoryItemSchema,
@@ -14,6 +20,7 @@ import {
 	toInventoryItemInsert,
 } from "./inventory-item-mappers.js";
 import { inventoryItemsTable } from "./inventory-item-table.js";
+import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 const CountRowSchema = z.object({ value: z.coerce.number().int().nonnegative() }).strict();
 
@@ -24,6 +31,10 @@ export interface InventoryItemList {
 
 export interface InventoryItemRepository {
 	createItem(scopeId: InventoryScopeId, input: unknown): Promise<InventoryItem>;
+	createItemForCharacter?(
+		characterId: InventoryCharacterId,
+		input: unknown,
+	): Promise<InventoryItem>;
 	findItem(scopeId: InventoryScopeId, itemId: string): Promise<InventoryItem | null>;
 	updateItem(
 		scopeId: InventoryScopeId,
@@ -43,6 +54,30 @@ export function createInventoryItemRepository(): InventoryItemRepository {
 				.returning(itemColumns());
 			if (!row) throw new Error("Inventory item could not be created.");
 			return toInventoryItem(row);
+		},
+
+		async createItemForCharacter(characterId, input) {
+			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
+			return getDb().transaction(async (tx) => {
+				await tx
+					.insert(inventoryScopesTable)
+					.values({ characterId: parsedCharacterId })
+					.onConflictDoNothing({ target: inventoryScopesTable.characterId });
+
+				const [scope] = await tx
+					.select({ id: inventoryScopesTable.id })
+					.from(inventoryScopesTable)
+					.where(eq(inventoryScopesTable.characterId, parsedCharacterId))
+					.limit(1);
+				if (!scope) throw new Error("Character inventory scope could not be ensured.");
+
+				const [row] = await tx
+					.insert(inventoryItemsTable)
+					.values(toInventoryItemInsert(scope.id, input))
+					.returning(itemColumns());
+				if (!row) throw new Error("Inventory item could not be created.");
+				return toInventoryItem(row);
+			});
 		},
 
 		async findItem(scopeId, itemId) {

@@ -5,6 +5,7 @@ import { createCatalogueApiClient } from "./api-client-catalogue.generated.js";
 import { createCharactersApiClient } from "./api-client-characters.generated.js";
 import { ApiClientError } from "./api-client-errors.generated.js";
 import { createInventoryApiClient } from "./api-client-inventory.generated.js";
+import { createItemsApiClient } from "./api-client-items.generated.js";
 import { createSpellsApiClient } from "./api-client-spells.generated.js";
 
 export interface ApiClientOptions {
@@ -55,6 +56,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
 		...createCatalogueApiClient(runtime),
 		...createCharactersApiClient(runtime),
 		...createInventoryApiClient(runtime),
+		...createItemsApiClient(runtime),
 		...createSpellsApiClient(runtime),
 	};
 }

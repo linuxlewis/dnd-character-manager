@@ -1,3 +1,5 @@
+export type { CharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
+export { createCharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
 export type {
 	CharacterTreasuryMutation,
 	CharacterTreasuryMutationOptions,

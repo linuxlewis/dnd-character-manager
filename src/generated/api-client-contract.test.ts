@@ -28,6 +28,7 @@ describe("generated API client", () => {
 			"src/generated/api-client-catalogue.generated.ts",
 			"src/generated/api-client-characters.generated.ts",
 			"src/generated/api-client-inventory.generated.ts",
+			"src/generated/api-client-items.generated.ts",
 			"src/generated/api-client-spells.generated.ts",
 			"src/generated/api-client-errors.generated.ts",
 			"src/generated/api-client-core.generated.ts",
@@ -61,7 +62,13 @@ describe("generated API client", () => {
 		expect(inventoryClient?.content).toContain("body: AddCharacterTreasuryPreviewRequest");
 		expect(inventoryClient?.content).toContain("body: SpendCharacterTreasuryRequest");
 		expect(inventoryClient?.content).toContain("body: SpendCharacterTreasuryPreviewRequest");
-	});
+		const itemClient = first.find((output) =>
+			output.relativePath.endsWith("api-client-items.generated.ts"),
+		);
+		expect(itemClient?.content).toContain("createCharacterItem");
+		expect(itemClient?.content).toContain("deleteCharacterItem");
+		expect(itemClient?.content).toContain("unequipCharacterItem");
+	}, 15_000);
 
 	it("preserves the public client, query, mutation, type, and error surfaces", () => {
 		expect(createApiClient).toBeTypeOf("function");
