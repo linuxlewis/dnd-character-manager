@@ -13,25 +13,29 @@ const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
 const fixtureRunId = `${Date.now().toString(36)}-${process.pid}-${randomUUID().slice(0, 8)}`;
 const fixtureSourcePrefix = `codex-a7-${fixtureRunId}`;
 const fixtureAuditMarker = `a7_${fixtureRunId.replaceAll("-", "_")}`;
-const fixtureMundaneName = `Silvered Blade ${fixtureRunId}`;
-const fixtureMagicName = `Moonblade ${fixtureRunId}`;
-let fixtureRulesVersion: "2014" | "2024" = "2024";
+const seededMundaneSourceKey = "phbwepLongsword0";
+const seededMagicSourceKey = "dmgDancingSword0";
+const syntheticMundaneName = `Silvered Blade ${fixtureRunId}`;
+const syntheticMagicName = `Moonblade ${fixtureRunId}`;
+let catalogueFixture: CatalogueJourneyFixture | null = null;
+let syntheticFixtureCreated = false;
 let fixtureAuditOwnership: CatalogueAuditOwnership | null = null;
 
 test.beforeAll(async () => {
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
-	await seedCatalogue(sql);
+	catalogueFixture = await prepareCatalogueFixture(sql);
 });
 
 test.afterAll(async () => {
 	if (sql) {
-		await sql`DELETE FROM catalogue_items WHERE seed_metadata->>'fixture' = ${fixtureSourcePrefix}`;
+		if (syntheticFixtureCreated) await deleteFixtureRows(sql);
 		if (fixtureAuditOwnership) await releaseCatalogueAudit(sql, fixtureAuditOwnership);
 	}
 	await sql?.end();
 });
 
 test("completes the M2 personal inventory journey", async ({ page }) => {
+	const fixture = requireCatalogueFixture();
 	await page.goto("/");
 	const firstCharacterName = `A7 Inventory Hero ${Date.now()}`;
 	await createCharacter(page, firstCharacterName, "Fighter");
@@ -42,23 +46,23 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add personal item" });
 	await expect(addDialog.getByText("Rules 2024")).toBeVisible();
-	await addDialog.getByLabel("Search SRD catalogue").fill("blade");
-	await expect(
-		addDialog.getByRole("button", { name: `Select catalogue item ${fixtureMundaneName}` }),
-	).toBeVisible();
-	await expect(
-		addDialog.getByRole("button", { name: `Select catalogue item ${fixtureMagicName}` }),
-	).toBeVisible();
-	await expect(addDialog.getByText("Mundane", { exact: true })).toBeVisible();
-	await expect(addDialog.getByText("Magic item", { exact: true })).toBeVisible();
-	await addDialog
-		.getByRole("button", { name: `Select catalogue item ${fixtureMundaneName}` })
-		.click();
-	await expect(addDialog.getByLabel("Name")).toHaveValue(fixtureMundaneName);
+	await addDialog.getByLabel("Search SRD catalogue").fill(fixture.searchQuery);
+	const mundaneResult = addDialog.getByRole("button", {
+		name: `Select catalogue item ${fixture.mundaneName}`,
+	});
+	const magicResult = addDialog.getByRole("button", {
+		name: `Select catalogue item ${fixture.magicName}`,
+	});
+	await expect(mundaneResult).toBeVisible();
+	await expect(magicResult).toBeVisible();
+	await expect(mundaneResult.getByText("Mundane", { exact: true })).toBeVisible();
+	await expect(magicResult.getByText("Magic item", { exact: true })).toBeVisible();
+	await mundaneResult.click();
+	await expect(addDialog.getByLabel("Name")).toHaveValue(fixture.mundaneName);
 	await expect(addDialog.getByLabel("Category")).toHaveValue("Weapons");
 	await addDialog.getByLabel("Quantity").fill("2");
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
-	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
+	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeVisible();
 	await expect(addDialog).toBeHidden();
 
 	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
@@ -89,12 +93,17 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	).toBeVisible();
 	await expect(page.getByText("x2")).toBeVisible();
 	await expect(page.getByText("x3")).toBeVisible();
-	await expect(page.getByLabel("Equipment icon")).toBeVisible();
+	const equipmentCard = page.getByRole("button", { name: `View ${fixture.mundaneName}` });
+	if (fixture.mode === "seeded") {
+		await expect(equipmentCard.locator("img")).toBeVisible();
+	} else {
+		await expect(equipmentCard.getByLabel("Equipment icon")).toBeVisible();
+	}
 	await expect(page.getByLabel("Potion icon")).toBeVisible();
 
 	const inventorySearch = page.getByLabel("Search personal inventory");
-	await inventorySearch.fill("Silvered");
-	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
+	await inventorySearch.fill(fixture.inventorySearchQuery);
+	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeVisible();
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeHidden();
 	await inventorySearch.fill("");
 	await page.getByRole("button", { name: /Potion/ }).click();
@@ -103,30 +112,30 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		"true",
 	);
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeVisible();
-	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeHidden();
+	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeHidden();
 	await page.getByRole("button", { name: /All/ }).click();
 
-	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
-	await expect(page.getByText(`Rules ${fixtureRulesVersion}`)).toBeVisible();
+	await page.getByRole("button", { name: `View ${fixture.mundaneName}` }).click();
+	await expect(page.getByText(`Rules ${fixture.rulesVersion}`)).toBeVisible();
 	await page.getByRole("button", { name: "Equip", exact: true }).click();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: fixtureMundaneName })
+			.filter({ hasText: fixture.mundaneName })
 			.getByText("Equipped", { exact: true }),
 	).toBeVisible();
-	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
+	await page.getByRole("button", { name: `Close ${fixture.mundaneName} details` }).click();
 	await page.reload();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: fixtureMundaneName })
+			.filter({ hasText: fixture.mundaneName })
 			.getByText("Equipped"),
 	).toBeVisible();
 
-	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
+	await page.getByRole("button", { name: `View ${fixture.mundaneName}` }).click();
 	await page
-		.getByLabel(`${fixtureMundaneName}Equipment`, { exact: true })
+		.getByLabel(`${fixture.mundaneName}Equipment`, { exact: true })
 		.getByRole("button", { name: "Edit", exact: true })
 		.click();
 	const editDialog = page.getByRole("dialog", { name: "Edit personal item" });
@@ -134,7 +143,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await editDialog.getByRole("button", { name: "Save item" }).click();
 	await expect(editDialog).toBeHidden();
 	await expect(page.getByText("Found in the old keep", { exact: true })).toBeVisible();
-	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
+	await page.getByRole("button", { name: `Close ${fixture.mundaneName} details` }).click();
 
 	await page.route(
 		"**/api/catalogue/status",
@@ -155,10 +164,10 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 			}),
 	);
 	await page.reload();
-	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
-	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
-	await expect(page.getByText(`Rules ${fixtureRulesVersion}`)).toBeVisible();
-	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
+	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeVisible();
+	await page.getByRole("button", { name: `View ${fixture.mundaneName}` }).click();
+	await expect(page.getByText(`Rules ${fixture.rulesVersion}`)).toBeVisible();
+	await page.getByRole("button", { name: `Close ${fixture.mundaneName} details` }).click();
 	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
 	const unavailableDialog = page.getByRole("dialog", { name: "Add personal item" });
 	await expect(unavailableDialog.getByText("SRD catalogue unavailable")).toBeVisible();
@@ -168,30 +177,30 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await page.unroute("**/api/catalogue/status");
 	await page.unroute("**/api/catalogue/items**");
 
-	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
+	await page.getByRole("button", { name: `View ${fixture.mundaneName}` }).click();
 	await page.getByRole("button", { name: "Unequip", exact: true }).click();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: fixtureMundaneName })
+			.filter({ hasText: fixture.mundaneName })
 			.getByText("Equipped", { exact: true }),
 	).toBeHidden();
 	await page.getByRole("button", { name: "Delete", exact: true }).click();
 	const deleteDialog = page.getByRole("dialog", { name: "Delete item?" });
-	await expect(deleteDialog).toContainText(fixtureMundaneName);
+	await expect(deleteDialog).toContainText(fixture.mundaneName);
 	await deleteDialog.getByRole("button", { name: "Cancel" }).click();
 	await page.getByRole("button", { name: "Delete", exact: true }).click();
 	await page
 		.getByRole("dialog", { name: "Delete item?" })
 		.getByRole("button", { name: "Delete item" })
 		.click();
-	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeHidden();
+	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeHidden();
 
 	await page.getByText("Back to characters").click();
 	const secondCharacterName = `A7 Inventory Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	await expect(page.getByText("No personal items yet")).toBeVisible();
-	await expect(page.getByText(fixtureMundaneName)).toBeHidden();
+	await expect(page.getByText(fixture.mundaneName)).toBeHidden();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto(firstCharacterUrl);
@@ -240,14 +249,46 @@ type CatalogueAuditOwnership = {
 	owned: CatalogueAuditRow;
 };
 
-async function seedCatalogue(database: ReturnType<typeof postgres>) {
+type CatalogueJourneyFixture = {
+	mode: "seeded" | "synthetic";
+	searchQuery: string;
+	inventorySearchQuery: string;
+	mundaneName: string;
+	magicName: string;
+	rulesVersion: "2024";
+};
+
+type SeededCatalogueItemRow = {
+	source_key: string;
+	item_name: string;
+	item_kind: string;
+	item_category: string;
+	is_magical: boolean;
+	rules_version: string;
+};
+
+function requireCatalogueFixture() {
+	if (!catalogueFixture) throw new Error("Catalogue fixture was not prepared before navigation.");
+	return catalogueFixture;
+}
+
+async function prepareCatalogueFixture(
+	database: ReturnType<typeof postgres>,
+): Promise<CatalogueJourneyFixture> {
 	const audit = await readCatalogueAudit(database);
 	const currentItemCount = await countCatalogueItems(database);
-	const reuseCurrentProjection = isUsableCurrentProjection(audit, currentItemCount);
-	fixtureRulesVersion = reuseCurrentProjection ? "2014" : "2024";
-	const items = buildCatalogueFixture();
-	await insertFixtureRows(database, items);
-	if (reuseCurrentProjection) return;
+	const seededFixture = await findSeededCatalogueFixture(database);
+	if (seededFixture && isCompleteCatalogueAudit(audit)) {
+		await waitForCanonicalSeededProjection(database);
+		return seededFixture;
+	}
+	if (isUsableCurrentProjection(audit, currentItemCount)) {
+		throw new Error("Ready catalogue is missing the pinned A7 Longsword/Dancing Sword records.");
+	}
+
+	const fixture = syntheticCatalogueFixture();
+	syntheticFixtureCreated = true;
+	await insertFixtureRows(database, buildCatalogueFixture(fixture));
 
 	const projectionRows = await database<
 		{ item_category: string; item_kind: string; is_magical: boolean }[]
@@ -256,7 +297,6 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 		FROM catalogue_items
 		WHERE source = ${FOUNDRY_DND5E_SOURCE}
 		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
-		  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
 		  AND seed_capability = 'equipment'
 		  AND seed_pack = 'equipment24'
 	`;
@@ -268,12 +308,12 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 	);
 	if (ownership) {
 		fixtureAuditOwnership = ownership;
-		return;
+		return fixture;
 	}
 
 	const concurrentAudit = await readCatalogueAudit(database);
 	const concurrentItemCount = await countCatalogueItems(database);
-	if (isUsableCurrentProjection(concurrentAudit, concurrentItemCount)) return;
+	if (isUsableCurrentProjection(concurrentAudit, concurrentItemCount)) return fixture;
 	if (
 		isUsableCurrentProjection(
 			concurrentAudit,
@@ -281,14 +321,85 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 		)
 	) {
 		await deleteFixtureRows(database);
-		fixtureRulesVersion = "2014";
-		await insertFixtureRows(database, buildCatalogueFixture());
-		return;
+		syntheticFixtureCreated = false;
+		return requireSeededCatalogueFixture(database);
 	}
 
+	await deleteFixtureRows(database);
+	syntheticFixtureCreated = false;
 	throw new Error(
 		"Catalogue readiness changed during A7 fixture setup; refusing to overwrite the concurrent audit.",
 	);
+}
+
+async function findSeededCatalogueFixture(
+	database: ReturnType<typeof postgres>,
+): Promise<CatalogueJourneyFixture | null> {
+	const rows = await database<SeededCatalogueItemRow[]>`
+		SELECT source_key, item_name, item_kind, item_category, is_magical, rules_version
+		FROM catalogue_items
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND source_key IN (${seededMundaneSourceKey}, ${seededMagicSourceKey})
+	`;
+	const items = new Map(rows.map((row) => [row.source_key, row]));
+	const mundane = items.get(seededMundaneSourceKey);
+	const magic = items.get(seededMagicSourceKey);
+	if (!mundane || !magic) return null;
+	if (
+		mundane.item_name !== "Longsword" ||
+		mundane.item_kind !== "weapon" ||
+		mundane.item_category !== "Weapons" ||
+		mundane.is_magical ||
+		mundane.rules_version !== FOUNDRY_DND5E_RULES_VERSION ||
+		magic.item_name !== "Dancing Sword" ||
+		magic.item_kind !== "magic-item" ||
+		magic.item_category !== "Weapons" ||
+		!magic.is_magical ||
+		magic.rules_version !== FOUNDRY_DND5E_RULES_VERSION
+	) {
+		throw new Error("Ready catalogue is missing the pinned A7 Longsword/Dancing Sword records.");
+	}
+
+	return {
+		mode: "seeded",
+		searchQuery: "sword",
+		inventorySearchQuery: mundane.item_name,
+		mundaneName: mundane.item_name,
+		magicName: magic.item_name,
+		rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
+	};
+}
+
+async function requireSeededCatalogueFixture(database: ReturnType<typeof postgres>) {
+	const fixture = await findSeededCatalogueFixture(database);
+	if (!fixture) {
+		throw new Error("Ready catalogue is missing the pinned A7 Longsword/Dancing Sword records.");
+	}
+	return fixture;
+}
+
+async function waitForCanonicalSeededProjection(database: ReturnType<typeof postgres>) {
+	const deadline = Date.now() + 15_000;
+	do {
+		const audit = await readCatalogueAudit(database);
+		const itemCount = await countCatalogueItems(database);
+		if (isCanonicalSeededProjection(audit, itemCount)) return;
+		await new Promise((resolve) => setTimeout(resolve, 250));
+	} while (Date.now() < deadline);
+
+	throw new Error("Pinned A7 catalogue did not return to its canonical 627-row ready state.");
+}
+
+function syntheticCatalogueFixture(): CatalogueJourneyFixture {
+	return {
+		mode: "synthetic",
+		searchQuery: "blade",
+		inventorySearchQuery: "Silvered",
+		mundaneName: syntheticMundaneName,
+		magicName: syntheticMagicName,
+		rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
+	};
 }
 
 async function insertFixtureRows(
@@ -341,12 +452,11 @@ async function countCatalogueItems(
 		FROM catalogue_items
 		WHERE source = ${FOUNDRY_DND5E_SOURCE}
 		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
-		  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
 		  AND seed_capability = 'equipment'
 		  AND seed_pack = 'equipment24'
 		  ${
 				options.excludeFixture
-					? database`AND seed_metadata->>'fixture' <> ${fixtureSourcePrefix}`
+					? database`AND seed_metadata->>'fixture' IS DISTINCT FROM ${fixtureSourcePrefix}`
 					: database``
 			}
 	`;
@@ -399,7 +509,7 @@ async function claimCatalogueAudit(
 	return owned ? { previous: null, owned } : null;
 }
 
-function buildCatalogueFixture() {
+function buildCatalogueFixture(fixture: CatalogueJourneyFixture) {
 	const definitions = [
 		["weapon", "Weapons", 82],
 		["armor", "Armor", 32],
@@ -414,9 +524,9 @@ function buildCatalogueFixture() {
 			const isSilveredBlade = kind === "weapon" && index === 0;
 			const isMoonblade = kind === "magic-item" && index === 0;
 			const name = isSilveredBlade
-				? fixtureMundaneName
+				? fixture.mundaneName
 				: isMoonblade
-					? fixtureMagicName
+					? fixture.magicName
 					: `${category} Fixture ${index + 1}`;
 			const sourceKey = isSilveredBlade
 				? `${fixtureSourcePrefix}-silvered-blade`
@@ -431,7 +541,7 @@ function buildCatalogueFixture() {
 				sourcePath,
 				sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
 				sourceUrl: foundryDnd5eRawUrl(sourcePath),
-				rulesVersion: fixtureRulesVersion,
+				rulesVersion: fixture.rulesVersion,
 				license: "CC-BY-4.0",
 				seedCapability: "equipment",
 				seedPack: "equipment24",
@@ -462,10 +572,27 @@ function buildCatalogueFixture() {
 }
 
 function isUsableCurrentProjection(audit: CatalogueAuditRow | undefined, itemCount: number) {
+	if (!isCompleteCatalogueAudit(audit)) return false;
+	if (Number(audit.accepted) !== itemCount) return false;
+	return true;
+}
+
+function isCanonicalSeededProjection(audit: CatalogueAuditRow | undefined, itemCount: number) {
+	return (
+		isUsableCurrentProjection(audit, itemCount) &&
+		Number(audit?.processed) === 627 &&
+		Number(audit?.accepted) === 627 &&
+		itemCount === 627
+	);
+}
+
+function isCompleteCatalogueAudit(
+	audit: CatalogueAuditRow | undefined,
+): audit is CatalogueAuditRow {
 	if (!audit) return false;
 	if (audit.rules_version !== FOUNDRY_DND5E_RULES_VERSION) return false;
 	if (audit.capability !== "equipment" || audit.pack !== "equipment24") return false;
-	if (Number(audit.accepted) !== itemCount || Number(audit.rejected) !== 0) return false;
+	if (Number(audit.rejected) !== 0) return false;
 	if (Number(audit.processed) < 627) return false;
 	return Object.entries({
 		weapons: 82,
