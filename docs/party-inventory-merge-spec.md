@@ -359,8 +359,11 @@ accepted as public authorization boundaries.
 | Method | Path | Purpose |
 |---|---|---|
 | `GET` | `/api/characters/:characterId/treasury` | Get personal balances and total value |
-| `PUT` | `/api/characters/:characterId/treasury` | Apply a personal currency delta |
+| `PUT` | `/api/characters/:characterId/treasury` | Add personal funds using a nonnegative currency delta |
+| `POST` | `/api/characters/:characterId/treasury/spend` | Spend personal funds with exact payment preferred, deterministic making-change when needed, and insufficient-funds rejection |
 | `POST` | `/api/characters/:characterId/treasury/convert` | Convert personal denominations |
+| `POST` | `/api/characters/:characterId/treasury/preview/add` | Preview adding personal funds without changing balances |
+| `POST` | `/api/characters/:characterId/treasury/preview/spend` | Preview spending personal funds, including any returned change, without changing balances |
 
 ### Personal Inventory
 
