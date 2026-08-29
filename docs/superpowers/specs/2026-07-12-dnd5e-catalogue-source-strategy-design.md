@@ -4,7 +4,25 @@ Date: 2026-07-12
 
 ## Status
 
-Approved direction: hybrid source strategy.
+Approved direction: hybrid source strategy. Equipment sequencing updated 2026-08-29.
+
+## Current Implementation Status
+
+As of 2026-08-29, the repository has a `catalogue` domain, a local `catalogue_spells` Postgres table,
+and a manual `pnpm seed` flow that downloads and ingests Foundry `dnd5e` `spells24` records. Character
+spell lookup prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback
+behavior. Foundry `equipment24` is not yet ingested, and the configured Foundry ref still defaults to
+the moving `master` branch.
+
+The inventory implementation will extend the same catalogue boundary with typed equipment ingestion.
+Foundry `dnd5e` at a pinned tag or commit is the primary local dataset for both spells and items.
+Open5e remains an optional catalogue-owned fallback/reference source; inventory and character domains
+must not call it directly.
+
+For the personal inventory baseline, A1-A7 own inventory types, persistence, services, runtime, and
+UI, while C1-C2 own the third-party catalogue boundary and typed equipment capability. M1 Personal
+Treasury precedes M2 Personal Inventory; the package dependency and manual/e2e gates are defined in
+the [execution plan](../../party-inventory-merge-plan.md) and [milestones](../../party-inventory-milestones.md).
 
 This document defines the source strategy for making the app's D&D 5e spells and equipment
 catalogue comprehensive for legally redistributable SRD 5.2.1 / 2024 content. It is a design
@@ -26,13 +44,14 @@ artifact only; implementation planning follows after review.
   this use.
 - Do not design a full character-builder rules engine in this source strategy.
 - Do not replace current saved character spell behavior during the source-strategy phase.
-- Do not implement equipment catalogue workflows in the first implementation pass.
+- Do not broaden the inventory-triggered equipment work into monsters, encounters, or a general
+  rules engine.
 
 ## Source Roles
 
 ### Open5e v2
 
-Role: primary hosted catalogue source.
+Role: hosted compatibility, fallback, and reference source.
 
 Use Open5e v2 for online spell and equipment search/detail while the app still depends on external
 lookups. The app already uses Open5e v2 for SRD 2024 spell search and spell details. The Open5e
@@ -118,8 +137,9 @@ Keep current spell lookup behavior:
 ### Phase 2: Catalogue API Expansion
 
 Add catalogue-owned routes and clients for equipment search/detail without tying them to character
-spells. Equipment should use Open5e v2 first so the app can deliver inventory/search behavior before
-the local importer exists.
+spells. Equipment should be normalized from the Foundry `equipment24` pack into local Postgres using
+the same pinned source revision and provenance conventions as spells. Remote fallback may remain
+behind the catalogue service, but it is not the inventory domain's data boundary.
 
 ### Phase 3: Local Seeded Catalogue
 
@@ -134,8 +154,12 @@ matches. The Foundry `spells24` pack currently seeds 340 spell records and inclu
 Searing Smite, and Shining Smite, but not Wrathful Smite or Staggering Smite; those spells require
 another redistributable source before the app can surface them.
 
-The first implementation pass should process spells. Equipment source coverage remains documented
-for the broader catalogue strategy, but equipment workflows and equipment import can wait.
+The existing spell-first implementation pass remains stable and must not change saved-spell behavior.
+The inventory release then activates the typed equipment extension through two catalogue-owned
+packages: C1 establishes the third-party source boundary, explicit Foundry pin, provenance, and
+fallback rules; C2 imports the pinned `equipment24` pack into typed local records and exposes
+catalogue-owned search/detail and readiness/status APIs. M2 Personal Inventory cannot ship until
+those C1/C2 requirements and the A5-A7 personal inventory packages pass their manual and e2e gates.
 
 ## Error Handling
 
@@ -163,7 +187,8 @@ for the broader catalogue strategy, but equipment workflows and equipment import
   - Spell search still finds SRD 2024 spells.
   - Saved spell details survive fallback behavior.
 - Equipment mapper, route, and e2e tests should be added when equipment import/search is pulled into
-  implementation scope.
+  implementation scope; for M2, that scope includes typed Foundry `equipment24` ingestion, source
+  audit counts, and unavailable/not-seeded status behavior.
 - A source-audit test or script should assert minimum expected SRD 2024 counts before generated
   source snapshots are accepted.
 
@@ -188,8 +213,9 @@ Before considering the catalogue comprehensive, verify at least:
 - Preserve as much Foundry source detail as possible. Normalized app fields should cover the current
   UI needs, and the importer should retain source detail payloads needed for future rules
   automation.
-- Equipment can be ignored for the first implementation pass. The source strategy still records
-  equipment coverage so the catalogue can expand later without redoing source research.
+- Equipment was intentionally omitted from the first spell-only implementation pass. M2 now activates
+  that documented extension through C1/C2 typed catalogue boundaries, item persistence, and APIs;
+  monster and broader rules-data ingestion remain future work.
 
 ## Source References
 

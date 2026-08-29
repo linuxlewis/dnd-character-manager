@@ -1,6 +1,6 @@
 # MVP Plan
 
-Last verified: 2026-06-02
+Last verified: 2026-08-29
 
 This document captures the current product direction before the first D&D domain is implemented.
 Keep it short, concrete, and updated when scope changes.
@@ -21,10 +21,34 @@ should favor dependable user-entered data and clear workflows over deep automati
   ownership, licensing, and source-of-truth model is explicit.
 - Preserve the agent-first layered architecture: Types -> Config -> Repo -> Service -> Runtime -> UI.
 
+The original name/class/level character slice is the pre-inventory foundation. The next scoped
+implementation baseline is M1 Personal Treasury followed by M2 Personal Inventory; later party
+milestones remain a roadmap after those character workflows are complete.
+
 ## Feature Specifications
 
 - [Character creation MVP product spec](./character-creation-mvp-spec.md)
 - [Character health MVP product spec](./character-health-mvp-spec.md)
+- [D&D 5e catalogue source strategy](./superpowers/specs/2026-07-12-dnd5e-catalogue-source-strategy-design.md)
+- [Character and party inventory product spec](./party-inventory-merge-spec.md)
+- [Character and party inventory execution plan](./party-inventory-merge-plan.md)
+- [Character and party inventory milestones](./party-inventory-milestones.md)
+
+## Inventory Release Baseline
+
+The next character-first releases are deliberately split into two complete user workflows:
+
+- **M1 Personal Treasury:** A1-A4 provide independent PP, GP, SP, and CP balances for each
+  character, including add, spend, making-change, persistence, and insufficient-funds behavior.
+- **M2 Personal Inventory:** C1-C2 and A5-A7 provide personal item CRUD, catalogue search and
+  auto-fill, filters, details, equip/unequip, and persistence without requiring a party.
+
+The implementation stack remains `Types -> Config -> Repo -> Service -> Runtime -> UI`. M2 cannot
+ship until C1 has encapsulated the third-party catalogue boundary and pinned source/provenance rules,
+and C2 has delivered typed Foundry equipment ingestion, catalogue-owned search/detail APIs, readiness
+status, and source-audit counts. Each milestone requires manual acceptance in a running stack plus a
+focused Playwright e2e gate; the detailed checklists and commands live in
+[party-inventory-milestones.md](./party-inventory-milestones.md).
 
 ## User And Auth Direction
 
@@ -55,8 +79,8 @@ should favor dependable user-entered data and clear workflows over deep automati
 - User-visible sign-up/sign-in unless auth is explicitly pulled into the first implementation pass.
 - Character deletion.
 - Character class editing.
-- Race, background, subclass, ability scores, proficiencies, equipment, spell notes, and feature
-  notes.
+- Race, background, subclass, ability scores, proficiencies, character-creation equipment loadouts,
+  spell notes, and feature notes.
 - Full hit point rules, temporary hit points, death saves, rests, damage types, and healing
   automation.
 - Full character-builder rules automation.
