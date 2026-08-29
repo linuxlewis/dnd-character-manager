@@ -1,8 +1,4 @@
-export type {
-	CatalogueCapability as GenericCatalogueCapability,
-	CatalogueDetailPort,
-	CatalogueSearchPort,
-} from "./capabilities.js";
+export type { CatalogueDetailPort, CatalogueSearchPort } from "./capabilities.js";
 export type {
 	CatalogueSpellDetails,
 	CatalogueSpellIndex,
@@ -27,17 +23,19 @@ export {
 export type { CatalogueManifestPack, CatalogueSourceManifest } from "./manifest.js";
 export { CatalogueManifestPackSchema, CatalogueSourceManifestSchema } from "./manifest.js";
 export type {
-	CatalogueCapability,
 	CataloguePack,
+	CatalogueSeedCapabilityPack,
 	CatalogueSeedProvenance,
+	CatalogueSeedProvenanceFields,
 	CatalogueSource,
 	ImmutableSourceRevision,
 	RulesVersion,
 	SourceRevision,
 } from "./provenance.js";
 export {
-	CatalogueCapabilitySchema,
 	CataloguePackSchema,
+	CatalogueSeedCapabilityPackSchema,
+	CatalogueSeedProvenanceFieldsSchema,
 	CatalogueSeedProvenanceSchema,
 	CatalogueSourceSchema,
 	ImmutableSourceRevisionSchema,

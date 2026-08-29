@@ -31,14 +31,17 @@ describe("catalogue source manifest", () => {
 		expect(foundryDnd5eTreeUrl()).toBe(
 			`https://api.github.com/repos/foundryvtt/dnd5e/git/trees/${FOUNDRY_DND5E_GITHUB_REF}?recursive=1`,
 		);
-		expect(foundryDnd5eTreeUrl("release-5.2.1")).toBe(
-			"https://api.github.com/repos/foundryvtt/dnd5e/git/trees/release-5.2.1?recursive=1",
+		const customRevision = "0123456789abcdef0123456789abcdef01234567";
+		expect(foundryDnd5eTreeUrl(customRevision)).toBe(
+			`https://api.github.com/repos/foundryvtt/dnd5e/git/trees/${customRevision}?recursive=1`,
 		);
 		expect(foundryDnd5eRawUrl(`${FOUNDRY_DND5E_SPELLS_PATH_PREFIX}light.yml`)).toBe(
 			`https://raw.githubusercontent.com/foundryvtt/dnd5e/${FOUNDRY_DND5E_GITHUB_REF}/packs/_source/spells24/light.yml`,
 		);
-		expect(foundryDnd5eRawUrl("packs/_source/equipment24/rope.yml", "release-5.2.1")).toBe(
-			"https://raw.githubusercontent.com/foundryvtt/dnd5e/release-5.2.1/packs/_source/equipment24/rope.yml",
+		expect(foundryDnd5eRawUrl("packs/_source/equipment24/rope.yml", customRevision)).toBe(
+			`https://raw.githubusercontent.com/foundryvtt/dnd5e/${customRevision}/packs/_source/equipment24/rope.yml`,
 		);
+		expect(() => foundryDnd5eTreeUrl("master")).toThrow();
+		expect(() => foundryDnd5eRawUrl("packs/_source/spells24/light.yml", "master")).toThrow();
 	});
 });

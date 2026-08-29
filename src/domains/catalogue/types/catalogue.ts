@@ -34,7 +34,7 @@ const CatalogueSpellFieldsSchema = z.object({
 	higherLevel: z.array(CatalogueSpellDetailTextSchema).max(10),
 	metadata: z.array(CatalogueSpellMetadataItemSchema).max(20),
 });
-export const CatalogueSpellSeedSchema = CatalogueSeedProvenanceSchema.merge(
+export const CatalogueSpellSeedSchema = CatalogueSeedProvenanceSchema.and(
 	CatalogueSpellFieldsSchema,
 );
 export type CatalogueSpellSeed = z.infer<typeof CatalogueSpellSeedSchema>;
@@ -56,7 +56,7 @@ export const CatalogueSpellProvenanceSchema = CatalogueSpellStoredProvenanceSche
 });
 export type CatalogueSpellProvenance = z.infer<typeof CatalogueSpellProvenanceSchema>;
 
-export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
+export const CatalogueSpellSearchResultSchema = CatalogueSpellFieldsSchema.pick({
 	spellIndex: true,
 	name: true,
 	level: true,

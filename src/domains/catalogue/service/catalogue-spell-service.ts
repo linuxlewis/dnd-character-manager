@@ -46,7 +46,6 @@ export interface CatalogueSpellService {
 export interface CatalogueSpellServiceOptions {
 	repository?: CatalogueSpellRepository;
 	fetcher?: typeof fetch;
-	foundryRef?: string;
 }
 
 export function createCatalogueSpellService(
@@ -54,13 +53,12 @@ export function createCatalogueSpellService(
 ): CatalogueSpellService {
 	const repository = options.repository ?? createCatalogueSpellRepository();
 	const fetcher = options.fetcher ?? fetch;
-	const foundryRef = options.foundryRef;
 
 	return {
 		async seedFoundrySrd2024Spells() {
 			try {
-				const paths = await fetchFoundrySpellPaths(fetcher, foundryRef);
-				const spells = await fetchFoundrySpellSeeds(fetcher, paths, foundryRef);
+				const paths = await fetchFoundrySpellPaths(fetcher);
+				const spells = await fetchFoundrySpellSeeds(fetcher, paths);
 				return { processed: await repository.upsertSpells(spells) };
 			} catch (error) {
 				if (error instanceof CatalogueSpellSeedError) throw error;
@@ -84,26 +82,20 @@ export function createCatalogueSpellService(
 	};
 }
 
-async function fetchFoundrySpellSeeds(
-	fetcher: typeof fetch,
-	paths: string[],
-	ref: string | undefined,
-) {
+async function fetchFoundrySpellSeeds(fetcher: typeof fetch, paths: string[]) {
 	const spells: CatalogueSpellSeed[] = [];
 	for (let index = 0; index < paths.length; index += FOUNDRY_SPELL_FETCH_CONCURRENCY) {
 		const batch = paths.slice(index, index + FOUNDRY_SPELL_FETCH_CONCURRENCY);
-		spells.push(
-			...(await Promise.all(batch.map((path) => fetchFoundrySpellSeed(fetcher, path, ref)))),
-		);
+		spells.push(...(await Promise.all(batch.map((path) => fetchFoundrySpellSeed(fetcher, path)))));
 	}
 	return spells;
 }
 
-async function fetchFoundrySpellSeed(fetcher: typeof fetch, path: string, ref: string | undefined) {
+async function fetchFoundrySpellSeed(fetcher: typeof fetch, path: string) {
 	try {
 		return parseFoundrySpellSource({
 			path,
-			yaml: await fetchFoundrySpellYaml(fetcher, path, ref),
+			yaml: await fetchFoundrySpellYaml(fetcher, path),
 		});
 	} catch (error) {
 		if (error instanceof CatalogueSpellSeedError) throw error;
@@ -113,8 +105,8 @@ async function fetchFoundrySpellSeed(fetcher: typeof fetch, path: string, ref: s
 	}
 }
 
-async function fetchFoundrySpellPaths(fetcher: typeof fetch, ref: string | undefined) {
-	const response = await fetcher(foundryDnd5eTreeUrl(ref));
+async function fetchFoundrySpellPaths(fetcher: typeof fetch) {
+	const response = await fetcher(foundryDnd5eTreeUrl());
 	if (!response.ok) throw new CatalogueSpellSeedError();
 	const parsed = FoundryTreeResponseSchema.parse(await response.json());
 	for (const pack of CATALOGUE_SOURCE_MANIFEST.packs) {
@@ -133,8 +125,8 @@ async function fetchFoundrySpellPaths(fetcher: typeof fetch, ref: string | undef
 		.sort();
 }
 
-async function fetchFoundrySpellYaml(fetcher: typeof fetch, path: string, ref: string | undefined) {
-	const response = await fetcher(foundryDnd5eRawUrl(path, ref));
+async function fetchFoundrySpellYaml(fetcher: typeof fetch, path: string) {
+	const response = await fetcher(foundryDnd5eRawUrl(path));
 	if (!response.ok) {
 		throw new CatalogueSpellSeedError(`Foundry spell source failed: ${path} (${response.status})`);
 	}
