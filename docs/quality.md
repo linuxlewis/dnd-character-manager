@@ -14,7 +14,7 @@ Track the health of each domain and architectural layer. Update this when you im
 
 | Domain | Types | Config | Repo | Service | Runtime | UI | Overall | Notes |
 |--------|-------|--------|------|---------|---------|----|---------|----|
-| catalogue | B | B | B | B | N/A | N/A | B | Local SRD 2024 spell catalogue has Foundry source parsing, persistence, seed-service, and database integration coverage |
+| catalogue | A | A | A | B | N/A | N/A | A | C1 adds strict shared provenance, immutable Foundry source manifest, catalogue-owned Open5e/legacy adapters, typed remote spell ports, and reproducible URL/manifest tests; equipment ingestion remains C2 |
 | inventory | A | N/A | A | A | A | A | A | A1 inventory types provide boundary-safe Zod schemas, currency conversion helpers, ownership/item invariants, and focused unit tests; A2 adds character scope/treasury mappings, parsed row mappers, race-safe transactional persistence, and focused unit/integration coverage; A3 adds injected treasury service rules, legacy-compatible greedy spend normalization, atomic mutations, character authorization collaboration, six typed treasury operations, generated OpenAPI/client artifacts, and focused unit/route/integration coverage; A4 adds reusable personal treasury presentation, shared client/server currency planning, live four-denomination add/spend previews, one-step submission, cache updates, failure-state isolation, co-located UI tests, and the M1 browser journey; M2 personal inventory remains unimplemented |
 | characters | B | B | B | B | B | B | B | Character create/list/detail, combined detail-page character editing for name, level, and experience points, experience progress to next level, health tracking, spell slot tracking, mobile-safe editable input sizing, add/remove-spell flows, cantrip and feature spell-list entries, saved spell details, and local-catalogue spell search/save/details have unit, integration, route, generated-client, and e2e coverage |
 
@@ -36,6 +36,7 @@ Track the health of each domain and architectural layer. Update this when you im
 - [ ] No production metrics/traces backend
 - [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, or session management UI yet; the Resend sender domain still needs verification for production email delivery
 - [ ] Character health does not yet include death saves, rest automation, damage types, or rules-derived max HP
+- [ ] Catalogue source revision is manifest-level in C1; existing `catalogue_spells` rows do not persist a revision until a later migration is approved
 
 ---
 

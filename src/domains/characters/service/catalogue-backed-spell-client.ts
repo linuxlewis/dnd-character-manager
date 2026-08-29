@@ -1,7 +1,11 @@
+import {
+	CatalogueRemoteSpellClientError,
+	createCatalogueRemoteSpellClient,
+} from "../../catalogue/repo/index.js";
 import type { CatalogueSpellService } from "../../catalogue/service/index.js";
 import { createCatalogueSpellService } from "../../catalogue/service/index.js";
 import type { DndApiSpellClient } from "../repo/index.js";
-import { createDndApiSpellClient, DndApiSpellClientError } from "../repo/index.js";
+import { DndApiSpellClientError } from "../repo/index.js";
 import type { DndSpellDetails, DndSpellSearchResult } from "../types/index.js";
 import { DndSpellDetailsSchema, DndSpellSearchResultSchema } from "../types/index.js";
 
@@ -21,7 +25,7 @@ export function createCatalogueBackedSpellClient(
 	options: CatalogueBackedSpellClientOptions = {},
 ): DndApiSpellClient {
 	const catalogueService = options.catalogueService ?? createCatalogueSpellService();
-	const fallbackClient = options.fallbackClient ?? createDndApiSpellClient();
+	const fallbackClient = options.fallbackClient ?? createCharacterRemoteSpellAdapter();
 
 	return {
 		async searchSpells(input) {
@@ -61,11 +65,24 @@ export function createCatalogueBackedSpellClient(
 	};
 }
 
+function createCharacterRemoteSpellAdapter(): DndApiSpellClient {
+	const client = createCatalogueRemoteSpellClient();
+	return {
+		searchSpells: (input) =>
+			client.searchSpells(input).then((results) => results.map(toDndRemoteSpellSearchResult)),
+		findSpell: (index, source) =>
+			client.findSpell(index, source).then(toDndRemoteSpellSearchResult),
+		getSpellDetails: (index, source) =>
+			client.getSpellDetails(index, source).then(toDndRemoteSpellDetails),
+	};
+}
+
 async function withSpellClientError<T>(operation: () => Promise<T>) {
 	try {
 		return await operation();
 	} catch (error) {
 		if (error instanceof DndApiSpellClientError) throw error;
+		if (error instanceof CatalogueRemoteSpellClientError) throw new DndApiSpellClientError();
 		throw new DndApiSpellClientError();
 	}
 }
@@ -78,6 +95,22 @@ function toDndSpellSearchResult(spell: CatalogueSpellSearchResult): DndSpellSear
 		url: spell.url,
 		source: "spell",
 	});
+}
+
+function toDndRemoteSpellSearchResult(
+	spell: Awaited<
+		ReturnType<ReturnType<typeof createCatalogueRemoteSpellClient>["searchSpells"]>
+	>[number],
+): DndSpellSearchResult {
+	return DndSpellSearchResultSchema.parse(spell);
+}
+
+function toDndRemoteSpellDetails(
+	spell: Awaited<
+		ReturnType<ReturnType<typeof createCatalogueRemoteSpellClient>["getSpellDetails"]>
+	>,
+): DndSpellDetails {
+	return DndSpellDetailsSchema.parse(spell);
 }
 
 function toDndSpellDetails(spell: CatalogueSpellDetails): DndSpellDetails {

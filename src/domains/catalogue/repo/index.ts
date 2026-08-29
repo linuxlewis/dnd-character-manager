@@ -1,4 +1,12 @@
 export type {
+	CatalogueRemoteSpellClient,
+	CatalogueRemoteSpellClientOptions,
+} from "./catalogue-remote-spell-client.js";
+export {
+	CatalogueRemoteSpellClientError,
+	createCatalogueRemoteSpellClient,
+} from "./catalogue-remote-spell-client.js";
+export type {
 	CatalogueSpellRepository,
 	SearchCatalogueSpellsInput,
 } from "./catalogue-spell-repository.js";

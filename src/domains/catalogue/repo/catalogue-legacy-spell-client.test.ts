@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getLegacySpellDetails } from "./dnd-api-legacy-spell-client.js";
+import { getLegacySpellDetails } from "./catalogue-legacy-spell-client.js";
 
 describe("getLegacySpellDetails", () => {
 	it("loads 2014 spell details for saved spells that are unavailable in SRD 2024", async () => {

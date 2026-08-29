@@ -1,13 +1,10 @@
 export type {
-	CatalogueSource,
 	CatalogueSpellDetails,
 	CatalogueSpellIndex,
 	CatalogueSpellSearchResult,
 	CatalogueSpellSeed,
-	RulesVersion,
 } from "./catalogue.js";
 export {
-	CatalogueSourceSchema,
 	CatalogueSpellDetailsSchema,
 	CatalogueSpellDetailTextSchema,
 	CatalogueSpellIndexSchema,
@@ -17,5 +14,33 @@ export {
 	CatalogueSpellSearchResultSchema,
 	CatalogueSpellSeedSchema,
 	CatalogueSpellUrlSchema,
-	RulesVersionSchema,
 } from "./catalogue.js";
+export type { CatalogueManifestPack, CatalogueSourceManifest } from "./manifest.js";
+export { CatalogueManifestPackSchema, CatalogueSourceManifestSchema } from "./manifest.js";
+export type {
+	CatalogueCapability,
+	CataloguePack,
+	CatalogueSource,
+	CatalogueSourceProvenance,
+	ImmutableSourceRevision,
+	RulesVersion,
+} from "./provenance.js";
+export {
+	CatalogueCapabilitySchema,
+	CataloguePackSchema,
+	CatalogueSourceProvenanceSchema,
+	CatalogueSourceSchema,
+	ImmutableSourceRevisionSchema,
+	RulesVersionSchema,
+} from "./provenance.js";
+export type {
+	CatalogueRemoteSpellCapability,
+	CatalogueRemoteSpellDetails,
+	CatalogueRemoteSpellSearchResult,
+	CatalogueRemoteSpellSource,
+} from "./remote-spell.js";
+export {
+	CatalogueRemoteSpellDetailsSchema,
+	CatalogueRemoteSpellSearchResultSchema,
+	CatalogueRemoteSpellSourceSchema,
+} from "./remote-spell.js";

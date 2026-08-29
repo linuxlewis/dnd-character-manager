@@ -11,8 +11,12 @@ Approved direction: hybrid source strategy. Equipment sequencing updated 2026-08
 As of 2026-08-29, the repository has a `catalogue` domain, a local `catalogue_spells` Postgres table,
 and a manual `pnpm seed` flow that downloads and ingests Foundry `dnd5e` `spells24` records. Character
 spell lookup prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback
-behavior. Foundry `equipment24` is not yet ingested, and the configured Foundry ref still defaults to
-the moving `master` branch.
+behavior. The Foundry source is pinned to commit
+`f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6` from
+`https://github.com/foundryvtt/dnd5e`; that revision contains both `packs/_source/spells24/` and
+`packs/_source/equipment24/`. Equipment is not yet ingested. Source revision and configured pack
+identity are reported by the catalogue seed manifest; no migration persists the revision in the
+existing spell row.
 
 The inventory implementation will extend the same catalogue boundary with typed equipment ingestion.
 Foundry `dnd5e` at a pinned tag or commit is the primary local dataset for both spells and items.

@@ -1,9 +1,12 @@
 import { z } from "zod";
-import type { DndSpellDetails, DndSpellSearchResult, SpellEntrySource } from "../types/index.js";
+import type {
+	CatalogueRemoteSpellDetails,
+	CatalogueRemoteSpellSearchResult,
+	CatalogueRemoteSpellSource,
+} from "../types/index.js";
 import {
-	DndSpellDetailsSchema,
-	DndSpellSearchResultSchema,
-	SpellIndexSchema,
+	CatalogueRemoteSpellDetailsSchema,
+	CatalogueRemoteSpellSearchResultSchema,
 } from "../types/index.js";
 
 const DndApiReferenceSchema = z.object({
@@ -49,7 +52,7 @@ export async function searchLegacyFeatures(
 	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	query: string,
-): Promise<DndSpellSearchResult[]> {
+): Promise<CatalogueRemoteSpellSearchResult[]> {
 	const response = await fetcher(
 		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(query)}`,
 	);
@@ -63,7 +66,7 @@ export async function searchLegacyFeatures(
 	);
 
 	return details.map((feature) =>
-		DndSpellSearchResultSchema.parse({
+		CatalogueRemoteSpellSearchResultSchema.parse({
 			index: feature.index,
 			name: feature.name,
 			level: feature.level,
@@ -77,9 +80,9 @@ export async function getLegacySpellDetails(
 	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	spellIndex: string,
-	source: SpellEntrySource,
-): Promise<DndSpellDetails> {
-	const index = SpellIndexSchema.parse(spellIndex);
+	source: CatalogueRemoteSpellSource,
+): Promise<CatalogueRemoteSpellDetails> {
+	const index = spellIndex;
 	const resource = source === "feature" ? "features" : "spells";
 	const response = await fetcher(`${legacyBaseUrl}/api/2014/${resource}/${index}`);
 	if (!response.ok) throw new Error("Legacy D&D spell detail request failed.");
@@ -92,7 +95,7 @@ function parseLegacySpellDetails(
 	entry:
 		| z.infer<typeof DndApiFeatureDetailResponseSchema>
 		| z.infer<typeof DndApiSpellDetailResponseSchema>,
-	source: SpellEntrySource,
+	source: CatalogueRemoteSpellSource,
 ) {
 	const details =
 		source === "feature"
@@ -105,7 +108,7 @@ function parseLegacySpellDetails(
 					metadata: spellMetadata(entry as z.infer<typeof DndApiSpellDetailResponseSchema>),
 				};
 
-	return DndSpellDetailsSchema.parse({
+	return CatalogueRemoteSpellDetailsSchema.parse({
 		index: entry.index,
 		name: entry.name,
 		level: entry.level,

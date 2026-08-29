@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { createDndApiSpellClient } from "./dnd-api-spell-client.js";
+import { createCatalogueRemoteSpellClient } from "./catalogue-remote-spell-client.js";
 
-describe("createDndApiSpellClient search", () => {
+describe("createCatalogueRemoteSpellClient search", () => {
 	it("returns no search results without calling the API for an empty query", async () => {
 		const fetcher = vi.fn();
-		const client = createDndApiSpellClient({ fetcher });
+		const client = createCatalogueRemoteSpellClient({ fetcher });
 
 		await expect(client.searchSpells({ slotLevel: 3, query: " " })).resolves.toEqual([]);
 		expect(fetcher).not.toHaveBeenCalled();
@@ -21,7 +21,7 @@ describe("createDndApiSpellClient search", () => {
 			}),
 		);
 
-		const client = createDndApiSpellClient({ fetcher });
+		const client = createCatalogueRemoteSpellClient({ fetcher });
 
 		await expect(client.searchSpells({ slotLevel: 1, query: "smite" })).resolves.toEqual([
 			{
@@ -72,7 +72,7 @@ describe("createDndApiSpellClient search", () => {
 				}),
 			);
 
-		const client = createDndApiSpellClient({ fetcher });
+		const client = createCatalogueRemoteSpellClient({ fetcher });
 
 		await expect(client.searchSpells({ slotLevel: 0, query: "l" })).resolves.toEqual([
 			{
@@ -135,7 +135,7 @@ describe("createDndApiSpellClient search", () => {
 				}),
 			);
 
-		const client = createDndApiSpellClient({ fetcher });
+		const client = createCatalogueRemoteSpellClient({ fetcher });
 
 		await expect(client.searchSpells({ slotLevel: 0, query: "channel divinity" })).resolves.toEqual(
 			[
@@ -157,7 +157,7 @@ describe("createDndApiSpellClient search", () => {
 			}),
 		);
 
-		const client = createDndApiSpellClient({ fetcher });
+		const client = createCatalogueRemoteSpellClient({ fetcher });
 
 		await expect(client.searchSpells({ slotLevel: 1, query: "divinity" })).resolves.toEqual([]);
 		expect(fetcher).toHaveBeenCalledOnce();

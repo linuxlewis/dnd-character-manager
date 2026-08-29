@@ -1,6 +1,11 @@
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
-import { FOUNDRY_DND5E_RULES_VERSION, FOUNDRY_DND5E_SOURCE } from "../config/index.js";
+import {
+	FOUNDRY_DND5E_RULES_VERSION,
+	FOUNDRY_DND5E_SOURCE,
+	foundryDnd5eSourceUrl,
+} from "../config/index.js";
+import { CATALOGUE_SOURCE_MANIFEST } from "../config/manifest.js";
 import type { CatalogueSpellSeed } from "../types/index.js";
 import {
 	CatalogueSpellIndexSchema,
@@ -87,6 +92,10 @@ export function parseFoundrySpellSource(input: FoundrySpellSourceInput): Catalog
 		higherLevel: higherLevel ? [higherLevel] : [],
 		metadata: foundrySpellMetadata(sourcePayload),
 		sourcePayload,
+		sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
+		capability: "spells",
+		pack: "spells24",
+		sourceUrl: foundryDnd5eSourceUrl(input.path),
 	});
 }
 

@@ -1,10 +1,9 @@
 import { z } from "zod";
-
-export const CatalogueSourceSchema = z.enum(["foundry-dnd5e", "open5e", "dnd5eapi-legacy"]);
-export type CatalogueSource = z.infer<typeof CatalogueSourceSchema>;
-
-export const RulesVersionSchema = z.enum(["2014", "2024"]);
-export type RulesVersion = z.infer<typeof RulesVersionSchema>;
+import {
+	CatalogueSourceProvenanceSchema,
+	CatalogueSourceSchema,
+	RulesVersionSchema,
+} from "./provenance.js";
 
 export const CatalogueSpellIndexSchema = z
 	.string()
@@ -40,8 +39,20 @@ export const CatalogueSpellSeedSchema = z.object({
 	higherLevel: z.array(CatalogueSpellDetailTextSchema).max(10),
 	metadata: z.array(CatalogueSpellMetadataItemSchema).max(20),
 	sourcePayload: z.unknown(),
+	sourceRevision: z
+		.string()
+		.regex(/^[0-9a-f]{40}$/)
+		.optional(),
+	capability: z.literal("spells").optional(),
+	pack: z.literal("spells24").optional(),
+	sourceUrl: z.string().url().max(1_000).optional(),
 });
 export type CatalogueSpellSeed = z.infer<typeof CatalogueSpellSeedSchema>;
+
+export const CatalogueSpellProvenanceSchema = CatalogueSourceProvenanceSchema.extend({
+	capability: z.literal("spells"),
+	pack: z.literal("spells24"),
+});
 
 export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
 	spellIndex: true,

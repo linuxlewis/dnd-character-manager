@@ -1,3 +1,4 @@
+import { CATALOGUE_SOURCE_MANIFEST } from "../src/domains/catalogue/config/manifest.js";
 import { createCatalogueSpellService } from "../src/domains/catalogue/service/index.js";
 import { closeDb } from "../src/providers/database/index.js";
 import { readMetadata } from "./stack-shared.js";
@@ -13,7 +14,9 @@ if (!process.env.DATABASE_URL) {
 
 try {
 	const result = await createCatalogueSpellService().seedFoundrySrd2024Spells();
-	console.log(`Seeded ${result.processed} SRD 2024 spells from Foundry dnd5e.`);
+	console.log(
+		`Seeded ${result.processed} SRD 2024 spells from ${CATALOGUE_SOURCE_MANIFEST.source} revision ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}. Packs: ${CATALOGUE_SOURCE_MANIFEST.packs.map((pack) => pack.pack).join(", ")}.`,
+	);
 } finally {
 	await closeDb();
 }
