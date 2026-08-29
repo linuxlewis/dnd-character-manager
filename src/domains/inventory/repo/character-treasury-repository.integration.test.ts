@@ -1,7 +1,7 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { testConcurrentPrecondition } from "../../../../tests/support/treasury-concurrency.js";
 import type { CurrencyBalance } from "../types/index.js";
 import {
@@ -13,10 +13,6 @@ import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 const createdUserIds: string[] = [];
 
-beforeEach(async () => {
-	await getDb().delete(inventoryTreasuriesTable);
-	await getDb().delete(inventoryScopesTable);
-});
 afterEach(async () => {
 	if (createdUserIds.length === 0) return;
 	await getDb()

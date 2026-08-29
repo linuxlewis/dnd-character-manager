@@ -7,6 +7,14 @@ export {
 	CharacterTreasuryPreconditionError,
 	createCharacterTreasuryRepository,
 } from "./character-treasury-repository.js";
+export { toInventoryHistoryEntry, toInventoryHistoryInsert } from "./inventory-history-mappers.js";
+export type { InventoryHistoryRepository } from "./inventory-history-repository.js";
+export { createInventoryHistoryRepository } from "./inventory-history-repository.js";
+export { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
+export { toInventoryItem, toInventoryItemInsert } from "./inventory-item-mappers.js";
+export type { InventoryItemList, InventoryItemRepository } from "./inventory-item-repository.js";
+export { createInventoryItemRepository } from "./inventory-item-repository.js";
+export { inventoryItemsTable } from "./inventory-item-table.js";
 export {
 	toCharacterTreasury,
 	toInventoryScope,
