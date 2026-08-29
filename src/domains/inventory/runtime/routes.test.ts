@@ -23,7 +23,18 @@ describe("registerCharacterTreasuryRoutes", () => {
 		service.spendCharacterTreasury.mockResolvedValue(responses as never);
 		service.convertCharacterTreasury.mockResolvedValue(responses as never);
 		service.previewAddCharacterTreasury.mockResolvedValue(responses as never);
-		service.previewSpendCharacterTreasury.mockResolvedValue(responses as never);
+		service.previewSpendCharacterTreasury.mockResolvedValue({
+			treasury: responses.treasury,
+			preview: {
+				operation: "spend",
+				previous: responses.treasury.balances,
+				next: { cp: 0, sp: 5, gp: 0, pp: 0 },
+				delta: { cp: 0, sp: 5, gp: -1, pp: 0 },
+				totalValue: { copper: 50, gp: 0.5 },
+				canApply: true,
+				change: { cp: 0, sp: 5, gp: 0, pp: 0 },
+			},
+		} as never);
 		const app = await buildApp(service);
 
 		try {
@@ -63,6 +74,12 @@ describe("registerCharacterTreasuryRoutes", () => {
 			expect(convertResponse.statusCode).toBe(200);
 			expect(addPreviewResponse.statusCode).toBe(200);
 			expect(spendPreviewResponse.statusCode).toBe(200);
+			expect(spendPreviewResponse.json().preview.change).toEqual({
+				cp: 0,
+				sp: 5,
+				gp: 0,
+				pp: 0,
+			});
 			expect(service.addCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
 				delta: { cp: 1, sp: 2, gp: 3, pp: 4 },
 			});

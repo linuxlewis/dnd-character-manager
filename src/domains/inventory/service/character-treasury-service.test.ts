@@ -33,12 +33,17 @@ describe("createCharacterTreasuryService", () => {
 		expect(repository.mutateCharacterTreasury).toHaveBeenCalledTimes(1);
 	});
 
-	it("returns exact spend and deterministic making-change responses", async () => {
+	it("previews and applies deterministic making-change responses", async () => {
 		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 1, pp: 0 });
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
 			characterService: dependencies.characterService,
 		});
+
+		const preview = await service.previewSpendCharacterTreasury(userId, characterId, {
+			amount: { denomination: "sp", amount: 5 },
+		});
+		expect(preview.preview.change).toEqual({ cp: 0, sp: 5, gp: 0, pp: 0 });
 
 		const response = await service.spendCharacterTreasury(userId, characterId, {
 			amount: { denomination: "sp", amount: 5 },
@@ -46,6 +51,16 @@ describe("createCharacterTreasuryService", () => {
 
 		expect(response.change.next).toEqual({ cp: 0, sp: 5, gp: 0, pp: 0 });
 		expect(response.change.change).toEqual({ cp: 0, sp: 5, gp: 0, pp: 0 });
+
+		const exactDependencies = fakeDependencies({ cp: 0, sp: 5, gp: 0, pp: 0 });
+		const exactService = createCharacterTreasuryService({
+			repository: exactDependencies.repository,
+			characterService: exactDependencies.characterService,
+		});
+		const exactPreview = await exactService.previewSpendCharacterTreasury(userId, characterId, {
+			amount: { denomination: "sp", amount: 5 },
+		});
+		expect(exactPreview.preview).not.toHaveProperty("change");
 	});
 
 	it("previews insufficient spend without mutation and applies it with rollback-safe errors", async () => {

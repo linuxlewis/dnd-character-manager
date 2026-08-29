@@ -41,4 +41,28 @@ describe("inventoryTreasuryRouteContracts", () => {
 		expect(inventoryTreasuryRouteContracts[2].responses[409]?.schema).toBeDefined();
 		expect(inventoryTreasuryRouteContracts[3].responses[409]?.schema).toBeDefined();
 	});
+
+	it("keeps server-computed spend change in the preview response schema", () => {
+		const preview = {
+			treasury: {
+				characterId: "00000000-0000-4000-8000-000000000020",
+				balances: { cp: 0, sp: 0, gp: 1, pp: 0 },
+				totalValue: { copper: 100, gp: 1 },
+			},
+			preview: {
+				operation: "spend",
+				previous: { cp: 0, sp: 0, gp: 1, pp: 0 },
+				next: { cp: 0, sp: 5, gp: 0, pp: 0 },
+				delta: { cp: 0, sp: 5, gp: -1, pp: 0 },
+				totalValue: { copper: 50, gp: 0.5 },
+				canApply: true,
+				change: { cp: 0, sp: 5, gp: 0, pp: 0 },
+			},
+		};
+		const schema = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "previewSpendCharacterTreasury",
+		)?.responses[200]?.schema;
+
+		expect(schema?.parse(preview)).toEqual(preview);
+	});
 });

@@ -62,6 +62,7 @@ describe("character treasury routes", () => {
 				canApply: true,
 				next: { cp: 5, sp: 4, gp: 0, pp: 0 },
 			});
+			expect(spendPreview.json().preview).not.toHaveProperty("change");
 
 			const spent = await app.inject({
 				method: "POST",

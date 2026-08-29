@@ -244,4 +244,30 @@ describe("currency schemas and conversion helpers", () => {
 		expect(InsufficientFundsResponseSchema.parse(error)).toEqual(error);
 		expect(CurrencyPreviewSchema.parse(preview)).toEqual(preview);
 	});
+
+	it("accepts optional returned change and preserves previews without it", () => {
+		const basePreview = {
+			previous: { cp: 0, sp: 0, gp: 1, pp: 0 },
+			next: { cp: 0, sp: 5, gp: 0, pp: 0 },
+			delta: { cp: 0, sp: 5, gp: -1, pp: 0 },
+			totalValue: { copper: 50, gp: 0.5 },
+			canApply: true,
+		};
+		const change = { cp: 0, sp: 5, gp: 0, pp: 0 };
+
+		expect(CurrencyPreviewSchema.parse({ operation: "spend", ...basePreview, change })).toEqual({
+			operation: "spend",
+			...basePreview,
+			change,
+		});
+		expect(
+			CurrencyPreviewSchema.parse({
+				operation: "add",
+				...basePreview,
+				next: basePreview.previous,
+				delta: { cp: 0, sp: 0, gp: 0, pp: 0 },
+				totalValue: { copper: 100, gp: 1 },
+			}),
+		).not.toHaveProperty("change");
+	});
 });

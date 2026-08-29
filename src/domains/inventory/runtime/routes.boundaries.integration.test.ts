@@ -97,6 +97,37 @@ describe("character treasury route boundaries", () => {
 		}
 	});
 
+	it("returns server-computed change in a spend preview", async () => {
+		const app = await buildServer();
+		try {
+			const cookie = await createSessionCookie(app);
+			const characterId = await createCharacter(app, cookie);
+			const added = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${characterId}/treasury`,
+				headers: { cookie },
+				payload: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+			});
+			expect(added.statusCode).toBe(200);
+
+			const preview = await app.inject({
+				method: "POST",
+				url: `/api/characters/${characterId}/treasury/preview/spend`,
+				headers: { cookie },
+				payload: { amount: { denomination: "sp", amount: 5 } },
+			});
+
+			expect(preview.statusCode).toBe(200);
+			expect(preview.json().preview).toMatchObject({
+				canApply: true,
+				next: { cp: 0, sp: 5, gp: 0, pp: 0 },
+				change: { cp: 0, sp: 5, gp: 0, pp: 0 },
+			});
+		} finally {
+			await app.close();
+		}
+	});
+
 	it("maps treasury overflow to the stable HTTP error response", async () => {
 		const app = await buildServer();
 		try {

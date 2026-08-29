@@ -15,6 +15,7 @@ import {
 	ConvertCharacterTreasuryRequestSchema,
 	type ConvertCharacterTreasuryResponse,
 	ConvertCharacterTreasuryResponseSchema,
+	type CurrencyBalance,
 	getCurrencyTotalValue,
 	type SpendCharacterTreasuryRequest,
 	SpendCharacterTreasuryRequestSchema,
@@ -151,7 +152,8 @@ export function createCharacterTreasuryService(
 				repository,
 			);
 			try {
-				return previewFromPlan(treasury, "spend", planSpend(treasury.treasury.balances, request));
+				const plan = planSpend(treasury.treasury.balances, request);
+				return previewFromPlan(treasury, "spend", plan, plan.change);
 			} catch (error) {
 				if (!(error instanceof InsufficientFundsError)) throw error;
 				const balances = treasury.treasury.balances;
@@ -188,6 +190,7 @@ function previewFromPlan(
 	treasury: CharacterTreasuryResponse,
 	operation: "add" | "spend",
 	plan: CurrencyPlan,
+	change?: CurrencyBalance,
 ): CharacterTreasuryPreviewResponse {
 	return CharacterTreasuryPreviewResponseSchema.parse({
 		treasury: treasury.treasury,
@@ -198,6 +201,7 @@ function previewFromPlan(
 			delta: plan.delta,
 			totalValue: getCurrencyTotalValue(plan.next),
 			canApply: true,
+			...(change === undefined ? {} : { change }),
 		},
 	});
 }

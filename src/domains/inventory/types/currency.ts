@@ -196,6 +196,7 @@ export const CurrencyPreviewSchema = z
 		delta: CurrencyDeltaSchema,
 		totalValue: CurrencyTotalValueSchema,
 		canApply: z.boolean(),
+		change: CurrencyBalanceSchema.optional(),
 		error: InsufficientFundsErrorSchema.optional(),
 	})
 	.strict();
