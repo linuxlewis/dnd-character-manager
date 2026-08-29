@@ -38,9 +38,10 @@ export const CatalogueSeedProvenanceFieldsSchema = z.object({
 	sourceUrl: z.string().url().max(1_000),
 });
 
-export const CatalogueSeedProvenanceSchema = CatalogueSeedProvenanceFieldsSchema.and(
-	CatalogueSeedCapabilityPackSchema,
-).superRefine((value, context) => {
+function validateFoundrySeedSourceUrl(
+	value: z.infer<typeof CatalogueSeedProvenanceFieldsSchema>,
+	context: z.RefinementCtx,
+) {
 	if (!value.sourceUrl.startsWith("https://raw.githubusercontent.com/foundryvtt/dnd5e/")) {
 		context.addIssue({
 			code: "custom",
@@ -48,14 +49,42 @@ export const CatalogueSeedProvenanceSchema = CatalogueSeedProvenanceFieldsSchema
 			message: "Foundry seed sourceUrl must point to the dnd5e repository",
 		});
 	}
-	if (!value.sourceUrl.includes(`/${value.sourceRevision}/`)) {
+	const expectedUrl = `https://raw.githubusercontent.com/foundryvtt/dnd5e/${value.sourceRevision}/${value.sourcePath}`;
+	if (value.sourceUrl !== expectedUrl) {
 		context.addIssue({
 			code: "custom",
 			path: ["sourceUrl"],
-			message: "Foundry seed sourceUrl must identify the immutable source revision",
+			message: "Foundry seed sourceUrl must identify the immutable source revision and path",
 		});
 	}
+}
+
+const CatalogueFoundrySpellSeedProvenanceFieldsSchema = CatalogueSeedProvenanceFieldsSchema.extend({
+	capability: z.literal("spells"),
+	pack: z.literal("spells24"),
 });
+
+const CatalogueFoundryEquipmentSeedProvenanceFieldsSchema =
+	CatalogueSeedProvenanceFieldsSchema.extend({
+		capability: z.literal("equipment"),
+		pack: z.literal("equipment24"),
+	});
+
+export const CatalogueFoundrySpellSeedProvenanceSchema =
+	CatalogueFoundrySpellSeedProvenanceFieldsSchema.superRefine(validateFoundrySeedSourceUrl);
+
+export const CatalogueFoundrySeedProvenanceSchema = z
+	.discriminatedUnion("capability", [
+		CatalogueFoundrySpellSeedProvenanceFieldsSchema,
+		CatalogueFoundryEquipmentSeedProvenanceFieldsSchema,
+	])
+	.superRefine(validateFoundrySeedSourceUrl);
+
+export const CatalogueSeedProvenanceSchema = CatalogueFoundrySeedProvenanceSchema;
 export type CatalogueSeedProvenance = z.infer<typeof CatalogueSeedProvenanceSchema>;
 export type CatalogueSeedCapabilityPack = z.infer<typeof CatalogueSeedCapabilityPackSchema>;
 export type CatalogueSeedProvenanceFields = z.infer<typeof CatalogueSeedProvenanceFieldsSchema>;
+export type CatalogueFoundrySpellSeedProvenance = z.infer<
+	typeof CatalogueFoundrySpellSeedProvenanceSchema
+>;
+export type CatalogueFoundrySeedProvenance = z.infer<typeof CatalogueFoundrySeedProvenanceSchema>;

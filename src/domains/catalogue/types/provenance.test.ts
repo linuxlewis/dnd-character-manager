@@ -15,7 +15,7 @@ describe("CatalogueSeedProvenanceSchema", () => {
 				capability: "spells",
 				pack: "spells24",
 				sourceUrl:
-					"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/file.yml",
+					"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/light.yml",
 			}),
 		).not.toThrow();
 		expect(() =>
@@ -52,7 +52,7 @@ describe("CatalogueSeedProvenanceSchema", () => {
 			capability: "spells",
 			pack: "spells24",
 			sourceUrl:
-				"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/file.yml",
+				"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/light.yml",
 		};
 		expect(() => CatalogueSeedProvenanceSchema.parse({ ...seed, ...override })).toThrow();
 	});

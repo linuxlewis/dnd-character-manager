@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-	CatalogueSeedProvenanceSchema,
+	CatalogueFoundrySpellSeedProvenanceSchema,
 	CatalogueSourceSchema,
 	RulesVersionSchema,
 } from "./provenance.js";
@@ -34,7 +34,7 @@ const CatalogueSpellFieldsSchema = z.object({
 	higherLevel: z.array(CatalogueSpellDetailTextSchema).max(10),
 	metadata: z.array(CatalogueSpellMetadataItemSchema).max(20),
 });
-export const CatalogueSpellSeedSchema = CatalogueSeedProvenanceSchema.and(
+export const CatalogueSpellSeedSchema = CatalogueFoundrySpellSeedProvenanceSchema.and(
 	CatalogueSpellFieldsSchema,
 );
 export type CatalogueSpellSeed = z.infer<typeof CatalogueSpellSeedSchema>;

@@ -23,6 +23,8 @@ export {
 export type { CatalogueManifestPack, CatalogueSourceManifest } from "./manifest.js";
 export { CatalogueManifestPackSchema, CatalogueSourceManifestSchema } from "./manifest.js";
 export type {
+	CatalogueFoundrySeedProvenance,
+	CatalogueFoundrySpellSeedProvenance,
 	CataloguePack,
 	CatalogueSeedCapabilityPack,
 	CatalogueSeedProvenance,
@@ -33,6 +35,8 @@ export type {
 	SourceRevision,
 } from "./provenance.js";
 export {
+	CatalogueFoundrySeedProvenanceSchema,
+	CatalogueFoundrySpellSeedProvenanceSchema,
 	CataloguePackSchema,
 	CatalogueSeedCapabilityPackSchema,
 	CatalogueSeedProvenanceFieldsSchema,

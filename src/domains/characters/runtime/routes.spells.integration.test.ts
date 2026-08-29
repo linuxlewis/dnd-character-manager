@@ -134,7 +134,7 @@ function staggeringSmiteSeed() {
 		capability: "spells" as const,
 		pack: "spells24" as const,
 		sourceUrl:
-			"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/4th-level/staggering-smite-test.yml",
+			"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/4th-level/staggering-smite.yml",
 	};
 }
 
