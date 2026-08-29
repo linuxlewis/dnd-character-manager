@@ -1,21 +1,17 @@
 import { closeDb, getDb } from "@providers/database/index.js";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import type { CatalogueItemSeed } from "../types/index.js";
+import {
+	auditFor,
+	seedItem,
+	sourceKeys,
+	testRevisions,
+} from "./catalogue-item-repository.integration-fixtures.js";
 import {
 	type CatalogueItemRepository,
 	createCatalogueItemRepository,
 } from "./catalogue-item-repository.js";
 import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-item-table.js";
-
-const sourceKeys = [
-	"catalogue-item-repository-isolation-rope",
-	"catalogue-item-repository-isolation-rope-legacy",
-];
-const testRevisions = [
-	"1111111111111111111111111111111111111111",
-	"2222222222222222222222222222222222222222",
-];
 
 const pinnedRevision = "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6";
 const pinnedSentinelKey = "phbwepLongsword0";
@@ -129,7 +125,7 @@ describe.sequential("createCatalogueItemRepository", () => {
 	});
 
 	it("replaces rows and reports the stored audit when the source pin changes", async () => {
-		await runIsolated(async (repository) => {
+		await runDefaultProviderIsolated(async (repository) => {
 			const oldItem = seedItem({
 				sourceKey: sourceKeys[0],
 				rulesVersion: "2014",
@@ -142,22 +138,20 @@ describe.sequential("createCatalogueItemRepository", () => {
 				sourceRevision: testRevisions[1],
 				name: "New Pin",
 			});
+			const oldAudit = auditFor("2014", 1, testRevisions[0]);
+			const newAudit = auditFor("2014", 1, testRevisions[1]);
 
-			await repository.upsertItems([oldItem], auditFor("2014", 1, testRevisions[0]));
-			expect(await repository.findLatestAudit()).toMatchObject({
-				sourceRevision: testRevisions[0],
-				accepted: 1,
-			});
+			await repository.upsertItems([oldItem], oldAudit);
+			expect(await repository.findLatestAudit()).toEqual(oldAudit);
 			const oldId = (await repository.searchItems({ q: "Old Pin", limit: 50 })).items[0]?.id;
-			await repository.upsertItems([newItem], auditFor("2014", 1, testRevisions[1]));
+			await new Promise((resolve) => setTimeout(resolve, 2));
+			await repository.upsertItems([newItem], newAudit);
 
 			expect(await repository.countItems()).toBe(1);
 			const newResult = await repository.searchItems({ q: "New Pin", limit: 50 });
 			expect(newResult.total).toBe(1);
 			expect(newResult.items[0]?.id).toBe(oldId);
-			expect(await repository.findLatestAudit()).toMatchObject({
-				accepted: 1,
-			});
+			expect(await repository.findLatestAudit()).toEqual(newAudit);
 		});
 	});
 });
@@ -173,6 +167,50 @@ async function runIsolated(journey: (repository: CatalogueItemRepository) => Pro
 			if (error !== testRollback) throw error;
 		});
 
+	await expectPublicCatalogueUnchanged(sentinelBefore);
+}
+
+async function runDefaultProviderIsolated(
+	journey: (repository: CatalogueItemRepository) => Promise<void>,
+) {
+	const originalDatabaseUrl = process.env.DATABASE_URL;
+	if (!originalDatabaseUrl) throw new Error("DATABASE_URL is required for integration tests.");
+
+	const sentinelBefore = await readPinnedSentinel();
+	const schemaName = `catalogue_item_repo_${crypto.randomUUID().replaceAll("-", "")}`;
+	const quotedSchemaName = quoteIdentifier(schemaName);
+	try {
+		await getDb().execute(sql.raw(`CREATE SCHEMA ${quotedSchemaName}`));
+		await getDb().execute(
+			sql.raw(
+				`CREATE TABLE ${quotedSchemaName}.catalogue_items (LIKE public.catalogue_items INCLUDING ALL)`,
+			),
+		);
+		await getDb().execute(
+			sql.raw(
+				`CREATE TABLE ${quotedSchemaName}.catalogue_item_seed_audits (LIKE public.catalogue_item_seed_audits INCLUDING ALL)`,
+			),
+		);
+
+		await closeDb();
+		process.env.DATABASE_URL = withSearchPath(originalDatabaseUrl, schemaName);
+		await journey(createCatalogueItemRepository());
+	} finally {
+		await closeDb();
+		process.env.DATABASE_URL = originalDatabaseUrl;
+		try {
+			await getDb().execute(sql.raw(`DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`));
+		} finally {
+			await closeDb();
+		}
+	}
+
+	await expectPublicCatalogueUnchanged(sentinelBefore);
+}
+
+async function expectPublicCatalogueUnchanged(
+	sentinelBefore: Awaited<ReturnType<typeof readPinnedSentinel>>,
+) {
 	expect(await readPinnedSentinel()).toEqual(sentinelBefore);
 	const leakedItems = await getDb()
 		.select({ sourceKey: catalogueItemsTable.sourceKey })
@@ -189,6 +227,16 @@ async function runIsolated(journey: (repository: CatalogueItemRepository) => Pro
 		);
 	expect(leakedItems).toEqual([]);
 	expect(leakedAudits).toEqual([]);
+}
+
+function withSearchPath(databaseUrl: string, schemaName: string) {
+	const url = new URL(databaseUrl);
+	url.searchParams.set("search_path", `${schemaName},public`);
+	return url.toString();
+}
+
+function quoteIdentifier(identifier: string) {
+	return `"${identifier.replaceAll('"', '""')}"`;
 }
 
 async function readPinnedSentinel() {
@@ -209,70 +257,4 @@ async function readPinnedSentinel() {
 		)
 		.limit(1);
 	return row ?? null;
-}
-
-function auditFor(
-	rulesVersion: "2014" | "2024",
-	accepted: number,
-	sourceRevision = testRevisions[0],
-) {
-	return {
-		source: "foundry-dnd5e" as const,
-		sourceRevision,
-		rulesVersion,
-		capability: "equipment" as const,
-		pack: "equipment24" as const,
-		processed: accepted,
-		accepted,
-		rejected: 0,
-		categoryCounts: {
-			weapons: 0,
-			armor: 0,
-			adventuringGear: accepted,
-			consumables: 0,
-			potions: 0,
-			scrolls: 0,
-			magicItems: 0,
-		},
-	};
-}
-
-function seedItem({
-	sourceKey,
-	rulesVersion,
-	name,
-	sourceRevision = testRevisions[0],
-}: {
-	sourceKey: string;
-	rulesVersion: "2014" | "2024";
-	name: string;
-	sourceRevision?: string;
-}): CatalogueItemSeed {
-	return {
-		source: "foundry-dnd5e",
-		sourceKey,
-		sourcePath: `packs/_source/equipment24/${sourceKey}.yml`,
-		sourceRevision,
-		sourceUrl: `https://raw.githubusercontent.com/foundryvtt/dnd5e/${sourceRevision}/packs/_source/equipment24/${sourceKey}.yml`,
-		rulesVersion,
-		license: "CC-BY-4.0",
-		capability: "equipment",
-		pack: "equipment24",
-		seedMetadata: { pack: "equipment24" },
-		identifier: sourceKey,
-		name,
-		kind: "adventuring-gear",
-		category: "Adventuring Gear",
-		description: "C2 repository precedence rope marker.",
-		isMagical: false,
-		rarity: null,
-		requiresAttunement: false,
-		costValue: 1,
-		costDenomination: "gp",
-		weight: 5,
-		thumbnailUrl: null,
-		properties: [],
-		stats: {},
-		sourcePayload: { system: { identifier: sourceKey } },
-	};
 }
