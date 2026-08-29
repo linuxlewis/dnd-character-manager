@@ -11,15 +11,15 @@ export function InventoryFilterBar({
 	onChange,
 }: {
 	activeType: InventoryFilter;
-	countItems: InventoryItem[];
-	totalCount: number;
+	countItems: InventoryItem[] | null;
+	totalCount: number | null;
 	onChange: (type: InventoryFilter) => void;
 }) {
 	return (
 		<Group
 			aria-label="Inventory type filters"
 			gap={6}
-			role="tablist"
+			role="group"
 			style={{ overflowX: "auto", paddingBottom: 2 }}
 			wrap="nowrap"
 		>
@@ -32,7 +32,7 @@ export function InventoryFilterBar({
 			{INVENTORY_ITEM_TYPES.map((type) => (
 				<FilterButton
 					active={activeType === type}
-					count={countItems.filter((item) => item.type === type).length}
+					count={countItems ? countItems.filter((item) => item.type === type).length : null}
 					key={type}
 					label={ITEM_TYPE_LABELS[type]}
 					onClick={() => onChange(type)}
@@ -49,22 +49,22 @@ function FilterButton({
 	onClick,
 }: {
 	active: boolean;
-	count: number;
+	count: number | null;
 	label: string;
 	onClick: () => void;
 }) {
 	return (
 		<Button
-			aria-selected={active}
+			aria-label={count === null ? `${label}, count unavailable` : undefined}
+			aria-pressed={active}
 			onClick={onClick}
-			role="tab"
 			size="sm"
 			style={{ flex: "0 0 auto" }}
 			variant={active ? "light" : "default"}
 		>
 			{label}{" "}
 			<Badge color={active ? "candle" : "gray"} ml={4} size="sm" variant="filled">
-				{count}
+				{count === null ? "-" : count}
 			</Badge>
 		</Button>
 	);

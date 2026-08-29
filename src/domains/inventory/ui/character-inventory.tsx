@@ -14,7 +14,6 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDeferredValue, useState } from "react";
 import {
-	ApiClientError,
 	apiMutations,
 	apiQueries,
 	apiQueryKeys,
@@ -23,6 +22,8 @@ import {
 } from "../../../generated/api-client.generated.js";
 import type { InventoryItem } from "../types/index.js";
 import { characterItemsQueryPrefix, reconcileItem } from "./inventory-cache.js";
+import { InventoryCountsAlert } from "./inventory-counts-alert.js";
+import { getInventoryErrorMessage, toInventoryError } from "./inventory-errors.js";
 import { type InventoryFilter, InventoryFilterBar } from "./inventory-filter-bar.js";
 import { ItemCard } from "./item-card.js";
 import { ItemDetailDrawer } from "./item-detail-drawer.js";
@@ -50,8 +51,14 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		...apiQueries.listCharacterItems({ characterId }, activeFilter),
 		retry: false,
 	});
+	const countQueryOptions = apiQueries.listCharacterItems({ characterId }, countFilter);
 	const countsQuery = useQuery({
-		...apiQueries.listCharacterItems({ characterId }, countFilter),
+		...countQueryOptions,
+		// Keep the list and count observers separate while reusing the generated request.
+		queryKey: [
+			...countQueryOptions.queryKey,
+			"counts",
+		] as unknown as typeof countQueryOptions.queryKey,
 		retry: false,
 	});
 	const detailQuery = useQuery({
@@ -64,12 +71,12 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	});
 	const detailItem = detailQuery.data?.item ?? selectedItem;
 	const items = inventoryQuery.data?.items ?? [];
-	const countItems = countsQuery.data?.items ?? [];
-	const totalCount = countsQuery.data?.total ?? 0;
+	const countItems = countsQuery.error ? null : (countsQuery.data?.items ?? null);
+	const totalCount = countsQuery.error ? null : (countsQuery.data?.total ?? null);
 
 	const createMutation = useMutation({
 		...apiMutations.createCharacterItem(),
-		onError: (error) => setMutationError(toError(error)),
+		onError: (error) => setMutationError(toInventoryError(error)),
 		onSuccess: (response) => {
 			setMutationError(null);
 			setFormOpen(false);
@@ -78,7 +85,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	});
 	const updateMutation = useMutation({
 		...apiMutations.updateCharacterItem(),
-		onError: (error) => setMutationError(toError(error)),
+		onError: (error) => setMutationError(toInventoryError(error)),
 		onSuccess: (response) => {
 			setMutationError(null);
 			setFormOpen(false);
@@ -88,7 +95,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	});
 	const equipMutation = useMutation({
 		...apiMutations.equipCharacterItem(),
-		onError: (error) => setMutationError(toError(error)),
+		onError: (error) => setMutationError(toInventoryError(error)),
 		onSuccess: (response) => {
 			setMutationError(null);
 			setSelectedItem(response.item);
@@ -97,7 +104,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	});
 	const unequipMutation = useMutation({
 		...apiMutations.unequipCharacterItem(),
-		onError: (error) => setMutationError(toError(error)),
+		onError: (error) => setMutationError(toInventoryError(error)),
 		onSuccess: (response) => {
 			setMutationError(null);
 			setSelectedItem(response.item);
@@ -106,7 +113,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	});
 	const deleteMutation = useMutation({
 		...apiMutations.deleteCharacterItem(),
-		onError: (error) => setMutationError(toError(error)),
+		onError: (error) => setMutationError(toInventoryError(error)),
 		onSuccess: () => {
 			setMutationError(null);
 			if (selectedItem) {
@@ -184,7 +191,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 								Personal inventory
 							</Text>
 							<Badge color="candle" variant="light">
-								{totalCount} items
+								{totalCount === null ? "Item count unavailable" : `${totalCount} items`}
 							</Badge>
 						</Group>
 						<Text c="dimmed" size="sm">
@@ -206,6 +213,8 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 						{inventoryQuery.data ? `${inventoryQuery.data.total} matching` : ""}
 					</Text>
 				</Group>
+
+				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
 
 				<InventoryFilterBar
 					activeType={activeType}
@@ -285,14 +294,4 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 			/>
 		</Paper>
 	);
-}
-
-function getInventoryErrorMessage(error: unknown) {
-	if (error instanceof ApiClientError && error.status === 404)
-		return "This character is no longer available.";
-	return "Refresh the page to try again. Your other character details are still available.";
-}
-
-function toError(error: unknown) {
-	return error instanceof Error ? error : new Error("The inventory action could not be completed.");
 }

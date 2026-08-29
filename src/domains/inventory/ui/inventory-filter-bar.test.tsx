@@ -29,6 +29,27 @@ describe("InventoryFilterBar", () => {
 		expect(html).toContain("2");
 		expect(html).toContain("1");
 		expect(html).toContain("Scroll");
+		expect(html).toContain('aria-pressed="true"');
+		expect(html).toContain('aria-pressed="false"');
+		expect(html).not.toContain('role="tab"');
+		expect(html).not.toContain('role="tablist"');
+	});
+
+	it("marks counts unavailable without presenting false zeroes", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<InventoryFilterBar
+					activeType="all"
+					countItems={null}
+					onChange={vi.fn()}
+					totalCount={null}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("count unavailable");
+		expect(html).toContain(">-<");
+		expect(html).not.toContain(">0<");
 	});
 });
 

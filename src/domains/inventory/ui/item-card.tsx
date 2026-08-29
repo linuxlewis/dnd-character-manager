@@ -4,12 +4,14 @@ import {
 	formatItemNumber,
 	getItemRarityLabel,
 	getItemRarityStyle,
+	getItemStatEntries,
 	getItemTypeIcon,
 	getItemTypeLabel,
 } from "./item-presentation.js";
 
 export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () => void }) {
 	const rarityStyle = getItemRarityStyle(item.rarity);
+	const stats = getItemStatEntries(item).slice(0, 3);
 	const TypeIcon = getItemTypeIcon(item.type);
 
 	return (
@@ -62,6 +64,18 @@ export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () =
 							)}
 						</Group>
 					</Group>
+					{stats.length > 0 && (
+						<Group gap="xs" wrap="wrap">
+							{stats.map((stat) => (
+								<Text c="dimmed" key={stat.label} size="xs">
+									<Text fw={600} span>
+										{stat.label}:
+									</Text>{" "}
+									{stat.value}
+								</Text>
+							))}
+						</Group>
+					)}
 					{item.isEquipped && (
 						<Badge color="teal" leftSection="" size="sm" variant="dot" w="fit-content">
 							Equipped

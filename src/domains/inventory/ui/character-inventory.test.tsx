@@ -46,6 +46,32 @@ describe("CharacterInventory", () => {
 		expect(html).toContain("Equipment");
 		expect(html).toContain("Potion");
 	});
+
+	it("keeps item cards visible with an explicit counts failure", async () => {
+		const client = new QueryClient();
+		setList(client, [makeItem({ name: "Longsword", type: "equipment" })], 1);
+		const countQueryKey = [
+			...apiQueryKeys.listCharacterItems({ characterId }, { search: undefined }),
+			"counts",
+		];
+		await expect(
+			client.fetchQuery({
+				queryFn: async () => {
+					throw new Error("count service unavailable");
+				},
+				queryKey: countQueryKey,
+				retry: false,
+			}),
+		).rejects.toThrow("count service unavailable");
+
+		const html = renderInventory(client);
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Inventory counts unavailable");
+		expect(readableHtml).toContain("Item cards remain available");
+		expect(readableHtml).toContain("Longsword");
+		expect(readableHtml).toContain("Item count unavailable");
+		expect(readableHtml).not.toContain("0 items");
+	});
 });
 
 function renderInventory(client: QueryClient) {
@@ -63,10 +89,10 @@ function setList(client: QueryClient, items: ReturnType<typeof makeItem>[], tota
 		apiQueryKeys.listCharacterItems({ characterId }, { search: undefined, type: undefined }),
 		{ items, total },
 	);
-	client.setQueryData(apiQueryKeys.listCharacterItems({ characterId }, { search: undefined }), {
-		items,
-		total,
-	});
+	client.setQueryData(
+		[...apiQueryKeys.listCharacterItems({ characterId }, { search: undefined }), "counts"],
+		{ items, total },
+	);
 }
 
 function makeItem(overrides: Record<string, unknown>) {

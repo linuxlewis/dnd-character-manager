@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import postgres from "postgres";
 import {
@@ -9,7 +10,14 @@ import { CATALOGUE_SOURCE_MANIFEST } from "../../src/domains/catalogue/config/ma
 
 const databaseUrl = process.env.DATABASE_URL;
 const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
-const fixtureSourcePrefix = "codex-a7";
+const fixtureRunId = `${Date.now().toString(36)}-${process.pid}-${randomUUID().slice(0, 8)}`;
+const fixtureSourcePrefix = `codex-a7-${fixtureRunId}`;
+const fixtureAuditMarker = `a7_${fixtureRunId.replaceAll("-", "_")}`;
+const fixtureMundaneName = `Silvered Blade ${fixtureRunId}`;
+const fixtureMagicName = `Moonblade ${fixtureRunId}`;
+let fixtureRulesVersion: "2014" | "2024" = "2024";
+let previousAudit: CatalogueAuditRow | null = null;
+let fixtureAuditChanged = false;
 
 test.beforeAll(async () => {
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
@@ -18,8 +26,20 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
 	if (sql) {
-		await sql`DELETE FROM catalogue_items`;
-		await sql`DELETE FROM catalogue_item_seed_audits`;
+		await sql`DELETE FROM catalogue_items WHERE seed_metadata->>'fixture' = ${fixtureSourcePrefix}`;
+		if (fixtureAuditChanged) {
+			if (previousAudit) {
+				await restoreCatalogueAudit(sql, previousAudit);
+			} else {
+				await sql`
+					DELETE FROM catalogue_item_seed_audits
+					WHERE source = ${FOUNDRY_DND5E_SOURCE}
+					  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+					  AND pack = 'equipment24'
+					  AND category_counts ? ${fixtureAuditMarker}
+				`;
+			}
+		}
 	}
 	await sql?.end();
 });
@@ -37,19 +57,21 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await expect(addDialog.getByText("Rules 2024")).toBeVisible();
 	await addDialog.getByLabel("Search SRD catalogue").fill("blade");
 	await expect(
-		addDialog.getByRole("button", { name: "Select catalogue item Silvered Blade" }),
+		addDialog.getByRole("button", { name: `Select catalogue item ${fixtureMundaneName}` }),
 	).toBeVisible();
 	await expect(
-		addDialog.getByRole("button", { name: "Select catalogue item Moonblade" }),
+		addDialog.getByRole("button", { name: `Select catalogue item ${fixtureMagicName}` }),
 	).toBeVisible();
 	await expect(addDialog.getByText("Mundane", { exact: true })).toBeVisible();
 	await expect(addDialog.getByText("Magic item", { exact: true })).toBeVisible();
-	await addDialog.getByRole("button", { name: "Select catalogue item Silvered Blade" }).click();
-	await expect(addDialog.getByLabel("Name")).toHaveValue("Silvered Blade");
+	await addDialog
+		.getByRole("button", { name: `Select catalogue item ${fixtureMundaneName}` })
+		.click();
+	await expect(addDialog.getByLabel("Name")).toHaveValue(fixtureMundaneName);
 	await expect(addDialog.getByLabel("Category")).toHaveValue("Weapons");
 	await addDialog.getByLabel("Quantity").fill("2");
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
-	await expect(page.getByRole("button", { name: "View Silvered Blade" })).toBeVisible();
+	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
 	await expect(addDialog).toBeHidden();
 
 	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
@@ -64,8 +86,14 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeVisible();
 
 	await expect(page.getByText("2 items")).toBeVisible();
-	await expect(page.getByRole("tab", { name: /Equipment/ })).toContainText("1");
-	await expect(page.getByRole("tab", { name: /Potion/ })).toContainText("1");
+	await expect(page.getByRole("button", { name: /Equipment/ })).toContainText("1");
+	await expect(page.getByRole("button", { name: /Potion/ })).toContainText("1");
+	await expect(page.getByRole("button", { name: /All/ })).toHaveAttribute("aria-pressed", "true");
+	await expect(page.getByRole("button", { name: /Equipment/ })).toHaveAttribute(
+		"aria-pressed",
+		"false",
+	);
+	await expect(page.getByRole("tab")).toHaveCount(0);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
@@ -79,35 +107,39 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 
 	const inventorySearch = page.getByLabel("Search personal inventory");
 	await inventorySearch.fill("Silvered");
-	await expect(page.getByRole("button", { name: "View Silvered Blade" })).toBeVisible();
+	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeHidden();
 	await inventorySearch.fill("");
-	await page.getByRole("tab", { name: /Potion/ }).click();
+	await page.getByRole("button", { name: /Potion/ }).click();
+	await expect(page.getByRole("button", { name: /Potion/ })).toHaveAttribute(
+		"aria-pressed",
+		"true",
+	);
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeVisible();
-	await expect(page.getByRole("button", { name: "View Silvered Blade" })).toBeHidden();
-	await page.getByRole("tab", { name: /All/ }).click();
+	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeHidden();
+	await page.getByRole("button", { name: /All/ }).click();
 
-	await page.getByRole("button", { name: "View Silvered Blade" }).click();
-	await expect(page.getByText("Rules 2024")).toBeVisible();
+	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
+	await expect(page.getByText(`Rules ${fixtureRulesVersion}`)).toBeVisible();
 	await page.getByRole("button", { name: "Equip", exact: true }).click();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: "Silvered Blade" })
+			.filter({ hasText: fixtureMundaneName })
 			.getByText("Equipped", { exact: true }),
 	).toBeVisible();
-	await page.getByRole("button", { name: "Close Silvered Blade details" }).click();
+	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
 	await page.reload();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: "Silvered Blade" })
+			.filter({ hasText: fixtureMundaneName })
 			.getByText("Equipped"),
 	).toBeVisible();
 
-	await page.getByRole("button", { name: "View Silvered Blade" }).click();
+	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
 	await page
-		.getByLabel("Silvered BladeEquipment", { exact: true })
+		.getByLabel(`${fixtureMundaneName}Equipment`, { exact: true })
 		.getByRole("button", { name: "Edit", exact: true })
 		.click();
 	const editDialog = page.getByRole("dialog", { name: "Edit personal item" });
@@ -115,7 +147,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await editDialog.getByRole("button", { name: "Save item" }).click();
 	await expect(editDialog).toBeHidden();
 	await expect(page.getByText("Found in the old keep", { exact: true })).toBeVisible();
-	await page.getByRole("button", { name: "Close Silvered Blade details" }).click();
+	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
 
 	await page.route(
 		"**/api/catalogue/status",
@@ -136,10 +168,10 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 			}),
 	);
 	await page.reload();
-	await expect(page.getByRole("button", { name: "View Silvered Blade" })).toBeVisible();
-	await page.getByRole("button", { name: "View Silvered Blade" }).click();
-	await expect(page.getByText("Rules 2024")).toBeVisible();
-	await page.getByRole("button", { name: "Close Silvered Blade details" }).click();
+	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeVisible();
+	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
+	await expect(page.getByText(`Rules ${fixtureRulesVersion}`)).toBeVisible();
+	await page.getByRole("button", { name: `Close ${fixtureMundaneName} details` }).click();
 	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
 	const unavailableDialog = page.getByRole("dialog", { name: "Add personal item" });
 	await expect(unavailableDialog.getByText("SRD catalogue unavailable")).toBeVisible();
@@ -149,30 +181,30 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await page.unroute("**/api/catalogue/status");
 	await page.unroute("**/api/catalogue/items**");
 
-	await page.getByRole("button", { name: "View Silvered Blade" }).click();
+	await page.getByRole("button", { name: `View ${fixtureMundaneName}` }).click();
 	await page.getByRole("button", { name: "Unequip", exact: true }).click();
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
-			.filter({ hasText: "Silvered Blade" })
+			.filter({ hasText: fixtureMundaneName })
 			.getByText("Equipped", { exact: true }),
 	).toBeHidden();
 	await page.getByRole("button", { name: "Delete", exact: true }).click();
 	const deleteDialog = page.getByRole("dialog", { name: "Delete item?" });
-	await expect(deleteDialog).toContainText("Silvered Blade");
+	await expect(deleteDialog).toContainText(fixtureMundaneName);
 	await deleteDialog.getByRole("button", { name: "Cancel" }).click();
 	await page.getByRole("button", { name: "Delete", exact: true }).click();
 	await page
 		.getByRole("dialog", { name: "Delete item?" })
 		.getByRole("button", { name: "Delete item" })
 		.click();
-	await expect(page.getByRole("button", { name: "View Silvered Blade" })).toBeHidden();
+	await expect(page.getByRole("button", { name: `View ${fixtureMundaneName}` })).toBeHidden();
 
 	await page.getByText("Back to characters").click();
 	const secondCharacterName = `A7 Inventory Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	await expect(page.getByText("No personal items yet")).toBeVisible();
-	await expect(page.getByText("Silvered Blade")).toBeHidden();
+	await expect(page.getByText(fixtureMundaneName)).toBeHidden();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto(firstCharacterUrl);
@@ -201,19 +233,44 @@ test("keeps character details visible when personal inventory fails", async ({ p
 	await expect(page.getByText("Personal Treasury")).toBeVisible();
 });
 
+type CatalogueAuditRow = {
+	id: string;
+	source: string;
+	source_revision: string;
+	rules_version: string;
+	capability: string;
+	pack: string;
+	processed: number | string;
+	accepted: number | string;
+	rejected: number | string;
+	category_counts: Record<string, number>;
+	created_at: Date | string;
+};
+
 async function seedCatalogue(database: ReturnType<typeof postgres>) {
+	const [audit] = await database<CatalogueAuditRow[]>`
+		SELECT id, source, source_revision, rules_version, capability, pack, processed, accepted,
+			rejected, category_counts, created_at
+		FROM catalogue_item_seed_audits
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND pack = 'equipment24'
+		LIMIT 1
+	`;
+	const [countRow] = await database<{ count: number | string }[]>`
+		SELECT count(*)::int AS count
+		FROM catalogue_items
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
+		  AND seed_capability = 'equipment'
+		  AND seed_pack = 'equipment24'
+	`;
+	const currentItemCount = Number(countRow?.count ?? 0);
+	const reuseCurrentProjection = isUsableCurrentProjection(audit, currentItemCount);
+	fixtureRulesVersion = reuseCurrentProjection ? "2014" : "2024";
+	previousAudit = reuseCurrentProjection ? null : (audit ?? null);
 	const items = buildCatalogueFixture();
-	const categoryCounts = {
-		weapons: 82,
-		armor: 32,
-		adventuringGear: 161,
-		consumables: 57,
-		potions: 30,
-		scrolls: 11,
-		magicItems: 351,
-	};
-	await database`DELETE FROM catalogue_items`;
-	await database`DELETE FROM catalogue_item_seed_audits`;
 	for (const item of items) {
 		await database`
 			INSERT INTO catalogue_items (
@@ -230,17 +287,40 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 				${item.costDenomination}, ${item.weight}, ${item.thumbnailUrl}, ${database.json(item.properties)},
 				${database.json(item.stats)}, ${database.json(item.sourcePayload)}
 			)
-		`;
+			`;
 	}
-	await database`
-		INSERT INTO catalogue_item_seed_audits (
-			source, source_revision, rules_version, capability, pack, processed, accepted, rejected, category_counts
-		)
-		VALUES (
-			${FOUNDRY_DND5E_SOURCE}, ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}, ${FOUNDRY_DND5E_RULES_VERSION},
-			'equipment', 'equipment24', ${items.length}, ${items.length}, 0, ${database.json(categoryCounts)}
-		)
-	`;
+	if (!reuseCurrentProjection) {
+		const projectionRows = await database<
+			{ item_category: string; item_kind: string; is_magical: boolean }[]
+		>`
+			SELECT item_category, item_kind, is_magical
+			FROM catalogue_items
+			WHERE source = ${FOUNDRY_DND5E_SOURCE}
+			  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+			  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
+			  AND seed_capability = 'equipment'
+			  AND seed_pack = 'equipment24'
+		`;
+		const categoryCounts = getCategoryCounts(projectionRows);
+		await database`
+			INSERT INTO catalogue_item_seed_audits (
+				source, source_revision, rules_version, capability, pack, processed, accepted, rejected, category_counts
+			)
+			VALUES (
+				${FOUNDRY_DND5E_SOURCE}, ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}, ${FOUNDRY_DND5E_RULES_VERSION},
+				'equipment', 'equipment24', ${projectionRows.length}, ${projectionRows.length}, 0,
+				${database.json(categoryCounts)}
+			)
+			ON CONFLICT (source, source_revision, pack) DO UPDATE SET
+				rules_version = EXCLUDED.rules_version,
+				capability = EXCLUDED.capability,
+				processed = EXCLUDED.processed,
+				accepted = EXCLUDED.accepted,
+				rejected = EXCLUDED.rejected,
+				category_counts = EXCLUDED.category_counts
+		`;
+		fixtureAuditChanged = true;
+	}
 }
 
 function buildCatalogueFixture() {
@@ -255,32 +335,27 @@ function buildCatalogueFixture() {
 	] as const;
 	const items = definitions.flatMap(([kind, category, count]) =>
 		Array.from({ length: count }, (_, index) => {
-			const fixtureIndex = 1_000 + itemsBuiltBefore(definitions, kind) + index;
 			const isSilveredBlade = kind === "weapon" && index === 0;
 			const isMoonblade = kind === "magic-item" && index === 0;
 			const name = isSilveredBlade
-				? "Silvered Blade"
+				? fixtureMundaneName
 				: isMoonblade
-					? "Moonblade"
+					? fixtureMagicName
 					: `${category} Fixture ${index + 1}`;
 			const sourceKey = isSilveredBlade
-				? "codex-a7-silvered-blade"
+				? `${fixtureSourcePrefix}-silvered-blade`
 				: isMoonblade
-					? "codex-a7-moonblade"
+					? `${fixtureSourcePrefix}-moonblade`
 					: `${fixtureSourcePrefix}-${kind}-${index + 1}`;
 			const sourcePath = `packs/_source/equipment24/${kind}/${sourceKey}.yml`;
 			return {
-				id: isSilveredBlade
-					? "00000000-0000-4000-8000-000000000051"
-					: isMoonblade
-						? "00000000-0000-4000-8000-000000000052"
-						: fixtureId(fixtureIndex),
+				id: randomUUID(),
 				source: FOUNDRY_DND5E_SOURCE,
 				sourceKey,
 				sourcePath,
 				sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
 				sourceUrl: foundryDnd5eRawUrl(sourcePath),
-				rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
+				rulesVersion: fixtureRulesVersion,
 				license: "CC-BY-4.0",
 				seedCapability: "equipment",
 				seedPack: "equipment24",
@@ -294,9 +369,9 @@ function buildCatalogueFixture() {
 					: isMoonblade
 						? "A luminous magical blade."
 						: `Deterministic ${category.toLowerCase()} fixture.`,
-				isMagical: isMoonblade,
-				rarity: isMoonblade ? "rare" : null,
-				requiresAttunement: isMoonblade,
+				isMagical: kind === "magic-item",
+				rarity: kind === "magic-item" ? "rare" : null,
+				requiresAttunement: kind === "magic-item",
 				costValue: isSilveredBlade ? 15 : null,
 				costDenomination: isSilveredBlade ? "gp" : null,
 				weight: isSilveredBlade || isMoonblade ? 3 : null,
@@ -310,20 +385,52 @@ function buildCatalogueFixture() {
 	return items;
 }
 
-function itemsBuiltBefore(
-	definitions: readonly (readonly [string, string, number])[],
-	kind: string,
-) {
-	return definitions
-		.slice(
-			0,
-			definitions.findIndex(([candidate]) => candidate === kind),
-		)
-		.reduce((total, [, , count]) => total + count, 0);
+function isUsableCurrentProjection(audit: CatalogueAuditRow | undefined, itemCount: number) {
+	if (!audit) return false;
+	if (audit.rules_version !== FOUNDRY_DND5E_RULES_VERSION) return false;
+	if (audit.capability !== "equipment" || audit.pack !== "equipment24") return false;
+	if (Number(audit.accepted) !== itemCount || Number(audit.rejected) !== 0) return false;
+	if (Number(audit.processed) < 627) return false;
+	return Object.entries({
+		weapons: 82,
+		armor: 32,
+		adventuringGear: 161,
+		consumables: 57,
+		potions: 30,
+		scrolls: 11,
+		magicItems: 351,
+	}).every(([key, minimum]) => Number(audit.category_counts[key] ?? 0) >= minimum);
 }
 
-function fixtureId(index: number) {
-	return `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
+function getCategoryCounts(
+	rows: Array<{ item_category: string; item_kind: string; is_magical: boolean }>,
+) {
+	return {
+		weapons: rows.filter((row) => row.item_category === "Weapons").length,
+		armor: rows.filter((row) => row.item_category === "Armor").length,
+		adventuringGear: rows.filter((row) => row.item_category === "Adventuring Gear").length,
+		consumables: rows.filter((row) => ["potion", "scroll", "consumable"].includes(row.item_kind))
+			.length,
+		potions: rows.filter((row) => row.item_kind === "potion").length,
+		scrolls: rows.filter((row) => row.item_kind === "scroll").length,
+		magicItems: rows.filter((row) => row.is_magical).length,
+		[fixtureAuditMarker]: 1,
+	};
+}
+
+async function restoreCatalogueAudit(
+	database: ReturnType<typeof postgres>,
+	audit: CatalogueAuditRow,
+) {
+	await database`
+		UPDATE catalogue_item_seed_audits
+		SET source = ${audit.source}, source_revision = ${audit.source_revision},
+			rules_version = ${audit.rules_version}, capability = ${audit.capability}, pack = ${audit.pack},
+			processed = ${Number(audit.processed)}, accepted = ${Number(audit.accepted)},
+			rejected = ${Number(audit.rejected)}, category_counts = ${database.json(audit.category_counts)},
+			created_at = ${audit.created_at}
+		WHERE id = ${audit.id}
+	`;
 }
 
 async function createCharacter(page: Page, name: string, className: string) {

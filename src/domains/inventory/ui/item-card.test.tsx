@@ -5,12 +5,12 @@ import { InventoryItemSchema } from "../types/index.js";
 import { ItemCard } from "./item-card.js";
 
 describe("ItemCard", () => {
-	it("renders the thumbnail fallback, rarity, quantity, type, and values", () => {
+	it("renders the thumbnail fallback, rarity, quantity, type, values, and key stats", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<ItemCard item={item()} onClick={() => undefined} />
 			</MantineProvider>,
-		);
+		).replaceAll("<!-- -->", "");
 
 		expect(html).toContain('aria-label="View Moonblade"');
 		expect(html).toContain('aria-label="Equipment icon"');
@@ -20,6 +20,8 @@ describe("ItemCard", () => {
 		expect(html).toContain("Weapons");
 		expect(html).toContain("3 lb");
 		expect(html).toContain("15 GP");
+		expect(html).toContain("Damage:");
+		expect(html).toContain("1d8 slashing");
 	});
 });
 
@@ -37,7 +39,7 @@ function item() {
 		estimatedValue: 15,
 		notes: null,
 		thumbnailUrl: null,
-		properties: {},
+		properties: { stats: { damage: "1d8 slashing" } },
 		isEquipped: false,
 		statModifiers: null,
 		statOverrides: null,

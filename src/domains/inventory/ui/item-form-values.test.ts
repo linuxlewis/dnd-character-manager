@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CatalogueItemDetails } from "../../catalogue/types/index.js";
 import {
+	catalogueItemIdForSubmission,
 	catalogueItemToFormValues,
 	toCharacterItemRequest,
 	validateItemForm,
@@ -76,5 +77,16 @@ describe("item form values", () => {
 			notes: "Travel weapon",
 			catalogueItemId: catalogueItem.id,
 		});
+	});
+
+	it("omits the catalogue reference when detail loading fails", () => {
+		const values = catalogueItemToFormValues(catalogueItem);
+		const request = toCharacterItemRequest(
+			values,
+			"create",
+			catalogueItemIdForSubmission(catalogueItem.id, new Error("catalogue unavailable")),
+		);
+
+		expect(request).toMatchObject({ catalogueItemId: null });
 	});
 });

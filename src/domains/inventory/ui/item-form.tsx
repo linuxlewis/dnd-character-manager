@@ -25,6 +25,7 @@ import type { InventoryItem } from "../types/index.js";
 import { CatalogueItemSearch } from "./catalogue-item-search.js";
 import type { ItemFormValues } from "./item-form-values.js";
 import {
+	catalogueItemIdForSubmission,
 	catalogueItemToFormValues,
 	initialItemFormValues,
 	toCharacterItemRequest,
@@ -65,6 +66,7 @@ export function ItemForm({
 			);
 			form.setValues({ ...form.values, ...catalogueItemToFormValues(details) });
 		} catch (error) {
+			setSelectedCatalogueId(null);
 			setCatalogueDetailError(toError(error));
 		} finally {
 			setDetailPendingId(null);
@@ -89,7 +91,13 @@ export function ItemForm({
 			<Box
 				component="form"
 				onSubmit={form.onSubmit((values) =>
-					onSubmit(toCharacterItemRequest(values, mode, selectedCatalogueId)),
+					onSubmit(
+						toCharacterItemRequest(
+							values,
+							mode,
+							catalogueItemIdForSubmission(selectedCatalogueId, catalogueDetailError),
+						),
+					),
 				)}
 			>
 				<Stack gap="md">

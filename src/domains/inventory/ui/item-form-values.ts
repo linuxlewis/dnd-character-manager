@@ -94,6 +94,13 @@ export function toCharacterItemRequest(
 	return mode === "create" ? { ...fields, catalogueItemId } : fields;
 }
 
+export function catalogueItemIdForSubmission(
+	selectedCatalogueId: string | null,
+	catalogueDetailError: Error | null,
+) {
+	return catalogueDetailError ? null : selectedCatalogueId;
+}
+
 function catalogueProperties(item: CatalogueItemDetails | CatalogueItemSearchResult): JsonObject {
 	return {
 		catalogueKind: item.kind,
