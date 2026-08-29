@@ -80,6 +80,26 @@ export const InsufficientFundsResponseSchema = z
 	.strict();
 export type InsufficientFundsResponse = z.infer<typeof InsufficientFundsResponseSchema>;
 
+export const InsufficientDenominationErrorSchema = z
+	.object({
+		code: z.literal("INSUFFICIENT_DENOMINATION"),
+		message: z.string().min(1).max(240),
+		denomination: CurrencyDenominationSchema,
+		available: PostgresNonNegativeIntegerSchema,
+		requested: PositivePostgresIntegerSchema,
+	})
+	.strict();
+export type InsufficientDenominationError = z.infer<typeof InsufficientDenominationErrorSchema>;
+
+export const InsufficientDenominationResponseSchema = z
+	.object({
+		error: InsufficientDenominationErrorSchema,
+	})
+	.strict();
+export type InsufficientDenominationResponse = z.infer<
+	typeof InsufficientDenominationResponseSchema
+>;
+
 export const CurrencyAddRequestSchema = z
 	.object({ delta: CurrencyDeltaSchema })
 	.strict()

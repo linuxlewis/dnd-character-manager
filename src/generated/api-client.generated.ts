@@ -14,6 +14,9 @@ import { SignOutResponseSchema } from "../providers/auth/sign-out-types.js";
 import type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterExperienceRequest, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterNameRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
 export type { CharacterDetailResponse, CharacterSpellDetailsResponse, CharacterSpellSlotsResponse, CharacterSpellsResponse, CreateCharacterRequest, ListCharactersResponse, RestoreCharacterSpellSlotRequest, SaveCharacterSpellRequest, SearchCharacterSpellsRequest, SearchCharacterSpellsResponse, UpdateCharacterExperienceRequest, UpdateCharacterHealthRequest, UpdateCharacterHealthResponse, UpdateCharacterLevelRequest, UpdateCharacterNameRequest, UpdateCharacterSpellSlotsRequest, UseCharacterSpellSlotRequest } from "../domains/characters/types/index.js";
 import { CharacterDetailResponseSchema, CharacterSpellDetailsResponseSchema, CharacterSpellSlotsResponseSchema, CharacterSpellsResponseSchema, ListCharactersResponseSchema, SearchCharacterSpellsResponseSchema, UpdateCharacterHealthResponseSchema } from "../domains/characters/types/index.js";
+import type { AddCharacterTreasuryRequest, AddCharacterTreasuryResponse, CharacterTreasuryPreviewResponse, CharacterTreasuryResponse, ConvertCharacterTreasuryRequest, ConvertCharacterTreasuryResponse, SpendCharacterTreasuryRequest, SpendCharacterTreasuryResponse } from "../domains/inventory/types/index.js";
+export type { AddCharacterTreasuryRequest, AddCharacterTreasuryResponse, CharacterTreasuryPreviewResponse, CharacterTreasuryResponse, ConvertCharacterTreasuryRequest, ConvertCharacterTreasuryResponse, SpendCharacterTreasuryRequest, SpendCharacterTreasuryResponse } from "../domains/inventory/types/index.js";
+import { AddCharacterTreasuryResponseSchema, CharacterTreasuryPreviewResponseSchema, CharacterTreasuryResponseSchema, ConvertCharacterTreasuryResponseSchema, InsufficientDenominationResponseSchema, InsufficientFundsResponseSchema, SpendCharacterTreasuryResponseSchema } from "../domains/inventory/types/index.js";
 
 export interface ApiClientOptions {
 	baseUrl?: string;
@@ -42,85 +45,57 @@ export function createApiClient(options: ApiClientOptions = {}) {
 	const fetchImpl = options.fetch ?? fetch;
 
 	return {
-		getCurrentUser(options: ApiRequestOptions = {}): Promise<CurrentUserResponse> {
-			return request<CurrentUserResponse>(fetchImpl, baseUrl, "GET", "/api/current-user", options, undefined, (body: unknown) => CurrentUserResponseSchema.parse(body));
-		},
+		getCurrentUser(options: ApiRequestOptions = {}): Promise<CurrentUserResponse> { return request<CurrentUserResponse>(fetchImpl, baseUrl, "GET", "/api/current-user", options, undefined, (body: unknown) => CurrentUserResponseSchema.parse(body)); },
 
-		requestMagicLinkSignIn(body: MagicLinkRequest, options: ApiRequestOptions = {}): Promise<MagicLinkRequestResponse> {
-			return request<MagicLinkRequestResponse>(fetchImpl, baseUrl, "POST", "/api/magic-link-requests", options, body, (body: unknown) => MagicLinkRequestResponseSchema.parse(body));
-		},
+		requestMagicLinkSignIn(body: MagicLinkRequest, options: ApiRequestOptions = {}): Promise<MagicLinkRequestResponse> { return request<MagicLinkRequestResponse>(fetchImpl, baseUrl, "POST", "/api/magic-link-requests", options, body, (body: unknown) => MagicLinkRequestResponseSchema.parse(body)); },
 
-		signOutCurrentUser(options: ApiRequestOptions = {}): Promise<SignOutResponse> {
-			return request<SignOutResponse>(fetchImpl, baseUrl, "POST", "/api/sign-out", options, undefined, (body: unknown) => SignOutResponseSchema.parse(body));
-		},
+		signOutCurrentUser(options: ApiRequestOptions = {}): Promise<SignOutResponse> { return request<SignOutResponse>(fetchImpl, baseUrl, "POST", "/api/sign-out", options, undefined, (body: unknown) => SignOutResponseSchema.parse(body)); },
 
-		createCharacter(body: CreateCharacterRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
-			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "POST", "/api/characters", options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
-		},
+		createCharacter(body: CreateCharacterRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> { return request<CharacterDetailResponse>(fetchImpl, baseUrl, "POST", "/api/characters", options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body)); },
 
-		listCharacters(options: ApiRequestOptions = {}): Promise<ListCharactersResponse> {
-			return request<ListCharactersResponse>(fetchImpl, baseUrl, "GET", "/api/characters", options, undefined, (body: unknown) => ListCharactersResponseSchema.parse(body));
-		},
+		listCharacters(options: ApiRequestOptions = {}): Promise<ListCharactersResponse> { return request<ListCharactersResponse>(fetchImpl, baseUrl, "GET", "/api/characters", options, undefined, (body: unknown) => ListCharactersResponseSchema.parse(body)); },
 
-		getCharacter(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
-			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}`, options, undefined, (body: unknown) => CharacterDetailResponseSchema.parse(body));
-		},
+		getCharacter(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> { return request<CharacterDetailResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}`, options, undefined, (body: unknown) => CharacterDetailResponseSchema.parse(body)); },
 
-		updateCharacterLevel(params: { characterId: string }, body: UpdateCharacterLevelRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
-			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/level`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
-		},
+		updateCharacterLevel(params: { characterId: string }, body: UpdateCharacterLevelRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> { return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/level`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body)); },
 
-		updateCharacterName(params: { characterId: string }, body: UpdateCharacterNameRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
-			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/name`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
-		},
+		updateCharacterName(params: { characterId: string }, body: UpdateCharacterNameRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> { return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/name`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body)); },
 
-		updateCharacterExperience(params: { characterId: string }, body: UpdateCharacterExperienceRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> {
-			return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/experience`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body));
-		},
+		updateCharacterExperience(params: { characterId: string }, body: UpdateCharacterExperienceRequest, options: ApiRequestOptions = {}): Promise<CharacterDetailResponse> { return request<CharacterDetailResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/experience`, options, body, (body: unknown) => CharacterDetailResponseSchema.parse(body)); },
 
-		updateCharacterHealth(params: { characterId: string }, body: UpdateCharacterHealthRequest, options: ApiRequestOptions = {}): Promise<UpdateCharacterHealthResponse> {
-			return request<UpdateCharacterHealthResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/health`, options, body, (body: unknown) => UpdateCharacterHealthResponseSchema.parse(body));
-		},
+		updateCharacterHealth(params: { characterId: string }, body: UpdateCharacterHealthRequest, options: ApiRequestOptions = {}): Promise<UpdateCharacterHealthResponse> { return request<UpdateCharacterHealthResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/health`, options, body, (body: unknown) => UpdateCharacterHealthResponseSchema.parse(body)); },
 
-		getCharacterSpellSlots(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
-			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spell-slots`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
-		},
+		getCharacterSpellSlots(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> { return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spell-slots`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body)); },
 
-		updateCharacterSpellSlots(params: { characterId: string }, body: UpdateCharacterSpellSlotsRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
-			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/spell-slots`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
-		},
+		updateCharacterSpellSlots(params: { characterId: string }, body: UpdateCharacterSpellSlotsRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> { return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/spell-slots`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body)); },
 
-		useCharacterSpellSlot(params: { characterId: string }, body: UseCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
-			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/use`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
-		},
+		useCharacterSpellSlot(params: { characterId: string }, body: UseCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> { return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/use`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body)); },
 
-		restoreCharacterSpellSlot(params: { characterId: string }, body: RestoreCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
-			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/restore`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
-		},
+		restoreCharacterSpellSlot(params: { characterId: string }, body: RestoreCharacterSpellSlotRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> { return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/restore`, options, body, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body)); },
 
-		applyCharacterSpellSlotDefaults(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> {
-			return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/apply-defaults`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body));
-		},
+		applyCharacterSpellSlotDefaults(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellSlotsResponse> { return request<CharacterSpellSlotsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spell-slots/apply-defaults`, options, undefined, (body: unknown) => CharacterSpellSlotsResponseSchema.parse(body)); },
 
-		listCharacterSpells(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
-			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
-		},
+		listCharacterSpells(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> { return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body)); },
 
-		getCharacterSpellDetails(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellDetailsResponse> {
-			return request<CharacterSpellDetailsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellDetailsResponseSchema.parse(body));
-		},
+		getCharacterSpellDetails(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellDetailsResponse> { return request<CharacterSpellDetailsResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellDetailsResponseSchema.parse(body)); },
 
-		searchCharacterSpells(params: { characterId: string }, body: SearchCharacterSpellsRequest, options: ApiRequestOptions = {}): Promise<SearchCharacterSpellsResponse> {
-			return request<SearchCharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells/search`, options, body, (body: unknown) => SearchCharacterSpellsResponseSchema.parse(body));
-		},
+		searchCharacterSpells(params: { characterId: string }, body: SearchCharacterSpellsRequest, options: ApiRequestOptions = {}): Promise<SearchCharacterSpellsResponse> { return request<SearchCharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells/search`, options, body, (body: unknown) => SearchCharacterSpellsResponseSchema.parse(body)); },
 
-		saveCharacterSpell(params: { characterId: string }, body: SaveCharacterSpellRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
-			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells`, options, body, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
-		},
+		saveCharacterSpell(params: { characterId: string }, body: SaveCharacterSpellRequest, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> { return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/spells`, options, body, (body: unknown) => CharacterSpellsResponseSchema.parse(body)); },
 
-		removeCharacterSpell(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> {
-			return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "DELETE", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body));
-		}
+		removeCharacterSpell(params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}): Promise<CharacterSpellsResponse> { return request<CharacterSpellsResponse>(fetchImpl, baseUrl, "DELETE", `/api/characters/${params.characterId}/spells/${params.spellId}`, options, undefined, (body: unknown) => CharacterSpellsResponseSchema.parse(body)); },
+
+		getCharacterTreasury(params: { characterId: string }, options: ApiRequestOptions = {}): Promise<CharacterTreasuryResponse> { return request<CharacterTreasuryResponse>(fetchImpl, baseUrl, "GET", `/api/characters/${params.characterId}/treasury`, options, undefined, (body: unknown) => CharacterTreasuryResponseSchema.parse(body)); },
+
+		addCharacterTreasury(params: { characterId: string }, body: AddCharacterTreasuryRequest, options: ApiRequestOptions = {}): Promise<AddCharacterTreasuryResponse> { return request<AddCharacterTreasuryResponse>(fetchImpl, baseUrl, "PUT", `/api/characters/${params.characterId}/treasury`, options, body, (body: unknown) => AddCharacterTreasuryResponseSchema.parse(body)); },
+
+		spendCharacterTreasury(params: { characterId: string }, body: SpendCharacterTreasuryRequest, options: ApiRequestOptions = {}): Promise<SpendCharacterTreasuryResponse> { return request<SpendCharacterTreasuryResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/treasury/spend`, options, body, (body: unknown) => SpendCharacterTreasuryResponseSchema.parse(body)); },
+
+		convertCharacterTreasury(params: { characterId: string }, body: ConvertCharacterTreasuryRequest, options: ApiRequestOptions = {}): Promise<ConvertCharacterTreasuryResponse> { return request<ConvertCharacterTreasuryResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/treasury/convert`, options, body, (body: unknown) => ConvertCharacterTreasuryResponseSchema.parse(body)); },
+
+		previewAddCharacterTreasury(params: { characterId: string }, body: AddCharacterTreasuryRequest, options: ApiRequestOptions = {}): Promise<CharacterTreasuryPreviewResponse> { return request<CharacterTreasuryPreviewResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/treasury/preview/add`, options, body, (body: unknown) => CharacterTreasuryPreviewResponseSchema.parse(body)); },
+
+		previewSpendCharacterTreasury(params: { characterId: string }, body: SpendCharacterTreasuryRequest, options: ApiRequestOptions = {}): Promise<CharacterTreasuryPreviewResponse> { return request<CharacterTreasuryPreviewResponse>(fetchImpl, baseUrl, "POST", `/api/characters/${params.characterId}/treasury/preview/spend`, options, body, (body: unknown) => CharacterTreasuryPreviewResponseSchema.parse(body)); }
 	};
 }
 
@@ -133,6 +108,7 @@ export const apiQueryKeys = {
 	getCharacterSpellSlots: (params: { characterId: string }) => ["api", "getCharacterSpellSlots", params] as const,
 	listCharacterSpells: (params: { characterId: string }) => ["api", "listCharacterSpells", params] as const,
 	getCharacterSpellDetails: (params: { characterId: string; spellId: string }) => ["api", "getCharacterSpellDetails", params] as const,
+	getCharacterTreasury: (params: { characterId: string }) => ["api", "getCharacterTreasury", params] as const,
 } as const;
 
 export function createApiQueryOptions(client = apiClient) {
@@ -165,6 +141,11 @@ export function createApiQueryOptions(client = apiClient) {
 		getCharacterSpellDetails: (params: { characterId: string; spellId: string }, options: ApiRequestOptions = {}) => queryOptions({
 			queryKey: apiQueryKeys.getCharacterSpellDetails(params),
 			queryFn: () => client.getCharacterSpellDetails(params, options),
+		}),
+
+		getCharacterTreasury: (params: { characterId: string }, options: ApiRequestOptions = {}) => queryOptions({
+			queryKey: apiQueryKeys.getCharacterTreasury(params),
+			queryFn: () => client.getCharacterTreasury(params, options),
 		}),
 	};
 }
@@ -241,6 +222,31 @@ export function createApiMutationOptions(client = apiClient) {
 		removeCharacterSpell: (options: ApiRequestOptions = {}) => mutationOptions({
 			mutationKey: ["api", "removeCharacterSpell"] as const,
 			mutationFn: (params: { characterId: string; spellId: string }) => client.removeCharacterSpell(params, options),
+		}),
+
+		addCharacterTreasury: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "addCharacterTreasury"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: AddCharacterTreasuryRequest }) => client.addCharacterTreasury(variables.params, variables.body, options),
+		}),
+
+		spendCharacterTreasury: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "spendCharacterTreasury"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: SpendCharacterTreasuryRequest }) => client.spendCharacterTreasury(variables.params, variables.body, options),
+		}),
+
+		convertCharacterTreasury: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "convertCharacterTreasury"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: ConvertCharacterTreasuryRequest }) => client.convertCharacterTreasury(variables.params, variables.body, options),
+		}),
+
+		previewAddCharacterTreasury: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "previewAddCharacterTreasury"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: AddCharacterTreasuryRequest }) => client.previewAddCharacterTreasury(variables.params, variables.body, options),
+		}),
+
+		previewSpendCharacterTreasury: (options: ApiRequestOptions = {}) => mutationOptions({
+			mutationKey: ["api", "previewSpendCharacterTreasury"] as const,
+			mutationFn: (variables: { params: { characterId: string }; body: SpendCharacterTreasuryRequest }) => client.previewSpendCharacterTreasury(variables.params, variables.body, options),
 		}),
 	};
 }

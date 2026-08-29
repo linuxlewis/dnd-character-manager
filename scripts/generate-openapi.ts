@@ -188,7 +188,7 @@ function generateClientMethod(route: ApiRouteContract) {
 		? `, (body: unknown) => ${client.responseParser}.parse(body)`
 		: "";
 	const bodyArg = client.requestBodyType ? ", body" : parseArg ? ", undefined" : "";
-	return `${client.functionName}(${params}): Promise<${client.responseType}> {\n\treturn request<${client.responseType}>(fetchImpl, baseUrl, ${JSON.stringify(route.method.toUpperCase())}, ${path}, options${bodyArg}${parseArg});\n}`;
+	return `${client.functionName}(${params}): Promise<${client.responseType}> { return request<${client.responseType}>(fetchImpl, baseUrl, ${JSON.stringify(route.method.toUpperCase())}, ${path}, options${bodyArg}${parseArg}); }`;
 }
 
 function requiredClient(route: ApiRouteContract) {

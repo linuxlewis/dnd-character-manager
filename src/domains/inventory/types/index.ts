@@ -50,6 +50,8 @@ export type {
 	CurrencySpendRequest,
 	CurrencySpendResponse,
 	CurrencyTotalValue,
+	InsufficientDenominationError,
+	InsufficientDenominationResponse,
 	InsufficientFundsError,
 	InsufficientFundsResponse,
 } from "./currency.js";
@@ -75,6 +77,8 @@ export {
 	getCurrencyDeltaValueInCopper,
 	getCurrencyTotalValue,
 	getCurrencyValueInCopper,
+	InsufficientDenominationErrorSchema,
+	InsufficientDenominationResponseSchema,
 	InsufficientFundsErrorSchema,
 	InsufficientFundsResponseSchema,
 } from "./currency.js";
