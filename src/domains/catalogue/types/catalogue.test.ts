@@ -61,6 +61,14 @@ describe("catalogue spell schemas", () => {
 	it.each([
 		["equipment provenance", { capability: "equipment", pack: "equipment24" }],
 		[
+			"equipment path with spell provenance",
+			{
+				sourcePath: "packs/_source/equipment24/rope.yml",
+				sourceUrl:
+					"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/equipment24/rope.yml",
+			},
+		],
+		[
 			"mismatched revision URL",
 			{
 				sourceRevision: "0123456789abcdef0123456789abcdef01234567",

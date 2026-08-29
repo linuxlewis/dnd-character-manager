@@ -60,6 +60,11 @@ function validateFoundrySeedSourceUrl(
 }
 
 const CatalogueFoundrySpellSeedProvenanceFieldsSchema = CatalogueSeedProvenanceFieldsSchema.extend({
+	sourcePath: z
+		.string()
+		.min(1)
+		.max(500)
+		.regex(/^packs\/_source\/spells24\//),
 	capability: z.literal("spells"),
 	pack: z.literal("spells24"),
 });
