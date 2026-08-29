@@ -1,12 +1,17 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createCharacterTreasuryRepository } from "./character-treasury-repository.js";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 const createdUserIds: string[] = [];
+
+beforeEach(async () => {
+	await getDb().delete(inventoryTreasuriesTable);
+	await getDb().delete(inventoryScopesTable);
+});
 
 afterEach(async () => {
 	if (createdUserIds.length === 0) return;
@@ -118,6 +123,40 @@ describe("character treasury persistence", () => {
 		);
 		const [rows] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
 		expect(Number(rows?.count ?? 0)).toBe(0);
+	});
+
+	it("returns the strict public shape from persisted rows and validates IDs at the boundary", async () => {
+		const { characterId } = await createCharacter();
+		const [scope] = await getDb()
+			.insert(inventoryScopesTable)
+			.values({ characterId })
+			.returning({ id: inventoryScopesTable.id });
+		await getDb()
+			.insert(inventoryTreasuriesTable)
+			.values({
+				inventoryScopeId: scope.id,
+				copper: 7,
+				silver: 3,
+				gold: 2,
+				platinum: 1,
+				createdAt: new Date("2026-08-29T12:00:00.000Z"),
+				updatedAt: new Date("2026-08-29T12:01:00.000Z"),
+			});
+		const repository = createCharacterTreasuryRepository();
+
+		const treasury = await repository.findCharacterTreasury(characterId);
+		expect(treasury).toEqual({
+			characterId,
+			balances: { cp: 7, sp: 3, gp: 2, pp: 1 },
+			totalValue: { copper: 1_237, gp: 12.37 },
+		});
+		expect(Object.keys(treasury).sort()).toEqual(["balances", "characterId", "totalValue"]);
+		expect("inventoryScopeId" in treasury).toBe(false);
+
+		const mutation = vi.fn(() => ({ cp: 1, sp: 0, gp: 0, pp: 0 }));
+		await expect(repository.findCharacterTreasury("not-a-uuid")).rejects.toThrow();
+		await expect(repository.mutateCharacterTreasury("not-a-uuid", mutation)).rejects.toThrow();
+		expect(mutation).not.toHaveBeenCalled();
 	});
 
 	it("creates scope and treasury in the first atomic mutation", async () => {

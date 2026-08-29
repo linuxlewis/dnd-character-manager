@@ -21,7 +21,7 @@ const InventoryScopeRowSchema = z
 	})
 	.strict();
 
-const InventoryTreasuryRowSchema = z
+export const InventoryTreasuryDatabaseRowSchema = z
 	.object({
 		inventoryScopeId: InventoryScopeIdSchema,
 		copper: PostgresNonNegativeIntegerSchema,
@@ -33,15 +33,18 @@ const InventoryTreasuryRowSchema = z
 	})
 	.strict();
 
-export type InventoryTreasuryRow = {
-	inventoryScopeId: string;
-	copper: number;
-	silver: number;
-	gold: number;
-	platinum: number;
-	createdAt: string;
-	updatedAt: string;
-};
+export const InventoryTreasuryRowSchema = z
+	.object({
+		inventoryScopeId: InventoryScopeIdSchema,
+		copper: PostgresNonNegativeIntegerSchema,
+		silver: PostgresNonNegativeIntegerSchema,
+		gold: PostgresNonNegativeIntegerSchema,
+		platinum: PostgresNonNegativeIntegerSchema,
+		createdAt: z.iso.datetime(),
+		updatedAt: z.iso.datetime(),
+	})
+	.strict();
+export type InventoryTreasuryRow = z.infer<typeof InventoryTreasuryRowSchema>;
 
 export function toInventoryScope(row: unknown): InventoryScope {
 	const parsed = InventoryScopeRowSchema.parse(row);
@@ -55,8 +58,8 @@ export function toInventoryScope(row: unknown): InventoryScope {
 }
 
 export function toInventoryTreasury(row: unknown): InventoryTreasuryRow {
-	const parsed = InventoryTreasuryRowSchema.parse(row);
-	return {
+	const parsed = InventoryTreasuryDatabaseRowSchema.parse(row);
+	return InventoryTreasuryRowSchema.parse({
 		inventoryScopeId: parsed.inventoryScopeId,
 		copper: parsed.copper,
 		silver: parsed.silver,
@@ -64,7 +67,7 @@ export function toInventoryTreasury(row: unknown): InventoryTreasuryRow {
 		platinum: parsed.platinum,
 		createdAt: toIsoString(parsed.createdAt),
 		updatedAt: toIsoString(parsed.updatedAt),
-	};
+	});
 }
 
 export function toCharacterTreasury(characterId: unknown, row: unknown): CharacterTreasury {

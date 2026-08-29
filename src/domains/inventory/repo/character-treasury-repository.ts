@@ -25,12 +25,7 @@ export function createCharacterTreasuryRepository(): CharacterTreasuryRepository
 		async findCharacterTreasury(characterId) {
 			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
 			const [scopeRow] = await getDb()
-				.select({
-					id: inventoryScopesTable.id,
-					characterId: inventoryScopesTable.characterId,
-					createdAt: inventoryScopesTable.createdAt,
-					updatedAt: inventoryScopesTable.updatedAt,
-				})
+				.select(scopeColumns())
 				.from(inventoryScopesTable)
 				.where(eq(inventoryScopesTable.characterId, parsedCharacterId))
 				.limit(1);
@@ -58,12 +53,7 @@ export function createCharacterTreasuryRepository(): CharacterTreasuryRepository
 					.onConflictDoNothing({ target: inventoryScopesTable.characterId });
 
 				const [scopeRow] = await tx
-					.select({
-						id: inventoryScopesTable.id,
-						characterId: inventoryScopesTable.characterId,
-						createdAt: inventoryScopesTable.createdAt,
-						updatedAt: inventoryScopesTable.updatedAt,
-					})
+					.select(scopeColumns())
 					.from(inventoryScopesTable)
 					.where(eq(inventoryScopesTable.characterId, parsedCharacterId))
 					.limit(1);
@@ -115,5 +105,14 @@ function treasuryColumns() {
 		platinum: inventoryTreasuriesTable.platinum,
 		createdAt: inventoryTreasuriesTable.createdAt,
 		updatedAt: inventoryTreasuriesTable.updatedAt,
+	};
+}
+
+function scopeColumns() {
+	return {
+		id: inventoryScopesTable.id,
+		characterId: inventoryScopesTable.characterId,
+		createdAt: inventoryScopesTable.createdAt,
+		updatedAt: inventoryScopesTable.updatedAt,
 	};
 }
