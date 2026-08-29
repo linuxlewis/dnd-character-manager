@@ -1,8 +1,7 @@
 import { resetAuthForTest } from "@providers/auth/auth.js";
 import { userTable } from "@providers/auth/schema.js";
-import { closeDb, getDb } from "@providers/database/index.js";
+import { getDb } from "@providers/database/index.js";
 import { count, eq, inArray } from "drizzle-orm";
-import { afterAll, beforeEach } from "vitest";
 import { z } from "zod";
 import type { buildServer } from "../../../app-server.js";
 import { charactersTable } from "../../characters/repo/character-table.js";
@@ -17,10 +16,9 @@ export async function resetInventoryRouteDatabase() {
 	await deleteCreatedUsers();
 }
 
-export async function closeInventoryRouteDatabase() {
+export async function cleanupInventoryRouteDatabase() {
 	resetAuthForTest();
 	await deleteCreatedUsers();
-	await closeDb();
 }
 
 export async function createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>) {
@@ -53,11 +51,6 @@ export async function treasuryRowCount(characterId: string) {
 export function toCookieHeader(setCookie: string | string[] | undefined) {
 	const cookies = Array.isArray(setCookie) ? setCookie : setCookie ? [setCookie] : [];
 	return cookies.map((cookie) => cookie.split(";")[0]).join("; ");
-}
-
-export function registerInventoryRouteLifecycle() {
-	beforeEach(resetInventoryRouteDatabase);
-	afterAll(closeInventoryRouteDatabase);
 }
 
 async function deleteCreatedUsers() {
