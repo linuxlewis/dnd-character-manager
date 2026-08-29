@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { CATALOGUE_SOURCE_MANIFEST } from "../config/manifest.js";
 import type { CatalogueItemRepository } from "../repo/index.js";
 import {
 	CatalogueItemsUnavailableError,
@@ -102,6 +103,36 @@ describe("createCatalogueItemService", () => {
 		});
 	});
 
+	it("requires the stored audit to match the current source pin", async () => {
+		const repository = fakeRepository();
+		repository.countItems.mockResolvedValue(627);
+		repository.findLatestAudit.mockResolvedValue(
+			itemAudit({ sourceRevision: "0123456789abcdef0123456789abcdef01234567" }),
+		);
+		const service = createCatalogueItemService({ repository });
+
+		await expect(service.getItemStatus()).resolves.toMatchObject({
+			readiness: "unavailable",
+			seeded: false,
+			count: 627,
+		});
+		await expect(service.searchItems({ q: "rope", limit: 50 })).rejects.toBeInstanceOf(
+			CatalogueItemsUnavailableError,
+		);
+	});
+
+	it("requires the projection count to match the successful audit", async () => {
+		const repository = fakeRepository();
+		repository.countItems.mockResolvedValue(626);
+		repository.findLatestAudit.mockResolvedValue(itemAudit());
+		const service = createCatalogueItemService({ repository });
+
+		await expect(service.getItemStatus()).resolves.toMatchObject({ readiness: "unavailable" });
+		await expect(
+			service.getItemDetails("00000000-0000-4000-8000-000000000001"),
+		).rejects.toBeInstanceOf(CatalogueItemsUnavailableError);
+	});
+
 	it("rejects a complete-looking but below-baseline source audit before promotion", async () => {
 		const repository = fakeRepository();
 		const files = Object.fromEntries(
@@ -121,25 +152,7 @@ describe("createCatalogueItemService", () => {
 
 	it("reports stored seed provenance instead of the current manifest revision", async () => {
 		const repository = fakeRepository();
-		const storedAudit = {
-			source: "foundry-dnd5e" as const,
-			sourceRevision: "0123456789abcdef0123456789abcdef01234567",
-			rulesVersion: "2024" as const,
-			capability: "equipment" as const,
-			pack: "equipment24" as const,
-			processed: 627,
-			accepted: 627,
-			rejected: 0,
-			categoryCounts: {
-				weapons: 82,
-				armor: 32,
-				adventuringGear: 161,
-				consumables: 57,
-				potions: 30,
-				scrolls: 11,
-				magicItems: 351,
-			},
-		};
+		const storedAudit = itemAudit();
 		repository.countItems.mockResolvedValue(627);
 		repository.findLatestAudit.mockResolvedValue(storedAudit);
 		const service = createCatalogueItemService({ repository, spellCount: async () => 0 });
@@ -149,6 +162,46 @@ describe("createCatalogueItemService", () => {
 			count: 627,
 			sourceRevision: storedAudit.sourceRevision,
 			audit: storedAudit,
+		});
+	});
+
+	it("keeps the old valid snapshot unavailable after a failed new-pin seed", async () => {
+		const repository = fakeRepository();
+		repository.countItems.mockResolvedValue(627);
+		repository.findLatestAudit.mockResolvedValue(
+			itemAudit({ sourceRevision: "0123456789abcdef0123456789abcdef01234567" }),
+		);
+		const service = createCatalogueItemService({
+			repository,
+			fetcher: fakeFetcher({ "packs/_source/equipment24/broken.yml": "name: broken" }),
+		});
+
+		await expect(service.seedFoundrySrd2024Items()).rejects.toMatchObject({
+			name: "CatalogueItemSeedError",
+		});
+		expect(repository.upsertItems).not.toHaveBeenCalled();
+		await expect(service.getItemStatus()).resolves.toMatchObject({ readiness: "unavailable" });
+	});
+
+	it("returns to ready after a complete current-pin promotion", async () => {
+		const repository = fakeRepository();
+		repository.upsertItems.mockImplementation(async (items, audit) => {
+			repository.countItems.mockResolvedValue(items.length);
+			repository.findLatestAudit.mockResolvedValue(audit);
+			return items.length;
+		});
+		const service = createCatalogueItemService({
+			repository,
+			fetcher: fakeFetcher(baselineFiles()),
+		});
+
+		const result = await service.seedFoundrySrd2024Items();
+		expect(result.audit).toMatchObject({ processed: 627, accepted: 627, rejected: 0 });
+		expect(await service.getItemStatus()).toMatchObject({
+			readiness: "ready",
+			seeded: true,
+			count: 627,
+			sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
 		});
 	});
 });
@@ -177,4 +230,54 @@ function fakeFetcher(files: Record<string, string>) {
 		const path = Object.keys(files).find((candidate) => value.endsWith(candidate));
 		return path ? new Response(files[path]) : new Response("not found", { status: 404 });
 	};
+}
+
+function itemAudit(overrides: { sourceRevision?: string; accepted?: number } = {}) {
+	const accepted = overrides.accepted ?? 627;
+	return {
+		source: "foundry-dnd5e" as const,
+		sourceRevision: overrides.sourceRevision ?? CATALOGUE_SOURCE_MANIFEST.sourceRevision,
+		rulesVersion: "2024" as const,
+		capability: "equipment" as const,
+		pack: "equipment24" as const,
+		processed: accepted,
+		accepted,
+		rejected: 0,
+		categoryCounts: {
+			weapons: 82,
+			armor: 32,
+			adventuringGear: 161,
+			consumables: 57,
+			potions: 30,
+			scrolls: 11,
+			magicItems: 351,
+		},
+	};
+}
+
+function baselineFiles() {
+	const files: Record<string, string> = {};
+	const add = (path: string, name: string, type: string, rarity = "") => {
+		files[path] = yaml(name, name.toLowerCase().replaceAll(" ", "-"), type, rarity);
+	};
+	const groups = [
+		["weapons", 82, "Weapon", "simpleMelee", ""],
+		["armor", 32, "Armor", "shield", ""],
+		["adventuring-gear", 161, "Gear", "trinket", "common"],
+		["consumables", 16, "Consumable", "consumable", ""],
+		["consumables/potions", 30, "Potion", "potion", "common"],
+		["consumables/scrolls", 11, "Scroll", "scroll", "common"],
+		["magic-items", 295, "Magic Item", "", "uncommon"],
+	] as const;
+	for (const [directory, count, label, type, rarity] of groups) {
+		for (let index = 0; index < count; index += 1) {
+			add(
+				`packs/_source/equipment24/${directory}/${directory.split("/").at(-1)}-${index}.yml`,
+				`${label} ${index}`,
+				type,
+				directory === "adventuring-gear" && index >= 15 ? "" : rarity,
+			);
+		}
+	}
+	return files;
 }

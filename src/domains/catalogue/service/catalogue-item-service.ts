@@ -78,14 +78,21 @@ export function createCatalogueItemService(
 
 	const readItemStatus = async () => {
 		const [itemCount, audit] = await Promise.all([
-			repository.countItems(),
+			repository.countItems({
+				source: FOUNDRY_DND5E_SOURCE,
+				sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
+				rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
+				capability: "equipment",
+				pack: "equipment24",
+			}),
 			repository.findLatestAudit(),
 		]);
+		const ready = isCurrentSuccessfulSeed(audit, itemCount);
 		return CatalogueItemSeedStatusSchema.parse({
 			capability: "items",
 			pack: "equipment24",
-			readiness: itemCount > 0 ? "ready" : "unavailable",
-			seeded: itemCount > 0,
+			readiness: ready ? "ready" : "unavailable",
+			seeded: ready,
 			count: itemCount,
 			sourceRevision: audit?.sourceRevision ?? null,
 			audit,
@@ -141,12 +148,16 @@ export function createCatalogueItemService(
 
 		async searchItems(input) {
 			const query = CatalogueItemSearchQuerySchema.parse(input);
-			if ((await repository.countItems()) === 0) throw new CatalogueItemsUnavailableError();
+			if ((await readItemStatus()).readiness !== "ready") {
+				throw new CatalogueItemsUnavailableError();
+			}
 			return repository.searchItems(query);
 		},
 
 		async getItemDetails(id) {
-			if ((await repository.countItems()) === 0) throw new CatalogueItemsUnavailableError();
+			if ((await readItemStatus()).readiness !== "ready") {
+				throw new CatalogueItemsUnavailableError();
+			}
 			return repository.findItem(CatalogueItemIdSchema.parse(id));
 		},
 
@@ -179,6 +190,20 @@ export function createCatalogueItemService(
 			});
 		},
 	};
+}
+
+function isCurrentSuccessfulSeed(audit: CatalogueItemSeedAudit | null, itemCount: number) {
+	if (!audit || audit.source !== FOUNDRY_DND5E_SOURCE) return false;
+	if (audit.sourceRevision !== CATALOGUE_SOURCE_MANIFEST.sourceRevision) return false;
+	if (audit.rulesVersion !== FOUNDRY_DND5E_RULES_VERSION) return false;
+	if (audit.capability !== "equipment" || audit.pack !== "equipment24") return false;
+	if (audit.rejected !== 0 || itemCount !== audit.accepted) return false;
+	try {
+		assertCatalogueItemSourceAudit(audit);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 async function fetchFoundryItemPaths(fetcher: typeof fetch) {

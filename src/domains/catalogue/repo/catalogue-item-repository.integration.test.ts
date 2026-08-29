@@ -39,17 +39,25 @@ describe("createCatalogueItemRepository", () => {
 		const audit = auditFor(current.rulesVersion, 2);
 
 		await repository.upsertItems([current, legacy], audit);
+		const initial = await repository.searchItems({ q: "Rope", limit: 50 });
+		const initialIds = new Map(initial.items.map((item) => [item.sourceKey, item.id]));
 		await repository.upsertItems(
 			[{ ...current, description: "Updated C2 repository precedence rope marker." }, legacy],
 			audit,
 		);
-		const results = await repository.searchItems({ q: "C2 repository precedence", limit: 50 });
+		const results = await repository.searchItems({ q: "Rope", limit: 50 });
 		const details = await repository.findItem(
 			results.items[0]?.id ?? "00000000-0000-4000-8000-000000000001",
 		);
 
 		expect(results.total).toBe(2);
 		expect(results.items).toHaveLength(2);
+		expect(results.items.map((item) => [item.sourceKey, item.id])).toEqual(
+			expect.arrayContaining([
+				[sourceKeys[0], initialIds.get(sourceKeys[0])],
+				[sourceKeys[1], initialIds.get(sourceKeys[1])],
+			]),
+		);
 		expect(details).toMatchObject({
 			description: "Updated C2 repository precedence rope marker.",
 			sourcePath: current.sourcePath,
@@ -76,6 +84,16 @@ describe("createCatalogueItemRepository", () => {
 		expect((await repository.searchItems({ q: "Old Rope", limit: 50 })).total).toBe(0);
 	});
 
+	it("handles an empty snapshot by removing the complete scoped projection", async () => {
+		const repository = createCatalogueItemRepository();
+		const item = seedItem({ sourceKey: sourceKeys[0], rulesVersion: "2014", name: "Rope" });
+
+		await repository.upsertItems([item], auditFor("2014", 1));
+		await repository.upsertItems([], auditFor("2014", 0));
+
+		expect((await repository.searchItems({ q: "Rope", limit: 50 })).total).toBe(0);
+	});
+
 	it("replaces rows and reports the stored audit when the source pin changes", async () => {
 		const repository = createCatalogueItemRepository();
 		const oldItem = seedItem({
@@ -92,10 +110,13 @@ describe("createCatalogueItemRepository", () => {
 		});
 
 		await repository.upsertItems([oldItem], auditFor("2014", 1, testRevisions[0]));
+		const oldId = (await repository.searchItems({ q: "Old Pin", limit: 50 })).items[0]?.id;
 		await repository.upsertItems([newItem], auditFor("2014", 1, testRevisions[1]));
 
 		expect(await repository.countItems()).toBe(1);
-		expect((await repository.searchItems({ q: "New Pin", limit: 50 })).total).toBe(1);
+		const newResult = await repository.searchItems({ q: "New Pin", limit: 50 });
+		expect(newResult.total).toBe(1);
+		expect(newResult.items[0]?.id).toBe(oldId);
 		expect(await repository.findLatestAudit()).toMatchObject({
 			sourceRevision: testRevisions[1],
 			accepted: 1,

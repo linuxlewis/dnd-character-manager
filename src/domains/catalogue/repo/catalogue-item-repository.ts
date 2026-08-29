@@ -1,5 +1,5 @@
 import { getDb } from "@providers/database/index.js";
-import { and, asc, count, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, ilike, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import type {
 	CatalogueItemDetails,
@@ -25,7 +25,12 @@ import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-i
 
 export interface CatalogueItemRepository {
 	upsertItems(items: CatalogueItemSeed[], audit: CatalogueItemSeedAudit): Promise<number>;
-	countItems(): Promise<number>;
+	countItems(
+		projection?: Pick<
+			CatalogueItemSeedAudit,
+			"source" | "sourceRevision" | "rulesVersion" | "capability" | "pack"
+		>,
+	): Promise<number>;
 	searchItems(
 		input: CatalogueItemSearchQuery,
 	): Promise<{ items: CatalogueItemSearchResult[]; total: number }>;
@@ -47,6 +52,7 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 				parsedItems.some(
 					(item) =>
 						item.source !== parsedAudit.source ||
+						item.sourceRevision !== parsedAudit.sourceRevision ||
 						item.rulesVersion !== parsedAudit.rulesVersion ||
 						item.capability !== parsedAudit.capability ||
 						item.pack !== parsedAudit.pack,
@@ -56,16 +62,6 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 			}
 			const db = getDb();
 			await db.transaction(async (tx) => {
-				await tx
-					.delete(catalogueItemsTable)
-					.where(
-						and(
-							eq(catalogueItemsTable.source, parsedAudit.source),
-							eq(catalogueItemsTable.seedCapability, parsedAudit.capability),
-							eq(catalogueItemsTable.seedPack, parsedAudit.pack),
-							eq(catalogueItemsTable.rulesVersion, parsedAudit.rulesVersion),
-						),
-					);
 				if (parsedItems.length > 0) {
 					await tx
 						.insert(catalogueItemsTable)
@@ -79,6 +75,29 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 							set: itemUpdateSet(),
 						});
 				}
+				const incomingIdentity =
+					parsedItems.length > 0
+						? or(
+								...parsedItems.map((item) =>
+									and(
+										eq(catalogueItemsTable.source, item.source),
+										eq(catalogueItemsTable.sourceKey, item.sourceKey),
+										eq(catalogueItemsTable.rulesVersion, item.rulesVersion),
+									),
+								),
+							)
+						: undefined;
+				await tx
+					.delete(catalogueItemsTable)
+					.where(
+						and(
+							eq(catalogueItemsTable.source, parsedAudit.source),
+							eq(catalogueItemsTable.seedCapability, parsedAudit.capability),
+							eq(catalogueItemsTable.seedPack, parsedAudit.pack),
+							eq(catalogueItemsTable.rulesVersion, parsedAudit.rulesVersion),
+							incomingIdentity ? not(incomingIdentity) : undefined,
+						),
+					);
 				await tx
 					.insert(catalogueItemSeedAuditsTable)
 					.values(toAuditInsert(parsedAudit))
@@ -100,8 +119,17 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 			return parsedItems.length;
 		},
 
-		async countItems() {
-			const [row] = await getDb().select({ value: count() }).from(catalogueItemsTable);
+		async countItems(projection) {
+			const where = projection
+				? and(
+						eq(catalogueItemsTable.source, projection.source),
+						eq(catalogueItemsTable.sourceRevision, projection.sourceRevision),
+						eq(catalogueItemsTable.rulesVersion, projection.rulesVersion),
+						eq(catalogueItemsTable.seedCapability, projection.capability),
+						eq(catalogueItemsTable.seedPack, projection.pack),
+					)
+				: undefined;
+			const [row] = await getDb().select({ value: count() }).from(catalogueItemsTable).where(where);
 			return Number(row?.value ?? 0);
 		},
 

@@ -42,7 +42,12 @@ new seed passes that gate. Its current immutable-pin minimums are processed `627
 weapons `82`, armor `32`, adventuring gear `161`, consumables `57`, potions `30`, scrolls `11`, and
 magic items `351`; the code constant is the single source of truth for these thresholds. Verify through
 `GET /api/catalogue/status`; item search must return readiness `ready` after a successful item seed
-and `503` with readiness `unavailable` before one.
+and `503` with readiness `unavailable` before one. Readiness requires the stored successful audit to
+match the current source, revision, pack, and rules version and its accepted count to match the
+current projection. A pin change or failed new-pin seed therefore leaves prior rows intact but
+temporarily unavailable until the new pin is seeded successfully; a repeat failure on the same valid
+pin does not invalidate the existing ready snapshot. Upserts preserve UUIDs for unchanged source
+identities while removing identities absent from the incoming snapshot.
 
 Record the seed output as release evidence with these fields:
 
