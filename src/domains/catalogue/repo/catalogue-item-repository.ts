@@ -38,8 +38,34 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 		async upsertItems(items, audit) {
 			const parsedItems = z.array(CatalogueItemSeedSchema).parse(items);
 			const parsedAudit = CatalogueItemSeedAuditSchema.parse(audit);
+			if (parsedAudit.accepted !== parsedItems.length) {
+				throw new Error(
+					"Catalogue item audit accepted count must match the replacement projection.",
+				);
+			}
+			if (
+				parsedItems.some(
+					(item) =>
+						item.source !== parsedAudit.source ||
+						item.rulesVersion !== parsedAudit.rulesVersion ||
+						item.capability !== parsedAudit.capability ||
+						item.pack !== parsedAudit.pack,
+				)
+			) {
+				throw new Error("Catalogue item audit provenance must match every replacement item.");
+			}
 			const db = getDb();
 			await db.transaction(async (tx) => {
+				await tx
+					.delete(catalogueItemsTable)
+					.where(
+						and(
+							eq(catalogueItemsTable.source, parsedAudit.source),
+							eq(catalogueItemsTable.seedCapability, parsedAudit.capability),
+							eq(catalogueItemsTable.seedPack, parsedAudit.pack),
+							eq(catalogueItemsTable.rulesVersion, parsedAudit.rulesVersion),
+						),
+					);
 				if (parsedItems.length > 0) {
 					await tx
 						.insert(catalogueItemsTable)
@@ -110,6 +136,11 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 		async findLatestAudit() {
 			const [row] = await getDb()
 				.select({
+					source: catalogueItemSeedAuditsTable.source,
+					sourceRevision: catalogueItemSeedAuditsTable.sourceRevision,
+					rulesVersion: catalogueItemSeedAuditsTable.rulesVersion,
+					capability: catalogueItemSeedAuditsTable.capability,
+					pack: catalogueItemSeedAuditsTable.pack,
 					processed: catalogueItemSeedAuditsTable.processed,
 					accepted: catalogueItemSeedAuditsTable.accepted,
 					rejected: catalogueItemSeedAuditsTable.rejected,

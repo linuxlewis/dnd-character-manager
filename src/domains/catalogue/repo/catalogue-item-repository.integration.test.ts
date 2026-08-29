@@ -1,45 +1,42 @@
 import { closeDb, getDb } from "@providers/database/index.js";
-import { eq, inArray } from "drizzle-orm";
-import { afterEach, describe, expect, it } from "vitest";
+import { and, eq, inArray } from "drizzle-orm";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import type { CatalogueItemSeed } from "../types/index.js";
 import { createCatalogueItemRepository } from "./catalogue-item-repository.js";
 import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-item-table.js";
 
 const sourceKeys = ["catalogue-item-repository-rope", "catalogue-item-repository-rope-legacy"];
+const testRevisions = [
+	"0123456789abcdef0123456789abcdef01234567",
+	"fedcba9876543210fedcba9876543210fedcba98",
+];
 
-afterEach(async () => {
+beforeEach(async () => {
 	await getDb()
 		.delete(catalogueItemsTable)
 		.where(inArray(catalogueItemsTable.sourceKey, sourceKeys));
 	await getDb()
 		.delete(catalogueItemSeedAuditsTable)
-		.where(eq(catalogueItemSeedAuditsTable.pack, "equipment24"));
-	await closeDb();
+		.where(
+			and(
+				eq(catalogueItemSeedAuditsTable.source, "foundry-dnd5e"),
+				inArray(catalogueItemSeedAuditsTable.sourceRevision, testRevisions),
+			),
+		);
 });
 
+afterAll(async () => closeDb());
+
 describe("createCatalogueItemRepository", () => {
-	it("persists provenance, supports search/detail, is idempotent, and keeps rules versions separate", async () => {
+	it("persists provenance, supports search/detail, and is idempotent", async () => {
 		const repository = createCatalogueItemRepository();
-		const current = seedItem({ sourceKey: sourceKeys[0], rulesVersion: "2024", name: "Rope" });
+		const current = seedItem({ sourceKey: sourceKeys[0], rulesVersion: "2014", name: "Rope" });
 		const legacy = seedItem({
 			sourceKey: sourceKeys[1],
 			rulesVersion: "2014",
 			name: "Rope (Legacy)",
 		});
-		const audit = {
-			processed: 2,
-			accepted: 2,
-			rejected: 0,
-			categoryCounts: {
-				weapons: 0,
-				armor: 0,
-				adventuringGear: 2,
-				consumables: 0,
-				potions: 0,
-				scrolls: 0,
-				magicItems: 0,
-			},
-		};
+		const audit = auditFor(current.rulesVersion, 2);
 
 		await repository.upsertItems([current, legacy], audit);
 		await repository.upsertItems(
@@ -61,23 +58,94 @@ describe("createCatalogueItemRepository", () => {
 		expect(await repository.countItems()).toBe(2);
 		expect(await repository.findLatestAudit()).toEqual(audit);
 	});
+
+	it("removes stale rows when synchronizing a later snapshot", async () => {
+		const repository = createCatalogueItemRepository();
+		const first = seedItem({ sourceKey: sourceKeys[0], rulesVersion: "2014", name: "Rope" });
+		const stale = seedItem({
+			sourceKey: sourceKeys[1],
+			rulesVersion: "2014",
+			name: "Old Rope",
+		});
+		const firstAudit = auditFor("2014", 2);
+
+		await repository.upsertItems([first, stale], firstAudit);
+		await repository.upsertItems([first], auditFor("2014", 1));
+
+		expect(await repository.countItems()).toBe(1);
+		expect((await repository.searchItems({ q: "Old Rope", limit: 50 })).total).toBe(0);
+	});
+
+	it("replaces rows and reports the stored audit when the source pin changes", async () => {
+		const repository = createCatalogueItemRepository();
+		const oldItem = seedItem({
+			sourceKey: sourceKeys[0],
+			rulesVersion: "2014",
+			sourceRevision: testRevisions[0],
+			name: "Old Pin",
+		});
+		const newItem = seedItem({
+			sourceKey: sourceKeys[0],
+			rulesVersion: "2014",
+			sourceRevision: testRevisions[1],
+			name: "New Pin",
+		});
+
+		await repository.upsertItems([oldItem], auditFor("2014", 1, testRevisions[0]));
+		await repository.upsertItems([newItem], auditFor("2014", 1, testRevisions[1]));
+
+		expect(await repository.countItems()).toBe(1);
+		expect((await repository.searchItems({ q: "New Pin", limit: 50 })).total).toBe(1);
+		expect(await repository.findLatestAudit()).toMatchObject({
+			sourceRevision: testRevisions[1],
+			accepted: 1,
+		});
+	});
 });
+
+function auditFor(
+	rulesVersion: "2014" | "2024",
+	accepted: number,
+	sourceRevision = testRevisions[0],
+) {
+	return {
+		source: "foundry-dnd5e" as const,
+		sourceRevision,
+		rulesVersion,
+		capability: "equipment" as const,
+		pack: "equipment24" as const,
+		processed: accepted,
+		accepted,
+		rejected: 0,
+		categoryCounts: {
+			weapons: 0,
+			armor: 0,
+			adventuringGear: accepted,
+			consumables: 0,
+			potions: 0,
+			scrolls: 0,
+			magicItems: 0,
+		},
+	};
+}
 
 function seedItem({
 	sourceKey,
 	rulesVersion,
 	name,
+	sourceRevision = testRevisions[0],
 }: {
 	sourceKey: string;
 	rulesVersion: "2014" | "2024";
 	name: string;
+	sourceRevision?: string;
 }): CatalogueItemSeed {
 	return {
 		source: "foundry-dnd5e",
 		sourceKey,
 		sourcePath: `packs/_source/equipment24/${sourceKey}.yml`,
-		sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
-		sourceUrl: `https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/equipment24/${sourceKey}.yml`,
+		sourceRevision,
+		sourceUrl: `https://raw.githubusercontent.com/foundryvtt/dnd5e/${sourceRevision}/packs/_source/equipment24/${sourceKey}.yml`,
 		rulesVersion,
 		license: "CC-BY-4.0",
 		capability: "equipment",

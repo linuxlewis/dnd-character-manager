@@ -1,4 +1,9 @@
-export { deduplicateCatalogueItems } from "./catalogue-item-precedence.js";
+export type { CatalogueItemPrecedenceCandidate } from "./catalogue-item-precedence.js";
+export {
+	comparePrecedence,
+	deduplicateCatalogueItemCandidates,
+	deduplicateCatalogueItems,
+} from "./catalogue-item-precedence.js";
 export type { CatalogueItemRepository } from "./catalogue-item-repository.js";
 export { createCatalogueItemRepository } from "./catalogue-item-repository.js";
 export type {

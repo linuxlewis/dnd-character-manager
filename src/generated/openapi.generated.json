@@ -5911,7 +5911,7 @@
 					{
 						"name": "q",
 						"in": "query",
-						"required": true,
+						"required": false,
 						"schema": {
 							"default": "",
 							"type": "string",
@@ -5968,7 +5968,7 @@
 					{
 						"name": "limit",
 						"in": "query",
-						"required": true,
+						"required": false,
 						"schema": {
 							"default": 50,
 							"type": "integer",
@@ -6851,6 +6851,35 @@
 															{
 																"type": "object",
 																"properties": {
+																	"source": {
+																		"type": "string",
+																		"enum": ["foundry-dnd5e", "open5e", "dnd5eapi-legacy"]
+																	},
+																	"sourceRevision": {
+																		"type": "string",
+																		"minLength": 1,
+																		"maxLength": 200,
+																		"allOf": [
+																			{
+																				"pattern": "^[A-Za-z0-9._:/-]+$"
+																			},
+																			{
+																				"pattern": "^[0-9a-f]{40}$"
+																			}
+																		]
+																	},
+																	"rulesVersion": {
+																		"type": "string",
+																		"enum": ["2014", "2024"]
+																	},
+																	"capability": {
+																		"type": "string",
+																		"const": "equipment"
+																	},
+																	"pack": {
+																		"type": "string",
+																		"const": "equipment24"
+																	},
 																	"processed": {
 																		"type": "integer",
 																		"minimum": 0,
@@ -6921,7 +6950,17 @@
 																		}
 																	}
 																},
-																"required": ["processed", "accepted", "rejected", "categoryCounts"],
+																"required": [
+																	"source",
+																	"sourceRevision",
+																	"rulesVersion",
+																	"capability",
+																	"pack",
+																	"processed",
+																	"accepted",
+																	"rejected",
+																	"categoryCounts"
+																],
 																"additionalProperties": false
 															},
 															{
@@ -6989,6 +7028,35 @@
 														{
 															"type": "object",
 															"properties": {
+																"source": {
+																	"type": "string",
+																	"enum": ["foundry-dnd5e", "open5e", "dnd5eapi-legacy"]
+																},
+																"sourceRevision": {
+																	"type": "string",
+																	"minLength": 1,
+																	"maxLength": 200,
+																	"allOf": [
+																		{
+																			"pattern": "^[A-Za-z0-9._:/-]+$"
+																		},
+																		{
+																			"pattern": "^[0-9a-f]{40}$"
+																		}
+																	]
+																},
+																"rulesVersion": {
+																	"type": "string",
+																	"enum": ["2014", "2024"]
+																},
+																"capability": {
+																	"type": "string",
+																	"const": "equipment"
+																},
+																"pack": {
+																	"type": "string",
+																	"const": "equipment24"
+																},
 																"processed": {
 																	"type": "integer",
 																	"minimum": 0,
@@ -7059,7 +7127,17 @@
 																	}
 																}
 															},
-															"required": ["processed", "accepted", "rejected", "categoryCounts"],
+															"required": [
+																"source",
+																"sourceRevision",
+																"rulesVersion",
+																"capability",
+																"pack",
+																"processed",
+																"accepted",
+																"rejected",
+																"categoryCounts"
+															],
 															"additionalProperties": false
 														},
 														{

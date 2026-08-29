@@ -12,6 +12,7 @@ import {
 	createApiMutationOptions,
 	createApiQueryOptions,
 } from "./api-client.generated.js";
+import { appendQuery } from "./api-client-core.generated.js";
 
 const root = process.cwd();
 
@@ -78,6 +79,12 @@ describe("generated API client", () => {
 			name: "ApiClientError",
 			status: 404,
 		});
+	});
+
+	it("serializes generated query URLs without dropping false or optional values", () => {
+		expect(
+			appendQuery("/api/catalogue/items", { q: "rope", isMagical: false, kind: undefined }),
+		).toBe("/api/catalogue/items?q=rope&isMagical=false");
 	});
 
 	it("does not rely on checked-in generated content for the topology assertion", () => {

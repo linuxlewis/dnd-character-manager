@@ -79,6 +79,27 @@ describe("openapi generator client", () => {
 		expect(first).toContain('"POST"');
 	});
 
+	it("generates query arguments and URL serialization for optional boolean filters", () => {
+		const queryRoute: ApiRouteContract = {
+			method: "get",
+			operationId: "listWidgets",
+			path: "/api/widgets",
+			responses: { 200: { description: "Widgets" } },
+			summary: "List widgets",
+			client: {
+				functionName: "listWidgets",
+				queryParamsType: "WidgetQuery",
+				responseType: "WidgetListResponse",
+			},
+		};
+		const domain = generateClientDomain("widgets", [queryRoute]);
+		const core = generateClientCore([["widgets", [queryRoute]]]);
+
+		expect(domain).toContain("listWidgets(query: WidgetQuery");
+		expect(domain).toContain('appendQuery("/api/widgets", query)');
+		expect(core).toContain("if (value !== undefined) search.set(key, String(value));");
+	});
+
 	it("groups routes and composes the core client", () => {
 		const grouped = groupClientRoutes([
 			...routes,

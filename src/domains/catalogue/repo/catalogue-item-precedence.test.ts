@@ -19,6 +19,20 @@ describe("catalogue item precedence", () => {
 
 		expect(deduplicateCatalogueItems([current, legacy])).toHaveLength(2);
 	});
+
+	it("prefers Foundry over Open5e and legacy for the same normalized identity and version", () => {
+		const candidates = [
+			candidate("open5e", "Potion of Healing"),
+			candidate("dnd5eapi-legacy", "potion-of-healing"),
+			candidate("foundry-dnd5e", "potion_of_healing"),
+			candidate("open5e", "Potion of Healing", "2014"),
+		];
+
+		expect(deduplicateCatalogueItems(candidates)).toEqual([
+			expect.objectContaining({ source: "open5e", rulesVersion: "2014" }),
+			expect.objectContaining({ source: "foundry-dnd5e", rulesVersion: "2024" }),
+		]);
+	});
 });
 
 function item(overrides: {
@@ -56,5 +70,20 @@ function item(overrides: {
 		properties: [],
 		stats: {},
 		sourcePayload: { system: { identifier: sourceKey } },
+	};
+}
+
+function candidate(
+	source: "foundry-dnd5e" | "open5e" | "dnd5eapi-legacy",
+	identifier: string,
+	rulesVersion: "2014" | "2024" = "2024",
+) {
+	return {
+		source,
+		sourceKey: `${source}-${identifier}`,
+		sourcePath: `packs/${source}/${identifier}.yml`,
+		sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
+		rulesVersion,
+		identifier,
 	};
 }

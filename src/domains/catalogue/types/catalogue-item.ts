@@ -129,6 +129,11 @@ export type CatalogueItemAuditCategoryCounts = z.infer<
 >;
 
 export const CatalogueItemSeedAuditSchema = z.object({
+	source: CatalogueSourceSchema,
+	sourceRevision: ImmutableSourceRevisionSchema,
+	rulesVersion: RulesVersionSchema,
+	capability: z.literal("equipment"),
+	pack: z.literal("equipment24"),
 	processed: z.number().int().nonnegative(),
 	accepted: z.number().int().nonnegative(),
 	rejected: z.number().int().nonnegative(),

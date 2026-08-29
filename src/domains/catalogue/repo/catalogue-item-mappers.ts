@@ -104,11 +104,11 @@ export function itemUpdateSet() {
 
 export function toAuditInsert(audit: CatalogueItemSeedAudit) {
 	return {
-		source: "foundry-dnd5e" as const,
-		sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
-		rulesVersion: "2024" as const,
-		capability: "equipment",
-		pack: "equipment24",
+		source: audit.source,
+		sourceRevision: audit.sourceRevision,
+		rulesVersion: audit.rulesVersion,
+		capability: audit.capability,
+		pack: audit.pack,
 		processed: audit.processed,
 		accepted: audit.accepted,
 		rejected: audit.rejected,

@@ -35,7 +35,12 @@ pnpm seed all
 ```
 
 The item seed fails before writing catalogue rows when any source file is rejected. Re-running the
-same pinned seed updates existing source identities and does not create duplicates. Verify through
+same pinned seed replaces the complete source/capability/pack/rules-version projection, removing
+rows absent from a later pinned snapshot, and does not create duplicates. The enforced baseline is
+owned by `src/domains/catalogue/config/catalogue-item-audit.ts`; a pin change is not ready until a
+new seed passes that gate. Its current immutable-pin minimums are processed `627`, accepted `627`,
+weapons `82`, armor `32`, adventuring gear `161`, consumables `57`, potions `30`, scrolls `11`, and
+magic items `351`; the code constant is the single source of truth for these thresholds. Verify through
 `GET /api/catalogue/status`; item search must return readiness `ready` after a successful item seed
 and `503` with readiness `unavailable` before one.
 

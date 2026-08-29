@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { assertCatalogueItemSourceAudit } from "../config/catalogue-item-audit.js";
 import {
 	FOUNDRY_DND5E_EQUIPMENT_PATH_PREFIX,
 	FOUNDRY_DND5E_RULES_VERSION,
@@ -64,6 +65,7 @@ export interface CatalogueItemServiceOptions {
 	repository?: CatalogueItemRepository;
 	spellCount?: () => Promise<number>;
 	fetcher?: typeof fetch;
+	auditGate?: (audit: CatalogueItemSeedAudit) => void;
 }
 
 export function createCatalogueItemService(
@@ -72,6 +74,7 @@ export function createCatalogueItemService(
 	const repository = options.repository ?? createCatalogueItemRepository();
 	const spellCount = options.spellCount ?? (() => createCatalogueSpellRepository().countSpells());
 	const fetcher = options.fetcher ?? fetch;
+	const auditGate = options.auditGate ?? assertCatalogueItemSourceAudit;
 
 	const readItemStatus = async () => {
 		const [itemCount, audit] = await Promise.all([
@@ -84,7 +87,7 @@ export function createCatalogueItemService(
 			readiness: itemCount > 0 ? "ready" : "unavailable",
 			seeded: itemCount > 0,
 			count: itemCount,
-			sourceRevision: audit ? CATALOGUE_SOURCE_MANIFEST.sourceRevision : null,
+			sourceRevision: audit?.sourceRevision ?? null,
 			audit,
 		});
 	};
@@ -104,6 +107,11 @@ export function createCatalogueItemService(
 					results.flatMap((result) => (result.item ? [result.item] : [])),
 				);
 				const audit = CatalogueItemSeedAuditSchema.parse({
+					source: FOUNDRY_DND5E_SOURCE,
+					sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
+					rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
+					capability: "equipment",
+					pack: "equipment24",
 					processed: paths.length,
 					accepted: accepted.length,
 					rejected: results.filter((result) => result.error).length,
@@ -112,6 +120,14 @@ export function createCatalogueItemService(
 				if (audit.rejected > 0) {
 					throw new CatalogueItemSeedError(
 						`D&D item catalogue seed rejected ${audit.rejected} source records. ${results.find((result) => result.error)?.error}`,
+						audit,
+					);
+				}
+				try {
+					auditGate(audit);
+				} catch (error) {
+					throw new CatalogueItemSeedError(
+						`D&D item catalogue seed failed audit gate: ${errorMessage(error)}`,
 						audit,
 					);
 				}

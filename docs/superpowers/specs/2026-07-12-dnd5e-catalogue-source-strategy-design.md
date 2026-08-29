@@ -190,12 +190,13 @@ those C1/C2 requirements and the A5-A7 personal inventory packages pass their ma
   - 5e-bits legacy spell/detail fallback.
 - Integration tests for local catalogue persistence and search/detail routes.
 - Contract tests for generated OpenAPI catalogue routes.
-- E2E tests for user-visible catalogue workflows:
+- C2 unit, repository integration, route, and generated-contract tests own the catalogue item
+  mapper, persistence, search/detail, provenance, audit, precedence, and unavailable behavior.
+- E2E tests for user-visible catalogue workflows are owned by the downstream inventory package:
   - Spell search still finds SRD 2024 spells.
   - Saved spell details survive fallback behavior.
-- Equipment mapper, route, and e2e tests should be added when equipment import/search is pulled into
-  implementation scope; for M2, that scope includes typed Foundry `equipment24` ingestion, source
-  audit counts, and unavailable/not-seeded status behavior.
+- A7 owns the user-visible `character-inventory.spec.ts` equipment-search journey; C2 does not add a
+  separate Playwright spec because it has no browser workflow.
 - A source-audit test or script should assert minimum expected SRD 2024 counts before generated
   source snapshots are accepted.
 

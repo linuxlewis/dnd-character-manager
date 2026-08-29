@@ -127,7 +127,7 @@ function queryParameters(schema: z.ZodObject) {
 	return Object.entries(properties).map(([name, propertySchema]) => ({
 		name,
 		in: "query",
-		required: required.has(name),
+		required: required.has(name) && !("default" in objectRecord(propertySchema)),
 		schema: propertySchema,
 	}));
 }

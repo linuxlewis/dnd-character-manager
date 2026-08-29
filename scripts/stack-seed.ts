@@ -39,7 +39,7 @@ try {
 		}
 		const result = await createCatalogueItemService().seedFoundrySrd2024Items();
 		log.info(
-			{ capability, ...result.audit, sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision },
+			{ ...result.audit, capability, sourceRevision: result.audit.sourceRevision },
 			"Catalogue capability seeded",
 		);
 	}
