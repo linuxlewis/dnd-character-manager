@@ -137,6 +137,7 @@ export {
 	POSTGRES_INTEGER_MAX,
 	POSTGRES_INTEGER_MIN,
 	POSTGRES_REAL_MAX,
+	POSTGRES_REAL_MIN_POSITIVE,
 	PositivePostgresIntegerSchema,
 	PostgresIntegerSchema,
 	PostgresNonNegativeIntegerSchema,

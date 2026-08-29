@@ -116,18 +116,22 @@ export const UpdateCharacterItemRequestSchema = CreateCharacterItemRequestSchema
 	});
 export type UpdateCharacterItemRequest = z.infer<typeof UpdateCharacterItemRequestSchema>;
 
-export const CharacterItemResponseSchema = z.object({
-	item: InventoryItemSchema,
-});
+export const CharacterItemResponseSchema = z
+	.object({
+		item: InventoryItemSchema,
+	})
+	.strict();
 export type CharacterItemResponse = z.infer<typeof CharacterItemResponseSchema>;
 
 export const ListCharacterItemsRequestSchema = CharacterItemFilterSchema;
 export type ListCharacterItemsRequest = z.infer<typeof ListCharacterItemsRequestSchema>;
 
-export const ListCharacterItemsResponseSchema = z.object({
-	items: z.array(InventoryItemSchema),
-	total: z.number().int().nonnegative(),
-});
+export const ListCharacterItemsResponseSchema = z
+	.object({
+		items: z.array(InventoryItemSchema),
+		total: z.number().int().nonnegative(),
+	})
+	.strict();
 export type ListCharacterItemsResponse = z.infer<typeof ListCharacterItemsResponseSchema>;
 
 function hasAtLeastOneItemField(request: Record<string, unknown>) {

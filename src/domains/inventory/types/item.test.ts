@@ -5,7 +5,7 @@ import {
 	InventoryItemSchema,
 	JsonObjectSchema,
 } from "./item.js";
-import { POSTGRES_REAL_MAX } from "./numeric.js";
+import { POSTGRES_REAL_MAX, POSTGRES_REAL_MIN_POSITIVE } from "./numeric.js";
 
 const catalogueItemId = "00000000-0000-4000-8000-000000000010";
 const scopeId = "00000000-0000-4000-8000-000000000011";
@@ -58,6 +58,19 @@ describe("inventory item schemas", () => {
 		expect(() =>
 			InventoryItemBaseSchema.parse({ ...valid, estimatedValue: POSTGRES_REAL_MAX * 2 }),
 		).toThrow();
+
+		for (const field of ["weight", "estimatedValue"] as const) {
+			expect(InventoryItemBaseSchema.parse({ ...valid, [field]: 0 })[field]).toBe(0);
+			expect(
+				InventoryItemBaseSchema.parse({ ...valid, [field]: POSTGRES_REAL_MIN_POSITIVE })[field],
+			).toBe(POSTGRES_REAL_MIN_POSITIVE);
+			expect(() =>
+				InventoryItemBaseSchema.parse({ ...valid, [field]: Number.MIN_VALUE }),
+			).toThrow();
+			expect(() =>
+				InventoryItemBaseSchema.parse({ ...valid, [field]: POSTGRES_REAL_MIN_POSITIVE / 2 }),
+			).toThrow();
+		}
 	});
 
 	it("requires JSON objects for item properties", () => {
@@ -102,6 +115,7 @@ describe("inventory item schemas", () => {
 			isEquipped: true,
 		});
 		expect(() => CharacterItemFilterSchema.parse({ type: "weapon" })).toThrow();
+		expect(() => CharacterItemFilterSchema.parse({ isEquipped: true, equpped: true })).toThrow();
 	});
 
 	it("accepts the PostgreSQL integer quantity boundary and rejects overflow", () => {

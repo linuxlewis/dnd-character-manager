@@ -84,14 +84,16 @@ export const InventoryItemSchema = InventoryItemBaseSchema.extend({
 	});
 export type InventoryItem = z.infer<typeof InventoryItemSchema>;
 
-export const CharacterItemFilterSchema = z.object({
-	search: z.string().max(120).optional(),
-	type: InventoryItemTypeSchema.optional(),
-	rarity: InventoryItemRaritySchema.optional(),
-	category: ItemCategorySchema.optional(),
-	isEquipped: z.boolean().optional(),
-	catalogueItemId: CatalogueItemIdSchema.optional(),
-});
+export const CharacterItemFilterSchema = z
+	.object({
+		search: z.string().max(120).optional(),
+		type: InventoryItemTypeSchema.optional(),
+		rarity: InventoryItemRaritySchema.optional(),
+		category: ItemCategorySchema.optional(),
+		isEquipped: z.boolean().optional(),
+		catalogueItemId: CatalogueItemIdSchema.optional(),
+	})
+	.strict();
 export type CharacterItemFilter = z.infer<typeof CharacterItemFilterSchema>;
 
 function hasValidCatalogueTraceability(item: {

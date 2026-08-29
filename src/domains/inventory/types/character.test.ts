@@ -132,10 +132,14 @@ describe("character inventory boundary schemas", () => {
 
 		expect(CharacterItemResponseSchema.parse({ item })).toEqual({ item });
 		expect(() => InventoryItemSchema.parse({ ...item, catalogue: {} })).toThrow();
+		expect(() => CharacterItemResponseSchema.parse({ item, unexpected: true })).toThrow();
 		expect(ListCharacterItemsResponseSchema.parse({ items: [item], total: 1 })).toEqual({
 			items: [item],
 			total: 1,
 		});
+		expect(() =>
+			ListCharacterItemsResponseSchema.parse({ items: [item], total: 1, unexpected: true }),
+		).toThrow();
 	});
 
 	it("keeps typed add and spend response operations distinct", () => {
