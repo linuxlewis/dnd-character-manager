@@ -1,14 +1,14 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createInventoryItemRepository } from "./inventory-item-repository.js";
 import { inventoryItemsTable } from "./inventory-item-table.js";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 const createdUserIds: string[] = [];
 
-afterEach(async () => {
+beforeEach(async () => {
 	if (createdUserIds.length > 0) {
 		await getDb()
 			.delete(userTable)
@@ -91,6 +91,25 @@ describe("inventory item persistence", () => {
 		).rejects.toBeDefined();
 	});
 
+	it("treats category filters as literal case-insensitive values", async () => {
+		const { scopeId } = await createScope();
+		const repository = createInventoryItemRepository();
+		await repository.createItem(scopeId, {
+			name: "Healing Potion",
+			type: "potion",
+			category: "Potion",
+		});
+		await repository.createItem(scopeId, {
+			name: "Rope",
+			type: "equipment",
+			category: "Adventuring Gear",
+		});
+
+		expect((await repository.listItems(scopeId, { category: "pOtIoN" })).items).toHaveLength(1);
+		expect((await repository.listItems(scopeId, { category: "%" })).items).toHaveLength(0);
+		expect((await repository.listItems(scopeId, { category: "_" })).items).toHaveLength(0);
+	});
+
 	it("nulls a removed catalogue reference while preserving snapshots", async () => {
 		const { scopeId } = await createScope();
 		const catalogueItemId = crypto.randomUUID();
@@ -141,9 +160,11 @@ describe("inventory item persistence", () => {
 			category: "Misc",
 		});
 		await getDb().delete(inventoryScopesTable).where(eq(inventoryScopesTable.id, scopeId));
-		expect(
-			Number((await getDb().select({ value: count() }).from(inventoryItemsTable)).at(0)?.value),
-		).toBe(0);
+		const [remaining] = await getDb()
+			.select({ value: count() })
+			.from(inventoryItemsTable)
+			.where(eq(inventoryItemsTable.inventoryScopeId, scopeId));
+		expect(Number(remaining?.value ?? 0)).toBe(0);
 	});
 });
 

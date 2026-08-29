@@ -143,7 +143,8 @@ function itemWhere(scopeId: string, filter: InventoryItemFilter) {
 		conditions.push(ilike(inventoryItemsTable.name, `%${escapeLike(filter.search)}%`));
 	if (filter.type) conditions.push(eq(inventoryItemsTable.type, filter.type));
 	if (filter.rarity) conditions.push(eq(inventoryItemsTable.rarity, filter.rarity));
-	if (filter.category) conditions.push(ilike(inventoryItemsTable.category, filter.category));
+	if (filter.category)
+		conditions.push(ilike(inventoryItemsTable.category, escapeLike(filter.category)));
 	if (filter.isEquipped !== undefined) {
 		conditions.push(eq(inventoryItemsTable.isEquipped, filter.isEquipped));
 	}

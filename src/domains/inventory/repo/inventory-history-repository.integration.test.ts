@@ -1,14 +1,14 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createInventoryHistoryRepository } from "./inventory-history-repository.js";
 import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 const createdUserIds: string[] = [];
 
-afterEach(async () => {
+beforeEach(async () => {
 	if (createdUserIds.length === 0) return;
 	await getDb()
 		.delete(userTable)
@@ -69,11 +69,11 @@ describe("inventory history persistence", () => {
 			details: { gp: 2 },
 		});
 		await getDb().delete(inventoryScopesTable).where(eq(inventoryScopesTable.id, scopeId));
-		expect(
-			Number(
-				(await getDb().select({ value: count() }).from(inventoryHistoryEntriesTable)).at(0)?.value,
-			),
-		).toBe(0);
+		const [remaining] = await getDb()
+			.select({ value: count() })
+			.from(inventoryHistoryEntriesTable)
+			.where(eq(inventoryHistoryEntriesTable.inventoryScopeId, scopeId));
+		expect(Number(remaining?.value ?? 0)).toBe(0);
 	});
 });
 

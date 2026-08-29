@@ -1,4 +1,5 @@
-import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { check, index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 export const inventoryHistoryEntriesTable = pgTable(
@@ -16,6 +17,14 @@ export const inventoryHistoryEntriesTable = pgTable(
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => [
+		check(
+			"inventory_history_entries_action_check",
+			sql`${table.action} IN ('item_added', 'item_updated', 'item_removed', 'currency_updated')`,
+		),
+		check(
+			"inventory_history_entries_entity_type_check",
+			sql`${table.entityType} IN ('item', 'currency')`,
+		),
 		index("inventory_history_entries_scope_created_idx").on(
 			table.inventoryScopeId,
 			table.createdAt.desc(),
