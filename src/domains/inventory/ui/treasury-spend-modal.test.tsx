@@ -92,4 +92,30 @@ describe("TreasurySpendModal", () => {
 		expect(html).toContain("Spend funds failed");
 		expect(html).toContain("Preview spend");
 	});
+
+	it("renders reconciliation recovery while keeping spend confirmation gated", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasurySpendModal
+					confirmPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onConfirm={vi.fn()}
+					onPreview={vi.fn()}
+					onRetryReconciliation={vi.fn()}
+					opened
+					preview={null}
+					previewError={null}
+					previewPending={false}
+					previewRequest={null}
+					reconciliationError={new Error("reconciliation failed")}
+					reconciliationPending={false}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("Treasury reconciliation failed");
+		expect(html).toContain("Retry treasury reconciliation");
+		expect(html).toContain("Preview spend");
+	});
 });

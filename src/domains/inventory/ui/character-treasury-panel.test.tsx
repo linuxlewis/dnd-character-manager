@@ -6,6 +6,7 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import {
 	CharacterTreasuryPanel,
 	consumeTreasuryPreview,
+	reconcileAndRelease,
 	reconcileTreasuryQuery,
 	toSpendTreasuryPreview,
 	toTreasuryData,
@@ -129,5 +130,29 @@ describe("CharacterTreasuryPanel", () => {
 		resolveRefetch();
 		await reconciliation;
 		expect(settled).toBe(true);
+	});
+
+	it("keeps failed reconciliation recoverable without invoking completion", async () => {
+		const characterId = "00000000-0000-4000-8000-000000000001";
+		const queryClient = new QueryClient();
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
+		invalidateQueries.mockRejectedValueOnce(new Error("treasury GET failed"));
+		invalidateQueries.mockResolvedValueOnce();
+		const setState = vi.fn();
+		const onComplete = vi.fn();
+		const completionRef = { current: onComplete };
+
+		await reconcileAndRelease(queryClient, characterId, setState, completionRef);
+		expect(setState).toHaveBeenLastCalledWith({
+			error: expect.objectContaining({ message: "treasury GET failed" }),
+			pending: false,
+		});
+		expect(onComplete).not.toHaveBeenCalled();
+		expect(completionRef.current).toBe(onComplete);
+
+		await reconcileAndRelease(queryClient, characterId, setState, completionRef);
+		expect(setState).toHaveBeenLastCalledWith({ error: null, pending: false });
+		expect(onComplete).toHaveBeenCalledOnce();
+		expect(completionRef.current).toBeNull();
 	});
 });

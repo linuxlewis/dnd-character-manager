@@ -69,9 +69,14 @@ function toReadableText(html: string) {
 
 function addOperationState(): TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
 	onPreview: (request: TreasuryAddRequest) => void;
-	onConfirm: (request: TreasuryAddRequest, onSuccess: () => void) => void;
+	onConfirm: (
+		request: TreasuryAddRequest,
+		preview: TreasuryAddPreview,
+		onSuccess: () => void,
+	) => void;
 	onConsumePreview: () => void;
 	onReset: () => void;
+	onRetryReconciliation: () => void;
 } {
 	return {
 		preview: null,
@@ -80,10 +85,13 @@ function addOperationState(): TreasuryOperationState<TreasuryAddRequest, Treasur
 		previewError: null,
 		mutationPending: false,
 		mutationError: null,
+		reconciliationPending: false,
+		reconciliationError: null,
 		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
 		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
+		onRetryReconciliation: vi.fn(),
 	};
 }
 
@@ -92,9 +100,14 @@ function spendOperationState(): TreasuryOperationState<
 	TreasurySpendPreview
 > & {
 	onPreview: (request: TreasurySpendRequest) => void;
-	onConfirm: (request: TreasurySpendRequest, onSuccess: () => void) => void;
+	onConfirm: (
+		request: TreasurySpendRequest,
+		preview: TreasurySpendPreview,
+		onSuccess: () => void,
+	) => void;
 	onConsumePreview: () => void;
 	onReset: () => void;
+	onRetryReconciliation: () => void;
 } {
 	return {
 		preview: null,
@@ -103,9 +116,12 @@ function spendOperationState(): TreasuryOperationState<
 		previewError: null,
 		mutationPending: false,
 		mutationError: null,
+		reconciliationPending: false,
+		reconciliationError: null,
 		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
 		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
+		onRetryReconciliation: vi.fn(),
 	};
 }

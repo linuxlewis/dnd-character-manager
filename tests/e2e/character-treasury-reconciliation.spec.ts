@@ -73,7 +73,7 @@ test("reconciles committed add and spend operations after lost confirmation resp
 	await expectBalances(page, "6.00 GP");
 	await addDialog.getByRole("button", { name: "Preview add" }).click();
 	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeVisible();
-	await expect(addPreviews).toBe(3);
+	await expect(addPreviews).toBe(5);
 	await addDialog.getByRole("button", { name: "Cancel" }).click();
 
 	const spendDialog = await previewSpend(page, 2);
@@ -88,7 +88,7 @@ test("reconciles committed add and spend operations after lost confirmation resp
 	await expectBalances(page, "4.00 GP");
 	await spendDialog.getByRole("button", { name: "Preview spend" }).click();
 	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeVisible();
-	await expect(spendPreviews).toBe(2);
+	await expect(spendPreviews).toBe(3);
 	await spendDialog.getByRole("button", { name: "Cancel" }).click();
 
 	expect(addMutations).toBe(2);

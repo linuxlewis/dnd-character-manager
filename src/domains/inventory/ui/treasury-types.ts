@@ -31,3 +31,9 @@ export type TreasurySpendPreview = TreasuryPreviewBase & {
 	change?: TreasuryBalance;
 };
 export type TreasuryPreview = TreasuryAddPreview | TreasurySpendPreview;
+
+export function treasuryBalancesEqual(left: TreasuryBalance, right: TreasuryBalance) {
+	return (
+		left.cp === right.cp && left.sp === right.sp && left.gp === right.gp && left.pp === right.pp
+	);
+}

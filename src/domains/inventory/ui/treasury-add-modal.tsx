@@ -23,6 +23,9 @@ export function TreasuryAddModal({
 	mutationError,
 	confirmPending,
 	actionsDisabled = false,
+	reconciliationPending = false,
+	reconciliationError = null,
+	onRetryReconciliation = () => {},
 	onClose,
 	onPreview,
 	onConfirm,
@@ -36,9 +39,12 @@ export function TreasuryAddModal({
 	mutationError: Error | null;
 	confirmPending: boolean;
 	actionsDisabled?: boolean;
+	reconciliationPending?: boolean;
+	reconciliationError?: Error | null;
+	onRetryReconciliation?: () => void;
 	onClose: () => void;
 	onPreview: (request: TreasuryAddRequest) => void;
-	onConfirm: (request: TreasuryAddRequest) => void;
+	onConfirm: (request: TreasuryAddRequest, preview: TreasuryAddPreview) => void;
 }) {
 	const form = useForm<AddFundsValues>({
 		mode: "controlled",
@@ -105,9 +111,27 @@ export function TreasuryAddModal({
 							confirmDisabled={actionsDisabled || confirmPending || previewPending}
 							confirmLoading={confirmPending}
 							confirmLabel="Confirm add funds"
-							onConfirm={() => onConfirm(currentRequest)}
+							onConfirm={() => onConfirm(currentRequest, visiblePreview)}
 							preview={visiblePreview}
 						/>
+					)}
+
+					{reconciliationError && (
+						<Alert color="red" title="Treasury reconciliation failed" variant="light">
+							{getTreasuryErrorMessage(
+								reconciliationError,
+								"The treasury could not be reconciled after the confirmation attempt.",
+							)}
+							<Button
+								disabled={reconciliationPending}
+								loading={reconciliationPending}
+								mt="sm"
+								onClick={onRetryReconciliation}
+								type="button"
+							>
+								Retry treasury reconciliation
+							</Button>
+						</Alert>
 					)}
 
 					<Group justify="flex-end">

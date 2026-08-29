@@ -56,4 +56,30 @@ describe("TreasuryAddModal", () => {
 		expect(html).toContain("Add funds failed");
 		expect(html).toContain("Preview add");
 	});
+
+	it("renders reconciliation recovery without exposing confirmation controls", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasuryAddModal
+					confirmPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onConfirm={vi.fn()}
+					onPreview={vi.fn()}
+					onRetryReconciliation={vi.fn()}
+					opened
+					preview={null}
+					previewError={null}
+					previewPending={false}
+					previewRequest={null}
+					reconciliationError={new Error("reconciliation failed")}
+					reconciliationPending={false}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("Treasury reconciliation failed");
+		expect(html).toContain("Retry treasury reconciliation");
+		expect(html).toContain("Preview add");
+	});
 });

@@ -25,6 +25,8 @@ export interface TreasuryOperationState<Request, PreviewResponse> {
 	previewError: Error | null;
 	mutationPending: boolean;
 	mutationError: Error | null;
+	reconciliationPending: boolean;
+	reconciliationError: Error | null;
 }
 
 export interface TreasuryPanelProps {
@@ -32,15 +34,25 @@ export interface TreasuryPanelProps {
 	query: TreasuryQueryState;
 	add: TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
 		onPreview: (request: TreasuryAddRequest) => void;
-		onConfirm: (request: TreasuryAddRequest, onSuccess: () => void) => void;
+		onConfirm: (
+			request: TreasuryAddRequest,
+			preview: TreasuryAddPreview,
+			onSuccess: () => void,
+		) => void;
 		onConsumePreview: () => void;
 		onReset: () => void;
+		onRetryReconciliation: () => void;
 	};
 	spend: TreasuryOperationState<TreasurySpendRequest, TreasurySpendPreview> & {
 		onPreview: (request: TreasurySpendRequest) => void;
-		onConfirm: (request: TreasurySpendRequest, onSuccess: () => void) => void;
+		onConfirm: (
+			request: TreasurySpendRequest,
+			preview: TreasurySpendPreview,
+			onSuccess: () => void,
+		) => void;
 		onConsumePreview: () => void;
 		onReset: () => void;
+		onRetryReconciliation: () => void;
 	};
 }
 
@@ -52,6 +64,8 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 	const treasury = query.data;
 	const actionsDisabled =
 		add.previewPending || add.mutationPending || spend.previewPending || spend.mutationPending;
+	const reconciliationBlocked = Boolean(add.reconciliationError || spend.reconciliationError);
+	const allActionsDisabled = actionsDisabled || reconciliationBlocked;
 
 	function openDialog(dialog: Exclude<ActiveDialog, null>) {
 		if (dialog === "add") add.onReset();
@@ -61,8 +75,16 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 	}
 
 	function closeDialog() {
-		if (activeDialog === "add" && (add.previewPending || add.mutationPending)) return;
-		if (activeDialog === "spend" && (spend.previewPending || spend.mutationPending)) return;
+		if (
+			activeDialog === "add" &&
+			(add.previewPending || add.mutationPending || add.reconciliationError)
+		)
+			return;
+		if (
+			activeDialog === "spend" &&
+			(spend.previewPending || spend.mutationPending || spend.reconciliationError)
+		)
+			return;
 		setActiveDialog(null);
 	}
 
@@ -84,7 +106,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			)}
 			{treasury && (
 				<TreasuryDisplay
-					actionsDisabled={actionsDisabled}
+					actionsDisabled={allActionsDisabled}
 					onAddFunds={() => openDialog("add")}
 					onSpendFunds={() => openDialog("spend")}
 					scopeLabel={scopeLabel}
@@ -95,12 +117,13 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			<TreasuryAddModal
 				key={`add-${dialogVersion}`}
 				confirmPending={add.mutationPending}
-				actionsDisabled={actionsDisabled}
+				actionsDisabled={allActionsDisabled}
 				mutationError={add.mutationError}
+				onRetryReconciliation={add.onRetryReconciliation}
 				onClose={closeDialog}
-				onConfirm={(request) => {
+				onConfirm={(request, preview) => {
 					add.onConsumePreview();
-					add.onConfirm(request, completeDialog);
+					add.onConfirm(request, preview, completeDialog);
 				}}
 				onPreview={add.onPreview}
 				opened={activeDialog === "add"}
@@ -108,16 +131,19 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				previewError={add.previewError}
 				previewPending={add.previewPending}
 				previewRequest={add.previewRequest}
+				reconciliationError={add.reconciliationError}
+				reconciliationPending={add.reconciliationPending}
 			/>
 			<TreasurySpendModal
 				key={`spend-${dialogVersion}`}
 				confirmPending={spend.mutationPending}
-				actionsDisabled={actionsDisabled}
+				actionsDisabled={allActionsDisabled}
 				mutationError={spend.mutationError}
+				onRetryReconciliation={spend.onRetryReconciliation}
 				onClose={closeDialog}
-				onConfirm={(request) => {
+				onConfirm={(request, preview) => {
 					spend.onConsumePreview();
-					spend.onConfirm(request, completeDialog);
+					spend.onConfirm(request, preview, completeDialog);
 				}}
 				onPreview={spend.onPreview}
 				opened={activeDialog === "spend"}
@@ -125,6 +151,8 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				previewError={spend.previewError}
 				previewPending={spend.previewPending}
 				previewRequest={spend.previewRequest}
+				reconciliationError={spend.reconciliationError}
+				reconciliationPending={spend.reconciliationPending}
 			/>
 		</Stack>
 	);
