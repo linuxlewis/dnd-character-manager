@@ -17,6 +17,7 @@ export interface ApiClientContract {
 	functionName: string;
 	imports?: readonly ApiClientImport[];
 	pathParamsType?: string;
+	queryParamsType?: string;
 	requestBodyType?: string;
 	responseParser?: string;
 	responseType: string;
@@ -28,6 +29,7 @@ export interface ApiRouteContract {
 	path: string;
 	requestBody?: z.ZodType;
 	pathParams?: z.ZodObject;
+	queryParams?: z.ZodObject;
 	responses: Record<number, ApiResponseContract>;
 	summary: string;
 	tags?: readonly string[];
@@ -61,7 +63,13 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions): OpenApiD
 			operationId: route.operationId,
 			summary: route.summary,
 			tags: route.tags,
-			parameters: route.pathParams ? pathParameters(route.pathParams) : undefined,
+			parameters:
+				route.pathParams || route.queryParams
+					? [
+							...(route.pathParams ? pathParameters(route.pathParams) : []),
+							...(route.queryParams ? queryParameters(route.queryParams) : []),
+						]
+					: undefined,
 			requestBody: route.requestBody
 				? {
 						required: true,
@@ -107,6 +115,18 @@ function pathParameters(schema: z.ZodObject) {
 	return Object.entries(properties).map(([name, propertySchema]) => ({
 		name,
 		in: "path",
+		required: required.has(name),
+		schema: propertySchema,
+	}));
+}
+
+function queryParameters(schema: z.ZodObject) {
+	const jsonSchema = zodToJsonSchema(schema);
+	const properties = objectRecord(jsonSchema.properties);
+	const required = new Set(Array.isArray(jsonSchema.required) ? jsonSchema.required : []);
+	return Object.entries(properties).map(([name, propertySchema]) => ({
+		name,
+		in: "query",
 		required: required.has(name),
 		schema: propertySchema,
 	}));

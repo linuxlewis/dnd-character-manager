@@ -24,6 +24,7 @@ describe("generated API client", () => {
 		expect(first.map((output) => output.relativePath)).toEqual([
 			"src/generated/openapi.generated.json",
 			"src/generated/api-client-auth.generated.ts",
+			"src/generated/api-client-catalogue.generated.ts",
 			"src/generated/api-client-characters.generated.ts",
 			"src/generated/api-client-inventory.generated.ts",
 			"src/generated/api-client-spells.generated.ts",

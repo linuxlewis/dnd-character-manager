@@ -5901,6 +5901,1193 @@
 					}
 				}
 			}
+		},
+		"/api/catalogue/items": {
+			"get": {
+				"operationId": "searchCatalogueItems",
+				"summary": "Search catalogue items",
+				"tags": ["catalogue", "items"],
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"default": "",
+							"type": "string",
+							"maxLength": 120
+						}
+					},
+					{
+						"name": "kind",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"weapon",
+								"armor",
+								"adventuring-gear",
+								"consumable",
+								"potion",
+								"scroll",
+								"magic-item",
+								"tool",
+								"container",
+								"other"
+							]
+						}
+					},
+					{
+						"name": "category",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 120
+						}
+					},
+					{
+						"name": "rulesVersion",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": ["2014", "2024"]
+						}
+					},
+					{
+						"name": "isMagical",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"default": 50,
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Catalogue item search results",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"readiness": {
+											"type": "string",
+											"const": "ready"
+										},
+										"items": {
+											"type": "array",
+											"items": {
+												"allOf": [
+													{
+														"type": "object",
+														"properties": {
+															"source": {
+																"type": "string",
+																"const": "foundry-dnd5e"
+															},
+															"sourceKey": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 240
+															},
+															"sourcePath": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 500,
+																"pattern": "^packs\\/_source\\/equipment24\\/"
+															},
+															"rulesVersion": {
+																"type": "string",
+																"enum": ["2014", "2024"]
+															},
+															"license": {
+																"type": "string",
+																"maxLength": 120
+															},
+															"sourcePayload": {},
+															"sourceRevision": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 200,
+																"allOf": [
+																	{
+																		"pattern": "^[A-Za-z0-9._:/-]+$"
+																	},
+																	{
+																		"pattern": "^[0-9a-f]{40}$"
+																	}
+																]
+															},
+															"sourceUrl": {
+																"type": "string",
+																"maxLength": 1000,
+																"format": "uri"
+															},
+															"capability": {
+																"type": "string",
+																"const": "equipment"
+															},
+															"pack": {
+																"type": "string",
+																"const": "equipment24"
+															},
+															"seedMetadata": {
+																"type": "object",
+																"propertyNames": {
+																	"type": "string",
+																	"minLength": 1,
+																	"maxLength": 80
+																},
+																"additionalProperties": {
+																	"$ref": "#/$defs/__schema0"
+																}
+															},
+															"id": {
+																"type": "string",
+																"format": "uuid",
+																"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+															}
+														},
+														"required": [
+															"source",
+															"sourceKey",
+															"sourcePath",
+															"rulesVersion",
+															"license",
+															"sourcePayload",
+															"sourceRevision",
+															"sourceUrl",
+															"capability",
+															"pack",
+															"seedMetadata",
+															"id"
+														],
+														"additionalProperties": false
+													},
+													{
+														"type": "object",
+														"properties": {
+															"identifier": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 240
+															},
+															"name": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 120,
+																"pattern": "\\S"
+															},
+															"kind": {
+																"type": "string",
+																"enum": [
+																	"weapon",
+																	"armor",
+																	"adventuring-gear",
+																	"consumable",
+																	"potion",
+																	"scroll",
+																	"magic-item",
+																	"tool",
+																	"container",
+																	"other"
+																]
+															},
+															"category": {
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 120,
+																"pattern": "\\S"
+															},
+															"description": {
+																"type": "string"
+															},
+															"isMagical": {
+																"type": "boolean"
+															},
+															"rarity": {
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"common",
+																			"uncommon",
+																			"rare",
+																			"very_rare",
+																			"legendary",
+																			"artifact"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"requiresAttunement": {
+																"type": "boolean"
+															},
+															"costValue": {
+																"anyOf": [
+																	{
+																		"type": "number",
+																		"minimum": 0
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"costDenomination": {
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"minLength": 1,
+																		"maxLength": 20
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"weight": {
+																"anyOf": [
+																	{
+																		"type": "number",
+																		"minimum": 0
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"thumbnailUrl": {
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"minLength": 1,
+																		"maxLength": 500
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"properties": {
+																"maxItems": 100,
+																"type": "array",
+																"items": {
+																	"type": "string",
+																	"minLength": 1,
+																	"maxLength": 80
+																}
+															},
+															"stats": {
+																"type": "object",
+																"propertyNames": {
+																	"type": "string",
+																	"minLength": 1,
+																	"maxLength": 80
+																},
+																"additionalProperties": {
+																	"$ref": "#/$defs/__schema1"
+																}
+															}
+														},
+														"required": [
+															"identifier",
+															"name",
+															"kind",
+															"category",
+															"description",
+															"isMagical",
+															"rarity",
+															"requiresAttunement",
+															"costValue",
+															"costDenomination",
+															"weight",
+															"thumbnailUrl",
+															"properties",
+															"stats"
+														],
+														"additionalProperties": false
+													}
+												]
+											}
+										},
+										"total": {
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 9007199254740991
+										}
+									},
+									"required": ["readiness", "items", "total"],
+									"additionalProperties": false,
+									"$defs": {
+										"__schema0": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "number"
+												},
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "null"
+												},
+												{
+													"type": "array",
+													"items": {
+														"$ref": "#/$defs/__schema0"
+													}
+												},
+												{
+													"type": "object",
+													"propertyNames": {
+														"type": "string"
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema0"
+													}
+												}
+											]
+										},
+										"__schema1": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "number"
+												},
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "null"
+												},
+												{
+													"type": "array",
+													"items": {
+														"$ref": "#/$defs/__schema1"
+													}
+												},
+												{
+													"type": "object",
+													"propertyNames": {
+														"type": "string"
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema1"
+													}
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid catalogue item search",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Catalogue item data is not seeded",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"readiness": {
+											"type": "string",
+											"const": "unavailable"
+										},
+										"capability": {
+											"type": "string",
+											"const": "items"
+										},
+										"code": {
+											"type": "string",
+											"const": "catalogue_items_unavailable"
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["readiness", "capability", "code", "error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/catalogue/items/{catalogueItemId}": {
+			"get": {
+				"operationId": "getCatalogueItemDetails",
+				"summary": "Get catalogue item details",
+				"tags": ["catalogue", "items"],
+				"parameters": [
+					{
+						"name": "catalogueItemId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Catalogue item details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"type": "object",
+											"properties": {
+												"source": {
+													"type": "string",
+													"const": "foundry-dnd5e"
+												},
+												"sourceKey": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 240
+												},
+												"sourcePath": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 500,
+													"pattern": "^packs\\/_source\\/equipment24\\/"
+												},
+												"rulesVersion": {
+													"type": "string",
+													"enum": ["2014", "2024"]
+												},
+												"license": {
+													"type": "string",
+													"maxLength": 120
+												},
+												"sourcePayload": {},
+												"sourceRevision": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 200,
+													"allOf": [
+														{
+															"pattern": "^[A-Za-z0-9._:/-]+$"
+														},
+														{
+															"pattern": "^[0-9a-f]{40}$"
+														}
+													]
+												},
+												"sourceUrl": {
+													"type": "string",
+													"maxLength": 1000,
+													"format": "uri"
+												},
+												"capability": {
+													"type": "string",
+													"const": "equipment"
+												},
+												"pack": {
+													"type": "string",
+													"const": "equipment24"
+												},
+												"seedMetadata": {
+													"type": "object",
+													"propertyNames": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 80
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema0"
+													}
+												},
+												"id": {
+													"type": "string",
+													"format": "uuid",
+													"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+												}
+											},
+											"required": [
+												"source",
+												"sourceKey",
+												"sourcePath",
+												"rulesVersion",
+												"license",
+												"sourcePayload",
+												"sourceRevision",
+												"sourceUrl",
+												"capability",
+												"pack",
+												"seedMetadata",
+												"id"
+											],
+											"additionalProperties": false
+										},
+										{
+											"type": "object",
+											"properties": {
+												"identifier": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 240
+												},
+												"name": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "\\S"
+												},
+												"kind": {
+													"type": "string",
+													"enum": [
+														"weapon",
+														"armor",
+														"adventuring-gear",
+														"consumable",
+														"potion",
+														"scroll",
+														"magic-item",
+														"tool",
+														"container",
+														"other"
+													]
+												},
+												"category": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 120,
+													"pattern": "\\S"
+												},
+												"description": {
+													"type": "string"
+												},
+												"isMagical": {
+													"type": "boolean"
+												},
+												"rarity": {
+													"anyOf": [
+														{
+															"type": "string",
+															"enum": [
+																"common",
+																"uncommon",
+																"rare",
+																"very_rare",
+																"legendary",
+																"artifact"
+															]
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"requiresAttunement": {
+													"type": "boolean"
+												},
+												"costValue": {
+													"anyOf": [
+														{
+															"type": "number",
+															"minimum": 0
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"costDenomination": {
+													"anyOf": [
+														{
+															"type": "string",
+															"minLength": 1,
+															"maxLength": 20
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"weight": {
+													"anyOf": [
+														{
+															"type": "number",
+															"minimum": 0
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"thumbnailUrl": {
+													"anyOf": [
+														{
+															"type": "string",
+															"minLength": 1,
+															"maxLength": 500
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"properties": {
+													"maxItems": 100,
+													"type": "array",
+													"items": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 80
+													}
+												},
+												"stats": {
+													"type": "object",
+													"propertyNames": {
+														"type": "string",
+														"minLength": 1,
+														"maxLength": 80
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema1"
+													}
+												}
+											},
+											"required": [
+												"identifier",
+												"name",
+												"kind",
+												"category",
+												"description",
+												"isMagical",
+												"rarity",
+												"requiresAttunement",
+												"costValue",
+												"costDenomination",
+												"weight",
+												"thumbnailUrl",
+												"properties",
+												"stats"
+											],
+											"additionalProperties": false
+										}
+									],
+									"$defs": {
+										"__schema0": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "number"
+												},
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "null"
+												},
+												{
+													"type": "array",
+													"items": {
+														"$ref": "#/$defs/__schema0"
+													}
+												},
+												{
+													"type": "object",
+													"propertyNames": {
+														"type": "string"
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema0"
+													}
+												}
+											]
+										},
+										"__schema1": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "number"
+												},
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "null"
+												},
+												{
+													"type": "array",
+													"items": {
+														"$ref": "#/$defs/__schema1"
+													}
+												},
+												{
+													"type": "object",
+													"propertyNames": {
+														"type": "string"
+													},
+													"additionalProperties": {
+														"$ref": "#/$defs/__schema1"
+													}
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid catalogue item id",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Catalogue item not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"503": {
+						"description": "Catalogue item data is not seeded",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"readiness": {
+											"type": "string",
+											"const": "unavailable"
+										},
+										"capability": {
+											"type": "string",
+											"const": "items"
+										},
+										"code": {
+											"type": "string",
+											"const": "catalogue_items_unavailable"
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["readiness", "capability", "code", "error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/catalogue/status": {
+			"get": {
+				"operationId": "getCatalogueStatus",
+				"summary": "Get catalogue status",
+				"tags": ["catalogue"],
+				"responses": {
+					"200": {
+						"description": "Catalogue readiness and seed status",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"source": {
+											"type": "object",
+											"properties": {
+												"name": {
+													"type": "string",
+													"enum": ["foundry-dnd5e", "open5e", "dnd5eapi-legacy"]
+												},
+												"sourceRevision": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 200,
+													"allOf": [
+														{
+															"pattern": "^[A-Za-z0-9._:/-]+$"
+														},
+														{
+															"pattern": "^[0-9a-f]{40}$"
+														}
+													]
+												},
+												"rulesVersion": {
+													"type": "string",
+													"enum": ["2014", "2024"]
+												},
+												"sourceUrl": {
+													"type": "string",
+													"format": "uri"
+												},
+												"attribution": {
+													"type": "string",
+													"minLength": 1
+												}
+											},
+											"required": [
+												"name",
+												"sourceRevision",
+												"rulesVersion",
+												"sourceUrl",
+												"attribution"
+											],
+											"additionalProperties": false
+										},
+										"capabilities": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"capability": {
+														"type": "string",
+														"enum": ["spells", "items"]
+													},
+													"pack": {
+														"type": "string",
+														"enum": ["spells24", "equipment24"]
+													},
+													"readiness": {
+														"type": "string",
+														"enum": ["ready", "unavailable"]
+													},
+													"seeded": {
+														"type": "boolean"
+													},
+													"count": {
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 9007199254740991
+													},
+													"sourceRevision": {
+														"anyOf": [
+															{
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 200,
+																"allOf": [
+																	{
+																		"pattern": "^[A-Za-z0-9._:/-]+$"
+																	},
+																	{
+																		"pattern": "^[0-9a-f]{40}$"
+																	}
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"audit": {
+														"anyOf": [
+															{
+																"type": "object",
+																"properties": {
+																	"processed": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9007199254740991
+																	},
+																	"accepted": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9007199254740991
+																	},
+																	"rejected": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9007199254740991
+																	},
+																	"categoryCounts": {
+																		"type": "object",
+																		"properties": {
+																			"weapons": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"armor": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"adventuringGear": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"consumables": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"potions": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"scrolls": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			},
+																			"magicItems": {
+																				"type": "integer",
+																				"minimum": 0,
+																				"maximum": 9007199254740991
+																			}
+																		},
+																		"required": [
+																			"weapons",
+																			"armor",
+																			"adventuringGear",
+																			"consumables",
+																			"potions",
+																			"scrolls",
+																			"magicItems"
+																		],
+																		"additionalProperties": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		}
+																	}
+																},
+																"required": ["processed", "accepted", "rejected", "categoryCounts"],
+																"additionalProperties": false
+															},
+															{
+																"type": "null"
+															}
+														]
+													}
+												},
+												"required": [
+													"capability",
+													"pack",
+													"readiness",
+													"seeded",
+													"count",
+													"sourceRevision"
+												],
+												"additionalProperties": false
+											}
+										},
+										"items": {
+											"type": "object",
+											"properties": {
+												"capability": {
+													"type": "string",
+													"const": "items"
+												},
+												"pack": {
+													"type": "string",
+													"const": "equipment24"
+												},
+												"readiness": {
+													"type": "string",
+													"enum": ["ready", "unavailable"]
+												},
+												"seeded": {
+													"type": "boolean"
+												},
+												"count": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 9007199254740991
+												},
+												"sourceRevision": {
+													"anyOf": [
+														{
+															"type": "string",
+															"minLength": 1,
+															"maxLength": 200,
+															"allOf": [
+																{
+																	"pattern": "^[A-Za-z0-9._:/-]+$"
+																},
+																{
+																	"pattern": "^[0-9a-f]{40}$"
+																}
+															]
+														},
+														{
+															"type": "null"
+														}
+													]
+												},
+												"audit": {
+													"anyOf": [
+														{
+															"type": "object",
+															"properties": {
+																"processed": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 9007199254740991
+																},
+																"accepted": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 9007199254740991
+																},
+																"rejected": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 9007199254740991
+																},
+																"categoryCounts": {
+																	"type": "object",
+																	"properties": {
+																		"weapons": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"armor": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"adventuringGear": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"consumables": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"potions": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"scrolls": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		},
+																		"magicItems": {
+																			"type": "integer",
+																			"minimum": 0,
+																			"maximum": 9007199254740991
+																		}
+																	},
+																	"required": [
+																		"weapons",
+																		"armor",
+																		"adventuringGear",
+																		"consumables",
+																		"potions",
+																		"scrolls",
+																		"magicItems"
+																	],
+																	"additionalProperties": {
+																		"type": "integer",
+																		"minimum": 0,
+																		"maximum": 9007199254740991
+																	}
+																}
+															},
+															"required": ["processed", "accepted", "rejected", "categoryCounts"],
+															"additionalProperties": false
+														},
+														{
+															"type": "null"
+														}
+													]
+												}
+											},
+											"required": [
+												"capability",
+												"pack",
+												"readiness",
+												"seeded",
+												"count",
+												"sourceRevision",
+												"audit"
+											],
+											"additionalProperties": false
+										}
+									},
+									"required": ["source", "capabilities", "items"],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -4,6 +4,7 @@ import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
+import { registerCatalogueRoutes } from "./domains/catalogue/runtime/index.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
 import { registerCharacterTreasuryRoutes } from "./domains/inventory/runtime/index.js";
@@ -60,6 +61,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 		characterService,
 		characterTreasuryService: createCharacterTreasuryService({ characterService }),
 	});
+	await registerCatalogueRoutes(app);
 
 	if (options.staticRoot) {
 		registerStaticAssetFallback(app, options.staticRoot);

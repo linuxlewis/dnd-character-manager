@@ -20,9 +20,46 @@ export {
 	CatalogueSpellStoredProvenanceSchema,
 	CatalogueSpellUrlSchema,
 } from "./catalogue.js";
+export type {
+	CatalogueCapabilityStatus,
+	CatalogueItemAuditCategoryCounts,
+	CatalogueItemDetailPort,
+	CatalogueItemDetails,
+	CatalogueItemId,
+	CatalogueItemKind,
+	CatalogueItemRarity,
+	CatalogueItemSearchPort,
+	CatalogueItemSearchQuery,
+	CatalogueItemSearchResponse,
+	CatalogueItemSearchResult,
+	CatalogueItemSeed,
+	CatalogueItemSeedAudit,
+	CatalogueItemSeedStatus,
+	CatalogueItemSeedStatus as CatalogueItemStatus,
+	CatalogueItemStatusPort,
+	CatalogueItemsUnavailableResponse,
+	CatalogueStatusResponse,
+} from "./catalogue-item.js";
+export {
+	CatalogueCapabilityStatusSchema,
+	CatalogueItemAuditCategoryCountsSchema,
+	CatalogueItemDetailsSchema,
+	CatalogueItemIdSchema,
+	CatalogueItemKindSchema,
+	CatalogueItemRaritySchema,
+	CatalogueItemSearchQuerySchema,
+	CatalogueItemSearchResponseSchema,
+	CatalogueItemSearchResultSchema,
+	CatalogueItemSeedAuditSchema,
+	CatalogueItemSeedSchema,
+	CatalogueItemSeedStatusSchema,
+	CatalogueItemsUnavailableResponseSchema,
+	CatalogueStatusResponseSchema,
+} from "./catalogue-item.js";
 export type { CatalogueManifestPack, CatalogueSourceManifest } from "./manifest.js";
 export { CatalogueManifestPackSchema, CatalogueSourceManifestSchema } from "./manifest.js";
 export type {
+	CatalogueFoundryEquipmentSeedProvenance,
 	CatalogueFoundrySeedProvenance,
 	CatalogueFoundrySpellSeedProvenance,
 	CataloguePack,
@@ -35,6 +72,7 @@ export type {
 	SourceRevision,
 } from "./provenance.js";
 export {
+	CatalogueFoundryEquipmentSeedProvenanceSchema,
 	CatalogueFoundrySeedProvenanceSchema,
 	CatalogueFoundrySpellSeedProvenanceSchema,
 	CataloguePackSchema,

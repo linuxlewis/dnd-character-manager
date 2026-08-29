@@ -71,12 +71,20 @@ const CatalogueFoundrySpellSeedProvenanceFieldsSchema = CatalogueSeedProvenanceF
 
 const CatalogueFoundryEquipmentSeedProvenanceFieldsSchema =
 	CatalogueSeedProvenanceFieldsSchema.extend({
+		sourcePath: z
+			.string()
+			.min(1)
+			.max(500)
+			.regex(/^packs\/_source\/equipment24\//),
 		capability: z.literal("equipment"),
 		pack: z.literal("equipment24"),
 	});
 
 export const CatalogueFoundrySpellSeedProvenanceSchema =
 	CatalogueFoundrySpellSeedProvenanceFieldsSchema.superRefine(validateFoundrySeedSourceUrl);
+
+export const CatalogueFoundryEquipmentSeedProvenanceSchema =
+	CatalogueFoundryEquipmentSeedProvenanceFieldsSchema.superRefine(validateFoundrySeedSourceUrl);
 
 export const CatalogueFoundrySeedProvenanceSchema = z
 	.discriminatedUnion("capability", [
@@ -91,5 +99,8 @@ export type CatalogueSeedCapabilityPack = z.infer<typeof CatalogueSeedCapability
 export type CatalogueSeedProvenanceFields = z.infer<typeof CatalogueSeedProvenanceFieldsSchema>;
 export type CatalogueFoundrySpellSeedProvenance = z.infer<
 	typeof CatalogueFoundrySpellSeedProvenanceSchema
+>;
+export type CatalogueFoundryEquipmentSeedProvenance = z.infer<
+	typeof CatalogueFoundryEquipmentSeedProvenanceSchema
 >;
 export type CatalogueFoundrySeedProvenance = z.infer<typeof CatalogueFoundrySeedProvenanceSchema>;

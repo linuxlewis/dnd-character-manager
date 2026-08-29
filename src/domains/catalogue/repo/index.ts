@@ -1,3 +1,6 @@
+export { deduplicateCatalogueItems } from "./catalogue-item-precedence.js";
+export type { CatalogueItemRepository } from "./catalogue-item-repository.js";
+export { createCatalogueItemRepository } from "./catalogue-item-repository.js";
 export type {
 	CatalogueRemoteSpellClient,
 	CatalogueRemoteSpellClientOptions,
@@ -16,5 +19,7 @@ export {
 	toCatalogueSpellSearchResult,
 } from "./catalogue-spell-repository.js";
 export { catalogueSpellsTable } from "./catalogue-spell-table.js";
+export type { FoundryItemSourceInput } from "./foundry-item-source.js";
+export { parseFoundryItemSource } from "./foundry-item-source.js";
 export type { FoundrySpellSourceInput } from "./foundry-spell-source.js";
 export { parseFoundrySpellSource } from "./foundry-spell-source.js";

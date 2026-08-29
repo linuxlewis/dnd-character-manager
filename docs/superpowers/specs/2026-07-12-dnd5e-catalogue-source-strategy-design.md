@@ -8,15 +8,16 @@ Approved direction: hybrid source strategy. Equipment sequencing updated 2026-08
 
 ## Current Implementation Status
 
-As of 2026-08-29, the repository has a `catalogue` domain, a local `catalogue_spells` Postgres table,
-and a manual `pnpm seed` flow that downloads and ingests Foundry `dnd5e` `spells24` records. Character
-spell lookup prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback
-behavior. The Foundry source is pinned to commit
+As of 2026-08-29, the repository has a `catalogue` domain, local `catalogue_spells` and
+`catalogue_items` Postgres projections, and an explicit `pnpm seed spells|items|all` flow that
+downloads and ingests Foundry `dnd5e` `spells24` and `equipment24` records. Character spell lookup
+prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback behavior. The
+Foundry source is pinned to commit
 `f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6` from
 `https://github.com/foundryvtt/dnd5e`; that revision contains both `packs/_source/spells24/` and
-`packs/_source/equipment24/`. Equipment is not yet ingested. Source revision and configured pack
-identity are reported by the catalogue seed manifest; no migration persists the revision in the
-existing spell row. The manifest records the verified repository MIT license separately from each
+`packs/_source/equipment24/`. Item rows persist source revision, pack metadata, per-record provenance,
+and raw payload; the item seed audit persists processed, accepted, rejected, and representative
+category counts. The manifest records the verified repository MIT license separately from each
 record's `system.source.license`; an absent per-record content license remains an empty value and is
 never inferred from the repository license.
 

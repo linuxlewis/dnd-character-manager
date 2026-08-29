@@ -1,21 +1,36 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import {
 	generatedHeader,
+	identifiersReferencedBy,
 	importedTypeNames,
 	indent,
+	mergeUsedImports,
 	mutationFunction,
 	namedImport,
 	requiredClient,
 } from "./openapi-generator-support.js";
 
 export function generateQueryKeys(routes: readonly ApiRouteContract[]) {
+	const queryImports = mergeUsedImports(routes, (client) => [
+		...identifiersReferencedBy(client.queryParamsType, client),
+	]);
 	const entries = routes.map((route) => {
 		const client = requiredClient(route);
-		const params = client.pathParamsType ? `params: ${client.pathParamsType}` : "";
-		const key = client.pathParamsType
-			? `["api", ${JSON.stringify(client.functionName)}, params] as const`
-			: `["api", ${JSON.stringify(client.functionName)}] as const`;
-		return client.pathParamsType
+		const names = [
+			client.pathParamsType ? "params" : undefined,
+			client.queryParamsType ? "query" : undefined,
+		].filter(Boolean);
+		const params = [
+			client.pathParamsType ? `params: ${client.pathParamsType}` : undefined,
+			client.queryParamsType ? `query: ${client.queryParamsType}` : undefined,
+		]
+			.filter(Boolean)
+			.join(", ");
+		const key =
+			names.length > 0
+				? `["api", ${JSON.stringify(client.functionName)}, ${names.join(", ")}] as const`
+				: `["api", ${JSON.stringify(client.functionName)}] as const`;
+		return names.length > 0
 			? `${client.functionName}: (${params}) =>\n\t${key},`
 			: `${client.functionName}: () => ${key},`;
 	});
@@ -23,6 +38,7 @@ export function generateQueryKeys(routes: readonly ApiRouteContract[]) {
 	return [
 		generatedHeader(),
 		"",
+		queryImports,
 		"export const apiQueryKeys = {",
 		indent(entries.join("\n"), 1),
 		"} as const;",
@@ -30,17 +46,31 @@ export function generateQueryKeys(routes: readonly ApiRouteContract[]) {
 }
 
 export function generateQueryOptions(routes: readonly ApiRouteContract[]) {
+	const queryImports = mergeUsedImports(routes, (client) => [
+		...identifiersReferencedBy(client.queryParamsType, client),
+	]);
 	const entries = routes.map((route) => {
 		const client = requiredClient(route);
-		const params = client.pathParamsType
-			? `(params: ${client.pathParamsType}, options: ApiRequestOptions = {})`
-			: "(options: ApiRequestOptions = {})";
-		const keyCall = client.pathParamsType
-			? `apiQueryKeys.${client.functionName}(params)`
-			: `apiQueryKeys.${client.functionName}()`;
-		const clientCall = client.pathParamsType
-			? `client.${client.functionName}(params, options)`
-			: `client.${client.functionName}(options)`;
+		const argumentTypes = [
+			client.pathParamsType ? `params: ${client.pathParamsType}` : undefined,
+			client.queryParamsType ? `query: ${client.queryParamsType}` : undefined,
+		].filter(Boolean);
+		const argumentNames = [
+			client.pathParamsType ? "params" : undefined,
+			client.queryParamsType ? "query" : undefined,
+		].filter(Boolean);
+		const params =
+			argumentTypes.length > 0
+				? `(${argumentTypes.join(", ")}, options: ApiRequestOptions = {})`
+				: "(options: ApiRequestOptions = {})";
+		const keyCall =
+			argumentNames.length > 0
+				? `apiQueryKeys.${client.functionName}(${argumentNames.join(", ")})`
+				: `apiQueryKeys.${client.functionName}()`;
+		const clientCall =
+			argumentNames.length > 0
+				? `client.${client.functionName}(${argumentNames.join(", ")}, options)`
+				: `client.${client.functionName}(options)`;
 		return [
 			`${client.functionName}: ${params} =>`,
 			"\tqueryOptions({",
@@ -54,6 +84,7 @@ export function generateQueryOptions(routes: readonly ApiRouteContract[]) {
 		generatedHeader(),
 		"",
 		'import { queryOptions } from "@tanstack/react-query";',
+		queryImports,
 		'import { type ApiClient, type ApiRequestOptions, apiClient } from "./api-client-core.generated.js";',
 		'import { apiQueryKeys } from "./api-query-keys.generated.js";',
 		"",
