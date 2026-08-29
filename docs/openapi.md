@@ -12,14 +12,17 @@ The HTTP contract is generated from TypeScript route contract metadata and Zod s
 | App route contract registry | `src/api-contracts.ts` |
 | Auth route contracts | `src/providers/auth/contract.ts` |
 | Generated OpenAPI spec | `src/generated/openapi.generated.json` |
-| Generated frontend client and TanStack Query helpers | `src/generated/api-client.generated.ts` |
+| Generated compatibility barrel | `src/generated/api-client.generated.ts` |
+| Generated client modules | `src/generated/api-client-*.generated.ts` |
+| Generated TanStack Query helpers | `src/generated/api-query-*.generated.ts` and `src/generated/api-mutation-options.generated.ts` |
+| Generated client-safe type exports | `src/generated/api-types.generated.ts` |
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `pnpm api:generate` | Regenerate the OpenAPI JSON document and frontend client |
-| `pnpm api:check` | Fail when generated API artifacts are stale |
+| `pnpm api:generate` | Regenerate the OpenAPI JSON document and all typed-client modules |
+| `pnpm api:check` | Fail when any generated artifact is stale, missing, or unexpected |
 
 `pnpm build` runs `pnpm api:check` before TypeScript and Vite so stale generated API artifacts fail CI.
 
@@ -29,7 +32,7 @@ The HTTP contract is generated from TypeScript route contract metadata and Zod s
 2. Add or update the route contract in the domain `runtime/contract.ts`.
 3. Implement the Fastify route in the domain `runtime/routes.ts`.
 4. Run `pnpm api:generate`.
-5. Use `apiQueries`, `apiMutations`, and `apiQueryKeys` from `src/generated/api-client.generated.ts` in UI code instead of hand-written `fetch`, `queryKey`, `queryFn`, or `mutationFn` wrappers.
+5. Use `apiQueries`, `apiMutations`, and `apiQueryKeys` from the compatibility barrel at `src/generated/api-client.generated.ts` in UI code instead of hand-written `fetch`, `queryKey`, `queryFn`, or `mutationFn` wrappers.
 
 ## Contract Shape
 
@@ -107,12 +110,12 @@ export const thingRouteContracts = [
 
 ## Client Metadata
 
-`client` controls the generated function in `src/generated/api-client.generated.ts`.
+`client` controls the generated function in a route-group module under `src/generated/`; the compatibility barrel at `src/generated/api-client.generated.ts` re-exports the public surface.
 
 | Field | Required | Purpose |
 |-------|----------|---------|
 | `functionName` | Yes | Method name on `apiClient`, such as `apiClient.createThing`. |
-| `imports` | When client types or parsers are referenced | Type/value imports emitted into the generated client. Paths are relative to `src/generated/api-client.generated.ts`. |
+| `imports` | When client types or parsers are referenced | Type/value imports emitted into the generated route-group client. Paths are relative to that generated module. |
 | `pathParamsType` | When the path has params | TypeScript type for the generated `params` argument, usually `{ id: string }`. |
 | `requestBodyType` | When `requestBody` exists | TypeScript type for the generated `body` argument. |
 | `responseType` | Yes | Promise result type for the generated client method. Use `void` for `204`-only success responses. |
@@ -179,7 +182,7 @@ createMutation.mutate({ name: "New thing", status: "draft" });
 deleteMutation.mutate({ id });
 ```
 
-The generated helpers call the generated `apiClient`, so response parsing and `ApiClientError` behavior stay centralized.
+The generated helpers call the generated `apiClient`, so response parsing and `ApiClientError` behavior stay centralized. `src/generated/api-client.generated.ts` remains the stable import surface while route clients, errors, query keys, query options, mutations, and type exports are split into focused generated modules.
 
 ## Schema Rules
 
@@ -220,6 +223,6 @@ When changing contracts, verify all of the following:
 
 1. `runtime/contract.ts` has co-located tests for operation IDs, client function names, and any serialization-sensitive schemas.
 2. `runtime/routes.ts` has tests or integration coverage for boundary validation and status codes.
-3. `pnpm api:generate` updates both generated files.
-4. `pnpm api:check` passes without rewriting artifacts.
+3. `pnpm api:generate` updates the OpenAPI document and every generated client module.
+4. `pnpm api:check` passes without rewriting artifacts and detects missing or unexpected generated modules.
 5. UI code imports `apiQueries`, `apiMutations`, `apiQueryKeys`, `apiClient`, or generated exported types from `src/generated/api-client.generated.ts`.

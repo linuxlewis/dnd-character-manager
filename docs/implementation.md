@@ -39,7 +39,7 @@ When a feature adds or changes HTTP behavior:
 1. Define request, response, and path parameter schemas in the domain `types/` layer. Response schemas must describe JSON payloads, not internal service objects.
 2. Add or update the domain route contract in `runtime/contract.ts`, including `method`, `operationId`, `path`, `responses`, and `client` metadata for browser-callable routes.
 3. Register the contract from `src/api-contracts.ts`.
-4. Run `pnpm api:generate` to refresh `src/generated/openapi.generated.json` and `src/generated/api-client.generated.ts`.
+4. Run `pnpm api:generate` to refresh `src/generated/openapi.generated.json` and all generated client modules, keeping `src/generated/api-client.generated.ts` as the compatibility barrel.
 5. Use the generated TanStack Query helpers from UI code instead of hand-written `fetch`, `queryKey`, `queryFn`, or `mutationFn` wrappers.
 
 Use [openapi.md](./openapi.md) for the exact contract shape, client metadata fields, and verification checklist.

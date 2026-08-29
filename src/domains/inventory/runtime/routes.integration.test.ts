@@ -1,23 +1,13 @@
-import { resetAuthForTest } from "@providers/auth/auth.js";
-import { userTable } from "@providers/auth/schema.js";
-import { closeDb, getDb } from "@providers/database/index.js";
-import { count, eq, inArray, sql } from "drizzle-orm";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
-import { inventoryScopesTable } from "../repo/inventory-scope-table.js";
+import {
+	createSessionCookie,
+	registerInventoryRouteLifecycle,
+	scopeRowCount,
+	treasuryRowCount,
+} from "./routes.integration-helpers.js";
 
-const createdUserIds: string[] = [];
-
-afterEach(async () => {
-	resetAuthForTest();
-	if (createdUserIds.length > 0) {
-		await getDb()
-			.delete(userTable)
-			.where(inArray(userTable.id, [...createdUserIds]));
-		createdUserIds.length = 0;
-	}
-	await closeDb();
-});
+registerInventoryRouteLifecycle();
 
 describe("character treasury routes", () => {
 	it("authorizes by session, persists operations, and keeps characters isolated", async () => {
@@ -80,7 +70,10 @@ describe("character treasury routes", () => {
 				payload: { amount: { denomination: "sp", amount: 15 } },
 			});
 			expect(spent.statusCode).toBe(200);
-			expect(spent.json().change.change).toEqual({ cp: 5, sp: 4, gp: 0, pp: 0 });
+			expect(spent.json().change).toMatchObject({
+				next: { cp: 5, sp: 4, gp: 0, pp: 0 },
+			});
+			expect(spent.json().change.change).toBeUndefined();
 			expect(spent.json().treasury.totalValue).toEqual({ copper: 45, gp: 0.45 });
 
 			const insufficientPreview = await app.inject({
@@ -160,31 +153,3 @@ describe("character treasury routes", () => {
 		}
 	});
 });
-
-async function createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>) {
-	const response = await app.inject({ method: "GET", url: "/api/current-user" });
-	if (response.statusCode !== 200) throw new Error(`Session setup failed: ${response.body}`);
-	createdUserIds.push(response.json().user.id);
-	const setCookie = response.headers["set-cookie"];
-	const cookies = Array.isArray(setCookie) ? setCookie : setCookie ? [setCookie] : [];
-	return cookies.map((cookie) => cookie.split(";")[0]).join("; ");
-}
-
-async function scopeRowCount(characterId: string) {
-	const [row] = await getDb()
-		.select({ count: count() })
-		.from(inventoryScopesTable)
-		.where(eq(inventoryScopesTable.characterId, characterId));
-	return Number(row?.count ?? 0);
-}
-
-async function treasuryRowCount(characterId: string) {
-	const rows = await getDb().execute(sql`
-		SELECT COUNT(*)::int AS count
-		FROM inventory_treasuries AS treasuries
-		INNER JOIN inventory_scopes AS scopes ON scopes.id = treasuries.inventory_scope_id
-		WHERE scopes.character_id = ${characterId}
-	`);
-	const row = rows[0] as { count?: number | string } | undefined;
-	return Number(row?.count ?? 0);
-}

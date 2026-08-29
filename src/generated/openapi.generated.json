@@ -9,9 +9,7 @@
 			"get": {
 				"operationId": "getCurrentUser",
 				"summary": "Get current user",
-				"tags": [
-					"auth"
-				],
+				"tags": ["auth"],
 				"responses": {
 					"200": {
 						"description": "Current user",
@@ -35,17 +33,11 @@
 													"type": "string"
 												}
 											},
-											"required": [
-												"id",
-												"isAnonymous",
-												"name"
-											],
+											"required": ["id", "isAnonymous", "name"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"user"
-									],
+									"required": ["user"],
 									"additionalProperties": false
 								}
 							}
@@ -58,9 +50,7 @@
 			"post": {
 				"operationId": "requestMagicLinkSignIn",
 				"summary": "Request magic link sign-in",
-				"tags": [
-					"auth"
-				],
+				"tags": ["auth"],
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -74,9 +64,7 @@
 										"pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
 									}
 								},
-								"required": [
-									"email"
-								],
+								"required": ["email"],
 								"additionalProperties": false
 							}
 						}
@@ -95,9 +83,7 @@
 											"const": "sent"
 										}
 									},
-									"required": [
-										"status"
-									],
+									"required": ["status"],
 									"additionalProperties": false
 								}
 							}
@@ -113,9 +99,7 @@
 			"post": {
 				"operationId": "signOutCurrentUser",
 				"summary": "Sign out current user",
-				"tags": [
-					"auth"
-				],
+				"tags": ["auth"],
 				"responses": {
 					"200": {
 						"description": "Signed out current user",
@@ -128,9 +112,7 @@
 											"type": "boolean"
 										}
 									},
-									"required": [
-										"signedOut"
-									],
+									"required": ["signedOut"],
 									"additionalProperties": false
 								}
 							}
@@ -143,9 +125,7 @@
 			"post": {
 				"operationId": "createCharacter",
 				"summary": "Create character",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -187,12 +167,7 @@
 										"maximum": 9999
 									}
 								},
-								"required": [
-									"name",
-									"className",
-									"level",
-									"maxHp"
-								],
+								"required": ["name", "className", "level", "maxHp"],
 								"additionalProperties": false
 							}
 						}
@@ -365,12 +340,7 @@
 															"maximum": 9999
 														}
 													},
-													"required": [
-														"currentHp",
-														"maxHp",
-														"temporaryHp",
-														"effectiveMaxHp"
-													],
+													"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 													"additionalProperties": false
 												},
 												"recentHealthChanges": {
@@ -408,12 +378,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"next": {
@@ -440,12 +405,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"currentHpDelta": {
@@ -495,9 +455,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"character"
-									],
+									"required": ["character"],
 									"additionalProperties": false
 								}
 							}
@@ -514,9 +472,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -527,9 +483,7 @@
 			"get": {
 				"operationId": "listCharacters",
 				"summary": "List characters",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"responses": {
 					"200": {
 						"description": "Characters",
@@ -577,19 +531,12 @@
 														"maximum": 20
 													}
 												},
-												"required": [
-													"id",
-													"name",
-													"className",
-													"level"
-												],
+												"required": ["id", "name", "className", "level"],
 												"additionalProperties": false
 											}
 										}
 									},
-									"required": [
-										"characters"
-									],
+									"required": ["characters"],
 									"additionalProperties": false
 								}
 							}
@@ -602,9 +549,7 @@
 			"get": {
 				"operationId": "getCharacter",
 				"summary": "Get character",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -784,12 +729,7 @@
 															"maximum": 9999
 														}
 													},
-													"required": [
-														"currentHp",
-														"maxHp",
-														"temporaryHp",
-														"effectiveMaxHp"
-													],
+													"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 													"additionalProperties": false
 												},
 												"recentHealthChanges": {
@@ -827,12 +767,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"next": {
@@ -859,12 +794,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"currentHpDelta": {
@@ -914,9 +844,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"character"
-									],
+									"required": ["character"],
 									"additionalProperties": false
 								}
 							}
@@ -933,9 +861,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -948,9 +874,7 @@
 			"put": {
 				"operationId": "updateCharacterLevel",
 				"summary": "Update character level",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -976,9 +900,7 @@
 										"maximum": 20
 									}
 								},
-								"required": [
-									"level"
-								],
+								"required": ["level"],
 								"additionalProperties": false
 							}
 						}
@@ -1151,12 +1073,7 @@
 															"maximum": 9999
 														}
 													},
-													"required": [
-														"currentHp",
-														"maxHp",
-														"temporaryHp",
-														"effectiveMaxHp"
-													],
+													"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 													"additionalProperties": false
 												},
 												"recentHealthChanges": {
@@ -1194,12 +1111,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"next": {
@@ -1226,12 +1138,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"currentHpDelta": {
@@ -1281,9 +1188,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"character"
-									],
+									"required": ["character"],
 									"additionalProperties": false
 								}
 							}
@@ -1300,9 +1205,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -1319,9 +1222,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -1334,9 +1235,7 @@
 			"put": {
 				"operationId": "updateCharacterName",
 				"summary": "Update character name",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -1363,9 +1262,7 @@
 										"pattern": "\\S"
 									}
 								},
-								"required": [
-									"name"
-								],
+								"required": ["name"],
 								"additionalProperties": false
 							}
 						}
@@ -1538,12 +1435,7 @@
 															"maximum": 9999
 														}
 													},
-													"required": [
-														"currentHp",
-														"maxHp",
-														"temporaryHp",
-														"effectiveMaxHp"
-													],
+													"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 													"additionalProperties": false
 												},
 												"recentHealthChanges": {
@@ -1581,12 +1473,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"next": {
@@ -1613,12 +1500,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"currentHpDelta": {
@@ -1668,9 +1550,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"character"
-									],
+									"required": ["character"],
 									"additionalProperties": false
 								}
 							}
@@ -1687,9 +1567,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -1706,9 +1584,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -1721,9 +1597,7 @@
 			"put": {
 				"operationId": "updateCharacterExperience",
 				"summary": "Update character experience",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -1749,9 +1623,7 @@
 										"maximum": 9999999
 									}
 								},
-								"required": [
-									"experiencePoints"
-								],
+								"required": ["experiencePoints"],
 								"additionalProperties": false
 							}
 						}
@@ -1924,12 +1796,7 @@
 															"maximum": 9999
 														}
 													},
-													"required": [
-														"currentHp",
-														"maxHp",
-														"temporaryHp",
-														"effectiveMaxHp"
-													],
+													"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 													"additionalProperties": false
 												},
 												"recentHealthChanges": {
@@ -1967,12 +1834,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"next": {
@@ -1999,12 +1861,7 @@
 																		"maximum": 9999
 																	}
 																},
-																"required": [
-																	"currentHp",
-																	"maxHp",
-																	"temporaryHp",
-																	"effectiveMaxHp"
-																],
+																"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 																"additionalProperties": false
 															},
 															"currentHpDelta": {
@@ -2054,9 +1911,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"character"
-									],
+									"required": ["character"],
 									"additionalProperties": false
 								}
 							}
@@ -2073,9 +1928,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2092,9 +1945,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2107,9 +1958,7 @@
 			"put": {
 				"operationId": "updateCharacterHealth",
 				"summary": "Update character health",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -2145,11 +1994,7 @@
 										"maximum": 9999
 									}
 								},
-								"required": [
-									"currentHp",
-									"maxHp",
-									"temporaryHp"
-								],
+								"required": ["currentHp", "maxHp", "temporaryHp"],
 								"additionalProperties": false
 							}
 						}
@@ -2187,12 +2032,7 @@
 													"maximum": 9999
 												}
 											},
-											"required": [
-												"currentHp",
-												"maxHp",
-												"temporaryHp",
-												"effectiveMaxHp"
-											],
+											"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 											"additionalProperties": false
 										},
 										"recentHealthChanges": {
@@ -2230,12 +2070,7 @@
 																"maximum": 9999
 															}
 														},
-														"required": [
-															"currentHp",
-															"maxHp",
-															"temporaryHp",
-															"effectiveMaxHp"
-														],
+														"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -2262,12 +2097,7 @@
 																"maximum": 9999
 															}
 														},
-														"required": [
-															"currentHp",
-															"maxHp",
-															"temporaryHp",
-															"effectiveMaxHp"
-														],
+														"required": ["currentHp", "maxHp", "temporaryHp", "effectiveMaxHp"],
 														"additionalProperties": false
 													},
 													"currentHpDelta": {
@@ -2304,10 +2134,7 @@
 											}
 										}
 									},
-									"required": [
-										"health",
-										"recentHealthChanges"
-									],
+									"required": ["health", "recentHealthChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -2324,9 +2151,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2343,9 +2168,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2358,9 +2181,7 @@
 			"get": {
 				"operationId": "getCharacterSpellSlots",
 				"summary": "Get character spell slots",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -2408,12 +2229,7 @@
 														"maximum": 99
 													}
 												},
-												"required": [
-													"level",
-													"total",
-													"used",
-													"remaining"
-												],
+												"required": ["level", "total", "used", "remaining"],
 												"additionalProperties": false
 											}
 										},
@@ -2430,12 +2246,7 @@
 													},
 													"action": {
 														"type": "string",
-														"enum": [
-															"configured",
-															"used",
-															"restored",
-															"defaults-applied"
-														]
+														"enum": ["configured", "used", "restored", "defaults-applied"]
 													},
 													"level": {
 														"type": "integer",
@@ -2461,11 +2272,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -2487,11 +2294,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"totalDelta": {
@@ -2524,10 +2327,7 @@
 											}
 										}
 									},
-									"required": [
-										"spellSlots",
-										"recentSpellSlotChanges"
-									],
+									"required": ["spellSlots", "recentSpellSlotChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -2544,9 +2344,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2557,9 +2355,7 @@
 			"put": {
 				"operationId": "updateCharacterSpellSlots",
 				"summary": "Update character spell slots",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -2596,17 +2392,12 @@
 													"maximum": 99
 												}
 											},
-											"required": [
-												"level",
-												"total"
-											],
+											"required": ["level", "total"],
 											"additionalProperties": false
 										}
 									}
 								},
-								"required": [
-									"slots"
-								],
+								"required": ["slots"],
 								"additionalProperties": false
 							}
 						}
@@ -2647,12 +2438,7 @@
 														"maximum": 99
 													}
 												},
-												"required": [
-													"level",
-													"total",
-													"used",
-													"remaining"
-												],
+												"required": ["level", "total", "used", "remaining"],
 												"additionalProperties": false
 											}
 										},
@@ -2669,12 +2455,7 @@
 													},
 													"action": {
 														"type": "string",
-														"enum": [
-															"configured",
-															"used",
-															"restored",
-															"defaults-applied"
-														]
+														"enum": ["configured", "used", "restored", "defaults-applied"]
 													},
 													"level": {
 														"type": "integer",
@@ -2700,11 +2481,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -2726,11 +2503,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"totalDelta": {
@@ -2763,10 +2536,7 @@
 											}
 										}
 									},
-									"required": [
-										"spellSlots",
-										"recentSpellSlotChanges"
-									],
+									"required": ["spellSlots", "recentSpellSlotChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -2783,9 +2553,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2802,9 +2570,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -2817,9 +2583,7 @@
 			"post": {
 				"operationId": "useCharacterSpellSlot",
 				"summary": "Use character spell slot",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -2845,9 +2609,7 @@
 										"maximum": 9
 									}
 								},
-								"required": [
-									"level"
-								],
+								"required": ["level"],
 								"additionalProperties": false
 							}
 						}
@@ -2888,12 +2650,7 @@
 														"maximum": 99
 													}
 												},
-												"required": [
-													"level",
-													"total",
-													"used",
-													"remaining"
-												],
+												"required": ["level", "total", "used", "remaining"],
 												"additionalProperties": false
 											}
 										},
@@ -2910,12 +2667,7 @@
 													},
 													"action": {
 														"type": "string",
-														"enum": [
-															"configured",
-															"used",
-															"restored",
-															"defaults-applied"
-														]
+														"enum": ["configured", "used", "restored", "defaults-applied"]
 													},
 													"level": {
 														"type": "integer",
@@ -2941,11 +2693,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -2967,11 +2715,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"totalDelta": {
@@ -3004,10 +2748,7 @@
 											}
 										}
 									},
-									"required": [
-										"spellSlots",
-										"recentSpellSlotChanges"
-									],
+									"required": ["spellSlots", "recentSpellSlotChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -3024,9 +2765,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3043,9 +2782,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3058,9 +2795,7 @@
 			"post": {
 				"operationId": "restoreCharacterSpellSlot",
 				"summary": "Restore character spell slot",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -3086,9 +2821,7 @@
 										"maximum": 9
 									}
 								},
-								"required": [
-									"level"
-								],
+								"required": ["level"],
 								"additionalProperties": false
 							}
 						}
@@ -3129,12 +2862,7 @@
 														"maximum": 99
 													}
 												},
-												"required": [
-													"level",
-													"total",
-													"used",
-													"remaining"
-												],
+												"required": ["level", "total", "used", "remaining"],
 												"additionalProperties": false
 											}
 										},
@@ -3151,12 +2879,7 @@
 													},
 													"action": {
 														"type": "string",
-														"enum": [
-															"configured",
-															"used",
-															"restored",
-															"defaults-applied"
-														]
+														"enum": ["configured", "used", "restored", "defaults-applied"]
 													},
 													"level": {
 														"type": "integer",
@@ -3182,11 +2905,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -3208,11 +2927,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"totalDelta": {
@@ -3245,10 +2960,7 @@
 											}
 										}
 									},
-									"required": [
-										"spellSlots",
-										"recentSpellSlotChanges"
-									],
+									"required": ["spellSlots", "recentSpellSlotChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -3265,9 +2977,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3284,9 +2994,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3299,9 +3007,7 @@
 			"post": {
 				"operationId": "applyCharacterSpellSlotDefaults",
 				"summary": "Apply character spell slot defaults",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -3349,12 +3055,7 @@
 														"maximum": 99
 													}
 												},
-												"required": [
-													"level",
-													"total",
-													"used",
-													"remaining"
-												],
+												"required": ["level", "total", "used", "remaining"],
 												"additionalProperties": false
 											}
 										},
@@ -3371,12 +3072,7 @@
 													},
 													"action": {
 														"type": "string",
-														"enum": [
-															"configured",
-															"used",
-															"restored",
-															"defaults-applied"
-														]
+														"enum": ["configured", "used", "restored", "defaults-applied"]
 													},
 													"level": {
 														"type": "integer",
@@ -3402,11 +3098,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"next": {
@@ -3428,11 +3120,7 @@
 																"maximum": 99
 															}
 														},
-														"required": [
-															"total",
-															"used",
-															"remaining"
-														],
+														"required": ["total", "used", "remaining"],
 														"additionalProperties": false
 													},
 													"totalDelta": {
@@ -3465,10 +3153,7 @@
 											}
 										}
 									},
-									"required": [
-										"spellSlots",
-										"recentSpellSlotChanges"
-									],
+									"required": ["spellSlots", "recentSpellSlotChanges"],
 									"additionalProperties": false
 								}
 							}
@@ -3485,9 +3170,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3504,9 +3187,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3519,9 +3200,7 @@
 			"get": {
 				"operationId": "listCharacterSpells",
 				"summary": "List character spells",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -3583,10 +3262,7 @@
 													"source": {
 														"default": "spell",
 														"type": "string",
-														"enum": [
-															"spell",
-															"feature"
-														]
+														"enum": ["spell", "feature"]
 													}
 												},
 												"required": [
@@ -3602,9 +3278,7 @@
 											}
 										}
 									},
-									"required": [
-										"spells"
-									],
+									"required": ["spells"],
 									"additionalProperties": false
 								}
 							}
@@ -3621,9 +3295,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3634,9 +3306,7 @@
 			"post": {
 				"operationId": "saveCharacterSpell",
 				"summary": "Save character spell",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -3670,17 +3340,10 @@
 									"source": {
 										"default": "spell",
 										"type": "string",
-										"enum": [
-											"spell",
-											"feature"
-										]
+										"enum": ["spell", "feature"]
 									}
 								},
-								"required": [
-									"slotLevel",
-									"spellIndex",
-									"source"
-								],
+								"required": ["slotLevel", "spellIndex", "source"],
 								"additionalProperties": false
 							}
 						}
@@ -3735,10 +3398,7 @@
 													"source": {
 														"default": "spell",
 														"type": "string",
-														"enum": [
-															"spell",
-															"feature"
-														]
+														"enum": ["spell", "feature"]
 													}
 												},
 												"required": [
@@ -3754,9 +3414,7 @@
 											}
 										}
 									},
-									"required": [
-										"spells"
-									],
+									"required": ["spells"],
 									"additionalProperties": false
 								}
 							}
@@ -3773,9 +3431,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3792,9 +3448,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3811,9 +3465,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -3826,9 +3478,7 @@
 			"get": {
 				"operationId": "getCharacterSpellDetails",
 				"summary": "Get character spell details",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -3898,10 +3548,7 @@
 												"source": {
 													"default": "spell",
 													"type": "string",
-													"enum": [
-														"spell",
-														"feature"
-													]
+													"enum": ["spell", "feature"]
 												},
 												"desc": {
 													"minItems": 1,
@@ -3939,10 +3586,7 @@
 																"maxLength": 500
 															}
 														},
-														"required": [
-															"label",
-															"value"
-														],
+														"required": ["label", "value"],
 														"additionalProperties": false
 													}
 												}
@@ -3962,9 +3606,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"spell"
-									],
+									"required": ["spell"],
 									"additionalProperties": false
 								}
 							}
@@ -3981,9 +3623,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4000,9 +3640,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4013,9 +3651,7 @@
 			"delete": {
 				"operationId": "removeCharacterSpell",
 				"summary": "Remove character spell",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -4087,10 +3723,7 @@
 													"source": {
 														"default": "spell",
 														"type": "string",
-														"enum": [
-															"spell",
-															"feature"
-														]
+														"enum": ["spell", "feature"]
 													}
 												},
 												"required": [
@@ -4106,9 +3739,7 @@
 											}
 										}
 									},
-									"required": [
-										"spells"
-									],
+									"required": ["spells"],
 									"additionalProperties": false
 								}
 							}
@@ -4125,9 +3756,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4140,9 +3769,7 @@
 			"post": {
 				"operationId": "searchCharacterSpells",
 				"summary": "Search character spells",
-				"tags": [
-					"characters"
-				],
+				"tags": ["characters"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -4172,10 +3799,7 @@
 										"maxLength": 120
 									}
 								},
-								"required": [
-									"slotLevel",
-									"query"
-								],
+								"required": ["slotLevel", "query"],
 								"additionalProperties": false
 							}
 						}
@@ -4220,26 +3844,15 @@
 													"source": {
 														"default": "spell",
 														"type": "string",
-														"enum": [
-															"spell",
-															"feature"
-														]
+														"enum": ["spell", "feature"]
 													}
 												},
-												"required": [
-													"index",
-													"name",
-													"level",
-													"url",
-													"source"
-												],
+												"required": ["index", "name", "level", "url", "source"],
 												"additionalProperties": false
 											}
 										}
 									},
-									"required": [
-										"spells"
-									],
+									"required": ["spells"],
 									"additionalProperties": false
 								}
 							}
@@ -4256,9 +3869,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4275,9 +3886,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4294,9 +3903,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4309,10 +3916,7 @@
 			"get": {
 				"operationId": "getCharacterTreasury",
 				"summary": "Get character treasury",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -4365,12 +3969,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -4386,24 +3985,15 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury"
-									],
+									"required": ["treasury"],
 									"additionalProperties": false
 								}
 							}
@@ -4420,9 +4010,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4439,9 +4027,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4452,10 +4038,7 @@
 			"put": {
 				"operationId": "addCharacterTreasury",
 				"summary": "Add funds to character treasury",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -4499,18 +4082,11 @@
 												"maximum": 2147483647
 											}
 										},
-										"required": [
-											"cp",
-											"sp",
-											"gp",
-											"pp"
-										],
+										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
 									}
 								},
-								"required": [
-									"delta"
-								],
+								"required": ["delta"],
 								"additionalProperties": false
 							}
 						}
@@ -4556,12 +4132,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -4577,18 +4148,11 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										},
 										"change": {
@@ -4622,12 +4186,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"next": {
@@ -4654,12 +4213,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"delta": {
@@ -4686,12 +4240,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -4707,27 +4256,15 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"operation",
-												"previous",
-												"next",
-												"delta",
-												"totalValue"
-											],
+											"required": ["operation", "previous", "next", "delta", "totalValue"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury",
-										"change"
-									],
+									"required": ["treasury", "change"],
 									"additionalProperties": false
 								}
 							}
@@ -4744,9 +4281,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4763,9 +4298,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -4778,10 +4311,7 @@
 			"post": {
 				"operationId": "spendCharacterTreasury",
 				"summary": "Spend character treasury funds",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -4806,12 +4336,7 @@
 										"properties": {
 											"denomination": {
 												"type": "string",
-												"enum": [
-													"cp",
-													"sp",
-													"gp",
-													"pp"
-												]
+												"enum": ["cp", "sp", "gp", "pp"]
 											},
 											"amount": {
 												"type": "integer",
@@ -4819,16 +4344,11 @@
 												"maximum": 2147483647
 											}
 										},
-										"required": [
-											"denomination",
-											"amount"
-										],
+										"required": ["denomination", "amount"],
 										"additionalProperties": false
 									}
 								},
-								"required": [
-									"amount"
-								],
+								"required": ["amount"],
 								"additionalProperties": false
 							}
 						}
@@ -4874,12 +4394,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -4895,18 +4410,11 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										},
 										"change": {
@@ -4940,12 +4448,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"next": {
@@ -4972,12 +4475,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"delta": {
@@ -5004,12 +4502,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -5025,10 +4518,7 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												},
 												"spent": {
@@ -5036,12 +4526,7 @@
 													"properties": {
 														"denomination": {
 															"type": "string",
-															"enum": [
-																"cp",
-																"sp",
-																"gp",
-																"pp"
-															]
+															"enum": ["cp", "sp", "gp", "pp"]
 														},
 														"amount": {
 															"type": "integer",
@@ -5049,10 +4534,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"denomination",
-														"amount"
-													],
+													"required": ["denomination", "amount"],
 													"additionalProperties": false
 												},
 												"change": {
@@ -5079,30 +4561,15 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"operation",
-												"previous",
-												"next",
-												"delta",
-												"totalValue",
-												"spent"
-											],
+											"required": ["operation", "previous", "next", "delta", "totalValue", "spent"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury",
-										"change"
-									],
+									"required": ["treasury", "change"],
 									"additionalProperties": false
 								}
 							}
@@ -5119,9 +4586,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5138,9 +4603,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5178,10 +4641,7 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												},
 												"requested": {
@@ -5197,25 +4657,15 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"code",
-												"message",
-												"available",
-												"requested"
-											],
+											"required": ["code", "message", "available", "requested"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5228,10 +4678,7 @@
 			"post": {
 				"operationId": "convertCharacterTreasury",
 				"summary": "Convert character treasury denomination",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -5253,21 +4700,11 @@
 								"properties": {
 									"from": {
 										"type": "string",
-										"enum": [
-											"cp",
-											"sp",
-											"gp",
-											"pp"
-										]
+										"enum": ["cp", "sp", "gp", "pp"]
 									},
 									"to": {
 										"type": "string",
-										"enum": [
-											"cp",
-											"sp",
-											"gp",
-											"pp"
-										]
+										"enum": ["cp", "sp", "gp", "pp"]
 									},
 									"amount": {
 										"type": "integer",
@@ -5275,11 +4712,7 @@
 										"maximum": 2147483647
 									}
 								},
-								"required": [
-									"from",
-									"to",
-									"amount"
-								],
+								"required": ["from", "to", "amount"],
 								"additionalProperties": false
 							}
 						}
@@ -5325,12 +4758,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -5346,18 +4774,11 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										},
 										"change": {
@@ -5391,12 +4812,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"next": {
@@ -5423,12 +4839,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"delta": {
@@ -5455,12 +4866,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -5476,29 +4882,16 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												},
 												"from": {
 													"type": "string",
-													"enum": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													]
+													"enum": ["cp", "sp", "gp", "pp"]
 												},
 												"to": {
 													"type": "string",
-													"enum": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													]
+													"enum": ["cp", "sp", "gp", "pp"]
 												},
 												"amount": {
 													"type": "integer",
@@ -5525,10 +4918,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury",
-										"change"
-									],
+									"required": ["treasury", "change"],
 									"additionalProperties": false
 								}
 							}
@@ -5545,9 +4935,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5564,9 +4952,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5593,12 +4979,7 @@
 												},
 												"denomination": {
 													"type": "string",
-													"enum": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													]
+													"enum": ["cp", "sp", "gp", "pp"]
 												},
 												"available": {
 													"type": "integer",
@@ -5611,19 +4992,11 @@
 													"maximum": 2147483647
 												}
 											},
-											"required": [
-												"code",
-												"message",
-												"denomination",
-												"available",
-												"requested"
-											],
+											"required": ["code", "message", "denomination", "available", "requested"],
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -5636,10 +5009,7 @@
 			"post": {
 				"operationId": "previewAddCharacterTreasury",
 				"summary": "Preview adding character treasury funds",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -5683,18 +5053,11 @@
 												"maximum": 2147483647
 											}
 										},
-										"required": [
-											"cp",
-											"sp",
-											"gp",
-											"pp"
-										],
+										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
 									}
 								},
-								"required": [
-									"delta"
-								],
+								"required": ["delta"],
 								"additionalProperties": false
 							}
 						}
@@ -5740,12 +5103,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -5761,18 +5119,11 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										},
 										"preview": {
@@ -5780,11 +5131,7 @@
 											"properties": {
 												"operation": {
 													"type": "string",
-													"enum": [
-														"add",
-														"spend",
-														"convert"
-													]
+													"enum": ["add", "spend", "convert"]
 												},
 												"previous": {
 													"type": "object",
@@ -5810,12 +5157,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"next": {
@@ -5842,12 +5184,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"delta": {
@@ -5874,12 +5211,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -5895,10 +5227,7 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												},
 												"canApply": {
@@ -5929,10 +5258,7 @@
 																	"minimum": 0
 																}
 															},
-															"required": [
-																"copper",
-																"gp"
-															],
+															"required": ["copper", "gp"],
 															"additionalProperties": false
 														},
 														"requested": {
@@ -5948,19 +5274,11 @@
 																	"minimum": 0
 																}
 															},
-															"required": [
-																"copper",
-																"gp"
-															],
+															"required": ["copper", "gp"],
 															"additionalProperties": false
 														}
 													},
-													"required": [
-														"code",
-														"message",
-														"available",
-														"requested"
-													],
+													"required": ["code", "message", "available", "requested"],
 													"additionalProperties": false
 												}
 											},
@@ -5975,10 +5293,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury",
-										"preview"
-									],
+									"required": ["treasury", "preview"],
 									"additionalProperties": false
 								}
 							}
@@ -5995,9 +5310,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -6014,9 +5327,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -6029,10 +5340,7 @@
 			"post": {
 				"operationId": "previewSpendCharacterTreasury",
 				"summary": "Preview spending character treasury funds",
-				"tags": [
-					"characters",
-					"treasury"
-				],
+				"tags": ["characters", "treasury"],
 				"parameters": [
 					{
 						"name": "characterId",
@@ -6057,12 +5365,7 @@
 										"properties": {
 											"denomination": {
 												"type": "string",
-												"enum": [
-													"cp",
-													"sp",
-													"gp",
-													"pp"
-												]
+												"enum": ["cp", "sp", "gp", "pp"]
 											},
 											"amount": {
 												"type": "integer",
@@ -6070,16 +5373,11 @@
 												"maximum": 2147483647
 											}
 										},
-										"required": [
-											"denomination",
-											"amount"
-										],
+										"required": ["denomination", "amount"],
 										"additionalProperties": false
 									}
 								},
-								"required": [
-									"amount"
-								],
+								"required": ["amount"],
 								"additionalProperties": false
 							}
 						}
@@ -6125,12 +5423,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -6146,18 +5439,11 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												}
 											},
-											"required": [
-												"characterId",
-												"balances",
-												"totalValue"
-											],
+											"required": ["characterId", "balances", "totalValue"],
 											"additionalProperties": false
 										},
 										"preview": {
@@ -6165,11 +5451,7 @@
 											"properties": {
 												"operation": {
 													"type": "string",
-													"enum": [
-														"add",
-														"spend",
-														"convert"
-													]
+													"enum": ["add", "spend", "convert"]
 												},
 												"previous": {
 													"type": "object",
@@ -6195,12 +5477,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"next": {
@@ -6227,12 +5504,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"delta": {
@@ -6259,12 +5531,7 @@
 															"maximum": 2147483647
 														}
 													},
-													"required": [
-														"cp",
-														"sp",
-														"gp",
-														"pp"
-													],
+													"required": ["cp", "sp", "gp", "pp"],
 													"additionalProperties": false
 												},
 												"totalValue": {
@@ -6280,10 +5547,7 @@
 															"minimum": 0
 														}
 													},
-													"required": [
-														"copper",
-														"gp"
-													],
+													"required": ["copper", "gp"],
 													"additionalProperties": false
 												},
 												"canApply": {
@@ -6314,10 +5578,7 @@
 																	"minimum": 0
 																}
 															},
-															"required": [
-																"copper",
-																"gp"
-															],
+															"required": ["copper", "gp"],
 															"additionalProperties": false
 														},
 														"requested": {
@@ -6333,19 +5594,11 @@
 																	"minimum": 0
 																}
 															},
-															"required": [
-																"copper",
-																"gp"
-															],
+															"required": ["copper", "gp"],
 															"additionalProperties": false
 														}
 													},
-													"required": [
-														"code",
-														"message",
-														"available",
-														"requested"
-													],
+													"required": ["code", "message", "available", "requested"],
 													"additionalProperties": false
 												}
 											},
@@ -6360,10 +5613,7 @@
 											"additionalProperties": false
 										}
 									},
-									"required": [
-										"treasury",
-										"preview"
-									],
+									"required": ["treasury", "preview"],
 									"additionalProperties": false
 								}
 							}
@@ -6380,9 +5630,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}
@@ -6399,9 +5647,7 @@
 											"type": "string"
 										}
 									},
-									"required": [
-										"error"
-									],
+									"required": ["error"],
 									"additionalProperties": false
 								}
 							}

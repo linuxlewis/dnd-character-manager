@@ -61,21 +61,22 @@ export function planSpend(previous: CurrencyBalance, input: CurrencySpendRequest
 		});
 	}
 
-	const exactPayment = selectAtMost(balance, targetIndex, requestedCopper);
+	const exactPayment = selectExact(balance, requestedCopper);
 	const selected = zeroBalance();
 	let overpayCopper = 0;
 	const higherValue = sumHigherDenominations(balance, targetIndex);
 
-	if (exactPayment.remaining === 0) {
-		copyBalance(exactPayment.selected, selected);
+	if (exactPayment) {
+		copyBalance(exactPayment, selected);
 	} else if (higherValue >= requestedCopper) {
 		selectHigherCoins(balance, targetIndex, requestedCopper, selected);
 		overpayCopper = selectedValue(selected) - requestedCopper;
 	} else {
-		copyBalance(exactPayment.selected, selected);
+		const lowerPayment = selectAtMost(balance, targetIndex, requestedCopper);
+		copyBalance(lowerPayment.selected, selected);
 		let shortfall = requestedCopper - selectedValue(selected);
 		selectHigherCoins(balance, targetIndex, shortfall, selected);
-		shortfall -= selectedValue(selected) - selectedValue(exactPayment.selected);
+		shortfall -= selectedValue(selected) - selectedValue(lowerPayment.selected);
 		if (shortfall > 0) throw new TreasuryOverflowError("Unable to make exact currency change.");
 		overpayCopper = -shortfall;
 	}
@@ -110,6 +111,24 @@ export function planConversion(
 		amount: request.amount,
 		convertedAmount,
 	};
+}
+
+function selectExact(
+	balance: CurrencyBalance,
+	requestedCopper: number,
+): CurrencyBalance | undefined {
+	const selected = zeroBalance();
+	let remaining = requestedCopper;
+
+	for (let index = CURRENCY_DENOMINATIONS.length - 1; index >= 0; index -= 1) {
+		const denomination = CURRENCY_DENOMINATIONS[index];
+		const value = DND_CURRENCY_TO_COPPER[denomination];
+		const amount = Math.min(balance[denomination], Math.floor(remaining / value));
+		selected[denomination] = amount;
+		remaining -= amount * value;
+	}
+
+	return remaining === 0 ? selected : undefined;
 }
 
 function selectAtMost(balance: CurrencyBalance, targetIndex: number, requestedCopper: number) {
