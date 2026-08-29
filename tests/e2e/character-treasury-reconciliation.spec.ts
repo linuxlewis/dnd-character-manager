@@ -63,7 +63,7 @@ test("reconciles committed add and spend operations after lost confirmation resp
 
 	const addDialog = await previewAdd(page, 1);
 	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
-	await expect(addDialog.getByText("Add funds failed")).toBeVisible();
+	await expect(addDialog.getByText("Add confirmation response unavailable")).toBeVisible();
 	await expect(addDialog.getByRole("button", { name: "Preview add" })).toBeDisabled();
 	await expect(page.getByRole("button", { name: "Spend", exact: true })).toBeDisabled();
 	await addGate.started;
@@ -79,7 +79,7 @@ test("reconciles committed add and spend operations after lost confirmation resp
 
 	const spendDialog = await previewSpend(page, 2);
 	await spendDialog.getByRole("button", { name: "Confirm spend" }).click();
-	await expect(spendDialog.getByText("Spend funds failed")).toBeVisible();
+	await expect(spendDialog.getByText("Spend confirmation response unavailable")).toBeVisible();
 	await expect(spendDialog.getByRole("button", { name: "Preview spend" })).toBeDisabled();
 	await expect(page.getByRole("button", { name: "Add funds", exact: true })).toBeDisabled();
 	await spendGate.started;
@@ -95,6 +95,67 @@ test("reconciles committed add and spend operations after lost confirmation resp
 
 	expect(addMutations).toBe(2);
 	expect(spendMutations).toBe(1);
+});
+
+test("requires balance review when a lost add response is overtaken before reconciliation", async ({
+	page,
+}) => {
+	let addMutations = 0;
+	await page.route("**/api/characters/*/treasury", async (route) => {
+		if (route.request().method() !== "PUT") return route.continue();
+
+		addMutations += 1;
+		const response = await route.fetch();
+		if (addMutations !== 2) return route.fulfill({ response });
+
+		const committed = (await response.json()) as {
+			treasury: { balances: { cp: number; sp: number; gp: number; pp: number } };
+		};
+		const interveningResponse = await route.fetch({
+			postData: JSON.stringify({
+				delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				expectedPrevious: committed.treasury.balances,
+			}),
+		});
+		if (!interveningResponse.ok()) {
+			throw new Error(`Intervening treasury mutation failed: ${interveningResponse.status()}`);
+		}
+		return route.fulfill({
+			body: JSON.stringify({ error: "Add confirmation response was lost." }),
+			contentType: "application/json",
+			status: 503,
+		});
+	});
+
+	await page.goto("/");
+	await createCharacter(page, "Indeterminate Recovery", "Fighter");
+	await addFunds(page, 5);
+	const dialog = await previewAdd(page, 1);
+	await dialog.getByRole("button", { name: "Confirm add funds" }).click();
+
+	await expect(dialog).toBeHidden();
+	await expectBalances(page, "8.00 GP");
+	const warning = page.getByRole("alert").filter({
+		hasText: "Treasury confirmation could not be verified",
+	});
+	await expect(warning).toContainText("confirmation response was lost");
+	await expect(warning).toContainText("displayed balance is authoritative");
+	const addButton = page.getByRole("button", { name: "Add funds", exact: true });
+	const spendButton = page.getByRole("button", { name: "Spend", exact: true });
+	await expect(addButton).toBeDisabled();
+	await expect(spendButton).toBeDisabled();
+	expect(addMutations).toBe(2);
+
+	await warning.getByRole("button", { name: "I reviewed the balance" }).click();
+	await expect(warning).toBeHidden();
+	await expect(addButton).toBeEnabled();
+	await expect(spendButton).toBeEnabled();
+	await addButton.click();
+	const freshDialog = page.getByRole("dialog", { name: "Add funds" });
+	await expect(freshDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
+	await expect(freshDialog.getByLabel("Gold pieces (GP)")).toHaveValue("");
+	await freshDialog.getByRole("button", { name: "Cancel" }).click();
+	expect(addMutations).toBe(2);
 });
 
 async function createCharacter(page: Page, name: string, className: string) {

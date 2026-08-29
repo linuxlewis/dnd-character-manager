@@ -34,7 +34,7 @@ describe("TreasuryAddModal", () => {
 		expect(html).toContain("font-size:16px");
 	});
 
-	it("renders preview and mutation failures without hiding the form", () => {
+	it("renders preview and confirmation-response failures without hiding the form", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryAddModal
@@ -53,7 +53,7 @@ describe("TreasuryAddModal", () => {
 		);
 
 		expect(html).toContain("Add preview failed");
-		expect(html).toContain("Add funds failed");
+		expect(html).toContain("Add confirmation response unavailable");
 		expect(html).toContain("Preview add");
 	});
 

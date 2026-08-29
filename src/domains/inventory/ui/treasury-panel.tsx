@@ -1,4 +1,4 @@
-import { Alert, Paper, Stack, Text } from "@mantine/core";
+import { Alert, Button, Paper, Stack, Text } from "@mantine/core";
 import { useState } from "react";
 import { TreasuryAddModal } from "./treasury-add-modal.js";
 import { TreasuryDisplay } from "./treasury-display.js";
@@ -33,6 +33,10 @@ export interface TreasuryOperationState<Request, PreviewResponse> {
 export interface TreasuryPanelProps {
 	scopeLabel: string;
 	query: TreasuryQueryState;
+	indeterminateOutcome: {
+		message: string;
+		onAcknowledge: () => void;
+	} | null;
 	add: TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
 		onPreview: (request: TreasuryAddRequest) => void;
 		onConfirm: (
@@ -59,14 +63,21 @@ export interface TreasuryPanelProps {
 
 type ActiveDialog = "add" | "spend" | null;
 
-export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelProps) {
+export function TreasuryPanel({
+	scopeLabel,
+	query,
+	indeterminateOutcome,
+	add,
+	spend,
+}: TreasuryPanelProps) {
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
 	const treasury = query.data;
 	const actionsDisabled =
 		add.previewPending || add.mutationPending || spend.previewPending || spend.mutationPending;
 	const reconciliationBlocked = Boolean(add.reconciliationError || spend.reconciliationError);
-	const allActionsDisabled = actionsDisabled || reconciliationBlocked;
+	const allActionsDisabled =
+		actionsDisabled || reconciliationBlocked || indeterminateOutcome !== null;
 
 	function openDialog(dialog: Exclude<ActiveDialog, null>) {
 		if (dialog === "add") add.onReset();
@@ -103,6 +114,16 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			{query.error && (
 				<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
 					{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
+				</Alert>
+			)}
+			{indeterminateOutcome && (
+				<Alert color="orange" title="Treasury confirmation could not be verified" variant="light">
+					<Stack align="flex-start" gap="sm">
+						<Text size="sm">{indeterminateOutcome.message}</Text>
+						<Button onClick={indeterminateOutcome.onAcknowledge} size="sm" type="button">
+							I reviewed the balance
+						</Button>
+					</Stack>
 				</Alert>
 			)}
 			{treasury && (

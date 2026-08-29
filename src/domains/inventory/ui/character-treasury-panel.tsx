@@ -23,6 +23,9 @@ import type {
 	TreasurySpendRequest,
 } from "./treasury-types.js";
 
+const INDETERMINATE_OUTCOME_MESSAGE =
+	"The confirmation response was lost and the treasury changed before the result could be verified. The displayed balance is authoritative; review it before making another treasury change.";
+
 export function CharacterTreasuryPanel({
 	characterId,
 	scopeLabel = "Personal Treasury",
@@ -46,6 +49,7 @@ export function CharacterTreasuryPanel({
 		error: null,
 		pending: false,
 	});
+	const [indeterminateOutcome, setIndeterminateOutcome] = useState(false);
 	const addConfirmationRef = useRef<TreasuryConfirmationContext | null>(null);
 	const spendConfirmationRef = useRef<TreasuryConfirmationContext | null>(null);
 
@@ -77,6 +81,10 @@ export function CharacterTreasuryPanel({
 			expectedNext: preview.next,
 			mutationSucceeded: false,
 			onApplied: onSuccess,
+			onIndeterminate: () => {
+				setIndeterminateOutcome(true);
+				onSuccess();
+			},
 		};
 		setAddReconciliation({ error: null, pending: true });
 		void applyAddConfirmation(request, preview);
@@ -109,6 +117,10 @@ export function CharacterTreasuryPanel({
 			expectedNext: preview.next,
 			mutationSucceeded: false,
 			onApplied: onSuccess,
+			onIndeterminate: () => {
+				setIndeterminateOutcome(true);
+				onSuccess();
+			},
 		};
 		setSpendReconciliation({ error: null, pending: true });
 		void applySpendConfirmation(request, preview);
@@ -181,6 +193,14 @@ export function CharacterTreasuryPanel({
 				reconciliationPending: addReconciliation.pending,
 				stalePreviewError: addConflictError,
 			}}
+			indeterminateOutcome={
+				indeterminateOutcome
+					? {
+							message: INDETERMINATE_OUTCOME_MESSAGE,
+							onAcknowledge: () => setIndeterminateOutcome(false),
+						}
+					: null
+			}
 			query={{
 				data: query.data ? toTreasuryData(query.data) : undefined,
 				error: query.error,

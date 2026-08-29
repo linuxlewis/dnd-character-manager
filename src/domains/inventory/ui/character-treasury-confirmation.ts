@@ -22,7 +22,10 @@ export interface TreasuryConfirmationContext {
 	expectedNext: TreasuryBalance;
 	mutationSucceeded: boolean;
 	onApplied: () => void;
+	onIndeterminate: () => void;
 }
+
+export type TreasuryConfirmationOutcome = "applied" | "conflict" | "indeterminate";
 
 type ConfirmationRef = { current: TreasuryConfirmationContext | null };
 
@@ -48,14 +51,13 @@ export function toTreasuryConflictError(error: unknown) {
 	);
 }
 
-export function shouldCompleteTreasuryConfirmation(
+export function classifyTreasuryConfirmationOutcome(
 	context: TreasuryConfirmationContext,
 	actual: TreasuryBalance,
-) {
-	return (
-		context.mutationSucceeded ||
-		(!context.conflict && treasuryBalancesEqual(actual, context.expectedNext))
-	);
+): TreasuryConfirmationOutcome {
+	if (context.mutationSucceeded) return "applied";
+	if (context.conflict) return "conflict";
+	return treasuryBalancesEqual(actual, context.expectedNext) ? "applied" : "indeterminate";
 }
 
 export async function reconcileTreasuryQuery(queryClient: QueryClient, characterId: string) {
@@ -77,12 +79,10 @@ export async function reconcileAndRelease(
 		const confirmation = confirmationRef.current;
 		confirmationRef.current = null;
 		setState({ error: null, pending: false });
-		if (
-			confirmation &&
-			shouldCompleteTreasuryConfirmation(confirmation, response.treasury.balances)
-		) {
-			confirmation.onApplied();
-		}
+		if (!confirmation) return;
+		const outcome = classifyTreasuryConfirmationOutcome(confirmation, response.treasury.balances);
+		if (outcome === "applied") confirmation.onApplied();
+		if (outcome === "indeterminate") confirmation.onIndeterminate();
 	} catch (error) {
 		setState({ error: toTreasuryError(error), pending: false });
 	}

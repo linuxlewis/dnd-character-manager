@@ -110,8 +110,11 @@ export function TreasuryAddModal({
 						</Alert>
 					)}
 					{mutationError && (
-						<Alert color="red" title="Add funds failed" variant="light">
-							{getTreasuryErrorMessage(mutationError, "The funds could not be added.")}
+						<Alert color="orange" title="Add confirmation response unavailable" variant="light">
+							{getTreasuryErrorMessage(
+								mutationError,
+								"The add confirmation response could not be verified.",
+							)}
 						</Alert>
 					)}
 

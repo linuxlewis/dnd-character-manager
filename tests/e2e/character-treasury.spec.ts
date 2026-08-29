@@ -113,7 +113,7 @@ test("recovers from a failed treasury preview without exposing stale confirmatio
 	await expectBalances(page, { pp: "0", gp: "1", sp: "0", cp: "0", total: "1.00 GP" });
 });
 
-test("reconciles failed treasury confirmation and requires a fresh preview for retry", async ({
+test("requires review after an unverified confirmation and recovers from a fresh dialog", async ({
 	page,
 }) => {
 	let mutationAttempts = 0;
@@ -137,10 +137,18 @@ test("reconciles failed treasury confirmation and requires a fresh preview for r
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
 	await addDialog.getByRole("button", { name: "Preview add" }).click();
 	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
-	await expect(addDialog.getByText("Add funds failed")).toBeVisible();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
+	await expect(addDialog).toBeHidden();
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+	const warning = page.getByRole("alert").filter({
+		hasText: "Treasury confirmation could not be verified",
+	});
+	await expect(warning).toBeVisible();
+	await expect(page.getByRole("button", { name: "Add funds", exact: true })).toBeDisabled();
+	await warning.getByRole("button", { name: "I reviewed the balance" }).click();
 
+	await page.getByRole("button", { name: "Add funds", exact: true }).click();
+	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
+	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
 	await addDialog.getByRole("button", { name: "Preview add" }).click();
 	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeVisible();
 	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();

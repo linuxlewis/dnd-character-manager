@@ -70,7 +70,7 @@ describe("TreasurySpendModal", () => {
 		expect(html).toContain("Confirm spend");
 	});
 
-	it("renders preview and mutation failures without hiding the form", () => {
+	it("renders preview and confirmation-response failures without hiding the form", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasurySpendModal
@@ -89,7 +89,7 @@ describe("TreasurySpendModal", () => {
 		);
 
 		expect(html).toContain("Spend preview failed");
-		expect(html).toContain("Spend funds failed");
+		expect(html).toContain("Spend confirmation response unavailable");
 		expect(html).toContain("Preview spend");
 	});
 

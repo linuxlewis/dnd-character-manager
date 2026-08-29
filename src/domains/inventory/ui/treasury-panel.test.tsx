@@ -41,20 +41,51 @@ describe("TreasuryPanel", () => {
 		expect(toReadableText(html)).toContain("2.00 GP");
 		expect(toReadableText(html)).toContain("Add funds");
 	});
+
+	it("blocks actions until an indeterminate confirmation is acknowledged", () => {
+		const html = renderPanel(
+			{
+				data: {
+					balances: { cp: 0, sp: 0, gp: 8, pp: 0 },
+					totalValue: { copper: 800, gp: 8 },
+				},
+				isLoading: false,
+				error: null,
+			},
+			{
+				message: "The displayed balance is authoritative and must be reviewed.",
+				onAcknowledge: vi.fn(),
+			},
+		);
+
+		const readableHtml = toReadableText(html);
+		expect(readableHtml).toContain("Treasury confirmation could not be verified");
+		expect(readableHtml).toContain("The displayed balance is authoritative");
+		expect(readableHtml).toContain("I reviewed the balance");
+		expect(html).toMatch(/<button[^>]*disabled=""[^>]*>.*Add funds/s);
+		expect(html).toMatch(/<button[^>]*disabled=""[^>]*>.*Spend/s);
+	});
 });
 
-function renderPanel(query: {
-	data?: {
-		balances: { cp: number; sp: number; gp: number; pp: number };
-		totalValue: { copper: number; gp: number };
-	};
-	isLoading: boolean;
-	error: Error | null;
-}) {
+function renderPanel(
+	query: {
+		data?: {
+			balances: { cp: number; sp: number; gp: number; pp: number };
+			totalValue: { copper: number; gp: number };
+		};
+		isLoading: boolean;
+		error: Error | null;
+	},
+	indeterminateOutcome: {
+		message: string;
+		onAcknowledge: () => void;
+	} | null = null,
+) {
 	return renderToString(
 		<MantineProvider>
 			<TreasuryPanel
 				add={addOperationState()}
+				indeterminateOutcome={indeterminateOutcome}
 				query={query}
 				scopeLabel="Personal Treasury"
 				spend={spendOperationState()}

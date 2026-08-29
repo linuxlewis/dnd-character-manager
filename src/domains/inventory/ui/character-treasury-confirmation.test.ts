@@ -2,9 +2,9 @@ import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { ApiClientError, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import {
+	classifyTreasuryConfirmationOutcome,
 	reconcileAndRelease,
 	reconcileTreasuryQuery,
-	shouldCompleteTreasuryConfirmation,
 	toAddCharacterTreasuryRequest,
 	toSpendCharacterTreasuryRequest,
 	toTreasuryConflictError,
@@ -53,12 +53,14 @@ describe("character treasury confirmation adapter", () => {
 		invalidateQueries.mockResolvedValueOnce();
 		const setState = vi.fn();
 		const onComplete = vi.fn();
+		const onIndeterminate = vi.fn();
 		const confirmationRef = {
 			current: {
 				conflict: false,
 				expectedNext: { cp: 0, sp: 0, gp: 1, pp: 0 },
 				mutationSucceeded: true,
 				onApplied: onComplete,
+				onIndeterminate,
 			},
 		};
 
@@ -68,11 +70,41 @@ describe("character treasury confirmation adapter", () => {
 			pending: false,
 		});
 		expect(onComplete).not.toHaveBeenCalled();
+		expect(onIndeterminate).not.toHaveBeenCalled();
 		expect(confirmationRef.current?.onApplied).toBe(onComplete);
 
 		await reconcileAndRelease(queryClient, characterId, setState, confirmationRef);
 		expect(setState).toHaveBeenLastCalledWith({ error: null, pending: false });
 		expect(onComplete).toHaveBeenCalledOnce();
+		expect(confirmationRef.current).toBeNull();
+	});
+
+	it("reports an indeterminate outcome after a lost response and changed balance", async () => {
+		const characterId = "00000000-0000-4000-8000-000000000001";
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
+			treasury: {
+				...zeroTreasury(characterId).treasury,
+				balances: { cp: 0, sp: 0, gp: 3, pp: 0 },
+				totalValue: { copper: 300, gp: 3 },
+			},
+		});
+		const onApplied = vi.fn();
+		const onIndeterminate = vi.fn();
+		const confirmationRef = {
+			current: {
+				conflict: false,
+				expectedNext: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				mutationSucceeded: false,
+				onApplied,
+				onIndeterminate,
+			},
+		};
+
+		await reconcileAndRelease(queryClient, characterId, vi.fn(), confirmationRef);
+
+		expect(onApplied).not.toHaveBeenCalled();
+		expect(onIndeterminate).toHaveBeenCalledOnce();
 		expect(confirmationRef.current).toBeNull();
 	});
 
@@ -111,19 +143,32 @@ describe("character treasury confirmation adapter", () => {
 		});
 	});
 
-	it("distinguishes lost responses from explicit treasury conflicts", () => {
+	it("classifies applied, conflict, and indeterminate confirmation outcomes", () => {
 		const expectedNext = { cp: 0, sp: 0, gp: 2, pp: 0 };
 		const confirmation = {
 			conflict: false,
 			expectedNext,
 			mutationSucceeded: false,
 			onApplied: vi.fn(),
+			onIndeterminate: vi.fn(),
 		};
 
-		expect(shouldCompleteTreasuryConfirmation(confirmation, expectedNext)).toBe(true);
+		expect(classifyTreasuryConfirmationOutcome(confirmation, expectedNext)).toBe("applied");
 		expect(
-			shouldCompleteTreasuryConfirmation({ ...confirmation, conflict: true }, expectedNext),
-		).toBe(false);
+			classifyTreasuryConfirmationOutcome(
+				{ ...confirmation, mutationSucceeded: true },
+				{ ...expectedNext, gp: 4 },
+			),
+		).toBe("applied");
+		expect(
+			classifyTreasuryConfirmationOutcome({ ...confirmation, conflict: true }, expectedNext),
+		).toBe("conflict");
+		expect(classifyTreasuryConfirmationOutcome(confirmation, { ...expectedNext, gp: 4 })).toBe(
+			"indeterminate",
+		);
+	});
+
+	it("adapts an explicit treasury conflict into re-preview guidance", () => {
 		expect(
 			toTreasuryConflictError(
 				new ApiClientError(409, {
@@ -131,7 +176,7 @@ describe("character treasury confirmation adapter", () => {
 						code: "TREASURY_CONFLICT",
 						message: "Treasury changed after preview.",
 						expectedPrevious: { cp: 0, sp: 0, gp: 1, pp: 0 },
-						actualPrevious: expectedNext,
+						actualPrevious: { cp: 0, sp: 0, gp: 2, pp: 0 },
 					},
 				}),
 			)?.message,

@@ -125,8 +125,11 @@ export function TreasurySpendModal({
 						</Alert>
 					)}
 					{mutationError && (
-						<Alert color="red" title="Spend funds failed" variant="light">
-							{getTreasuryErrorMessage(mutationError, "The funds could not be spent.")}
+						<Alert color="orange" title="Spend confirmation response unavailable" variant="light">
+							{getTreasuryErrorMessage(
+								mutationError,
+								"The spend confirmation response could not be verified.",
+							)}
 						</Alert>
 					)}
 
