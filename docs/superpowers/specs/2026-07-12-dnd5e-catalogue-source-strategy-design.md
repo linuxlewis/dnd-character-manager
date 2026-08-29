@@ -16,7 +16,9 @@ behavior. The Foundry source is pinned to commit
 `https://github.com/foundryvtt/dnd5e`; that revision contains both `packs/_source/spells24/` and
 `packs/_source/equipment24/`. Equipment is not yet ingested. Source revision and configured pack
 identity are reported by the catalogue seed manifest; no migration persists the revision in the
-existing spell row.
+existing spell row. The manifest records the verified repository MIT license separately from each
+record's `system.source.license`; an absent per-record content license remains an empty value and is
+never inferred from the repository license.
 
 The inventory implementation will extend the same catalogue boundary with typed equipment ingestion.
 Foundry `dnd5e` at a pinned tag or commit is the primary local dataset for both spells and items.
