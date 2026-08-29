@@ -1,37 +1,32 @@
 import { resetAuthForTest } from "@providers/auth/auth.js";
+import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
-import { count, eq, sql } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeEach } from "vitest";
 import { z } from "zod";
 import type { buildServer } from "../../../app-server.js";
+import { charactersTable } from "../../characters/repo/character-table.js";
 import { inventoryScopesTable } from "../repo/inventory-scope-table.js";
 import { inventoryTreasuriesTable } from "../repo/inventory-treasury-table.js";
 
 const CountRowSchema = z.object({ count: z.coerce.number().int().nonnegative() }).strict();
+const createdUserIds: string[] = [];
 
 export async function resetInventoryRouteDatabase() {
 	resetAuthForTest();
-	await getDb().execute(sql`
-		TRUNCATE TABLE
-			"verification",
-			account,
-			"session",
-			"user",
-			inventory_treasuries,
-			inventory_scopes,
-			characters
-		CASCADE
-	`);
+	await deleteCreatedUsers();
 }
 
 export async function closeInventoryRouteDatabase() {
 	resetAuthForTest();
+	await deleteCreatedUsers();
 	await closeDb();
 }
 
 export async function createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>) {
 	const response = await app.inject({ method: "GET", url: "/api/current-user" });
 	if (response.statusCode !== 200) throw new Error(`Session setup failed: ${response.body}`);
+	createdUserIds.push(response.json().user.id);
 	return toCookieHeader(response.headers["set-cookie"]);
 }
 
@@ -63,4 +58,31 @@ export function toCookieHeader(setCookie: string | string[] | undefined) {
 export function registerInventoryRouteLifecycle() {
 	beforeEach(resetInventoryRouteDatabase);
 	afterAll(closeInventoryRouteDatabase);
+}
+
+async function deleteCreatedUsers() {
+	if (createdUserIds.length === 0) return;
+	const userIds = [...createdUserIds];
+	const characters = await getDb()
+		.select({ id: charactersTable.id })
+		.from(charactersTable)
+		.where(inArray(charactersTable.userId, userIds));
+	const characterIds = characters.map((character) => character.id);
+	if (characterIds.length > 0) {
+		const scopes = await getDb()
+			.select({ id: inventoryScopesTable.id })
+			.from(inventoryScopesTable)
+			.where(inArray(inventoryScopesTable.characterId, characterIds));
+		const scopeIds = scopes.map((scope) => scope.id);
+		if (scopeIds.length > 0) {
+			await getDb()
+				.delete(inventoryTreasuriesTable)
+				.where(inArray(inventoryTreasuriesTable.inventoryScopeId, scopeIds));
+		}
+		await getDb()
+			.delete(inventoryScopesTable)
+			.where(inArray(inventoryScopesTable.characterId, characterIds));
+	}
+	await getDb().delete(userTable).where(inArray(userTable.id, userIds));
+	createdUserIds.length = 0;
 }

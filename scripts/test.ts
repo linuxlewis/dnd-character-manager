@@ -32,13 +32,9 @@ try {
 			if (integrationTests.length === 0) {
 				console.log("No integration test files found.");
 			} else {
-				runCommand(
-					"pnpm",
-					["exec", "vitest", "run", "--no-file-parallelism", ...integrationTests],
-					{
-						DATABASE_URL: metadata.databaseUrl,
-					},
-				);
+				runCommand("pnpm", ["exec", "vitest", "run", ...integrationTests], {
+					DATABASE_URL: metadata.databaseUrl,
+				});
 			}
 		}
 
