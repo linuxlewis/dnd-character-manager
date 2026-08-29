@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
 	NonNegativeSafeIntegerSchema,
+	POSTGRES_INTEGER_MAX,
 	PositivePostgresIntegerSchema,
-	PositiveSafeIntegerSchema,
 	PostgresIntegerSchema,
 	PostgresNonNegativeIntegerSchema,
 	SafeIntegerSchema,
@@ -20,26 +20,32 @@ export const DND_CURRENCY_TO_COPPER = {
 	pp: 1_000,
 } as const satisfies Record<CurrencyDenomination, number>;
 
-export const CurrencyAmountSchema = z.object({
-	denomination: CurrencyDenominationSchema,
-	amount: PositivePostgresIntegerSchema,
-});
+export const CurrencyAmountSchema = z
+	.object({
+		denomination: CurrencyDenominationSchema,
+		amount: PositivePostgresIntegerSchema,
+	})
+	.strict();
 export type CurrencyAmount = z.infer<typeof CurrencyAmountSchema>;
 
-export const CurrencyBalanceSchema = z.object({
-	cp: PostgresNonNegativeIntegerSchema,
-	sp: PostgresNonNegativeIntegerSchema,
-	gp: PostgresNonNegativeIntegerSchema,
-	pp: PostgresNonNegativeIntegerSchema,
-});
+export const CurrencyBalanceSchema = z
+	.object({
+		cp: PostgresNonNegativeIntegerSchema,
+		sp: PostgresNonNegativeIntegerSchema,
+		gp: PostgresNonNegativeIntegerSchema,
+		pp: PostgresNonNegativeIntegerSchema,
+	})
+	.strict();
 export type CurrencyBalance = z.infer<typeof CurrencyBalanceSchema>;
 
-export const CurrencyDeltaSchema = z.object({
-	cp: PostgresIntegerSchema,
-	sp: PostgresIntegerSchema,
-	gp: PostgresIntegerSchema,
-	pp: PostgresIntegerSchema,
-});
+export const CurrencyDeltaSchema = z
+	.object({
+		cp: PostgresIntegerSchema,
+		sp: PostgresIntegerSchema,
+		gp: PostgresIntegerSchema,
+		pp: PostgresIntegerSchema,
+	})
+	.strict();
 export type CurrencyDelta = z.infer<typeof CurrencyDeltaSchema>;
 
 export const CurrencyTotalValueSchema = z
@@ -47,6 +53,7 @@ export const CurrencyTotalValueSchema = z
 		copper: NonNegativeSafeIntegerSchema,
 		gp: z.number().nonnegative().finite(),
 	})
+	.strict()
 	.refine((value) => value.gp === value.copper / DND_CURRENCY_TO_COPPER.gp, {
 		message: "Total GP value must match the total copper value.",
 		path: ["gp"],
@@ -56,30 +63,37 @@ export type CurrencyTotalValue = z.infer<typeof CurrencyTotalValueSchema>;
 export const CurrencyOperationSchema = z.enum(["add", "spend", "convert"]);
 export type CurrencyOperation = z.infer<typeof CurrencyOperationSchema>;
 
-export const InsufficientFundsErrorSchema = z.object({
-	code: z.literal("INSUFFICIENT_FUNDS"),
-	message: z.string().min(1).max(240),
-	available: CurrencyTotalValueSchema,
-	requested: CurrencyTotalValueSchema,
-});
+export const InsufficientFundsErrorSchema = z
+	.object({
+		code: z.literal("INSUFFICIENT_FUNDS"),
+		message: z.string().min(1).max(240),
+		available: CurrencyTotalValueSchema,
+		requested: CurrencyTotalValueSchema,
+	})
+	.strict();
 export type InsufficientFundsError = z.infer<typeof InsufficientFundsErrorSchema>;
 
-export const InsufficientFundsResponseSchema = z.object({
-	error: InsufficientFundsErrorSchema,
-});
+export const InsufficientFundsResponseSchema = z
+	.object({
+		error: InsufficientFundsErrorSchema,
+	})
+	.strict();
 export type InsufficientFundsResponse = z.infer<typeof InsufficientFundsResponseSchema>;
 
 export const CurrencyAddRequestSchema = z
 	.object({ delta: CurrencyDeltaSchema })
+	.strict()
 	.refine((request) => hasAddableDelta(request.delta), {
 		message: "An add request must contain only nonnegative values and at least one positive value.",
 		path: ["delta"],
 	});
 export type CurrencyAddRequest = z.infer<typeof CurrencyAddRequestSchema>;
 
-export const CurrencySpendRequestSchema = z.object({
-	amount: CurrencyAmountSchema,
-});
+export const CurrencySpendRequestSchema = z
+	.object({
+		amount: CurrencyAmountSchema,
+	})
+	.strict();
 export type CurrencySpendRequest = z.infer<typeof CurrencySpendRequestSchema>;
 
 export const CurrencyConversionRequestSchema = z
@@ -88,6 +102,7 @@ export const CurrencyConversionRequestSchema = z
 		to: CurrencyDenominationSchema,
 		amount: PositivePostgresIntegerSchema,
 	})
+	.strict()
 	.refine((request) => request.from !== request.to, {
 		message: "A currency conversion must change denomination.",
 		path: ["to"],
@@ -101,33 +116,47 @@ export const CurrencyConversionRequestSchema = z
 			message: "A conversion must produce a whole number of target-denomination coins.",
 			path: ["amount"],
 		},
+	)
+	.refine(
+		(request) =>
+			(request.amount * DND_CURRENCY_TO_COPPER[request.from]) /
+				DND_CURRENCY_TO_COPPER[request.to] <=
+			POSTGRES_INTEGER_MAX,
+		{
+			message: "A conversion must fit the PostgreSQL integer target balance.",
+			path: ["amount"],
+		},
 	);
 export type CurrencyConversionRequest = z.infer<typeof CurrencyConversionRequestSchema>;
 
-export const CurrencyApplyDeltaRequestSchema = z.object({
-	delta: CurrencyDeltaSchema,
-});
+export const CurrencyApplyDeltaRequestSchema = z
+	.object({
+		delta: CurrencyDeltaSchema,
+	})
+	.strict();
 export type CurrencyApplyDeltaRequest = z.infer<typeof CurrencyApplyDeltaRequestSchema>;
 
-export const CurrencyMutationResponseSchema = z.object({
-	operation: CurrencyOperationSchema,
-	previous: CurrencyBalanceSchema,
-	next: CurrencyBalanceSchema,
-	delta: CurrencyDeltaSchema,
-	totalValue: CurrencyTotalValueSchema,
-});
+export const CurrencyMutationResponseSchema = z
+	.object({
+		operation: CurrencyOperationSchema,
+		previous: CurrencyBalanceSchema,
+		next: CurrencyBalanceSchema,
+		delta: CurrencyDeltaSchema,
+		totalValue: CurrencyTotalValueSchema,
+	})
+	.strict();
 export type CurrencyMutationResponse = z.infer<typeof CurrencyMutationResponseSchema>;
 
 export const CurrencyAddResponseSchema = CurrencyMutationResponseSchema.extend({
 	operation: z.literal("add"),
-});
+}).strict();
 export type CurrencyAddResponse = z.infer<typeof CurrencyAddResponseSchema>;
 
 export const CurrencySpendResponseSchema = CurrencyMutationResponseSchema.extend({
 	operation: z.literal("spend"),
 	spent: CurrencyAmountSchema,
 	change: CurrencyBalanceSchema.optional(),
-});
+}).strict();
 export type CurrencySpendResponse = z.infer<typeof CurrencySpendResponseSchema>;
 
 export const CurrencyConversionResponseSchema = CurrencyMutationResponseSchema.extend({
@@ -135,19 +164,21 @@ export const CurrencyConversionResponseSchema = CurrencyMutationResponseSchema.e
 	from: CurrencyDenominationSchema,
 	to: CurrencyDenominationSchema,
 	amount: PositivePostgresIntegerSchema,
-	convertedAmount: PositiveSafeIntegerSchema,
-});
+	convertedAmount: PositivePostgresIntegerSchema,
+}).strict();
 export type CurrencyConversionResponse = z.infer<typeof CurrencyConversionResponseSchema>;
 
-export const CurrencyPreviewSchema = z.object({
-	operation: CurrencyOperationSchema,
-	previous: CurrencyBalanceSchema,
-	next: CurrencyBalanceSchema,
-	delta: CurrencyDeltaSchema,
-	totalValue: CurrencyTotalValueSchema,
-	canApply: z.boolean(),
-	error: InsufficientFundsErrorSchema.optional(),
-});
+export const CurrencyPreviewSchema = z
+	.object({
+		operation: CurrencyOperationSchema,
+		previous: CurrencyBalanceSchema,
+		next: CurrencyBalanceSchema,
+		delta: CurrencyDeltaSchema,
+		totalValue: CurrencyTotalValueSchema,
+		canApply: z.boolean(),
+		error: InsufficientFundsErrorSchema.optional(),
+	})
+	.strict();
 export type CurrencyPreview = z.infer<typeof CurrencyPreviewSchema>;
 
 export function getCurrencyValueInCopper(balance: CurrencyBalance): number {
@@ -181,7 +212,7 @@ export function convertDenominationAmount(
 	const request = CurrencyConversionRequestSchema.parse({ amount, from, to });
 	const convertedAmount =
 		(request.amount * DND_CURRENCY_TO_COPPER[request.from]) / DND_CURRENCY_TO_COPPER[request.to];
-	return PositiveSafeIntegerSchema.parse(convertedAmount);
+	return PositivePostgresIntegerSchema.parse(convertedAmount);
 }
 
 function hasAddableDelta(delta: CurrencyDelta) {

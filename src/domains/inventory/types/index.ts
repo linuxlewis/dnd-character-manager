@@ -127,18 +127,19 @@ export {
 export type {
 	NonNegativeSafeInteger,
 	PositivePostgresInteger,
-	PositiveSafeInteger,
 	PostgresInteger,
 	PostgresNonNegativeInteger,
+	PostgresNonNegativeReal,
 	SafeInteger,
 } from "./numeric.js";
 export {
 	NonNegativeSafeIntegerSchema,
 	POSTGRES_INTEGER_MAX,
 	POSTGRES_INTEGER_MIN,
+	POSTGRES_REAL_MAX,
 	PositivePostgresIntegerSchema,
-	PositiveSafeIntegerSchema,
 	PostgresIntegerSchema,
 	PostgresNonNegativeIntegerSchema,
+	PostgresNonNegativeRealSchema,
 	SafeIntegerSchema,
 } from "./numeric.js";

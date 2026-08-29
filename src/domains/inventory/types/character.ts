@@ -25,17 +25,21 @@ import {
 } from "./item.js";
 import { PositivePostgresIntegerSchema } from "./numeric.js";
 
-export const CharacterTreasurySchema = z.object({
-	characterId: InventoryCharacterIdSchema,
-	inventoryScopeId: InventoryScopeIdSchema,
-	balances: CurrencyBalanceSchema,
-	totalValue: CurrencyTotalValueSchema,
-});
+export const CharacterTreasurySchema = z
+	.object({
+		characterId: InventoryCharacterIdSchema,
+		inventoryScopeId: InventoryScopeIdSchema,
+		balances: CurrencyBalanceSchema,
+		totalValue: CurrencyTotalValueSchema,
+	})
+	.strict();
 export type CharacterTreasury = z.infer<typeof CharacterTreasurySchema>;
 
-export const CharacterTreasuryResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-});
+export const CharacterTreasuryResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+	})
+	.strict();
 export type CharacterTreasuryResponse = z.infer<typeof CharacterTreasuryResponseSchema>;
 
 export const UpdateCharacterTreasuryRequestSchema = CurrencyApplyDeltaRequestSchema;
@@ -50,38 +54,48 @@ export type SpendCharacterTreasuryRequest = z.infer<typeof SpendCharacterTreasur
 export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema;
 export type ConvertCharacterTreasuryRequest = z.infer<typeof ConvertCharacterTreasuryRequestSchema>;
 
-export const CharacterTreasuryMutationResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-	change: CurrencyMutationResponseSchema,
-});
+export const CharacterTreasuryMutationResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		change: CurrencyMutationResponseSchema,
+	})
+	.strict();
 export type CharacterTreasuryMutationResponse = z.infer<
 	typeof CharacterTreasuryMutationResponseSchema
 >;
 
-export const AddCharacterTreasuryResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-	change: CurrencyAddResponseSchema,
-});
+export const AddCharacterTreasuryResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		change: CurrencyAddResponseSchema,
+	})
+	.strict();
 export type AddCharacterTreasuryResponse = z.infer<typeof AddCharacterTreasuryResponseSchema>;
 
-export const SpendCharacterTreasuryResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-	change: CurrencySpendResponseSchema,
-});
+export const SpendCharacterTreasuryResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		change: CurrencySpendResponseSchema,
+	})
+	.strict();
 export type SpendCharacterTreasuryResponse = z.infer<typeof SpendCharacterTreasuryResponseSchema>;
 
-export const ConvertCharacterTreasuryResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-	change: CurrencyConversionResponseSchema,
-});
+export const ConvertCharacterTreasuryResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		change: CurrencyConversionResponseSchema,
+	})
+	.strict();
 export type ConvertCharacterTreasuryResponse = z.infer<
 	typeof ConvertCharacterTreasuryResponseSchema
 >;
 
-export const CharacterTreasuryPreviewResponseSchema = z.object({
-	treasury: CharacterTreasurySchema,
-	preview: CurrencyPreviewSchema,
-});
+export const CharacterTreasuryPreviewResponseSchema = z
+	.object({
+		treasury: CharacterTreasurySchema,
+		preview: CurrencyPreviewSchema,
+	})
+	.strict();
 export type CharacterTreasuryPreviewResponse = z.infer<
 	typeof CharacterTreasuryPreviewResponseSchema
 >;

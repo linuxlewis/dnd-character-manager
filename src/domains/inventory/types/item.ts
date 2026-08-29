@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CatalogueItemIdSchema, InventoryItemIdSchema, InventoryScopeIdSchema } from "./ids.js";
-import { PositivePostgresIntegerSchema } from "./numeric.js";
+import { PositivePostgresIntegerSchema, PostgresNonNegativeRealSchema } from "./numeric.js";
 
 export const InventoryItemTypeSchema = z.enum([
 	"equipment",
@@ -37,7 +37,7 @@ export type JsonObject = z.infer<typeof JsonObjectSchema>;
 const ItemTextSchema = z.string().min(1).max(4_000).regex(/\S/);
 const ItemCategorySchema = z.string().min(1).max(120).regex(/\S/);
 const PositiveQuantitySchema = PositivePostgresIntegerSchema;
-const NonNegativeItemNumberSchema = z.number().nonnegative().finite();
+const NonNegativeItemNumberSchema = PostgresNonNegativeRealSchema;
 const ModifierMapSchema = z.record(z.string().min(1).max(80), z.number().finite());
 
 export const InventoryItemBaseSchema = z.object({
@@ -76,7 +76,12 @@ export const InventoryItemSchema = InventoryItemBaseSchema.extend({
 	catalogueRulesVersion: InventoryRulesVersionSchema.nullable(),
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
-}).strict();
+})
+	.strict()
+	.refine(hasValidCatalogueTraceability, {
+		message: "Catalogue item references require a complete source-key and rules-version snapshot.",
+		path: ["catalogueItemId"],
+	});
 export type InventoryItem = z.infer<typeof InventoryItemSchema>;
 
 export const CharacterItemFilterSchema = z.object({
@@ -88,3 +93,15 @@ export const CharacterItemFilterSchema = z.object({
 	catalogueItemId: CatalogueItemIdSchema.optional(),
 });
 export type CharacterItemFilter = z.infer<typeof CharacterItemFilterSchema>;
+
+function hasValidCatalogueTraceability(item: {
+	catalogueItemId: string | null;
+	catalogueSourceKey: string | null;
+	catalogueRulesVersion: string | null;
+}) {
+	const hasCatalogueItemId = item.catalogueItemId !== null;
+	const hasSourceKey = item.catalogueSourceKey !== null;
+	const hasRulesVersion = item.catalogueRulesVersion !== null;
+
+	return hasSourceKey === hasRulesVersion && (!hasCatalogueItemId || hasSourceKey);
+}

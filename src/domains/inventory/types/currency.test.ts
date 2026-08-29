@@ -3,12 +3,15 @@ import {
 	CURRENCY_DENOMINATIONS,
 	CurrencyAddRequestSchema,
 	CurrencyAmountSchema,
+	CurrencyApplyDeltaRequestSchema,
 	CurrencyBalanceSchema,
 	CurrencyConversionRequestSchema,
+	CurrencyConversionResponseSchema,
 	CurrencyDeltaSchema,
 	CurrencyPreviewSchema,
 	CurrencySpendRequestSchema,
 	convertDenominationAmount,
+	DND_CURRENCY_TO_COPPER,
 	getCurrencyDeltaValueInCopper,
 	getCurrencyTotalValue,
 	getCurrencyValueInCopper,
@@ -75,13 +78,6 @@ describe("currency schemas and conversion helpers", () => {
 				amount: { denomination: "cp", amount: POSTGRES_INTEGER_MAX + 1 },
 			}),
 		).toThrow();
-		expect(
-			CurrencyConversionRequestSchema.parse({
-				from: "pp",
-				to: "cp",
-				amount: POSTGRES_INTEGER_MAX,
-			}),
-		).toEqual({ from: "pp", to: "cp", amount: POSTGRES_INTEGER_MAX });
 		expect(() =>
 			CurrencyConversionRequestSchema.parse({
 				from: "pp",
@@ -144,10 +140,65 @@ describe("currency schemas and conversion helpers", () => {
 		});
 		expect(Number.isSafeInteger(getCurrencyDeltaValueInCopper(mixedDelta))).toBe(true);
 
-		const convertedCopper = convertDenominationAmount(POSTGRES_INTEGER_MAX, "pp", "cp");
+		const largestPpToCpAmount = Math.floor(POSTGRES_INTEGER_MAX / DND_CURRENCY_TO_COPPER.pp);
+		const convertedCopper = convertDenominationAmount(largestPpToCpAmount, "pp", "cp");
 		expect(Number.isSafeInteger(convertedCopper)).toBe(true);
-		expect(convertedCopper).toBe(POSTGRES_INTEGER_MAX * 1_000);
+		expect(convertedCopper).toBe(largestPpToCpAmount * DND_CURRENCY_TO_COPPER.pp);
 		expect(convertedCopper).toBeLessThan(Number.MAX_SAFE_INTEGER);
+	});
+
+	it("keeps converted target balances inside the PostgreSQL integer range", () => {
+		const largestPpToCpAmount = Math.floor(POSTGRES_INTEGER_MAX / DND_CURRENCY_TO_COPPER.pp);
+		const firstOverflowingPpToCpAmount = largestPpToCpAmount + 1;
+		const largestConvertedAmount = largestPpToCpAmount * DND_CURRENCY_TO_COPPER.pp;
+
+		expect(
+			CurrencyConversionRequestSchema.parse({
+				from: "pp",
+				to: "cp",
+				amount: largestPpToCpAmount,
+			}),
+		).toEqual({ from: "pp", to: "cp", amount: largestPpToCpAmount });
+		expect(convertDenominationAmount(largestPpToCpAmount, "pp", "cp")).toBe(largestConvertedAmount);
+		const conversionResponse = {
+			operation: "convert" as const,
+			previous: { cp: 0, sp: 0, gp: 0, pp: largestPpToCpAmount },
+			next: { cp: largestConvertedAmount, sp: 0, gp: 0, pp: 0 },
+			delta: { cp: largestConvertedAmount, sp: 0, gp: 0, pp: -largestPpToCpAmount },
+			totalValue: { copper: largestConvertedAmount, gp: largestConvertedAmount / 100 },
+			from: "pp" as const,
+			to: "cp" as const,
+			amount: largestPpToCpAmount,
+			convertedAmount: largestConvertedAmount,
+		};
+		expect(CurrencyConversionResponseSchema.parse(conversionResponse)).toEqual(conversionResponse);
+		expect(() =>
+			CurrencyConversionResponseSchema.parse({
+				...conversionResponse,
+				convertedAmount: POSTGRES_INTEGER_MAX + 1,
+			}),
+		).toThrow();
+		expect(() =>
+			CurrencyConversionRequestSchema.parse({
+				from: "pp",
+				to: "cp",
+				amount: firstOverflowingPpToCpAmount,
+			}),
+		).toThrow();
+		expect(() => convertDenominationAmount(firstOverflowingPpToCpAmount, "pp", "cp")).toThrow();
+	});
+
+	it("rejects unknown keys in nested currency boundary objects", () => {
+		const result = CurrencyApplyDeltaRequestSchema.safeParse({
+			delta: { cp: 0, sp: 0, gp: 0, pp: 0, ep: 1 },
+		});
+
+		expect(result.success).toBe(false);
+		expect(
+			CurrencyAddRequestSchema.safeParse({
+				delta: { cp: 1, sp: 0, gp: 0, pp: 0, ep: 1 },
+			}).success,
+		).toBe(false);
 	});
 
 	it("requires positive add and spend amounts and distinct conversion denominations", () => {

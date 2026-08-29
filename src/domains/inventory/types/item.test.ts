@@ -5,6 +5,7 @@ import {
 	InventoryItemSchema,
 	JsonObjectSchema,
 } from "./item.js";
+import { POSTGRES_REAL_MAX } from "./numeric.js";
 
 const catalogueItemId = "00000000-0000-4000-8000-000000000010";
 const scopeId = "00000000-0000-4000-8000-000000000011";
@@ -39,6 +40,24 @@ describe("inventory item schemas", () => {
 		expect(() => InventoryItemBaseSchema.parse({ ...valid, quantity: 0 })).toThrow();
 		expect(() => InventoryItemBaseSchema.parse({ ...valid, weight: -1 })).toThrow();
 		expect(() => InventoryItemBaseSchema.parse({ ...valid, estimatedValue: -0.01 })).toThrow();
+	});
+
+	it("enforces PostgreSQL real bounds for weight and estimated value", () => {
+		const valid = { name: "Rope", type: "equipment", category: "Adventuring Gear" };
+
+		expect(
+			InventoryItemBaseSchema.parse({
+				...valid,
+				weight: POSTGRES_REAL_MAX,
+				estimatedValue: POSTGRES_REAL_MAX,
+			}),
+		).toMatchObject({ weight: POSTGRES_REAL_MAX, estimatedValue: POSTGRES_REAL_MAX });
+		expect(() =>
+			InventoryItemBaseSchema.parse({ ...valid, weight: POSTGRES_REAL_MAX * 2 }),
+		).toThrow();
+		expect(() =>
+			InventoryItemBaseSchema.parse({ ...valid, estimatedValue: POSTGRES_REAL_MAX * 2 }),
+		).toThrow();
 	});
 
 	it("requires JSON objects for item properties", () => {
@@ -92,5 +111,59 @@ describe("inventory item schemas", () => {
 			2_147_483_647,
 		);
 		expect(() => InventoryItemBaseSchema.parse({ ...valid, quantity: 2_147_483_648 })).toThrow();
+	});
+
+	it("requires one consistent source-agnostic catalogue traceability shape", () => {
+		const validTraceability = [
+			{ catalogueItemId: null, catalogueSourceKey: null, catalogueRulesVersion: null },
+			{
+				catalogueItemId,
+				catalogueSourceKey: "catalogue.longsword",
+				catalogueRulesVersion: "rules-v1",
+			},
+			{
+				catalogueItemId: null,
+				catalogueSourceKey: "catalogue.longsword",
+				catalogueRulesVersion: "rules-v1",
+			},
+		] as const;
+		const invalidTraceability = [
+			{ catalogueItemId: null, catalogueSourceKey: null, catalogueRulesVersion: "rules-v1" },
+			{
+				catalogueItemId: null,
+				catalogueSourceKey: "catalogue.longsword",
+				catalogueRulesVersion: null,
+			},
+			{ catalogueItemId, catalogueSourceKey: null, catalogueRulesVersion: null },
+			{ catalogueItemId, catalogueSourceKey: null, catalogueRulesVersion: "rules-v1" },
+			{ catalogueItemId, catalogueSourceKey: "catalogue.longsword", catalogueRulesVersion: null },
+		] as const;
+		const item = {
+			id: itemId,
+			inventoryScopeId: scopeId,
+			name: "Longsword",
+			type: "equipment" as const,
+			category: "Weapon",
+			rarity: null,
+			description: null,
+			quantity: 1,
+			weight: null,
+			estimatedValue: null,
+			notes: null,
+			thumbnailUrl: null,
+			properties: {},
+			isEquipped: false,
+			statModifiers: null,
+			statOverrides: null,
+			createdAt: "2026-08-29T12:00:00.000Z",
+			updatedAt: "2026-08-29T12:00:00.000Z",
+		};
+
+		for (const traceability of validTraceability) {
+			expect(InventoryItemSchema.safeParse({ ...item, ...traceability }).success).toBe(true);
+		}
+		for (const traceability of invalidTraceability) {
+			expect(InventoryItemSchema.safeParse({ ...item, ...traceability }).success).toBe(false);
+		}
 	});
 });
