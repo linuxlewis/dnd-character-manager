@@ -45,8 +45,8 @@ export async function registerCharacterItemRoutes(
 		if (!params) return;
 		const body = parseBody(CreateCharacterItemRequestSchema, request.body, reply);
 		if (!body) return;
-		const currentUser = await getCurrentUser(request, reply);
 		try {
+			const currentUser = await getCurrentUser(request, reply);
 			return reply
 				.status(201)
 				.send(await itemService.createCharacterItem(currentUser.user.id, params.characterId, body));
@@ -60,8 +60,8 @@ export async function registerCharacterItemRoutes(
 		if (!params) return;
 		const query = parseQuery(request, reply);
 		if (!query) return;
-		const currentUser = await getCurrentUser(request, reply);
 		try {
+			const currentUser = await getCurrentUser(request, reply);
 			return await itemService.listCharacterItems(currentUser.user.id, params.characterId, query);
 		} catch (error) {
 			return sendCharacterItemError(error, reply);
@@ -71,8 +71,8 @@ export async function registerCharacterItemRoutes(
 	app.get("/api/characters/:characterId/items/:itemId", async (request, reply) => {
 		const params = parseParams(CharacterItemDetailPathParamsSchema, request, reply);
 		if (!params) return;
-		const currentUser = await getCurrentUser(request, reply);
 		try {
+			const currentUser = await getCurrentUser(request, reply);
 			return await itemService.getCharacterItem(
 				currentUser.user.id,
 				params.characterId,
@@ -88,8 +88,8 @@ export async function registerCharacterItemRoutes(
 		if (!params) return;
 		const body = parseBody(UpdateCharacterItemRequestSchema, request.body, reply);
 		if (!body) return;
-		const currentUser = await getCurrentUser(request, reply);
 		try {
+			const currentUser = await getCurrentUser(request, reply);
 			return await itemService.updateCharacterItem(
 				currentUser.user.id,
 				params.characterId,
@@ -104,8 +104,8 @@ export async function registerCharacterItemRoutes(
 	app.delete("/api/characters/:characterId/items/:itemId", async (request, reply) => {
 		const params = parseParams(CharacterItemDetailPathParamsSchema, request, reply);
 		if (!params) return;
-		const currentUser = await getCurrentUser(request, reply);
 		try {
+			const currentUser = await getCurrentUser(request, reply);
 			await itemService.deleteCharacterItem(currentUser.user.id, params.characterId, params.itemId);
 			return reply.status(204).send();
 		} catch (error) {
@@ -131,8 +131,8 @@ async function equipOrUnequip(
 ) {
 	const params = parseParams(CharacterItemDetailPathParamsSchema, request, reply);
 	if (!params) return;
-	const currentUser = await getCurrentUser(request, reply);
 	try {
+		const currentUser = await getCurrentUser(request, reply);
 		return await (equip
 			? itemService.equipCharacterItem(currentUser.user.id, params.characterId, params.itemId)
 			: itemService.unequipCharacterItem(currentUser.user.id, params.characterId, params.itemId));

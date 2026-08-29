@@ -9,23 +9,34 @@ import { inventoryScopesTable } from "../repo/inventory-scope-table.js";
 import { inventoryTreasuriesTable } from "../repo/inventory-treasury-table.js";
 
 const CountRowSchema = z.object({ count: z.coerce.number().int().nonnegative() }).strict();
-const createdUserIds: string[] = [];
 
-export async function resetInventoryRouteDatabase() {
-	resetAuthForTest();
-	await deleteCreatedUsers();
+export interface InventoryRouteDatabaseTracker {
+	reset(): Promise<void>;
+	cleanup(): Promise<void>;
+	createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>): Promise<string>;
 }
 
-export async function cleanupInventoryRouteDatabase() {
-	resetAuthForTest();
-	await deleteCreatedUsers();
-}
+export function createInventoryRouteDatabaseTracker(): InventoryRouteDatabaseTracker {
+	const createdUserIds: string[] = [];
 
-export async function createSessionCookie(app: Awaited<ReturnType<typeof buildServer>>) {
-	const response = await app.inject({ method: "GET", url: "/api/current-user" });
-	if (response.statusCode !== 200) throw new Error(`Session setup failed: ${response.body}`);
-	createdUserIds.push(response.json().user.id);
-	return toCookieHeader(response.headers["set-cookie"]);
+	return {
+		async reset() {
+			resetAuthForTest();
+			await deleteCreatedUsers(createdUserIds);
+		},
+
+		async cleanup() {
+			resetAuthForTest();
+			await deleteCreatedUsers(createdUserIds);
+		},
+
+		async createSessionCookie(app) {
+			const response = await app.inject({ method: "GET", url: "/api/current-user" });
+			if (response.statusCode !== 200) throw new Error(`Session setup failed: ${response.body}`);
+			createdUserIds.push(response.json().user.id);
+			return toCookieHeader(response.headers["set-cookie"]);
+		},
+	};
 }
 
 export async function scopeRowCount(characterId: string) {
@@ -53,7 +64,7 @@ export function toCookieHeader(setCookie: string | string[] | undefined) {
 	return cookies.map((cookie) => cookie.split(";")[0]).join("; ");
 }
 
-async function deleteCreatedUsers() {
+async function deleteCreatedUsers(createdUserIds: string[]) {
 	if (createdUserIds.length === 0) return;
 	const userIds = [...createdUserIds];
 	const characters = await getDb()

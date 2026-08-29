@@ -1,29 +1,28 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
 import {
-	cleanupInventoryRouteDatabase,
-	createSessionCookie,
-	resetInventoryRouteDatabase,
+	createInventoryRouteDatabaseTracker,
 	scopeRowCount,
 	treasuryRowCount,
 } from "./routes.integration-helpers.js";
 
 let app: Awaited<ReturnType<typeof buildServer>>;
+const database = createInventoryRouteDatabaseTracker();
 
 beforeAll(async () => {
 	app = await buildServer();
 });
 
-beforeEach(resetInventoryRouteDatabase);
+beforeEach(() => database.reset());
 
 afterAll(async () => {
-	await cleanupInventoryRouteDatabase();
+	await database.cleanup();
 	await app.close();
 });
 
 describe("character treasury route boundaries", () => {
 	it("rolls back a failed first spend without creating scope or treasury rows", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const characterId = await createCharacter(app, cookie);
 
 		const response = await app.inject({
@@ -43,7 +42,7 @@ describe("character treasury route boundaries", () => {
 	});
 
 	it("returns the stable not-found response for every inaccessible treasury operation", async () => {
-		const ownerCookie = await createSessionCookie(app);
+		const ownerCookie = await database.createSessionCookie(app);
 		const characterId = await createCharacter(app, ownerCookie);
 		const added = await app.inject({
 			method: "PUT",
@@ -56,7 +55,7 @@ describe("character treasury route boundaries", () => {
 		});
 		expect(added.statusCode).toBe(200);
 
-		const otherCookie = await createSessionCookie(app);
+		const otherCookie = await database.createSessionCookie(app);
 		const requests = [
 			{
 				method: "GET",
@@ -112,7 +111,7 @@ describe("character treasury route boundaries", () => {
 	});
 
 	it("returns normalized balances in a spend preview", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const characterId = await createCharacter(app, cookie);
 		const added = await app.inject({
 			method: "PUT",
@@ -141,7 +140,7 @@ describe("character treasury route boundaries", () => {
 	});
 
 	it("maps treasury overflow to the stable HTTP error response", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const characterId = await createCharacter(app, cookie);
 		const maximum = await app.inject({
 			method: "PUT",

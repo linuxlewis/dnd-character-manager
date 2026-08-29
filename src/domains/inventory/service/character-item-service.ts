@@ -1,19 +1,13 @@
 import type { CharacterService } from "../../characters/service/index.js";
 import { CharacterNotFoundError, createCharacterService } from "../../characters/service/index.js";
-import type {
-	CharacterInventoryScopeRepository,
-	InventoryHistoryRepository,
-	InventoryItemRepository,
-} from "../repo/index.js";
+import type { CharacterInventoryScopeRepository, CharacterItemRepository } from "../repo/index.js";
 import {
 	createCharacterInventoryScopeRepository,
-	createInventoryHistoryRepository,
-	createInventoryItemRepository,
+	createCharacterItemRepository,
 } from "../repo/index.js";
 import type {
 	CharacterItemResponse,
 	CreateCharacterItemRequest,
-	InventoryItem,
 	ListCharacterItemsRequest,
 	ListCharacterItemsResponse,
 	UpdateCharacterItemRequest,
@@ -36,7 +30,7 @@ import {
 	CharacterItemNotFoundError,
 	CharacterItemPersistenceError,
 } from "./character-item-errors.js";
-import { recordHistory, repositoryCall } from "./character-item-persistence.js";
+import { repositoryCall } from "./character-item-persistence.js";
 
 export interface CharacterItemService {
 	createCharacterItem(
@@ -74,8 +68,7 @@ export interface CharacterItemService {
 }
 
 export interface CharacterItemServiceOptions {
-	repository?: InventoryItemRepository;
-	historyRepository?: InventoryHistoryRepository;
+	repository?: CharacterItemRepository;
 	scopeRepository?: CharacterInventoryScopeRepository;
 	characterService?: Pick<CharacterService, "getCharacter">;
 	catalogueClient?: CharacterItemCatalogueClient;
@@ -84,8 +77,7 @@ export interface CharacterItemServiceOptions {
 export function createCharacterItemService(
 	options: CharacterItemServiceOptions = {},
 ): CharacterItemService {
-	const repository = options.repository ?? createInventoryItemRepository();
-	const historyRepository = options.historyRepository ?? createInventoryHistoryRepository();
+	const repository = options.repository ?? createCharacterItemRepository();
 	const scopeRepository = options.scopeRepository ?? createCharacterInventoryScopeRepository();
 	const characterService = options.characterService ?? createCharacterService();
 	const catalogueClient = options.catalogueClient ?? createCatalogueItemClient();
@@ -95,32 +87,14 @@ export function createCharacterItemService(
 			const request = CreateCharacterItemRequestSchema.parse(input);
 			await authorizeCharacter(userId, characterId, characterService);
 			const createInput = await withCatalogueSnapshot(request, catalogueClient);
-			let item: InventoryItem;
-			let scopeId: string;
-			if (repository.createItemForCharacter) {
-				item = await repositoryCall(
-					"create",
-					() => repository.createItemForCharacter?.(characterId, createInput) ?? Promise.reject(),
-				);
-				scopeId = item.inventoryScopeId;
-			} else {
-				scopeId = await repositoryCall("scope resolution", () =>
-					scopeRepository.ensureCharacterScopeId(characterId),
-				);
-				item = await repositoryCall("create", () => repository.createItem(scopeId, createInput));
-			}
-			await recordHistory(historyRepository, scopeId, "item_added", item);
+			const item = await repositoryCall("create", () =>
+				repository.createItemForCharacterWithHistory(characterId, createInput),
+			);
 			return CharacterItemResponseSchema.parse({ item });
 		},
 		async listCharacterItems(userId, characterId, input = {}) {
 			const filter = ListCharacterItemsRequestSchema.parse(input);
-			const scopeId = await resolveScope(
-				userId,
-				characterId,
-				false,
-				characterService,
-				scopeRepository,
-			);
+			const scopeId = await resolveScope(userId, characterId, characterService, scopeRepository);
 			if (!scopeId) return ListCharacterItemsResponseSchema.parse({ items: [], total: 0 });
 			const result = await repositoryCall("list", () => repository.listItems(scopeId, filter));
 			return ListCharacterItemsResponseSchema.parse(result);
@@ -133,20 +107,20 @@ export function createCharacterItemService(
 		async updateCharacterItem(userId, characterId, itemId, input) {
 			const request = UpdateCharacterItemRequestSchema.parse(input);
 			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
-			const before = await findItem(repository, scopeId, itemId);
+			await findItem(repository, scopeId, itemId);
 			const updateInput = await withOptionalCatalogueSnapshot(request, catalogueClient);
 			const item = await repositoryCall("update", () =>
-				repository.updateItem(scopeId, itemId, updateInput),
+				repository.updateItemWithHistory(scopeId, itemId, updateInput),
 			);
 			if (!item) throw new CharacterItemNotFoundError();
-			await recordHistory(historyRepository, scopeId, "item_updated", item, before);
 			return CharacterItemResponseSchema.parse({ item });
 		},
 		async deleteCharacterItem(userId, characterId, itemId) {
 			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
-			const item = await repositoryCall("delete", () => repository.deleteItem(scopeId, itemId));
+			const item = await repositoryCall("delete", () =>
+				repository.deleteItemWithHistory(scopeId, itemId),
+			);
 			if (!item) throw new CharacterItemNotFoundError();
-			await recordHistory(historyRepository, scopeId, "item_removed", item);
 		},
 		async equipCharacterItem(userId, characterId, itemId) {
 			return setEquipped(
@@ -157,7 +131,6 @@ export function createCharacterItemService(
 				characterService,
 				scopeRepository,
 				repository,
-				historyRepository,
 			);
 		},
 
@@ -170,7 +143,6 @@ export function createCharacterItemService(
 				characterService,
 				scopeRepository,
 				repository,
-				historyRepository,
 			);
 		},
 	};
@@ -179,15 +151,12 @@ export function createCharacterItemService(
 async function resolveScope(
 	userId: string,
 	characterId: string,
-	create: boolean,
 	characterService: Pick<CharacterService, "getCharacter">,
 	scopeRepository: CharacterInventoryScopeRepository,
 ) {
 	await authorizeCharacter(userId, characterId, characterService);
 	return repositoryCall("scope resolution", () =>
-		create
-			? scopeRepository.ensureCharacterScopeId(characterId)
-			: scopeRepository.findCharacterScopeId(characterId),
+		scopeRepository.findCharacterScopeId(characterId),
 	);
 }
 
@@ -197,7 +166,7 @@ async function requireScope(
 	characterService: Pick<CharacterService, "getCharacter">,
 	scopeRepository: CharacterInventoryScopeRepository,
 ) {
-	const scopeId = await resolveScope(userId, characterId, false, characterService, scopeRepository);
+	const scopeId = await resolveScope(userId, characterId, characterService, scopeRepository);
 	if (!scopeId) throw new CharacterItemNotFoundError();
 	return scopeId;
 }
@@ -215,7 +184,7 @@ async function authorizeCharacter(
 	}
 }
 
-async function findItem(repository: InventoryItemRepository, scopeId: string, itemId: string) {
+async function findItem(repository: CharacterItemRepository, scopeId: string, itemId: string) {
 	const item = await repositoryCall("find", () => repository.findItem(scopeId, itemId));
 	if (!item) throw new CharacterItemNotFoundError();
 	return InventoryItemSchema.parse(item);
@@ -228,16 +197,12 @@ async function setEquipped(
 	isEquipped: boolean,
 	characterService: Pick<CharacterService, "getCharacter">,
 	scopeRepository: CharacterInventoryScopeRepository,
-	repository: InventoryItemRepository,
-	historyRepository: InventoryHistoryRepository | undefined,
+	repository: CharacterItemRepository,
 ) {
 	const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
-	const before = await findItem(repository, scopeId, itemId);
-	if (before.isEquipped === isEquipped) return CharacterItemResponseSchema.parse({ item: before });
 	const item = await repositoryCall("equip", () =>
-		repository.updateItem(scopeId, itemId, { isEquipped }),
+		repository.setEquippedWithHistory(scopeId, itemId, isEquipped),
 	);
 	if (!item) throw new CharacterItemNotFoundError();
-	await recordHistory(historyRepository, scopeId, "item_updated", item, before);
 	return CharacterItemResponseSchema.parse({ item });
 }

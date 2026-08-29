@@ -6885,23 +6885,6 @@
 								}
 							}
 						}
-					},
-					"503": {
-						"description": "Catalogue item data is unavailable",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"error": {
-											"type": "string"
-										}
-									},
-									"required": ["error"],
-									"additionalProperties": false
-								}
-							}
-						}
 					}
 				}
 			}
@@ -7252,23 +7235,6 @@
 					},
 					"500": {
 						"description": "Character item persistence failure",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"error": {
-											"type": "string"
-										}
-									},
-									"required": ["error"],
-									"additionalProperties": false
-								}
-							}
-						}
-					},
-					"503": {
-						"description": "Catalogue item data is unavailable",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -7942,23 +7908,6 @@
 								}
 							}
 						}
-					},
-					"503": {
-						"description": "Catalogue item data is unavailable",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"error": {
-											"type": "string"
-										}
-									},
-									"required": ["error"],
-									"additionalProperties": false
-								}
-							}
-						}
 					}
 				}
 			}
@@ -8323,23 +8272,6 @@
 								}
 							}
 						}
-					},
-					"503": {
-						"description": "Catalogue item data is unavailable",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"error": {
-											"type": "string"
-										}
-									},
-									"required": ["error"],
-									"additionalProperties": false
-								}
-							}
-						}
 					}
 				}
 			}
@@ -8690,23 +8622,6 @@
 					},
 					"500": {
 						"description": "Character item persistence failure",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"error": {
-											"type": "string"
-										}
-									},
-									"required": ["error"],
-									"additionalProperties": false
-								}
-							}
-						}
-					},
-					"503": {
-						"description": "Catalogue item data is unavailable",
 						"content": {
 							"application/json": {
 								"schema": {

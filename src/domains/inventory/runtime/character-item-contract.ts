@@ -41,6 +41,10 @@ const characterItemErrors = {
 		description: "Character item persistence failure",
 		schema: CharacterItemErrorResponseSchema,
 	},
+} as const;
+
+const catalogueItemErrors = {
+	...characterItemErrors,
 	503: {
 		description: "Catalogue item data is unavailable",
 		schema: CharacterItemErrorResponseSchema,
@@ -56,7 +60,7 @@ export const characterItemRouteContracts = [
 		requestBody: CreateCharacterItemRequestSchema,
 		responses: {
 			201: { description: "Created character item", schema: CharacterItemResponseSchema },
-			...characterItemErrors,
+			...catalogueItemErrors,
 		},
 		summary: "Create character item",
 		tags: ["characters", "items"],
@@ -117,7 +121,7 @@ export const characterItemRouteContracts = [
 		requestBody: UpdateCharacterItemRequestSchema,
 		responses: {
 			200: { description: "Updated character item", schema: CharacterItemResponseSchema },
-			...characterItemErrors,
+			...catalogueItemErrors,
 		},
 		summary: "Update character item",
 		tags: ["characters", "items"],

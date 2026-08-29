@@ -1,27 +1,24 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
-import {
-	cleanupInventoryRouteDatabase,
-	createSessionCookie,
-	resetInventoryRouteDatabase,
-} from "./routes.integration-helpers.js";
+import { createInventoryRouteDatabaseTracker } from "./routes.integration-helpers.js";
 
 let app: Awaited<ReturnType<typeof buildServer>>;
+const database = createInventoryRouteDatabaseTracker();
 
 beforeAll(async () => {
 	app = await buildServer();
 });
 
-beforeEach(resetInventoryRouteDatabase);
+beforeEach(() => database.reset());
 
 afterAll(async () => {
-	await cleanupInventoryRouteDatabase();
+	await database.cleanup();
 	await app.close();
 });
 
 describe("character item routes", () => {
 	it("persists personal item CRUD and equipment state", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const characterId = await createCharacter(cookie);
 		const created = await app.inject({
 			method: "POST",
@@ -79,7 +76,7 @@ describe("character item routes", () => {
 	});
 
 	it("does not expose an item across characters or sessions", async () => {
-		const ownerCookie = await createSessionCookie(app);
+		const ownerCookie = await database.createSessionCookie(app);
 		const firstCharacterId = await createCharacter(ownerCookie);
 		const secondCharacterId = await createCharacter(ownerCookie);
 		const created = await app.inject({
@@ -95,7 +92,7 @@ describe("character item routes", () => {
 			url: `/api/characters/${secondCharacterId}/items/${itemId}`,
 			headers: { cookie: ownerCookie },
 		});
-		const otherCookie = await createSessionCookie(app);
+		const otherCookie = await database.createSessionCookie(app);
 		const inaccessible = await app.inject({
 			method: "GET",
 			url: `/api/characters/${firstCharacterId}/items/${itemId}`,

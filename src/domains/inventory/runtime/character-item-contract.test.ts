@@ -30,6 +30,19 @@ describe("character item route contracts", () => {
 		});
 	});
 
+	it("declares catalogue failures only for create and update", () => {
+		for (const route of characterItemRouteContracts) {
+			if (
+				route.operationId === "createCharacterItem" ||
+				route.operationId === "updateCharacterItem"
+			) {
+				expect(Object.hasOwn(route.responses, 503)).toBe(true);
+			} else {
+				expect(Object.hasOwn(route.responses, 503)).toBe(false);
+			}
+		}
+	});
+
 	it("parses serialized boolean filters without making false truthy", () => {
 		expect(ListCharacterItemsRequestSchema.parse({ isEquipped: "false" })).toEqual({
 			isEquipped: false,

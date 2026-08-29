@@ -1,6 +1,12 @@
 export type { CharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
 export { createCharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
 export type {
+	CharacterItemRepository,
+	CharacterItemRepositoryOptions,
+	InventoryItemHistoryWriter,
+} from "./character-item-repository.js";
+export { createCharacterItemRepository } from "./character-item-repository.js";
+export type {
 	CharacterTreasuryMutation,
 	CharacterTreasuryMutationOptions,
 	CharacterTreasuryRepository,
@@ -14,7 +20,10 @@ export type { InventoryHistoryRepository } from "./inventory-history-repository.
 export { createInventoryHistoryRepository } from "./inventory-history-repository.js";
 export { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 export { toInventoryItem, toInventoryItemInsert } from "./inventory-item-mappers.js";
-export type { InventoryItemList, InventoryItemRepository } from "./inventory-item-repository.js";
+export type {
+	InventoryItemList,
+	InventoryItemRepository,
+} from "./inventory-item-repository.js";
 export { createInventoryItemRepository } from "./inventory-item-repository.js";
 export { inventoryItemsTable } from "./inventory-item-table.js";
 export {

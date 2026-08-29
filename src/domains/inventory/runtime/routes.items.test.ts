@@ -8,6 +8,7 @@ import {
 	CharacterItemNotFoundError,
 	CharacterItemPersistenceError,
 } from "../service/index.js";
+import type { RegisterCharacterItemRoutesOptions } from "./routes.items.js";
 import { registerCharacterItemRoutes } from "./routes.items.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
@@ -127,15 +128,46 @@ describe("registerCharacterItemRoutes", () => {
 			await app.close();
 		}
 	});
+
+	it.each([
+		[
+			"create",
+			"POST",
+			`/api/characters/${characterId}/items`,
+			{ name: "Rope", type: "misc", category: "Gear" },
+		],
+		["list", "GET", `/api/characters/${characterId}/items`, undefined],
+		["detail", "GET", `/api/characters/${characterId}/items/${itemId}`, undefined],
+		["update", "PATCH", `/api/characters/${characterId}/items/${itemId}`, { notes: "Travel gear" }],
+		["delete", "DELETE", `/api/characters/${characterId}/items/${itemId}`, undefined],
+		["equip", "POST", `/api/characters/${characterId}/items/${itemId}/equip`, undefined],
+		["unequip", "POST", `/api/characters/${characterId}/items/${itemId}/unequip`, undefined],
+	] as const)("maps %s provider failures to a safe 500 response", async (_name, method, url, payload) => {
+		const app = await buildApp(fakeService(), async () => {
+			throw new Error("session provider secret");
+		});
+
+		try {
+			const response = await app.inject({ method, url, payload });
+			expect(response.statusCode).toBe(500);
+			expect(response.json()).toEqual({ error: "Character item operation failed." });
+			expect(response.body).not.toContain("session provider secret");
+		} finally {
+			await app.close();
+		}
+	});
 });
 
-async function buildApp(characterItemService: CharacterItemService) {
+async function buildApp(
+	characterItemService: CharacterItemService,
+	getCurrentUser: RegisterCharacterItemRoutesOptions["getCurrentUser"] = async () => ({
+		user: { id: userId, isAnonymous: true, name: "Anonymous" },
+	}),
+) {
 	const app = Fastify();
 	await registerCharacterItemRoutes(app, {
 		characterItemService,
-		getCurrentUser: async () => ({
-			user: { id: userId, isAnonymous: true, name: "Anonymous" },
-		}),
+		getCurrentUser,
 	});
 	return app;
 }
