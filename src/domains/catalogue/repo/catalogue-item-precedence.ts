@@ -24,15 +24,35 @@ export function deduplicateCatalogueItems<T extends CatalogueItemPrecedenceCandi
 export function deduplicateCatalogueItemCandidates<T extends CatalogueItemPrecedenceCandidate>(
 	items: readonly T[],
 ) {
-	const winners = new Map<string, T>();
+	const sourceIdentityWinners = new Map<string, T>();
 	for (const item of items) {
-		const identity = `${item.rulesVersion}|${normalizeIdentity(item.identifier)}`;
-		const current = winners.get(identity);
-		if (!current || comparePrecedence(item, current) < 0) winners.set(identity, item);
+		const identity = `${item.source}|${item.sourceKey}|${item.rulesVersion}`;
+		const current = sourceIdentityWinners.get(identity);
+		if (!current || comparePrecedence(item, current) < 0) {
+			sourceIdentityWinners.set(identity, item);
+		}
 	}
-	return [...winners.values()].sort((left, right) =>
-		`${left.rulesVersion}|${normalizeIdentity(left.identifier)}|${left.sourcePath}`.localeCompare(
-			`${right.rulesVersion}|${normalizeIdentity(right.identifier)}|${right.sourcePath}`,
+
+	const canonicalGroups = new Map<string, Map<CatalogueSource, T[]>>();
+	for (const item of sourceIdentityWinners.values()) {
+		const canonicalIdentity = `${item.rulesVersion}|${normalizeIdentity(item.identifier)}`;
+		const sourceGroups = canonicalGroups.get(canonicalIdentity) ?? new Map();
+		const sourceItems = sourceGroups.get(item.source) ?? [];
+		sourceItems.push(item);
+		sourceGroups.set(item.source, sourceItems);
+		canonicalGroups.set(canonicalIdentity, sourceGroups);
+	}
+
+	const winners = [...canonicalGroups.values()].flatMap((sourceGroups) => {
+		const preferredSource = [...sourceGroups.entries()].sort(([, left], [, right]) =>
+			comparePrecedence(sourceRepresentative(left), sourceRepresentative(right)),
+		)[0]?.[0];
+		return preferredSource ? (sourceGroups.get(preferredSource) ?? []) : [];
+	});
+
+	return winners.sort((left, right) =>
+		`${left.rulesVersion}|${normalizeIdentity(left.identifier)}|${left.sourcePath}|${left.sourceKey}`.localeCompare(
+			`${right.rulesVersion}|${normalizeIdentity(right.identifier)}|${right.sourcePath}|${right.sourceKey}`,
 		),
 	);
 }
@@ -55,4 +75,8 @@ function normalizeIdentity(value: string) {
 		.toLowerCase()
 		.replaceAll(/[^a-z0-9]+/g, "-")
 		.replace(/^-|-$/g, "");
+}
+
+function sourceRepresentative<T extends CatalogueItemPrecedenceCandidate>(items: readonly T[]) {
+	return [...items].sort(comparePrecedence)[0] as T;
 }

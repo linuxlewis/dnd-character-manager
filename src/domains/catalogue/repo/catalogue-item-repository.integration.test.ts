@@ -94,6 +94,40 @@ describe("createCatalogueItemRepository", () => {
 		expect((await repository.searchItems({ q: "Rope", limit: 50 })).total).toBe(0);
 	});
 
+	it("counts mixed per-record rules versions in one pack projection", async () => {
+		const repository = createCatalogueItemRepository();
+		const current = seedItem({
+			sourceKey: sourceKeys[0],
+			rulesVersion: "2024",
+			name: "Current Rope",
+		});
+		const legacy = seedItem({
+			sourceKey: sourceKeys[1],
+			rulesVersion: "2014",
+			name: "Legacy Rope",
+		});
+
+		await repository.upsertItems([current, legacy], auditFor("2024", 2));
+
+		expect(
+			await repository.countItems({
+				source: "foundry-dnd5e",
+				sourceRevision: testRevisions[0],
+				capability: "equipment",
+				pack: "equipment24",
+			}),
+		).toBe(2);
+		expect(
+			await repository.countItems({
+				source: "foundry-dnd5e",
+				sourceRevision: testRevisions[0],
+				rulesVersion: "2014",
+				capability: "equipment",
+				pack: "equipment24",
+			}),
+		).toBe(1);
+	});
+
 	it("replaces rows and reports the stored audit when the source pin changes", async () => {
 		const repository = createCatalogueItemRepository();
 		const oldItem = seedItem({

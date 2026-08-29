@@ -81,7 +81,6 @@ export function createCatalogueItemService(
 			repository.countItems({
 				source: FOUNDRY_DND5E_SOURCE,
 				sourceRevision: CATALOGUE_SOURCE_MANIFEST.sourceRevision,
-				rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
 				capability: "equipment",
 				pack: "equipment24",
 			}),

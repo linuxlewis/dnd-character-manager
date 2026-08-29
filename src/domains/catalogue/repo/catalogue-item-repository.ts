@@ -26,10 +26,8 @@ import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-i
 export interface CatalogueItemRepository {
 	upsertItems(items: CatalogueItemSeed[], audit: CatalogueItemSeedAudit): Promise<number>;
 	countItems(
-		projection?: Pick<
-			CatalogueItemSeedAudit,
-			"source" | "sourceRevision" | "rulesVersion" | "capability" | "pack"
-		>,
+		projection?: Pick<CatalogueItemSeedAudit, "source" | "sourceRevision" | "capability" | "pack"> &
+			Partial<Pick<CatalogueItemSeedAudit, "rulesVersion">>,
 	): Promise<number>;
 	searchItems(
 		input: CatalogueItemSearchQuery,
@@ -53,7 +51,6 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 					(item) =>
 						item.source !== parsedAudit.source ||
 						item.sourceRevision !== parsedAudit.sourceRevision ||
-						item.rulesVersion !== parsedAudit.rulesVersion ||
 						item.capability !== parsedAudit.capability ||
 						item.pack !== parsedAudit.pack,
 				)
@@ -94,7 +91,6 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 							eq(catalogueItemsTable.source, parsedAudit.source),
 							eq(catalogueItemsTable.seedCapability, parsedAudit.capability),
 							eq(catalogueItemsTable.seedPack, parsedAudit.pack),
-							eq(catalogueItemsTable.rulesVersion, parsedAudit.rulesVersion),
 							incomingIdentity ? not(incomingIdentity) : undefined,
 						),
 					);
@@ -124,9 +120,11 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 				? and(
 						eq(catalogueItemsTable.source, projection.source),
 						eq(catalogueItemsTable.sourceRevision, projection.sourceRevision),
-						eq(catalogueItemsTable.rulesVersion, projection.rulesVersion),
 						eq(catalogueItemsTable.seedCapability, projection.capability),
 						eq(catalogueItemsTable.seedPack, projection.pack),
+						projection.rulesVersion
+							? eq(catalogueItemsTable.rulesVersion, projection.rulesVersion)
+							: undefined,
 					)
 				: undefined;
 			const [row] = await getDb().select({ value: count() }).from(catalogueItemsTable).where(where);

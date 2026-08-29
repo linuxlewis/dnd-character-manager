@@ -18,6 +18,11 @@ The local SRD 2024 catalogue uses Foundry `dnd5e` revision
 - The importer stores source revision, path, key, URL, rules version, per-record license,
   deterministic seed metadata, and raw YAML payload after parsing.
 
+The `equipment24` pack is the pack-level 2024 projection, but a small number of copied pack
+records retain `2014` in their embedded Foundry source metadata. Item rows preserve that per-record
+rules version; audit, replacement, and readiness scope use the source revision, capability, and pack
+identity so the complete pinned pack remains one `627`-record projection.
+
 ## Staging
 
 Run migrations first, then seed the capabilities explicitly from the staging app environment:
