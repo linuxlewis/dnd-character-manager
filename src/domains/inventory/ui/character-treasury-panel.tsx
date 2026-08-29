@@ -32,6 +32,8 @@ export function CharacterTreasuryPanel({
 	const spendMutation = useMutation(apiMutations.spendCharacterTreasury());
 	const [addPreviewRequest, setAddPreviewRequest] = useState<TreasuryAddRequest | null>(null);
 	const [spendPreviewRequest, setSpendPreviewRequest] = useState<TreasurySpendRequest | null>(null);
+	const [addReconciliationPending, setAddReconciliationPending] = useState(false);
+	const [spendReconciliationPending, setSpendReconciliationPending] = useState(false);
 
 	function cacheTreasury(response: AddCharacterTreasuryResponse | SpendCharacterTreasuryResponse) {
 		updateTreasuryQueryCache(queryClient, characterId, response);
@@ -49,24 +51,41 @@ export function CharacterTreasuryPanel({
 		spendPreviewMutation.mutate({ params: { characterId }, body: request });
 	}
 
+	function confirmAdd(request: TreasuryAddRequest, onSuccess: () => void) {
+		setAddReconciliationPending(true);
+		addMutation.mutate(
+			{ params: { characterId }, body: request },
+			{
+				onSuccess: (response) => {
+					cacheTreasury(response);
+					onSuccess();
+				},
+				onSettled: () => reconcileAndRelease(queryClient, characterId, setAddReconciliationPending),
+			},
+		);
+	}
+
+	function confirmSpend(request: TreasurySpendRequest, onSuccess: () => void) {
+		setSpendReconciliationPending(true);
+		spendMutation.mutate(
+			{ params: { characterId }, body: request },
+			{
+				onSuccess: (response) => {
+					cacheTreasury(response);
+					onSuccess();
+				},
+				onSettled: () =>
+					reconcileAndRelease(queryClient, characterId, setSpendReconciliationPending),
+			},
+		);
+	}
+
 	return (
 		<TreasuryPanel
 			add={{
 				mutationError: addMutation.error,
-				mutationPending: addMutation.isPending,
-				onConfirm: (request, onSuccess) =>
-					addMutation.mutate(
-						{ params: { characterId }, body: request },
-						{
-							onSuccess: (response) => {
-								cacheTreasury(response);
-								onSuccess();
-							},
-							onSettled: () => {
-								void reconcileTreasuryQuery(queryClient, characterId);
-							},
-						},
-					),
+				mutationPending: addMutation.isPending || addReconciliationPending,
+				onConfirm: confirmAdd,
 				onConsumePreview: () =>
 					consumeTreasuryPreview(setAddPreviewRequest, () => addPreviewMutation.reset()),
 				onPreview: previewAdd,
@@ -87,20 +106,8 @@ export function CharacterTreasuryPanel({
 			scopeLabel={scopeLabel}
 			spend={{
 				mutationError: spendMutation.error,
-				mutationPending: spendMutation.isPending,
-				onConfirm: (request, onSuccess) =>
-					spendMutation.mutate(
-						{ params: { characterId }, body: request },
-						{
-							onSuccess: (response) => {
-								cacheTreasury(response);
-								onSuccess();
-							},
-							onSettled: () => {
-								void reconcileTreasuryQuery(queryClient, characterId);
-							},
-						},
-					),
+				mutationPending: spendMutation.isPending || spendReconciliationPending,
+				onConfirm: confirmSpend,
 				onConsumePreview: () =>
 					consumeTreasuryPreview(setSpendPreviewRequest, () => spendPreviewMutation.reset()),
 				onPreview: previewSpend,
@@ -156,7 +163,23 @@ export function consumeTreasuryPreview<Request>(
 }
 
 export function reconcileTreasuryQuery(queryClient: QueryClient, characterId: string) {
-	return queryClient.invalidateQueries({
-		queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
-	});
+	return queryClient.invalidateQueries(
+		{
+			queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
+		},
+		{ throwOnError: true },
+	);
+}
+
+async function reconcileAndRelease(
+	queryClient: QueryClient,
+	characterId: string,
+	setPending: (pending: boolean) => void,
+) {
+	try {
+		await reconcileTreasuryQuery(queryClient, characterId);
+		setPending(false);
+	} catch {
+		// Keep confirmation controls gated while the query remains unreconciled.
+	}
 }

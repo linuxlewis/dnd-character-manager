@@ -50,6 +50,8 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
 	const treasury = query.data;
+	const actionsDisabled =
+		add.previewPending || add.mutationPending || spend.previewPending || spend.mutationPending;
 
 	function openDialog(dialog: Exclude<ActiveDialog, null>) {
 		if (dialog === "add") add.onReset();
@@ -82,6 +84,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			)}
 			{treasury && (
 				<TreasuryDisplay
+					actionsDisabled={actionsDisabled}
 					onAddFunds={() => openDialog("add")}
 					onSpendFunds={() => openDialog("spend")}
 					scopeLabel={scopeLabel}
@@ -92,6 +95,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			<TreasuryAddModal
 				key={`add-${dialogVersion}`}
 				confirmPending={add.mutationPending}
+				actionsDisabled={actionsDisabled}
 				mutationError={add.mutationError}
 				onClose={closeDialog}
 				onConfirm={(request) => {
@@ -108,6 +112,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 			<TreasurySpendModal
 				key={`spend-${dialogVersion}`}
 				confirmPending={spend.mutationPending}
+				actionsDisabled={actionsDisabled}
 				mutationError={spend.mutationError}
 				onClose={closeDialog}
 				onConfirm={(request) => {

@@ -102,8 +102,32 @@ describe("CharacterTreasuryPanel", () => {
 		const queryClient = new QueryClient();
 		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
 		await reconcileTreasuryQuery(queryClient, characterId);
-		expect(invalidateQueries).toHaveBeenCalledWith({
-			queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
+		expect(invalidateQueries).toHaveBeenCalledWith(
+			{
+				queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
+			},
+			{ throwOnError: true },
+		);
+	});
+
+	it("does not resolve reconciliation until the treasury refetch settles", async () => {
+		const characterId = "00000000-0000-4000-8000-000000000001";
+		const queryClient = new QueryClient();
+		let resolveRefetch!: () => void;
+		const refetch = new Promise<void>((resolve) => {
+			resolveRefetch = resolve;
 		});
+		vi.spyOn(queryClient, "invalidateQueries").mockReturnValue(refetch);
+
+		let settled = false;
+		const reconciliation = reconcileTreasuryQuery(queryClient, characterId).then(() => {
+			settled = true;
+		});
+		await Promise.resolve();
+		expect(settled).toBe(false);
+
+		resolveRefetch();
+		await reconciliation;
+		expect(settled).toBe(true);
 	});
 });

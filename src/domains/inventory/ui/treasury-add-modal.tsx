@@ -22,6 +22,7 @@ export function TreasuryAddModal({
 	previewError,
 	mutationError,
 	confirmPending,
+	actionsDisabled = false,
 	onClose,
 	onPreview,
 	onConfirm,
@@ -34,6 +35,7 @@ export function TreasuryAddModal({
 	previewError: Error | null;
 	mutationError: Error | null;
 	confirmPending: boolean;
+	actionsDisabled?: boolean;
 	onClose: () => void;
 	onPreview: (request: TreasuryAddRequest) => void;
 	onConfirm: (request: TreasuryAddRequest) => void;
@@ -100,7 +102,7 @@ export function TreasuryAddModal({
 
 					{visiblePreview && (
 						<TreasuryPreview
-							confirmDisabled={confirmPending || previewPending}
+							confirmDisabled={actionsDisabled || confirmPending || previewPending}
 							confirmLoading={confirmPending}
 							confirmLabel="Confirm add funds"
 							onConfirm={() => onConfirm(currentRequest)}
@@ -110,14 +112,18 @@ export function TreasuryAddModal({
 
 					<Group justify="flex-end">
 						<Button
-							disabled={previewPending || confirmPending}
+							disabled={actionsDisabled || previewPending || confirmPending}
 							onClick={onClose}
 							type="button"
 							variant="default"
 						>
 							Cancel
 						</Button>
-						<Button loading={previewPending} type="submit">
+						<Button
+							disabled={actionsDisabled || previewPending || confirmPending}
+							loading={previewPending}
+							type="submit"
+						>
 							{visiblePreview ? "Preview again" : "Preview add"}
 						</Button>
 					</Group>

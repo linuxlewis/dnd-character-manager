@@ -9,6 +9,7 @@ import type { TreasuryData } from "./treasury-types.js";
 export interface TreasuryDisplayProps {
 	scopeLabel: string;
 	treasury: TreasuryData;
+	actionsDisabled?: boolean;
 	onAddFunds: () => void;
 	onSpendFunds: () => void;
 }
@@ -16,6 +17,7 @@ export interface TreasuryDisplayProps {
 export function TreasuryDisplay({
 	scopeLabel,
 	treasury,
+	actionsDisabled = false,
 	onAddFunds,
 	onSpendFunds,
 }: TreasuryDisplayProps) {
@@ -36,10 +38,10 @@ export function TreasuryDisplay({
 					</Text>
 				</Stack>
 				<Group gap="xs" wrap="wrap">
-					<Button onClick={onAddFunds} size="sm" variant="light">
+					<Button disabled={actionsDisabled} onClick={onAddFunds} size="sm" variant="light">
 						Add funds
 					</Button>
-					<Button onClick={onSpendFunds} size="sm" variant="default">
+					<Button disabled={actionsDisabled} onClick={onSpendFunds} size="sm" variant="default">
 						Spend
 					</Button>
 				</Group>
