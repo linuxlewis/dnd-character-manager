@@ -39,7 +39,13 @@ function item() {
 		estimatedValue: 15,
 		notes: null,
 		thumbnailUrl: null,
-		properties: { stats: { damage: "1d8 slashing" } },
+		properties: {
+			stats: {
+				baseItem: "longsword",
+				itemType: "martialM",
+				damage: { base: { number: 1, denomination: "d8", types: ["slashing"] } },
+			},
+		},
 		isEquipped: false,
 		statModifiers: null,
 		statOverrides: null,

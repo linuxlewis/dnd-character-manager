@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type {
 	CreateCharacterItemRequest,
 	UpdateCharacterItemRequest,
@@ -28,6 +28,7 @@ import {
 	catalogueItemIdForSubmission,
 	catalogueItemToFormValues,
 	initialItemFormValues,
+	isCurrentCatalogueRequest,
 	toCharacterItemRequest,
 	validateItemForm,
 } from "./item-form-values.js";
@@ -54,9 +55,12 @@ export function ItemForm({
 	const [selectedCatalogueId, setSelectedCatalogueId] = useState<string | null>(null);
 	const [detailPendingId, setDetailPendingId] = useState<string | null>(null);
 	const [catalogueDetailError, setCatalogueDetailError] = useState<Error | null>(null);
+	const catalogueRequestIdRef = useRef(0);
 	const form = useFormState(initialItem);
 
 	async function selectCatalogueItem(item: CatalogueItemSearchResult) {
+		const requestId = catalogueRequestIdRef.current + 1;
+		catalogueRequestIdRef.current = requestId;
 		setSelectedCatalogueId(item.id);
 		setCatalogueDetailError(null);
 		setDetailPendingId(item.id);
@@ -64,12 +68,16 @@ export function ItemForm({
 			const details = await queryClient.fetchQuery(
 				apiQueries.getCatalogueItemDetails({ catalogueItemId: item.id }),
 			);
+			if (!isCurrentCatalogueRequest(catalogueRequestIdRef.current, requestId)) return;
 			form.setValues({ ...form.values, ...catalogueItemToFormValues(details) });
 		} catch (error) {
+			if (!isCurrentCatalogueRequest(catalogueRequestIdRef.current, requestId)) return;
 			setSelectedCatalogueId(null);
 			setCatalogueDetailError(toError(error));
 		} finally {
-			setDetailPendingId(null);
+			if (isCurrentCatalogueRequest(catalogueRequestIdRef.current, requestId)) {
+				setDetailPendingId(null);
+			}
 		}
 	}
 

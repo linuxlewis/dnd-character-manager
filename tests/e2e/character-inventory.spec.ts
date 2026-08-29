@@ -16,8 +16,7 @@ const fixtureAuditMarker = `a7_${fixtureRunId.replaceAll("-", "_")}`;
 const fixtureMundaneName = `Silvered Blade ${fixtureRunId}`;
 const fixtureMagicName = `Moonblade ${fixtureRunId}`;
 let fixtureRulesVersion: "2014" | "2024" = "2024";
-let previousAudit: CatalogueAuditRow | null = null;
-let fixtureAuditChanged = false;
+let fixtureAuditOwnership: CatalogueAuditOwnership | null = null;
 
 test.beforeAll(async () => {
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
@@ -27,19 +26,7 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
 	if (sql) {
 		await sql`DELETE FROM catalogue_items WHERE seed_metadata->>'fixture' = ${fixtureSourcePrefix}`;
-		if (fixtureAuditChanged) {
-			if (previousAudit) {
-				await restoreCatalogueAudit(sql, previousAudit);
-			} else {
-				await sql`
-					DELETE FROM catalogue_item_seed_audits
-					WHERE source = ${FOUNDRY_DND5E_SOURCE}
-					  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
-					  AND pack = 'equipment24'
-					  AND category_counts ? ${fixtureAuditMarker}
-				`;
-			}
-		}
+		if (fixtureAuditOwnership) await releaseCatalogueAudit(sql, fixtureAuditOwnership);
 	}
 	await sql?.end();
 });
@@ -244,21 +231,28 @@ type CatalogueAuditRow = {
 	accepted: number | string;
 	rejected: number | string;
 	category_counts: Record<string, number>;
-	created_at: Date | string;
+	created_at: string;
+	row_version: string;
+};
+
+type CatalogueAuditOwnership = {
+	previous: CatalogueAuditRow | null;
+	owned: CatalogueAuditRow;
 };
 
 async function seedCatalogue(database: ReturnType<typeof postgres>) {
-	const [audit] = await database<CatalogueAuditRow[]>`
-		SELECT id, source, source_revision, rules_version, capability, pack, processed, accepted,
-			rejected, category_counts, created_at
-		FROM catalogue_item_seed_audits
-		WHERE source = ${FOUNDRY_DND5E_SOURCE}
-		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
-		  AND pack = 'equipment24'
-		LIMIT 1
-	`;
-	const [countRow] = await database<{ count: number | string }[]>`
-		SELECT count(*)::int AS count
+	const audit = await readCatalogueAudit(database);
+	const currentItemCount = await countCatalogueItems(database);
+	const reuseCurrentProjection = isUsableCurrentProjection(audit, currentItemCount);
+	fixtureRulesVersion = reuseCurrentProjection ? "2014" : "2024";
+	const items = buildCatalogueFixture();
+	await insertFixtureRows(database, items);
+	if (reuseCurrentProjection) return;
+
+	const projectionRows = await database<
+		{ item_category: string; item_kind: string; is_magical: boolean }[]
+	>`
+		SELECT item_category, item_kind, is_magical
 		FROM catalogue_items
 		WHERE source = ${FOUNDRY_DND5E_SOURCE}
 		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
@@ -266,11 +260,41 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 		  AND seed_capability = 'equipment'
 		  AND seed_pack = 'equipment24'
 	`;
-	const currentItemCount = Number(countRow?.count ?? 0);
-	const reuseCurrentProjection = isUsableCurrentProjection(audit, currentItemCount);
-	fixtureRulesVersion = reuseCurrentProjection ? "2014" : "2024";
-	previousAudit = reuseCurrentProjection ? null : (audit ?? null);
-	const items = buildCatalogueFixture();
+	const ownership = await claimCatalogueAudit(
+		database,
+		audit,
+		getCategoryCounts(projectionRows),
+		projectionRows.length,
+	);
+	if (ownership) {
+		fixtureAuditOwnership = ownership;
+		return;
+	}
+
+	const concurrentAudit = await readCatalogueAudit(database);
+	const concurrentItemCount = await countCatalogueItems(database);
+	if (isUsableCurrentProjection(concurrentAudit, concurrentItemCount)) return;
+	if (
+		isUsableCurrentProjection(
+			concurrentAudit,
+			await countCatalogueItems(database, { excludeFixture: true }),
+		)
+	) {
+		await deleteFixtureRows(database);
+		fixtureRulesVersion = "2014";
+		await insertFixtureRows(database, buildCatalogueFixture());
+		return;
+	}
+
+	throw new Error(
+		"Catalogue readiness changed during A7 fixture setup; refusing to overwrite the concurrent audit.",
+	);
+}
+
+async function insertFixtureRows(
+	database: ReturnType<typeof postgres>,
+	items: ReturnType<typeof buildCatalogueFixture>,
+) {
 	for (const item of items) {
 		await database`
 			INSERT INTO catalogue_items (
@@ -289,38 +313,90 @@ async function seedCatalogue(database: ReturnType<typeof postgres>) {
 			)
 			`;
 	}
-	if (!reuseCurrentProjection) {
-		const projectionRows = await database<
-			{ item_category: string; item_kind: string; is_magical: boolean }[]
-		>`
-			SELECT item_category, item_kind, is_magical
-			FROM catalogue_items
-			WHERE source = ${FOUNDRY_DND5E_SOURCE}
-			  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
-			  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
-			  AND seed_capability = 'equipment'
-			  AND seed_pack = 'equipment24'
+}
+
+async function deleteFixtureRows(database: ReturnType<typeof postgres>) {
+	await database`DELETE FROM catalogue_items WHERE seed_metadata->>'fixture' = ${fixtureSourcePrefix}`;
+}
+
+async function readCatalogueAudit(database: ReturnType<typeof postgres>) {
+	const [audit] = await database<CatalogueAuditRow[]>`
+		SELECT id, source, source_revision, rules_version, capability, pack, processed, accepted,
+			rejected, category_counts, created_at::text AS created_at, xmin::text AS row_version
+		FROM catalogue_item_seed_audits
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND pack = 'equipment24'
+		LIMIT 1
+	`;
+	return audit;
+}
+
+async function countCatalogueItems(
+	database: ReturnType<typeof postgres>,
+	options: { excludeFixture?: boolean } = {},
+) {
+	const [countRow] = await database<{ count: number | string }[]>`
+		SELECT count(*)::int AS count
+		FROM catalogue_items
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND rules_version = ${FOUNDRY_DND5E_RULES_VERSION}
+		  AND seed_capability = 'equipment'
+		  AND seed_pack = 'equipment24'
+		  ${
+				options.excludeFixture
+					? database`AND seed_metadata->>'fixture' <> ${fixtureSourcePrefix}`
+					: database``
+			}
+	`;
+	return Number(countRow?.count ?? 0);
+}
+
+async function claimCatalogueAudit(
+	database: ReturnType<typeof postgres>,
+	previous: CatalogueAuditRow | undefined,
+	categoryCounts: Record<string, number>,
+	processed: number,
+) {
+	const ownedCategoryCounts = { ...categoryCounts, [fixtureAuditMarker]: 1 };
+	if (previous) {
+		const [owned] = await database<CatalogueAuditRow[]>`
+			UPDATE catalogue_item_seed_audits
+			SET rules_version = ${FOUNDRY_DND5E_RULES_VERSION}, capability = 'equipment',
+				processed = ${processed}, accepted = ${processed}, rejected = 0,
+				category_counts = ${database.json(ownedCategoryCounts)}, created_at = now()
+			WHERE id = ${previous.id}
+			  AND source = ${previous.source}
+			  AND source_revision = ${previous.source_revision}
+			  AND rules_version = ${previous.rules_version}
+			  AND capability = ${previous.capability}
+			  AND pack = ${previous.pack}
+			  AND processed = ${Number(previous.processed)}
+			  AND accepted = ${Number(previous.accepted)}
+			  AND rejected = ${Number(previous.rejected)}
+			  AND category_counts = ${database.json(previous.category_counts)}
+			  AND created_at::text = ${previous.created_at}
+			  AND xmin::text = ${previous.row_version}
+			RETURNING id, source, source_revision, rules_version, capability, pack, processed,
+				accepted, rejected, category_counts, created_at::text AS created_at, xmin::text AS row_version
 		`;
-		const categoryCounts = getCategoryCounts(projectionRows);
-		await database`
-			INSERT INTO catalogue_item_seed_audits (
-				source, source_revision, rules_version, capability, pack, processed, accepted, rejected, category_counts
-			)
-			VALUES (
-				${FOUNDRY_DND5E_SOURCE}, ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}, ${FOUNDRY_DND5E_RULES_VERSION},
-				'equipment', 'equipment24', ${projectionRows.length}, ${projectionRows.length}, 0,
-				${database.json(categoryCounts)}
-			)
-			ON CONFLICT (source, source_revision, pack) DO UPDATE SET
-				rules_version = EXCLUDED.rules_version,
-				capability = EXCLUDED.capability,
-				processed = EXCLUDED.processed,
-				accepted = EXCLUDED.accepted,
-				rejected = EXCLUDED.rejected,
-				category_counts = EXCLUDED.category_counts
-		`;
-		fixtureAuditChanged = true;
+		return owned ? { previous, owned } : null;
 	}
+
+	const [owned] = await database<CatalogueAuditRow[]>`
+		INSERT INTO catalogue_item_seed_audits (
+			source, source_revision, rules_version, capability, pack, processed, accepted, rejected, category_counts
+		)
+		VALUES (
+			${FOUNDRY_DND5E_SOURCE}, ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}, ${FOUNDRY_DND5E_RULES_VERSION},
+			'equipment', 'equipment24', ${processed}, ${processed}, 0, ${database.json(ownedCategoryCounts)}
+		)
+		ON CONFLICT (source, source_revision, pack) DO NOTHING
+		RETURNING id, source, source_revision, rules_version, capability, pack, processed,
+			accepted, rejected, category_counts, created_at::text AS created_at, xmin::text AS row_version
+	`;
+	return owned ? { previous: null, owned } : null;
 }
 
 function buildCatalogueFixture() {
@@ -414,22 +490,53 @@ function getCategoryCounts(
 		potions: rows.filter((row) => row.item_kind === "potion").length,
 		scrolls: rows.filter((row) => row.item_kind === "scroll").length,
 		magicItems: rows.filter((row) => row.is_magical).length,
-		[fixtureAuditMarker]: 1,
 	};
 }
 
-async function restoreCatalogueAudit(
+async function releaseCatalogueAudit(
 	database: ReturnType<typeof postgres>,
-	audit: CatalogueAuditRow,
+	ownership: CatalogueAuditOwnership,
 ) {
+	const { owned } = ownership;
+	if (ownership.previous) {
+		const previous = ownership.previous;
+		await database`
+			UPDATE catalogue_item_seed_audits
+			SET source = ${previous.source}, source_revision = ${previous.source_revision},
+				rules_version = ${previous.rules_version}, capability = ${previous.capability}, pack = ${previous.pack},
+				processed = ${Number(previous.processed)}, accepted = ${Number(previous.accepted)},
+				rejected = ${Number(previous.rejected)}, category_counts = ${database.json(previous.category_counts)},
+				created_at = ${previous.created_at}
+			WHERE id = ${owned.id}
+			  AND source = ${owned.source}
+			  AND source_revision = ${owned.source_revision}
+			  AND rules_version = ${owned.rules_version}
+			  AND capability = ${owned.capability}
+			  AND pack = ${owned.pack}
+			  AND processed = ${Number(owned.processed)}
+			  AND accepted = ${Number(owned.accepted)}
+			  AND rejected = ${Number(owned.rejected)}
+			  AND category_counts = ${database.json(owned.category_counts)}
+			  AND created_at::text = ${owned.created_at}
+			  AND xmin::text = ${owned.row_version}
+		`;
+		return;
+	}
+
 	await database`
-		UPDATE catalogue_item_seed_audits
-		SET source = ${audit.source}, source_revision = ${audit.source_revision},
-			rules_version = ${audit.rules_version}, capability = ${audit.capability}, pack = ${audit.pack},
-			processed = ${Number(audit.processed)}, accepted = ${Number(audit.accepted)},
-			rejected = ${Number(audit.rejected)}, category_counts = ${database.json(audit.category_counts)},
-			created_at = ${audit.created_at}
-		WHERE id = ${audit.id}
+		DELETE FROM catalogue_item_seed_audits
+		WHERE id = ${owned.id}
+		  AND source = ${owned.source}
+		  AND source_revision = ${owned.source_revision}
+		  AND rules_version = ${owned.rules_version}
+		  AND capability = ${owned.capability}
+		  AND pack = ${owned.pack}
+		  AND processed = ${Number(owned.processed)}
+		  AND accepted = ${Number(owned.accepted)}
+		  AND rejected = ${Number(owned.rejected)}
+		  AND category_counts = ${database.json(owned.category_counts)}
+		  AND created_at::text = ${owned.created_at}
+		  AND xmin::text = ${owned.row_version}
 	`;
 }
 

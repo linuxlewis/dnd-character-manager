@@ -101,6 +101,10 @@ export function catalogueItemIdForSubmission(
 	return catalogueDetailError ? null : selectedCatalogueId;
 }
 
+export function isCurrentCatalogueRequest(latestRequestId: number, requestId: number) {
+	return latestRequestId === requestId;
+}
+
 function catalogueProperties(item: CatalogueItemDetails | CatalogueItemSearchResult): JsonObject {
 	return {
 		catalogueKind: item.kind,

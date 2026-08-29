@@ -95,10 +95,19 @@ export function formatItemProperty(value: JsonValue) {
 export function getItemStatEntries(item: InventoryItem) {
 	const stats = item.properties.stats;
 	if (!isRecord(stats)) return [];
-	return Object.entries(stats)
-		.filter(([, value]) => value !== null && value !== undefined)
-		.slice(0, 8)
-		.map(([label, value]) => ({ label: formatLabel(label), value: formatItemProperty(value) }));
+	const entries = [];
+	const damage = formatDamageStat(stats.damage);
+	if (damage) entries.push({ label: "Damage", value: damage });
+	const armorClass = formatArmorClassStat(stats.armor);
+	if (armorClass) entries.push({ label: "AC", value: armorClass });
+
+	for (const [label, value] of Object.entries(stats)) {
+		if (["armor", "baseItem", "damage", "itemType"].includes(label)) continue;
+		const formattedValue = formatSimpleStatValue(value);
+		if (formattedValue) entries.push({ label: formatLabel(label), value: formattedValue });
+	}
+
+	return entries.slice(0, 8);
 }
 
 export function formatLabel(value: string) {
@@ -110,4 +119,89 @@ export function formatLabel(value: string) {
 
 function isRecord(value: JsonValue | undefined): value is Record<string, JsonValue> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function formatDamageStat(value: JsonValue | undefined) {
+	if (value === undefined || value === null) return null;
+	if (!isRecord(value)) return formatSimpleStatValue(value);
+
+	if (Array.isArray(value.parts)) {
+		const parts = value.parts.map(formatDamagePart).filter((part): part is string => part !== null);
+		return parts.length > 0 ? parts.join(" + ") : null;
+	}
+
+	const base = formatDamagePart(value.base ?? value);
+	if (!base) return null;
+	const versatile = formatDamagePart(value.versatile);
+	return versatile && versatile !== base ? `${base} (versatile ${versatile})` : base;
+}
+
+function formatDamagePart(value: JsonValue | undefined) {
+	if (value === undefined || value === null) return null;
+	if (!isRecord(value)) return formatSimpleStatValue(value);
+
+	const dice = formatDice(value);
+	const types = formatDamageTypes(value.types ?? value.damage_type ?? value.type);
+	if (dice && types) return `${dice} ${types}`;
+	return dice ?? types;
+}
+
+function formatDice(value: Record<string, JsonValue>) {
+	const directDice = value.damage_dice ?? value.dice;
+	if (typeof directDice === "string" || typeof directDice === "number") return String(directDice);
+
+	const number = value.number;
+	const denomination = value.denomination;
+	if (
+		(typeof number === "string" || typeof number === "number") &&
+		(typeof denomination === "string" || typeof denomination === "number")
+	) {
+		return `${number}${denomination}`;
+	}
+	return null;
+}
+
+function formatDamageTypes(value: JsonValue | undefined) {
+	if (typeof value === "string") return value;
+	if (Array.isArray(value)) {
+		const types = value.filter((type): type is string => typeof type === "string");
+		return types.length > 0 ? types.join(", ") : null;
+	}
+	if (isRecord(value)) {
+		const name = value.name;
+		return typeof name === "string" ? name : null;
+	}
+	return null;
+}
+
+function formatArmorClassStat(value: JsonValue | undefined) {
+	if (value === undefined || value === null) return null;
+	if (typeof value === "string" || typeof value === "number") return String(value);
+	if (!isRecord(value)) return null;
+
+	const base = value.value ?? value.base ?? value.ac;
+	const formattedBase = formatSimpleStatValue(base);
+	if (!formattedBase) return null;
+	const suffixes = [];
+	const dexterity = value.dex ?? value.dex_bonus;
+	if (dexterity === true) suffixes.push("Dex");
+	if (typeof dexterity === "number" && dexterity > 0) suffixes.push(`Dex (max ${dexterity})`);
+	const magicalBonus = value.magicalBonus ?? value.magical_bonus;
+	if (typeof magicalBonus === "number" && magicalBonus !== 0) {
+		suffixes.push(`${magicalBonus > 0 ? "+" : "-"}${Math.abs(magicalBonus)} magic`);
+	}
+	return suffixes.length > 0 ? `${formattedBase} + ${suffixes.join(" + ")}` : formattedBase;
+}
+
+function formatSimpleStatValue(value: JsonValue | undefined): string | null {
+	if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+		return String(value);
+	}
+	if (Array.isArray(value)) {
+		const values = value
+			.map((entry) => formatSimpleStatValue(entry))
+			.filter((entry): entry is string => entry !== null);
+		return values.length > 0 ? values.join(", ") : null;
+	}
+	return null;
 }

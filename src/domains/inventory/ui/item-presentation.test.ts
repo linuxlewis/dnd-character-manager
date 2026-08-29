@@ -1,8 +1,10 @@
 import { FlaskConical, Package, ScrollText, Sparkles, Sword } from "lucide-react";
 import { describe, expect, it } from "vitest";
+import { InventoryItemSchema } from "../types/index.js";
 import {
 	getItemRarityLabel,
 	getItemRarityStyle,
+	getItemStatEntries,
 	getItemTypeIcon,
 	getItemTypeLabel,
 	INVENTORY_ITEM_TYPES,
@@ -27,4 +29,63 @@ describe("item presentation", () => {
 		expect(getItemRarityStyle("legendary")).toEqual(ITEM_RARITY_STYLES.legendary);
 		expect(getItemRarityStyle(null)).toEqual(ITEM_RARITY_STYLES.common);
 	});
+
+	it("summarizes normalized weapon and armor stats without internal codes", () => {
+		const item = makeItem({
+			properties: {
+				stats: {
+					baseItem: "longsword",
+					itemType: "martialM",
+					damage: {
+						base: { number: 1, denomination: "d8", types: ["slashing"] },
+						versatile: { number: 1, denomination: "d10", types: ["slashing"] },
+					},
+					armor: { value: 16, dex: 2 },
+				},
+			},
+		});
+
+		expect(getItemStatEntries(item)).toEqual([
+			{ label: "Damage", value: "1d8 slashing (versatile 1d10 slashing)" },
+			{ label: "AC", value: "16 + Dex (max 2)" },
+		]);
+	});
+
+	it("keeps simple displayable stats while omitting opaque nested values", () => {
+		const item = makeItem({
+			properties: { stats: { range: "30 ft", charges: 3, internal: { code: "martialM" } } },
+		});
+
+		expect(getItemStatEntries(item)).toEqual([
+			{ label: "Range", value: "30 ft" },
+			{ label: "Charges", value: "3" },
+		]);
+	});
 });
+
+function makeItem(overrides: Record<string, unknown>) {
+	return InventoryItemSchema.parse({
+		id: "00000000-0000-4000-8000-000000000060",
+		inventoryScopeId: "00000000-0000-4000-8000-000000000069",
+		name: "Test item",
+		type: "equipment",
+		category: "Equipment",
+		rarity: null,
+		description: null,
+		quantity: 1,
+		weight: null,
+		estimatedValue: null,
+		notes: null,
+		thumbnailUrl: null,
+		properties: {},
+		isEquipped: false,
+		statModifiers: null,
+		statOverrides: null,
+		catalogueItemId: null,
+		catalogueSourceKey: null,
+		catalogueRulesVersion: null,
+		createdAt: "2026-08-29T00:00:00.000Z",
+		updatedAt: "2026-08-29T00:00:00.000Z",
+		...overrides,
+	});
+}
