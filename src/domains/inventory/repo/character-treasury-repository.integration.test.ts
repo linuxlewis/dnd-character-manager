@@ -2,6 +2,7 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { testConcurrentPrecondition } from "../../../../tests/support/treasury-concurrency.js";
 import type { CurrencyBalance } from "../types/index.js";
 import {
 	CharacterTreasuryPreconditionError,
@@ -217,6 +218,8 @@ describe("character treasury persistence", () => {
 		const [treasuryCount] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
 		expect(Number(treasuryCount?.count ?? 0)).toBe(1);
 	});
+	it("serializes concurrent confirmations", () =>
+		createCharacter().then(({ characterId }) => testConcurrentPrecondition(characterId)));
 
 	it("keeps characters isolated and rejects invalid persisted balances", async () => {
 		const first = await createCharacter();
