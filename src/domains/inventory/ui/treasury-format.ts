@@ -1,15 +1,11 @@
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	CharacterTreasuryResponse,
-	SpendCharacterTreasuryPreviewResponse,
-	SpendCharacterTreasuryRequest,
-} from "../../../generated/api-client.generated.js";
-import { ApiClientError } from "../../../generated/api-client.generated.js";
+import type { TreasuryBalance, TreasuryDenomination } from "./treasury-types.js";
 
-export type TreasuryBalance = CharacterTreasuryResponse["treasury"]["balances"];
-export type TreasuryDenomination = SpendCharacterTreasuryRequest["amount"]["denomination"];
-export type AddTreasuryPreview = AddCharacterTreasuryPreviewResponse["preview"];
-export type SpendTreasuryPreview = SpendCharacterTreasuryPreviewResponse["preview"];
+export type {
+	TreasuryAddPreview as AddTreasuryPreview,
+	TreasuryBalance,
+	TreasuryDenomination,
+	TreasurySpendPreview as SpendTreasuryPreview,
+} from "./treasury-types.js";
 
 export const TREASURY_DENOMINATIONS = [
 	{ key: "pp", abbreviation: "PP", label: "Platinum pieces", color: "indigo" },
@@ -40,9 +36,8 @@ export function formatTreasuryBalance(balance: TreasuryBalance) {
 	).join(" · ");
 }
 
-export function getTreasuryErrorMessage(error: Error | null, fallback: string) {
-	if (!(error instanceof ApiClientError)) return fallback;
-	if (!isRecord(error.body)) return fallback;
+export function getTreasuryErrorMessage(error: unknown, fallback: string) {
+	if (!isRecord(error) || !isRecord(error.body)) return fallback;
 	if (typeof error.body.error === "string") return error.body.error;
 	if (isRecord(error.body.error) && typeof error.body.error.message === "string") {
 		return error.body.error.message;

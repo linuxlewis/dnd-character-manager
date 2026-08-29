@@ -1,15 +1,12 @@
 import { Alert, Box, Button, Group, Modal, NumberInput, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	AddCharacterTreasuryRequest,
-} from "../../../generated/api-client.generated.js";
 import {
 	getTreasuryErrorMessage,
 	TREASURY_DENOMINATIONS,
 	type TreasuryDenomination,
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
+import type { TreasuryAddPreview, TreasuryAddRequest } from "./treasury-types.js";
 
 export type TreasuryNumberDraft = "" | number;
 export type AddFundsValues = Record<TreasuryDenomination, TreasuryNumberDraft>;
@@ -31,15 +28,15 @@ export function TreasuryAddModal({
 }: {
 	opened: boolean;
 	initialValues?: AddFundsValues;
-	preview: AddCharacterTreasuryPreviewResponse | null;
-	previewRequest: AddCharacterTreasuryRequest | null;
+	preview: TreasuryAddPreview | null;
+	previewRequest: TreasuryAddRequest | null;
 	previewPending: boolean;
 	previewError: Error | null;
 	mutationError: Error | null;
 	confirmPending: boolean;
 	onClose: () => void;
-	onPreview: (request: AddCharacterTreasuryRequest) => void;
-	onConfirm: (request: AddCharacterTreasuryRequest) => void;
+	onPreview: (request: TreasuryAddRequest) => void;
+	onConfirm: (request: TreasuryAddRequest) => void;
 }) {
 	const form = useForm<AddFundsValues>({
 		mode: "controlled",
@@ -103,10 +100,11 @@ export function TreasuryAddModal({
 
 					{visiblePreview && (
 						<TreasuryPreview
-							confirmDisabled={confirmPending}
+							confirmDisabled={confirmPending || previewPending}
+							confirmLoading={confirmPending}
 							confirmLabel="Confirm add funds"
 							onConfirm={() => onConfirm(currentRequest)}
-							preview={visiblePreview.preview}
+							preview={visiblePreview}
 						/>
 					)}
 
@@ -143,7 +141,7 @@ export function validateAddFunds(values: AddFundsValues) {
 	return errors;
 }
 
-export function toAddTreasuryRequest(values: AddFundsValues): AddCharacterTreasuryRequest {
+export function toAddTreasuryRequest(values: AddFundsValues): TreasuryAddRequest {
 	return {
 		delta: {
 			cp: toNumber(values.cp),
@@ -166,7 +164,7 @@ function isValidDraft(values: AddFundsValues) {
 	);
 }
 
-function sameRequest(left: AddCharacterTreasuryRequest, right: AddCharacterTreasuryRequest) {
+function sameRequest(left: TreasuryAddRequest, right: TreasuryAddRequest) {
 	return (
 		left.delta.cp === right.delta.cp &&
 		left.delta.sp === right.delta.sp &&

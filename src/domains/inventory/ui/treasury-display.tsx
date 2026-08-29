@@ -1,16 +1,14 @@
 import { Badge, Button, Card, Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
-import type { CharacterTreasuryResponse } from "../../../generated/api-client.generated.js";
 import {
 	formatTreasuryAmount,
 	formatTreasuryGpValue,
 	TREASURY_DENOMINATIONS,
 } from "./treasury-format.js";
-
-type CharacterTreasury = CharacterTreasuryResponse["treasury"];
+import type { TreasuryData } from "./treasury-types.js";
 
 export interface TreasuryDisplayProps {
 	scopeLabel: string;
-	treasury: CharacterTreasury;
+	treasury: TreasuryData;
 	onAddFunds: () => void;
 	onSpendFunds: () => void;
 }

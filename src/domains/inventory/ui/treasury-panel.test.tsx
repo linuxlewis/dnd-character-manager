@@ -1,13 +1,13 @@
 import { MantineProvider } from "@mantine/core";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	AddCharacterTreasuryRequest,
-	SpendCharacterTreasuryPreviewResponse,
-	SpendCharacterTreasuryRequest,
-} from "../../../generated/api-client.generated.js";
 import { type TreasuryOperationState, TreasuryPanel } from "./treasury-panel.js";
+import type {
+	TreasuryAddPreview,
+	TreasuryAddRequest,
+	TreasurySpendPreview,
+	TreasurySpendRequest,
+} from "./treasury-types.js";
 
 describe("TreasuryPanel", () => {
 	it("isolates treasury loading and failure states", () => {
@@ -30,11 +30,8 @@ describe("TreasuryPanel", () => {
 	it("renders a loaded treasury independently from the operation state", () => {
 		const html = renderPanel({
 			data: {
-				treasury: {
-					characterId: "00000000-0000-4000-8000-000000000001",
-					balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
-					totalValue: { copper: 200, gp: 2 },
-				},
+				balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				totalValue: { copper: 200, gp: 2 },
 			},
 			isLoading: false,
 			error: null,
@@ -48,11 +45,8 @@ describe("TreasuryPanel", () => {
 
 function renderPanel(query: {
 	data?: {
-		treasury: {
-			characterId: string;
-			balances: { cp: number; sp: number; gp: number; pp: number };
-			totalValue: { copper: number; gp: number };
-		};
+		balances: { cp: number; sp: number; gp: number; pp: number };
+		totalValue: { copper: number; gp: number };
 	};
 	isLoading: boolean;
 	error: Error | null;
@@ -73,12 +67,10 @@ function toReadableText(html: string) {
 	return html.replaceAll("<!-- -->", "");
 }
 
-function addOperationState(): TreasuryOperationState<
-	AddCharacterTreasuryRequest,
-	AddCharacterTreasuryPreviewResponse
-> & {
-	onPreview: (request: AddCharacterTreasuryRequest) => void;
-	onConfirm: (request: AddCharacterTreasuryRequest, onSuccess: () => void) => void;
+function addOperationState(): TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
+	onPreview: (request: TreasuryAddRequest) => void;
+	onConfirm: (request: TreasuryAddRequest, onSuccess: () => void) => void;
+	onConsumePreview: () => void;
 	onReset: () => void;
 } {
 	return {
@@ -90,16 +82,18 @@ function addOperationState(): TreasuryOperationState<
 		mutationError: null,
 		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
+		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
 	};
 }
 
 function spendOperationState(): TreasuryOperationState<
-	SpendCharacterTreasuryRequest,
-	SpendCharacterTreasuryPreviewResponse
+	TreasurySpendRequest,
+	TreasurySpendPreview
 > & {
-	onPreview: (request: SpendCharacterTreasuryRequest) => void;
-	onConfirm: (request: SpendCharacterTreasuryRequest, onSuccess: () => void) => void;
+	onPreview: (request: TreasurySpendRequest) => void;
+	onConfirm: (request: TreasurySpendRequest, onSuccess: () => void) => void;
+	onConsumePreview: () => void;
 	onReset: () => void;
 } {
 	return {
@@ -111,6 +105,7 @@ function spendOperationState(): TreasuryOperationState<
 		mutationError: null,
 		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
+		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
 	};
 }

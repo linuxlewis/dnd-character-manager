@@ -1,8 +1,8 @@
 import { MantineProvider } from "@mantine/core";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import type { SpendCharacterTreasuryPreviewResponse } from "../../../generated/api-client.generated.js";
 import { TreasurySpendModal, validateSpendFunds } from "./treasury-spend-modal.js";
+import type { TreasurySpendPreview } from "./treasury-types.js";
 
 describe("TreasurySpendModal", () => {
 	it("rejects nonpositive spend amounts and missing denominations", () => {
@@ -38,21 +38,13 @@ describe("TreasurySpendModal", () => {
 	});
 
 	it("renders the server-returned change in the spend confirmation preview", () => {
-		const preview: SpendCharacterTreasuryPreviewResponse = {
-			treasury: {
-				characterId: "00000000-0000-4000-8000-000000000001",
-				balances: { cp: 5, sp: 4, gp: 3, pp: 1 },
-				totalValue: { copper: 1_345, gp: 13.45 },
-			},
-			preview: {
-				operation: "spend",
-				previous: { cp: 5, sp: 4, gp: 3, pp: 1 },
-				next: { cp: 5, sp: 9, gp: 2, pp: 1 },
-				delta: { cp: 0, sp: 5, gp: -1, pp: 0 },
-				totalValue: { copper: 1_295, gp: 12.95 },
-				canApply: true,
-				change: { cp: 0, sp: 5, gp: 0, pp: 0 },
-			},
+		const preview: TreasurySpendPreview = {
+			operation: "spend",
+			previous: { cp: 5, sp: 4, gp: 3, pp: 1 },
+			next: { cp: 5, sp: 9, gp: 2, pp: 1 },
+			totalValue: { copper: 1_295, gp: 12.95 },
+			canApply: true,
+			change: { cp: 0, sp: 5, gp: 0, pp: 0 },
 		};
 		const html = renderToString(
 			<MantineProvider>

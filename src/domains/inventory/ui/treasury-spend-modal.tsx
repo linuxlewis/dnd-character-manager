@@ -1,15 +1,12 @@
 import { Alert, Box, Button, Group, Modal, NumberInput, Select, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import type {
-	SpendCharacterTreasuryPreviewResponse,
-	SpendCharacterTreasuryRequest,
-} from "../../../generated/api-client.generated.js";
 import {
 	getTreasuryErrorMessage,
 	TREASURY_DENOMINATIONS,
 	type TreasuryDenomination,
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
+import type { TreasurySpendPreview, TreasurySpendRequest } from "./treasury-types.js";
 
 type NumberDraft = "" | number;
 
@@ -39,15 +36,15 @@ export function TreasurySpendModal({
 }: {
 	opened: boolean;
 	initialValues?: SpendFundsValues;
-	preview: SpendCharacterTreasuryPreviewResponse | null;
-	previewRequest: SpendCharacterTreasuryRequest | null;
+	preview: TreasurySpendPreview | null;
+	previewRequest: TreasurySpendRequest | null;
 	previewPending: boolean;
 	previewError: Error | null;
 	mutationError: Error | null;
 	confirmPending: boolean;
 	onClose: () => void;
-	onPreview: (request: SpendCharacterTreasuryRequest) => void;
-	onConfirm: (request: SpendCharacterTreasuryRequest) => void;
+	onPreview: (request: TreasurySpendRequest) => void;
+	onConfirm: (request: TreasurySpendRequest) => void;
 }) {
 	const form = useForm<SpendFundsValues>({
 		mode: "controlled",
@@ -117,11 +114,12 @@ export function TreasurySpendModal({
 
 					{visiblePreview && currentRequest && (
 						<TreasuryPreview
-							confirmDisabled={confirmPending}
+							confirmDisabled={confirmPending || previewPending}
+							confirmLoading={confirmPending}
 							confirmLabel="Confirm spend"
 							onConfirm={() => onConfirm(currentRequest)}
-							preview={visiblePreview.preview}
-							returnedChange={visiblePreview.preview.change}
+							preview={visiblePreview}
+							returnedChange={visiblePreview.change}
 						/>
 					)}
 
@@ -154,14 +152,12 @@ export function validateSpendFunds(values: SpendFundsValues) {
 	};
 }
 
-export function toSpendTreasuryRequest(
-	values: SpendFundsValues,
-): SpendCharacterTreasuryRequest | null {
+export function toSpendTreasuryRequest(values: SpendFundsValues): TreasurySpendRequest | null {
 	if (values.denomination === "" || typeof values.amount !== "number") return null;
 	return { amount: { denomination: values.denomination, amount: values.amount } };
 }
 
-function sameRequest(left: SpendCharacterTreasuryRequest, right: SpendCharacterTreasuryRequest) {
+function sameRequest(left: TreasurySpendRequest, right: TreasurySpendRequest) {
 	return (
 		left.amount.denomination === right.amount.denomination &&
 		left.amount.amount === right.amount.amount

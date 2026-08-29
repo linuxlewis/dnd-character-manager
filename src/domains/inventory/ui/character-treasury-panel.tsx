@@ -1,14 +1,21 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type {
-	AddCharacterTreasuryRequest,
+	AddCharacterTreasuryPreviewResponse,
 	AddCharacterTreasuryResponse,
 	CharacterTreasuryResponse,
-	SpendCharacterTreasuryRequest,
+	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryResponse,
 } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueries, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { TreasuryPanel } from "./treasury-panel.js";
+import type {
+	TreasuryAddPreview,
+	TreasuryAddRequest,
+	TreasuryData,
+	TreasurySpendPreview,
+	TreasurySpendRequest,
+} from "./treasury-types.js";
 
 export function CharacterTreasuryPanel({
 	characterId,
@@ -23,23 +30,20 @@ export function CharacterTreasuryPanel({
 	const spendPreviewMutation = useMutation(apiMutations.previewSpendCharacterTreasury());
 	const addMutation = useMutation(apiMutations.addCharacterTreasury());
 	const spendMutation = useMutation(apiMutations.spendCharacterTreasury());
-	const [addPreviewRequest, setAddPreviewRequest] = useState<AddCharacterTreasuryRequest | null>(
-		null,
-	);
-	const [spendPreviewRequest, setSpendPreviewRequest] =
-		useState<SpendCharacterTreasuryRequest | null>(null);
+	const [addPreviewRequest, setAddPreviewRequest] = useState<TreasuryAddRequest | null>(null);
+	const [spendPreviewRequest, setSpendPreviewRequest] = useState<TreasurySpendRequest | null>(null);
 
 	function cacheTreasury(response: AddCharacterTreasuryResponse | SpendCharacterTreasuryResponse) {
 		updateTreasuryQueryCache(queryClient, characterId, response);
 	}
 
-	function previewAdd(request: AddCharacterTreasuryRequest) {
+	function previewAdd(request: TreasuryAddRequest) {
 		setAddPreviewRequest(request);
 		addPreviewMutation.reset();
 		addPreviewMutation.mutate({ params: { characterId }, body: request });
 	}
 
-	function previewSpend(request: SpendCharacterTreasuryRequest) {
+	function previewSpend(request: TreasurySpendRequest) {
 		setSpendPreviewRequest(request);
 		spendPreviewMutation.reset();
 		spendPreviewMutation.mutate({ params: { characterId }, body: request });
@@ -58,20 +62,28 @@ export function CharacterTreasuryPanel({
 								cacheTreasury(response);
 								onSuccess();
 							},
+							onSettled: () => {
+								void reconcileTreasuryQuery(queryClient, characterId);
+							},
 						},
 					),
+				onConsumePreview: () =>
+					consumeTreasuryPreview(setAddPreviewRequest, () => addPreviewMutation.reset()),
 				onPreview: previewAdd,
 				onReset: () => {
-					setAddPreviewRequest(null);
-					addPreviewMutation.reset();
+					consumeTreasuryPreview(setAddPreviewRequest, () => addPreviewMutation.reset());
 					addMutation.reset();
 				},
-				preview: addPreviewMutation.data ?? null,
+				preview: toAddTreasuryPreview(addPreviewMutation.data),
 				previewError: addPreviewMutation.error,
 				previewPending: addPreviewMutation.isPending,
 				previewRequest: addPreviewRequest,
 			}}
-			query={{ data: query.data, error: query.error, isLoading: query.isLoading }}
+			query={{
+				data: query.data ? toTreasuryData(query.data) : undefined,
+				error: query.error,
+				isLoading: query.isLoading,
+			}}
 			scopeLabel={scopeLabel}
 			spend={{
 				mutationError: spendMutation.error,
@@ -84,15 +96,19 @@ export function CharacterTreasuryPanel({
 								cacheTreasury(response);
 								onSuccess();
 							},
+							onSettled: () => {
+								void reconcileTreasuryQuery(queryClient, characterId);
+							},
 						},
 					),
+				onConsumePreview: () =>
+					consumeTreasuryPreview(setSpendPreviewRequest, () => spendPreviewMutation.reset()),
 				onPreview: previewSpend,
 				onReset: () => {
-					setSpendPreviewRequest(null);
-					spendPreviewMutation.reset();
+					consumeTreasuryPreview(setSpendPreviewRequest, () => spendPreviewMutation.reset());
 					spendMutation.reset();
 				},
-				preview: spendPreviewMutation.data ?? null,
+				preview: toSpendTreasuryPreview(spendPreviewMutation.data),
 				previewError: spendPreviewMutation.error,
 				previewPending: spendPreviewMutation.isPending,
 				previewRequest: spendPreviewRequest,
@@ -110,4 +126,37 @@ export function updateTreasuryQueryCache(
 		apiQueryKeys.getCharacterTreasury({ characterId }),
 		{ treasury: response.treasury },
 	);
+}
+
+export function toTreasuryData(response: CharacterTreasuryResponse): TreasuryData {
+	return {
+		balances: response.treasury.balances,
+		totalValue: response.treasury.totalValue,
+	};
+}
+
+export function toAddTreasuryPreview(
+	response: AddCharacterTreasuryPreviewResponse | undefined,
+): TreasuryAddPreview | null {
+	return response?.preview ?? null;
+}
+
+export function toSpendTreasuryPreview(
+	response: SpendCharacterTreasuryPreviewResponse | undefined,
+): TreasurySpendPreview | null {
+	return response?.preview ?? null;
+}
+
+export function consumeTreasuryPreview<Request>(
+	setPreviewRequest: (request: Request | null) => void,
+	resetPreview: () => void,
+) {
+	setPreviewRequest(null);
+	resetPreview();
+}
+
+export function reconcileTreasuryQuery(queryClient: QueryClient, characterId: string) {
+	return queryClient.invalidateQueries({
+		queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
+	});
 }

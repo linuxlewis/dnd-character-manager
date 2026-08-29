@@ -1,19 +1,19 @@
 import { Alert, Paper, Stack, Text } from "@mantine/core";
 import { useState } from "react";
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	AddCharacterTreasuryRequest,
-	CharacterTreasuryResponse,
-	SpendCharacterTreasuryPreviewResponse,
-	SpendCharacterTreasuryRequest,
-} from "../../../generated/api-client.generated.js";
 import { TreasuryAddModal } from "./treasury-add-modal.js";
 import { TreasuryDisplay } from "./treasury-display.js";
 import { getTreasuryErrorMessage } from "./treasury-format.js";
 import { TreasurySpendModal } from "./treasury-spend-modal.js";
+import type {
+	TreasuryAddPreview,
+	TreasuryAddRequest,
+	TreasuryData,
+	TreasurySpendPreview,
+	TreasurySpendRequest,
+} from "./treasury-types.js";
 
-interface TreasuryQueryState {
-	data?: CharacterTreasuryResponse;
+export interface TreasuryQueryState {
+	data?: TreasuryData;
 	isLoading: boolean;
 	error: Error | null;
 }
@@ -30,17 +30,16 @@ export interface TreasuryOperationState<Request, PreviewResponse> {
 export interface TreasuryPanelProps {
 	scopeLabel: string;
 	query: TreasuryQueryState;
-	add: TreasuryOperationState<AddCharacterTreasuryRequest, AddCharacterTreasuryPreviewResponse> & {
-		onPreview: (request: AddCharacterTreasuryRequest) => void;
-		onConfirm: (request: AddCharacterTreasuryRequest, onSuccess: () => void) => void;
+	add: TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
+		onPreview: (request: TreasuryAddRequest) => void;
+		onConfirm: (request: TreasuryAddRequest, onSuccess: () => void) => void;
+		onConsumePreview: () => void;
 		onReset: () => void;
 	};
-	spend: TreasuryOperationState<
-		SpendCharacterTreasuryRequest,
-		SpendCharacterTreasuryPreviewResponse
-	> & {
-		onPreview: (request: SpendCharacterTreasuryRequest) => void;
-		onConfirm: (request: SpendCharacterTreasuryRequest, onSuccess: () => void) => void;
+	spend: TreasuryOperationState<TreasurySpendRequest, TreasurySpendPreview> & {
+		onPreview: (request: TreasurySpendRequest) => void;
+		onConfirm: (request: TreasurySpendRequest, onSuccess: () => void) => void;
+		onConsumePreview: () => void;
 		onReset: () => void;
 	};
 }
@@ -50,7 +49,7 @@ type ActiveDialog = "add" | "spend" | null;
 export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelProps) {
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
-	const treasury = query.data?.treasury;
+	const treasury = query.data;
 
 	function openDialog(dialog: Exclude<ActiveDialog, null>) {
 		if (dialog === "add") add.onReset();
@@ -62,6 +61,10 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 	function closeDialog() {
 		if (activeDialog === "add" && (add.previewPending || add.mutationPending)) return;
 		if (activeDialog === "spend" && (spend.previewPending || spend.mutationPending)) return;
+		setActiveDialog(null);
+	}
+
+	function completeDialog() {
 		setActiveDialog(null);
 	}
 
@@ -91,7 +94,10 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				confirmPending={add.mutationPending}
 				mutationError={add.mutationError}
 				onClose={closeDialog}
-				onConfirm={(request) => add.onConfirm(request, closeDialog)}
+				onConfirm={(request) => {
+					add.onConsumePreview();
+					add.onConfirm(request, completeDialog);
+				}}
 				onPreview={add.onPreview}
 				opened={activeDialog === "add"}
 				preview={add.preview}
@@ -104,7 +110,10 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				confirmPending={spend.mutationPending}
 				mutationError={spend.mutationError}
 				onClose={closeDialog}
-				onConfirm={(request) => spend.onConfirm(request, closeDialog)}
+				onConfirm={(request) => {
+					spend.onConsumePreview();
+					spend.onConfirm(request, completeDialog);
+				}}
 				onPreview={spend.onPreview}
 				opened={activeDialog === "spend"}
 				preview={spend.preview}

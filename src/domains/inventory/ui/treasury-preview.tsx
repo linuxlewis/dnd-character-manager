@@ -1,31 +1,25 @@
 import { Alert, Button, Group, Paper, SimpleGrid, Stack, Text } from "@mantine/core";
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	SpendCharacterTreasuryPreviewResponse,
-} from "../../../generated/api-client.generated.js";
 import {
 	formatTreasuryAmount,
 	formatTreasuryBalance,
 	formatTreasuryGpValue,
 	TREASURY_DENOMINATIONS,
-	type TreasuryBalance,
 } from "./treasury-format.js";
-
-type TreasuryPreview =
-	| AddCharacterTreasuryPreviewResponse["preview"]
-	| SpendCharacterTreasuryPreviewResponse["preview"];
+import type { TreasuryBalance, TreasuryPreview as TreasuryPreviewData } from "./treasury-types.js";
 
 export function TreasuryPreview({
 	preview,
 	returnedChange,
 	onConfirm,
 	confirmDisabled = false,
+	confirmLoading = false,
 	confirmLabel,
 }: {
-	preview: TreasuryPreview;
+	preview: TreasuryPreviewData;
 	returnedChange?: TreasuryBalance;
 	onConfirm?: () => void;
 	confirmDisabled?: boolean;
+	confirmLoading?: boolean;
 	confirmLabel?: string;
 }) {
 	return (
@@ -61,7 +55,12 @@ export function TreasuryPreview({
 
 			{onConfirm && (
 				<Group justify="flex-end">
-					<Button disabled={confirmDisabled || !preview.canApply} onClick={onConfirm} type="button">
+					<Button
+						disabled={confirmDisabled || !preview.canApply}
+						loading={confirmLoading}
+						onClick={onConfirm}
+						type="button"
+					>
 						{confirmLabel}
 					</Button>
 				</Group>

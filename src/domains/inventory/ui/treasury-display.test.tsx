@@ -43,7 +43,6 @@ describe("TreasuryDisplay", () => {
 
 function treasury(balances: { cp: number; sp: number; gp: number; pp: number }) {
 	return {
-		characterId: "00000000-0000-4000-8000-000000000001",
 		balances,
 		totalValue: {
 			copper: balances.cp + balances.sp * 10 + balances.gp * 100 + balances.pp * 1_000,
