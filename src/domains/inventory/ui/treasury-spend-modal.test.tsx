@@ -118,4 +118,26 @@ describe("TreasurySpendModal", () => {
 		expect(html).toContain("Retry treasury reconciliation");
 		expect(html).toContain("Preview spend");
 	});
+
+	it("locks denomination and amount while confirmation or reconciliation is pending", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasurySpendModal
+					confirmPending
+					initialValues={{ amount: 2, denomination: "gp" }}
+					mutationError={null}
+					onClose={vi.fn()}
+					onConfirm={vi.fn()}
+					onPreview={vi.fn()}
+					opened
+					preview={null}
+					previewError={null}
+					previewPending={false}
+					previewRequest={null}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(3);
+	});
 });

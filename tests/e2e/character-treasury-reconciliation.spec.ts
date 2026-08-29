@@ -69,11 +69,12 @@ test("reconciles committed add and spend operations after lost confirmation resp
 	await addGate.started;
 	await expect(addDialog.getByRole("button", { name: "Preview add" })).toBeDisabled();
 	addGate.release();
-	await expect(addDialog.getByRole("button", { name: "Preview add" })).toBeEnabled();
+	await expect(addDialog).toBeHidden();
 	await expectBalances(page, "6.00 GP");
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeVisible();
-	await expect(addPreviews).toBe(5);
+	await expect(addPreviews).toBe(2);
+	await page.getByRole("button", { name: "Add funds", exact: true }).click();
+	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
+	await expect(addDialog.getByLabel("Gold pieces (GP)")).toHaveValue("");
 	await addDialog.getByRole("button", { name: "Cancel" }).click();
 
 	const spendDialog = await previewSpend(page, 2);
@@ -84,11 +85,12 @@ test("reconciles committed add and spend operations after lost confirmation resp
 	await spendGate.started;
 	await expect(spendDialog.getByRole("button", { name: "Preview spend" })).toBeDisabled();
 	spendGate.release();
-	await expect(spendDialog.getByRole("button", { name: "Preview spend" })).toBeEnabled();
+	await expect(spendDialog).toBeHidden();
 	await expectBalances(page, "4.00 GP");
-	await spendDialog.getByRole("button", { name: "Preview spend" }).click();
-	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeVisible();
-	await expect(spendPreviews).toBe(3);
+	await expect(spendPreviews).toBe(1);
+	await page.getByRole("button", { name: "Spend", exact: true }).click();
+	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeHidden();
+	await expect(spendDialog.getByLabel("Amount")).toHaveValue("");
 	await spendDialog.getByRole("button", { name: "Cancel" }).click();
 
 	expect(addMutations).toBe(2);

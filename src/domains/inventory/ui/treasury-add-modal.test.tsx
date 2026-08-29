@@ -82,4 +82,26 @@ describe("TreasuryAddModal", () => {
 		expect(html).toContain("Retry treasury reconciliation");
 		expect(html).toContain("Preview add");
 	});
+
+	it("locks every denomination while confirmation or reconciliation is pending", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasuryAddModal
+					confirmPending
+					initialValues={{ cp: 1, sp: 2, gp: 3, pp: 4 }}
+					mutationError={null}
+					onClose={vi.fn()}
+					onConfirm={vi.fn()}
+					onPreview={vi.fn()}
+					opened
+					preview={null}
+					previewError={null}
+					previewPending={false}
+					previewRequest={null}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(4);
+	});
 });

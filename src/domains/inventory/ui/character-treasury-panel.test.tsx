@@ -6,8 +6,6 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import {
 	CharacterTreasuryPanel,
 	consumeTreasuryPreview,
-	reconcileAndRelease,
-	reconcileTreasuryQuery,
 	toSpendTreasuryPreview,
 	toTreasuryData,
 	updateTreasuryQueryCache,
@@ -92,67 +90,11 @@ describe("CharacterTreasuryPanel", () => {
 		expect(toSpendTreasuryPreview(spendResponse)).toEqual(spendResponse.preview);
 	});
 
-	it("consumes a preview and requests treasury reconciliation", async () => {
+	it("consumes a preview", () => {
 		const setPreviewRequest = vi.fn();
 		const resetPreview = vi.fn();
 		consumeTreasuryPreview(setPreviewRequest, resetPreview);
 		expect(setPreviewRequest).toHaveBeenCalledWith(null);
 		expect(resetPreview).toHaveBeenCalledOnce();
-
-		const characterId = "00000000-0000-4000-8000-000000000001";
-		const queryClient = new QueryClient();
-		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
-		await reconcileTreasuryQuery(queryClient, characterId);
-		expect(invalidateQueries).toHaveBeenCalledWith(
-			{
-				queryKey: apiQueryKeys.getCharacterTreasury({ characterId }),
-			},
-			{ throwOnError: true },
-		);
-	});
-
-	it("does not resolve reconciliation until the treasury refetch settles", async () => {
-		const characterId = "00000000-0000-4000-8000-000000000001";
-		const queryClient = new QueryClient();
-		let resolveRefetch!: () => void;
-		const refetch = new Promise<void>((resolve) => {
-			resolveRefetch = resolve;
-		});
-		vi.spyOn(queryClient, "invalidateQueries").mockReturnValue(refetch);
-
-		let settled = false;
-		const reconciliation = reconcileTreasuryQuery(queryClient, characterId).then(() => {
-			settled = true;
-		});
-		await Promise.resolve();
-		expect(settled).toBe(false);
-
-		resolveRefetch();
-		await reconciliation;
-		expect(settled).toBe(true);
-	});
-
-	it("keeps failed reconciliation recoverable without invoking completion", async () => {
-		const characterId = "00000000-0000-4000-8000-000000000001";
-		const queryClient = new QueryClient();
-		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
-		invalidateQueries.mockRejectedValueOnce(new Error("treasury GET failed"));
-		invalidateQueries.mockResolvedValueOnce();
-		const setState = vi.fn();
-		const onComplete = vi.fn();
-		const completionRef = { current: onComplete };
-
-		await reconcileAndRelease(queryClient, characterId, setState, completionRef);
-		expect(setState).toHaveBeenLastCalledWith({
-			error: expect.objectContaining({ message: "treasury GET failed" }),
-			pending: false,
-		});
-		expect(onComplete).not.toHaveBeenCalled();
-		expect(completionRef.current).toBe(onComplete);
-
-		await reconcileAndRelease(queryClient, characterId, setState, completionRef);
-		expect(setState).toHaveBeenLastCalledWith({ error: null, pending: false });
-		expect(onComplete).toHaveBeenCalledOnce();
-		expect(completionRef.current).toBeNull();
 	});
 });

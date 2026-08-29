@@ -25,6 +25,7 @@ export function TreasuryAddModal({
 	actionsDisabled = false,
 	reconciliationPending = false,
 	reconciliationError = null,
+	stalePreviewError = null,
 	onRetryReconciliation = () => {},
 	onClose,
 	onPreview,
@@ -41,6 +42,7 @@ export function TreasuryAddModal({
 	actionsDisabled?: boolean;
 	reconciliationPending?: boolean;
 	reconciliationError?: Error | null;
+	stalePreviewError?: Error | null;
 	onRetryReconciliation?: () => void;
 	onClose: () => void;
 	onPreview: (request: TreasuryAddRequest) => void;
@@ -59,6 +61,7 @@ export function TreasuryAddModal({
 		previewRequest !== null &&
 		sameRequest(currentRequest, previewRequest);
 	const visiblePreview = previewIsCurrent ? preview : null;
+	const formDisabled = actionsDisabled || previewPending || confirmPending;
 
 	return (
 		<Modal
@@ -87,6 +90,7 @@ export function TreasuryAddModal({
 							allowDecimal={false}
 							allowNegative={false}
 							data-autofocus={index === 0 || undefined}
+							disabled={formDisabled}
 							hideControls
 							key={key}
 							label={`${label} (${key.toUpperCase()})`}
@@ -100,6 +104,11 @@ export function TreasuryAddModal({
 							{getTreasuryErrorMessage(previewError, "The add preview could not be loaded.")}
 						</Alert>
 					)}
+					{stalePreviewError && (
+						<Alert color="orange" title="Treasury changed since preview" variant="light">
+							{stalePreviewError.message}
+						</Alert>
+					)}
 					{mutationError && (
 						<Alert color="red" title="Add funds failed" variant="light">
 							{getTreasuryErrorMessage(mutationError, "The funds could not be added.")}
@@ -108,7 +117,7 @@ export function TreasuryAddModal({
 
 					{visiblePreview && (
 						<TreasuryPreview
-							confirmDisabled={actionsDisabled || confirmPending || previewPending}
+							confirmDisabled={formDisabled}
 							confirmLoading={confirmPending}
 							confirmLabel="Confirm add funds"
 							onConfirm={() => onConfirm(currentRequest, visiblePreview)}
@@ -135,19 +144,10 @@ export function TreasuryAddModal({
 					)}
 
 					<Group justify="flex-end">
-						<Button
-							disabled={actionsDisabled || previewPending || confirmPending}
-							onClick={onClose}
-							type="button"
-							variant="default"
-						>
+						<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button
-							disabled={actionsDisabled || previewPending || confirmPending}
-							loading={previewPending}
-							type="submit"
-						>
+						<Button disabled={formDisabled} loading={previewPending} type="submit">
 							{visiblePreview ? "Preview again" : "Preview add"}
 						</Button>
 					</Group>

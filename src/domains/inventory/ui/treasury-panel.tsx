@@ -27,6 +27,7 @@ export interface TreasuryOperationState<Request, PreviewResponse> {
 	mutationError: Error | null;
 	reconciliationPending: boolean;
 	reconciliationError: Error | null;
+	stalePreviewError: Error | null;
 }
 
 export interface TreasuryPanelProps {
@@ -133,6 +134,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				previewRequest={add.previewRequest}
 				reconciliationError={add.reconciliationError}
 				reconciliationPending={add.reconciliationPending}
+				stalePreviewError={add.stalePreviewError}
 			/>
 			<TreasurySpendModal
 				key={`spend-${dialogVersion}`}
@@ -153,6 +155,7 @@ export function TreasuryPanel({ scopeLabel, query, add, spend }: TreasuryPanelPr
 				previewRequest={spend.previewRequest}
 				reconciliationError={spend.reconciliationError}
 				reconciliationPending={spend.reconciliationPending}
+				stalePreviewError={spend.stalePreviewError}
 			/>
 		</Stack>
 	);

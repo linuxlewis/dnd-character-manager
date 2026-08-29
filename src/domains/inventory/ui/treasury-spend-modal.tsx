@@ -33,6 +33,7 @@ export function TreasurySpendModal({
 	actionsDisabled = false,
 	reconciliationPending = false,
 	reconciliationError = null,
+	stalePreviewError = null,
 	onRetryReconciliation = () => {},
 	onClose,
 	onPreview,
@@ -49,6 +50,7 @@ export function TreasurySpendModal({
 	actionsDisabled?: boolean;
 	reconciliationPending?: boolean;
 	reconciliationError?: Error | null;
+	stalePreviewError?: Error | null;
 	onRetryReconciliation?: () => void;
 	onClose: () => void;
 	onPreview: (request: TreasurySpendRequest) => void;
@@ -66,6 +68,7 @@ export function TreasurySpendModal({
 		previewRequest !== null &&
 		sameRequest(currentRequest, previewRequest);
 	const visiblePreview = previewIsCurrent ? preview : null;
+	const formDisabled = actionsDisabled || previewPending || confirmPending;
 
 	return (
 		<Modal
@@ -94,6 +97,7 @@ export function TreasurySpendModal({
 					<Select
 						{...form.getInputProps("denomination")}
 						data={denominationOptions}
+						disabled={formDisabled}
 						label="Denomination"
 						withAsterisk
 					/>
@@ -102,6 +106,7 @@ export function TreasurySpendModal({
 						allowDecimal={false}
 						allowNegative={false}
 						data-autofocus
+						disabled={formDisabled}
 						hideControls
 						label="Amount"
 						min={1}
@@ -114,6 +119,11 @@ export function TreasurySpendModal({
 							{getTreasuryErrorMessage(previewError, "The spend preview could not be loaded.")}
 						</Alert>
 					)}
+					{stalePreviewError && (
+						<Alert color="orange" title="Treasury changed since preview" variant="light">
+							{stalePreviewError.message}
+						</Alert>
+					)}
 					{mutationError && (
 						<Alert color="red" title="Spend funds failed" variant="light">
 							{getTreasuryErrorMessage(mutationError, "The funds could not be spent.")}
@@ -122,7 +132,7 @@ export function TreasurySpendModal({
 
 					{visiblePreview && currentRequest && (
 						<TreasuryPreview
-							confirmDisabled={actionsDisabled || confirmPending || previewPending}
+							confirmDisabled={formDisabled}
 							confirmLoading={confirmPending}
 							confirmLabel="Confirm spend"
 							onConfirm={() => onConfirm(currentRequest, visiblePreview)}
@@ -150,19 +160,10 @@ export function TreasurySpendModal({
 					)}
 
 					<Group justify="flex-end">
-						<Button
-							disabled={actionsDisabled || previewPending || confirmPending}
-							onClick={onClose}
-							type="button"
-							variant="default"
-						>
+						<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button
-							disabled={actionsDisabled || previewPending || confirmPending}
-							loading={previewPending}
-							type="submit"
-						>
+						<Button disabled={formDisabled} loading={previewPending} type="submit">
 							{visiblePreview ? "Preview again" : "Preview spend"}
 						</Button>
 					</Group>
