@@ -36,7 +36,16 @@ export interface CatalogueItemRepository {
 	findLatestAudit(): Promise<CatalogueItemSeedAudit | null>;
 }
 
-export function createCatalogueItemRepository(): CatalogueItemRepository {
+type CatalogueItemTransaction = Parameters<
+	Parameters<ReturnType<typeof getDb>["transaction"]>[0]
+>[0];
+type CatalogueItemDatabase = ReturnType<typeof getDb> | CatalogueItemTransaction;
+
+export function createCatalogueItemRepository(
+	database?: CatalogueItemDatabase,
+): CatalogueItemRepository {
+	const resolveDatabase = () => database ?? getDb();
+
 	return {
 		async upsertItems(items, audit) {
 			const parsedItems = z.array(CatalogueItemSeedSchema).parse(items);
@@ -57,8 +66,7 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 			) {
 				throw new Error("Catalogue item audit provenance must match every replacement item.");
 			}
-			const db = getDb();
-			await db.transaction(async (tx) => {
+			await resolveDatabase().transaction(async (tx) => {
 				if (parsedItems.length > 0) {
 					await tx
 						.insert(catalogueItemsTable)
@@ -127,19 +135,22 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 							: undefined,
 					)
 				: undefined;
-			const [row] = await getDb().select({ value: count() }).from(catalogueItemsTable).where(where);
+			const [row] = await resolveDatabase()
+				.select({ value: count() })
+				.from(catalogueItemsTable)
+				.where(where);
 			return Number(row?.value ?? 0);
 		},
 
 		async searchItems(input) {
 			const where = itemSearchCondition(input);
-			const rows = await getDb()
+			const rows = await resolveDatabase()
 				.select(itemColumns())
 				.from(catalogueItemsTable)
 				.where(where)
 				.orderBy(asc(catalogueItemsTable.itemName), asc(catalogueItemsTable.sourceKey))
 				.limit(input.limit);
-			const [totalRow] = await getDb()
+			const [totalRow] = await resolveDatabase()
 				.select({ value: count() })
 				.from(catalogueItemsTable)
 				.where(where);
@@ -151,7 +162,7 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 
 		async findItem(id) {
 			const parsedId = CatalogueItemIdSchema.parse(id);
-			const [row] = await getDb()
+			const [row] = await resolveDatabase()
 				.select(itemColumns())
 				.from(catalogueItemsTable)
 				.where(eq(catalogueItemsTable.id, parsedId))
@@ -160,7 +171,7 @@ export function createCatalogueItemRepository(): CatalogueItemRepository {
 		},
 
 		async findLatestAudit() {
-			const [row] = await getDb()
+			const [row] = await resolveDatabase()
 				.select({
 					source: catalogueItemSeedAuditsTable.source,
 					sourceRevision: catalogueItemSeedAuditsTable.sourceRevision,

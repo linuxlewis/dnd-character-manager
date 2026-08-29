@@ -18,10 +18,11 @@ The local SRD 2024 catalogue uses Foundry `dnd5e` revision
 - The importer stores source revision, path, key, URL, rules version, per-record license,
   deterministic seed metadata, and raw YAML payload after parsing.
 
-The `equipment24` pack is the pack-level 2024 projection, but a small number of copied pack
-records retain `2014` in their embedded Foundry source metadata. Item rows preserve that per-record
-rules version; audit, replacement, and readiness scope use the source revision, capability, and pack
-identity so the complete pinned pack remains one `627`-record projection.
+The `equipment24` pack is one complete source/capability/pack projection at a source revision. A
+small number of copied pack records retain `2014` in their embedded Foundry source metadata, so
+item rows preserve per-record rules versions. The current pin contains `623` `2024` records and
+`4` legitimate `2014` records; audit, replacement, and readiness scope use the source revision,
+capability, and pack identity for the complete `627`-record projection.
 
 ## Staging
 
@@ -40,8 +41,9 @@ pnpm seed all
 ```
 
 The item seed fails before writing catalogue rows when any source file is rejected. Re-running the
-same pinned seed replaces the complete source/capability/pack/rules-version projection, removing
-rows absent from a later pinned snapshot, and does not create duplicates. The enforced baseline is
+same pinned seed replaces the complete source/capability/pack projection at that source revision,
+removing rows absent from a later pinned snapshot, and does not create duplicates. Per-record rules
+versions remain retained within that projection. The enforced baseline is
 owned by `src/domains/catalogue/config/catalogue-item-audit.ts`; a pin change is not ready until a
 new seed passes that gate. Its current immutable-pin minimums are processed `627`, accepted `627`,
 weapons `82`, armor `32`, adventuring gear `161`, consumables `57`, potions `30`, scrolls `11`, and
