@@ -37,8 +37,8 @@ describe("item presentation", () => {
 					baseItem: "longsword",
 					itemType: "martialM",
 					damage: {
-						base: { number: 1, denomination: "d8", types: ["slashing"] },
-						versatile: { number: 1, denomination: "d10", types: ["slashing"] },
+						base: { number: 1, denomination: 8, types: ["slashing"] },
+						versatile: { number: 1, denomination: 10, types: ["slashing"] },
 					},
 					armor: { value: 16, dex: 2 },
 				},
@@ -46,9 +46,12 @@ describe("item presentation", () => {
 		});
 
 		expect(getItemStatEntries(item)).toEqual([
-			{ label: "Damage", value: "1d8 slashing (versatile 1d10 slashing)" },
+			{ label: "Damage", value: "1d8 slashing (versatile 1d10)" },
 			{ label: "AC", value: "16 + Dex (max 2)" },
 		]);
+		const renderedStats = JSON.stringify(getItemStatEntries(item));
+		expect(renderedStats).not.toContain("martialM");
+		expect(renderedStats).not.toContain("denomination");
 	});
 
 	it("keeps simple displayable stats while omitting opaque nested values", () => {

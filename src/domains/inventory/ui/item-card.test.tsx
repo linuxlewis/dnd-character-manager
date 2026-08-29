@@ -43,7 +43,10 @@ function item() {
 			stats: {
 				baseItem: "longsword",
 				itemType: "martialM",
-				damage: { base: { number: 1, denomination: "d8", types: ["slashing"] } },
+				damage: {
+					base: { number: 1, denomination: 8, types: ["slashing"] },
+					versatile: { number: 1, denomination: 10, types: ["slashing"] },
+				},
 			},
 		},
 		isEquipped: false,

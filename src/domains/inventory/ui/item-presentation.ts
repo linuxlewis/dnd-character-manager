@@ -132,7 +132,9 @@ function formatDamageStat(value: JsonValue | undefined) {
 
 	const base = formatDamagePart(value.base ?? value);
 	if (!base) return null;
-	const versatile = formatDamagePart(value.versatile);
+	const versatile = isRecord(value.versatile)
+		? (formatDice(value.versatile) ?? formatDamagePart(value.versatile))
+		: formatDamagePart(value.versatile);
 	return versatile && versatile !== base ? `${base} (versatile ${versatile})` : base;
 }
 
@@ -156,7 +158,9 @@ function formatDice(value: Record<string, JsonValue>) {
 		(typeof number === "string" || typeof number === "number") &&
 		(typeof denomination === "string" || typeof denomination === "number")
 	) {
-		return `${number}${denomination}`;
+		const suffix = String(denomination).trim();
+		if (!suffix) return null;
+		return `${number}${suffix.toLowerCase().startsWith("d") ? `d${suffix.slice(1)}` : `d${suffix}`}`;
 	}
 	return null;
 }
