@@ -1,8 +1,92 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
 	<title id="title">D&amp;D Character Manager</title>
-	<desc id="desc">A geometric app icon for the D&amp;D Character Manager.</desc>
-	<rect width="512" height="512" rx="112" fill="#111827" />
-	<path d="M256 96 400 352H112L256 96Z" fill="#38bdf8" />
-	<path d="M256 184 335 324H177L256 184Z" fill="#f8fafc" />
-	<circle cx="256" cy="324" r="42" fill="#22c55e" />
+	<desc id="desc">A flaming golden d20 die over a dark bloodstone background.</desc>
+	<defs>
+		<linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#3d0d18" />
+			<stop offset="0.55" stop-color="#200710" />
+			<stop offset="1" stop-color="#0d0307" />
+		</linearGradient>
+		<radialGradient id="halo" cx="0.5" cy="0.42" r="0.72">
+			<stop offset="0" stop-color="#8f1728" stop-opacity="0.9" />
+			<stop offset="0.48" stop-color="#4c0c1a" stop-opacity="0.52" />
+			<stop offset="1" stop-color="#12050a" stop-opacity="0" />
+		</radialGradient>
+		<linearGradient id="gold" x1="0.18" y1="0.08" x2="0.82" y2="0.92">
+			<stop offset="0" stop-color="#ffe082" />
+			<stop offset="0.45" stop-color="#fbbf24" />
+			<stop offset="0.82" stop-color="#d97706" />
+			<stop offset="1" stop-color="#92400e" />
+		</linearGradient>
+		<linearGradient id="goldLight" x1="0.2" y1="0" x2="0.8" y2="1">
+			<stop offset="0" stop-color="#fff7cf" />
+			<stop offset="0.55" stop-color="#fde68a" />
+			<stop offset="1" stop-color="#fbbf24" />
+		</linearGradient>
+		<linearGradient id="goldMid" x1="0.18" y1="0.08" x2="0.82" y2="0.92">
+			<stop offset="0" stop-color="#fde68a" />
+			<stop offset="0.55" stop-color="#f59e0b" />
+			<stop offset="1" stop-color="#b45309" />
+		</linearGradient>
+		<linearGradient id="goldLow" x1="0.2" y1="0" x2="0.8" y2="1">
+			<stop offset="0" stop-color="#f59e0b" />
+			<stop offset="0.5" stop-color="#b45309" />
+			<stop offset="1" stop-color="#78350f" />
+		</linearGradient>
+		<linearGradient id="flame" x1="0.5" y1="0" x2="0.5" y2="1">
+			<stop offset="0" stop-color="#ffd54f" />
+			<stop offset="0.42" stop-color="#fb7185" />
+			<stop offset="1" stop-color="#be123c" />
+		</linearGradient>
+		<linearGradient id="flameOuter" x1="0.5" y1="0" x2="0.5" y2="1">
+			<stop offset="0" stop-color="#f97316" />
+			<stop offset="1" stop-color="#7f1d1d" />
+		</linearGradient>
+		<linearGradient id="ember" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+			<stop offset="0" stop-color="#ffd54f" />
+			<stop offset="0.48" stop-color="#fb7185" />
+			<stop offset="1" stop-color="#be123c" />
+		</linearGradient>
+		<filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+			<feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#05010a" flood-opacity="0.7" />
+		</filter>
+		<filter id="eyeGlow" x="-80%" y="-80%" width="260%" height="260%">
+			<feGaussianBlur stdDeviation="7" />
+		</filter>
+	</defs>
+
+	<rect x="16" y="16" width="480" height="480" rx="112" fill="url(#background)" />
+	<rect x="22" y="22" width="468" height="468" rx="106" fill="none" stroke="#ffb300" stroke-opacity="0.28" stroke-width="4" />
+	<circle cx="256" cy="246" r="238" fill="url(#halo)" />
+
+	<g filter="url(#eyeGlow)" opacity="0.62">
+		<path d="M142 438 C 82 398 76 350 116 310 C 130 354 168 390 142 438 Z" fill="url(#flameOuter)" />
+		<path d="M370 438 C 430 398 436 350 396 310 C 382 354 344 390 370 438 Z" fill="url(#flameOuter)" />
+		<path d="M256 452 C 204 394 200 328 244 286 C 288 328 308 394 256 452 Z" fill="url(#flame)" />
+		<circle cx="112" cy="252" r="16" fill="#ffd54f" opacity="0.65" />
+		<circle cx="400" cy="252" r="16" fill="#ffd54f" opacity="0.65" />
+		<circle cx="176" cy="124" r="10" fill="#fb7185" opacity="0.55" />
+		<circle cx="342" cy="118" r="10" fill="#fb7185" opacity="0.55" />
+	</g>
+
+	<g filter="url(#shadow)" stroke="#5c2508" stroke-opacity="0.72" stroke-width="5" stroke-linejoin="round">
+		<polygon points="256,108 384,182 384,330 256,404 128,330 128,182" fill="url(#gold)" />
+
+		<polygon points="256,108 128,182 256,187" fill="url(#goldLight)" />
+		<polygon points="256,108 384,182 256,187" fill="url(#goldLight)" />
+		<polygon points="128,182 128,330 193,296" fill="url(#goldMid)" />
+		<polygon points="384,182 384,330 319,296" fill="url(#goldMid)" />
+		<polygon points="128,330 256,404 193,296" fill="url(#goldLow)" />
+		<polygon points="384,330 256,404 319,296" fill="url(#goldLow)" />
+
+		<polygon points="256,187 193,296 319,296" fill="url(#goldLight)" />
+		<path d="M238 214 222 296 256 296 256 214Z" fill="#ffffff" opacity="0.24" />
+		<path d="M256 236 238 268 256 296 274 268Z" fill="#9f1239" opacity="0.2" />
+	</g>
+
+	<g fill="#ffd54f" opacity="0.8">
+		<circle cx="206" cy="164" r="8" />
+		<circle cx="306" cy="164" r="8" />
+		<circle cx="256" cy="368" r="7" />
+	</g>
 </svg>
