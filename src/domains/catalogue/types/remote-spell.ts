@@ -1,7 +1,18 @@
 import { z } from "zod";
+import type { CatalogueDetailPort, CatalogueSearchPort } from "./capabilities.js";
 
 export const CatalogueRemoteSpellSourceSchema = z.enum(["spell", "feature"]);
 export type CatalogueRemoteSpellSource = z.infer<typeof CatalogueRemoteSpellSourceSchema>;
+export const CatalogueRemoteSpellIndexSchema = z
+	.string()
+	.min(1)
+	.max(120)
+	.regex(/^[a-z0-9-]+$/);
+export const CatalogueRemoteSpellSearchInputSchema = z.object({
+	slotLevel: z.number().int().min(0).max(9),
+	query: z.string().max(120),
+});
+export const CatalogueRemoteSpellQuerySchema = z.string().max(120);
 
 export const CatalogueRemoteSpellSearchResultSchema = z.object({
 	index: z.string().min(1).max(120),
@@ -35,3 +46,12 @@ export interface CatalogueRemoteSpellCapability {
 		source?: CatalogueRemoteSpellSource,
 	): Promise<CatalogueRemoteSpellDetails>;
 }
+
+export type CatalogueRemoteSpellSearchPort = CatalogueSearchPort<
+	{ slotLevel: number; query: string },
+	CatalogueRemoteSpellSearchResult
+>;
+export type CatalogueRemoteSpellDetailPort = CatalogueDetailPort<
+	string,
+	CatalogueRemoteSpellDetails
+>;

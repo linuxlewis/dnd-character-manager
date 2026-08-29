@@ -2,6 +2,15 @@ import { describe, expect, it, vi } from "vitest";
 import { createCatalogueRemoteSpellClient } from "./catalogue-remote-spell-client.js";
 
 describe("createCatalogueRemoteSpellClient", () => {
+	it("rejects invalid indexes and search inputs before fetching", async () => {
+		const fetcher = vi.fn();
+		const client = createCatalogueRemoteSpellClient({ fetcher });
+
+		await expect(client.findSpell("../escape")).rejects.toThrow();
+		await expect(client.getSpellDetails("bad index")).rejects.toThrow();
+		await expect(client.searchSpells({ query: "light", slotLevel: 10 })).rejects.toThrow();
+		expect(fetcher).not.toHaveBeenCalled();
+	});
 	it("loads a canonical SRD 2024 spell by index before saving", async () => {
 		const fetcher = vi.fn().mockResolvedValue(
 			jsonResponse({

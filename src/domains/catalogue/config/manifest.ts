@@ -11,6 +11,8 @@ import {
 export const CATALOGUE_SOURCE_MANIFEST = CatalogueSourceManifestSchema.parse({
 	source: FOUNDRY_DND5E_SOURCE,
 	sourceUrl: FOUNDRY_DND5E_SOURCE_URL,
+	attribution: "Foundry Virtual Tabletop dnd5e system repository",
+	repositoryLicense: "MIT",
 	sourceRevision: FOUNDRY_DND5E_GITHUB_REF,
 	rulesVersion: FOUNDRY_DND5E_RULES_VERSION,
 	packs: [

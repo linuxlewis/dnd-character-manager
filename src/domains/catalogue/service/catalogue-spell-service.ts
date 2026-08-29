@@ -4,6 +4,7 @@ import {
 	foundryDnd5eRawUrl,
 	foundryDnd5eTreeUrl,
 } from "../config/index.js";
+import { CATALOGUE_SOURCE_MANIFEST } from "../config/manifest.js";
 import {
 	type CatalogueSpellRepository,
 	createCatalogueSpellRepository,
@@ -116,6 +117,15 @@ async function fetchFoundrySpellPaths(fetcher: typeof fetch, ref: string | undef
 	const response = await fetcher(foundryDnd5eTreeUrl(ref));
 	if (!response.ok) throw new CatalogueSpellSeedError();
 	const parsed = FoundryTreeResponseSchema.parse(await response.json());
+	for (const pack of CATALOGUE_SOURCE_MANIFEST.packs) {
+		if (
+			!parsed.tree.some((entry) => entry.type === "blob" && entry.path.startsWith(pack.pathPrefix))
+		) {
+			throw new CatalogueSpellSeedError(
+				`Foundry source revision is missing catalogue pack: ${pack.pack} (${pack.pathPrefix})`,
+			);
+		}
+	}
 	return parsed.tree
 		.filter((entry) => entry.type === "blob")
 		.map((entry) => entry.path)

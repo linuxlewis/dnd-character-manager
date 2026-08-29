@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { CatalogueSourceProvenanceSchema } from "./provenance.js";
+import { CatalogueSeedProvenanceSchema } from "./provenance.js";
 
-describe("CatalogueSourceProvenanceSchema", () => {
+describe("CatalogueSeedProvenanceSchema", () => {
 	it("requires an immutable revision and typed pack capability", () => {
 		expect(() =>
-			CatalogueSourceProvenanceSchema.parse({
+			CatalogueSeedProvenanceSchema.parse({
 				source: "foundry-dnd5e",
 				sourceKey: "id",
 				sourcePath: "packs/_source/spells24/light.yml",
@@ -18,14 +18,14 @@ describe("CatalogueSourceProvenanceSchema", () => {
 			}),
 		).not.toThrow();
 		expect(() =>
-			CatalogueSourceProvenanceSchema.parse({
+			CatalogueSeedProvenanceSchema.parse({
 				source: "foundry-dnd5e",
 				sourceKey: "id",
 				sourcePath: "x",
 				rulesVersion: "2024",
 				license: "",
 				sourcePayload: {},
-				sourceRevision: "master",
+				sourceRevision: "",
 				capability: "spells",
 				pack: "spells24",
 				sourceUrl: "https://example.com/file.yml",

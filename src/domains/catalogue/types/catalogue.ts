@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-	CatalogueSourceProvenanceSchema,
+	CatalogueSeedProvenanceSchema,
 	CatalogueSourceSchema,
 	RulesVersionSchema,
 } from "./provenance.js";
@@ -25,12 +25,7 @@ export const CatalogueSpellMetadataItemSchema = z.object({
 	value: z.string().min(1).max(500),
 });
 
-export const CatalogueSpellSeedSchema = z.object({
-	source: CatalogueSourceSchema,
-	sourceKey: z.string().min(1).max(240),
-	sourcePath: z.string().min(1).max(500),
-	rulesVersion: RulesVersionSchema,
-	license: z.string().max(120),
+const CatalogueSpellFieldsSchema = z.object({
 	spellIndex: CatalogueSpellIndexSchema,
 	name: CatalogueSpellNameSchema,
 	level: CatalogueSpellLevelSchema,
@@ -38,21 +33,28 @@ export const CatalogueSpellSeedSchema = z.object({
 	desc: z.array(CatalogueSpellDetailTextSchema).min(1).max(20),
 	higherLevel: z.array(CatalogueSpellDetailTextSchema).max(10),
 	metadata: z.array(CatalogueSpellMetadataItemSchema).max(20),
-	sourcePayload: z.unknown(),
-	sourceRevision: z
-		.string()
-		.regex(/^[0-9a-f]{40}$/)
-		.optional(),
-	capability: z.literal("spells").optional(),
-	pack: z.literal("spells24").optional(),
-	sourceUrl: z.string().url().max(1_000).optional(),
 });
+export const CatalogueSpellSeedSchema = CatalogueSeedProvenanceSchema.merge(
+	CatalogueSpellFieldsSchema,
+);
 export type CatalogueSpellSeed = z.infer<typeof CatalogueSpellSeedSchema>;
 
-export const CatalogueSpellProvenanceSchema = CatalogueSourceProvenanceSchema.extend({
+export const CatalogueSpellStoredProvenanceSchema = z.object({
+	source: CatalogueSourceSchema,
+	sourceKey: z.string().min(1).max(240),
+	sourcePath: z.string().min(1).max(500),
+	rulesVersion: RulesVersionSchema,
+	license: z.string().max(120),
+	sourcePayload: z.unknown(),
+	// Revision, pack, and sourceUrl are intentionally absent: old rows cannot persist them.
+});
+export type CatalogueSpellStoredProvenance = z.infer<typeof CatalogueSpellStoredProvenanceSchema>;
+
+export const CatalogueSpellProvenanceSchema = CatalogueSpellStoredProvenanceSchema.extend({
 	capability: z.literal("spells"),
 	pack: z.literal("spells24"),
 });
+export type CatalogueSpellProvenance = z.infer<typeof CatalogueSpellProvenanceSchema>;
 
 export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
 	spellIndex: true,
@@ -62,5 +64,7 @@ export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
 });
 export type CatalogueSpellSearchResult = z.infer<typeof CatalogueSpellSearchResultSchema>;
 
-export const CatalogueSpellDetailsSchema = CatalogueSpellSeedSchema;
+export const CatalogueSpellDetailsSchema = CatalogueSpellStoredProvenanceSchema.merge(
+	CatalogueSpellFieldsSchema,
+);
 export type CatalogueSpellDetails = z.infer<typeof CatalogueSpellDetailsSchema>;

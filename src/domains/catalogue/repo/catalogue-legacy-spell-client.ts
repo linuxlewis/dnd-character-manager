@@ -6,7 +6,10 @@ import type {
 } from "../types/index.js";
 import {
 	CatalogueRemoteSpellDetailsSchema,
+	CatalogueRemoteSpellIndexSchema,
+	CatalogueRemoteSpellQuerySchema,
 	CatalogueRemoteSpellSearchResultSchema,
+	CatalogueRemoteSpellSourceSchema,
 } from "../types/index.js";
 
 const DndApiReferenceSchema = z.object({
@@ -53,15 +56,16 @@ export async function searchLegacyFeatures(
 	fetcher: typeof fetch,
 	query: string,
 ): Promise<CatalogueRemoteSpellSearchResult[]> {
+	const parsedQuery = CatalogueRemoteSpellQuerySchema.parse(query).trim();
 	const response = await fetcher(
-		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(query)}`,
+		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(parsedQuery)}`,
 	);
 	if (!response.ok) throw new Error("Legacy D&D feature search request failed.");
 
 	const parsed = DndApiFeatureSearchResponseSchema.parse(await response.json());
 	const details = await Promise.all(
 		parsed.results
-			.filter((feature) => matchesName(feature.name, query))
+			.filter((feature) => matchesName(feature.name, parsedQuery))
 			.map((feature) => getLegacySpellDetails(legacyBaseUrl, fetcher, feature.index, "feature")),
 	);
 
@@ -82,13 +86,14 @@ export async function getLegacySpellDetails(
 	spellIndex: string,
 	source: CatalogueRemoteSpellSource,
 ): Promise<CatalogueRemoteSpellDetails> {
-	const index = spellIndex;
-	const resource = source === "feature" ? "features" : "spells";
+	const index = CatalogueRemoteSpellIndexSchema.parse(spellIndex);
+	const parsedSource = CatalogueRemoteSpellSourceSchema.parse(source);
+	const resource = parsedSource === "feature" ? "features" : "spells";
 	const response = await fetcher(`${legacyBaseUrl}/api/2014/${resource}/${index}`);
 	if (!response.ok) throw new Error("Legacy D&D spell detail request failed.");
 	const schema =
 		source === "feature" ? DndApiFeatureDetailResponseSchema : DndApiSpellDetailResponseSchema;
-	return parseLegacySpellDetails(schema.parse(await response.json()), source);
+	return parseLegacySpellDetails(schema.parse(await response.json()), parsedSource);
 }
 
 function parseLegacySpellDetails(

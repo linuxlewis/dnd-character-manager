@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { CatalogueSpellSeedSchema } from "./catalogue.js";
 
 describe("catalogue spell schemas", () => {
+	it("rejects a seed without canonical source provenance", () => {
+		expect(() => CatalogueSpellSeedSchema.parse({ spellIndex: "light" })).toThrow();
+	});
 	it("accepts a seeded SRD 2024 spell with preserved source payload", () => {
 		const spell = CatalogueSpellSeedSchema.parse({
 			source: "foundry-dnd5e",
@@ -17,6 +20,11 @@ describe("catalogue spell schemas", () => {
 			higherLevel: ["The damage increases at higher spell slot levels."],
 			metadata: [{ label: "Casting Time", value: "Bonus Action" }],
 			sourcePayload: { system: { identifier: "divine-smite" } },
+			sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
+			capability: "spells",
+			pack: "spells24",
+			sourceUrl:
+				"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/divine-smite.yml",
 		});
 
 		expect(spell.level).toBe(1);
@@ -38,6 +46,11 @@ describe("catalogue spell schemas", () => {
 			higherLevel: [],
 			metadata: [],
 			sourcePayload: { system: { identifier: "light" } },
+			sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
+			capability: "spells",
+			pack: "spells24",
+			sourceUrl:
+				"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/light.yml",
 		});
 
 		expect(spell.level).toBe(0);

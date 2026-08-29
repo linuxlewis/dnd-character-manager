@@ -8,6 +8,8 @@ describe("CatalogueSourceManifestSchema", () => {
 				source: "foundry-dnd5e",
 				sourceUrl: "https://github.com/foundryvtt/dnd5e",
 				sourceRevision: "master",
+				attribution: "Foundry Virtual Tabletop dnd5e system repository",
+				repositoryLicense: "MIT",
 				rulesVersion: "2024",
 				packs: [{ pack: "spells24", capability: "spells", pathPrefix: "packs/_source/spells24/" }],
 			}),

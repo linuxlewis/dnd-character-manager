@@ -2,6 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import { getLegacySpellDetails } from "./catalogue-legacy-spell-client.js";
 
 describe("getLegacySpellDetails", () => {
+	it("rejects invalid indexes before constructing a legacy URL", async () => {
+		const fetcher = vi.fn();
+
+		await expect(
+			getLegacySpellDetails("https://www.dnd5eapi.co", fetcher, "../escape", "spell"),
+		).rejects.toThrow();
+		expect(fetcher).not.toHaveBeenCalled();
+	});
 	it("loads 2014 spell details for saved spells that are unavailable in SRD 2024", async () => {
 		const fetcher = vi.fn().mockResolvedValue(
 			jsonResponse({

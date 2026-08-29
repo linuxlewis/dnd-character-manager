@@ -15,6 +15,8 @@ export type CatalogueManifestPack = z.infer<typeof CatalogueManifestPackSchema>;
 export const CatalogueSourceManifestSchema = z.object({
 	source: z.literal("foundry-dnd5e"),
 	sourceUrl: z.string().url(),
+	attribution: z.string().min(1).max(240),
+	repositoryLicense: z.literal("MIT"),
 	sourceRevision: ImmutableSourceRevisionSchema,
 	rulesVersion: RulesVersionSchema,
 	packs: z.array(CatalogueManifestPackSchema).min(1),
