@@ -1,0 +1,127 @@
+import { z } from "zod";
+import {
+	CurrencyAddRequestSchema,
+	CurrencyAddResponseSchema,
+	CurrencyApplyDeltaRequestSchema,
+	CurrencyBalanceSchema,
+	CurrencyConversionRequestSchema,
+	CurrencyConversionResponseSchema,
+	CurrencyMutationResponseSchema,
+	CurrencyPreviewSchema,
+	CurrencySpendRequestSchema,
+	CurrencySpendResponseSchema,
+	CurrencyTotalValueSchema,
+} from "./currency.js";
+import { InventoryCharacterIdSchema, InventoryScopeIdSchema } from "./ids.js";
+import {
+	InventoryCatalogueProvenanceSchema,
+	InventoryCatalogueSourceSchema,
+	InventoryItemBaseSchema,
+	InventoryItemFilterSchema,
+	InventoryItemSchema,
+	InventoryRulesVersionSchema,
+	JsonObjectSchema,
+} from "./item.js";
+
+export const CharacterTreasurySchema = z.object({
+	characterId: InventoryCharacterIdSchema,
+	inventoryScopeId: InventoryScopeIdSchema,
+	balances: CurrencyBalanceSchema,
+	totalValue: CurrencyTotalValueSchema,
+});
+export type CharacterTreasury = z.infer<typeof CharacterTreasurySchema>;
+
+export const CharacterTreasuryResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+});
+export type CharacterTreasuryResponse = z.infer<typeof CharacterTreasuryResponseSchema>;
+
+export const UpdateCharacterTreasuryRequestSchema = CurrencyApplyDeltaRequestSchema;
+export type UpdateCharacterTreasuryRequest = z.infer<typeof UpdateCharacterTreasuryRequestSchema>;
+
+export const AddCharacterTreasuryRequestSchema = CurrencyAddRequestSchema;
+export type AddCharacterTreasuryRequest = z.infer<typeof AddCharacterTreasuryRequestSchema>;
+
+export const SpendCharacterTreasuryRequestSchema = CurrencySpendRequestSchema;
+export type SpendCharacterTreasuryRequest = z.infer<typeof SpendCharacterTreasuryRequestSchema>;
+
+export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema;
+export type ConvertCharacterTreasuryRequest = z.infer<typeof ConvertCharacterTreasuryRequestSchema>;
+
+export const CharacterTreasuryMutationResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+	change: CurrencyMutationResponseSchema,
+});
+export type CharacterTreasuryMutationResponse = z.infer<
+	typeof CharacterTreasuryMutationResponseSchema
+>;
+
+export const AddCharacterTreasuryResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+	change: CurrencyAddResponseSchema,
+});
+export type AddCharacterTreasuryResponse = z.infer<typeof AddCharacterTreasuryResponseSchema>;
+
+export const SpendCharacterTreasuryResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+	change: CurrencySpendResponseSchema,
+});
+export type SpendCharacterTreasuryResponse = z.infer<typeof SpendCharacterTreasuryResponseSchema>;
+
+export const ConvertCharacterTreasuryResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+	change: CurrencyConversionResponseSchema,
+});
+export type ConvertCharacterTreasuryResponse = z.infer<
+	typeof ConvertCharacterTreasuryResponseSchema
+>;
+
+export const CharacterTreasuryPreviewResponseSchema = z.object({
+	treasury: CharacterTreasurySchema,
+	preview: CurrencyPreviewSchema,
+});
+export type CharacterTreasuryPreviewResponse = z.infer<
+	typeof CharacterTreasuryPreviewResponseSchema
+>;
+
+export const CreateCharacterItemRequestSchema = InventoryItemBaseSchema.extend({
+	catalogueItemId: z.string().uuid().nullable().optional(),
+	catalogueSourceKey: z.string().min(1).max(240).nullable().optional(),
+	catalogueSource: InventoryCatalogueSourceSchema.nullable().optional(),
+	catalogueSourcePath: z.string().min(1).max(500).nullable().optional(),
+	catalogueRulesVersion: InventoryRulesVersionSchema.nullable().optional(),
+	catalogueLicense: z.string().max(120).nullable().optional(),
+	catalogue: InventoryCatalogueProvenanceSchema.nullable().optional(),
+});
+export type CreateCharacterItemRequest = z.infer<typeof CreateCharacterItemRequestSchema>;
+
+export const UpdateCharacterItemRequestSchema = CreateCharacterItemRequestSchema.partial()
+	.extend({
+		quantity: z.number().int().positive().optional(),
+		properties: JsonObjectSchema.optional(),
+	})
+	.refine(hasAtLeastOneItemField, {
+		message: "An item update must include at least one field.",
+	});
+export type UpdateCharacterItemRequest = z.infer<typeof UpdateCharacterItemRequestSchema>;
+
+export const CharacterItemResponseSchema = z.object({
+	item: InventoryItemSchema,
+});
+export type CharacterItemResponse = z.infer<typeof CharacterItemResponseSchema>;
+
+export const ListCharacterItemsRequestSchema = InventoryItemFilterSchema;
+export type ListCharacterItemsRequest = z.infer<typeof ListCharacterItemsRequestSchema>;
+
+export const CharacterItemFilterSchema = InventoryItemFilterSchema;
+export type CharacterItemFilter = z.infer<typeof CharacterItemFilterSchema>;
+
+export const ListCharacterItemsResponseSchema = z.object({
+	items: z.array(InventoryItemSchema),
+	total: z.number().int().nonnegative(),
+});
+export type ListCharacterItemsResponse = z.infer<typeof ListCharacterItemsResponseSchema>;
+
+function hasAtLeastOneItemField(request: Record<string, unknown>) {
+	return Object.keys(request).length > 0;
+}
