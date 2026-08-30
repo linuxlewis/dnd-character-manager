@@ -8,7 +8,7 @@ import {
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
 import type { TreasuryAddPreview, TreasuryAddRequest, TreasuryData } from "./treasury-types.js";
-import { createTreasuryAddPreview } from "./treasury-types.js";
+import { createTreasuryAddPreview, createTreasuryNeutralPreview } from "./treasury-types.js";
 
 export type TreasuryNumberDraft = "" | number;
 export type AddFundsValues = Record<TreasuryDenomination, TreasuryNumberDraft>;
@@ -49,10 +49,19 @@ export function TreasuryAddModal({
 	});
 	const currentRequest = toAddTreasuryRequest(form.values);
 	const draftIsValid = isValidDraft(form.values);
-	const preview =
-		treasury && draftIsValid ? createTreasuryAddPreview(treasury, currentRequest) : null;
+	const draftIsNeutral = isNeutralDraft(form.values);
+	const preview = treasury
+		? draftIsNeutral
+			? createTreasuryNeutralPreview(treasury, "add")
+			: draftIsValid
+				? createTreasuryAddPreview(treasury, currentRequest)
+				: null
+		: null;
+	const previewError =
+		treasury && !draftIsNeutral && !draftIsValid ? getDraftError(form.values) : undefined;
 	const formDisabled = actionsDisabled || mutationPending || reconciliationPending;
-	const submitDisabled = formDisabled || treasury === undefined || preview?.canApply === false;
+	const submitDisabled =
+		formDisabled || treasury === undefined || !draftIsValid || preview?.canApply === false;
 
 	return (
 		<Modal
@@ -70,7 +79,7 @@ export function TreasuryAddModal({
 			<Box
 				component="form"
 				onSubmit={form.onSubmit(() => {
-					if (preview?.canApply) onSubmit(currentRequest, preview);
+					if (draftIsValid && preview?.canApply) onSubmit(currentRequest, preview);
 				})}
 			>
 				<Stack gap="md">
@@ -103,7 +112,9 @@ export function TreasuryAddModal({
 						</Alert>
 					)}
 
-					{preview && <TreasuryPreview preview={preview} />}
+					{treasury && (
+						<TreasuryPreview errorMessage={previewError} preview={preview ?? undefined} />
+					)}
 
 					{reconciliationError && (
 						<Alert color="red" title="Treasury reconciliation failed" variant="light">
@@ -172,5 +183,16 @@ function isValidDraft(values: AddFundsValues) {
 			(value) =>
 				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX),
 		) && Object.values(values).some((value) => typeof value === "number" && value > 0)
+	);
+}
+
+function isNeutralDraft(values: AddFundsValues) {
+	return Object.values(values).every((value) => value === 0 || value === "");
+}
+
+function getDraftError(values: AddFundsValues) {
+	return (
+		Object.values(validateAddFunds(values))[0] ??
+		"Enter a valid positive amount to calculate the change."
 	);
 }

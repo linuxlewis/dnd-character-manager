@@ -19,6 +19,8 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await page.getByRole("button", { name: "Add funds" }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
 	await expect(addDialog).toBeVisible();
+	await expect(addDialog.getByText("Preview")).toBeVisible();
+	await expect(addDialog.getByRole("button", { name: "Add funds", exact: true })).toBeDisabled();
 	await addDialog.getByLabel("Platinum pieces (PP)").fill("1");
 	await addDialog.getByLabel("Gold pieces (GP)").fill("3");
 	await addDialog.getByLabel("Silver pieces (SP)").fill("4");
@@ -35,6 +37,8 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await page.getByRole("button", { name: "Spend" }).click();
 	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
 	await expect(spendDialog).toBeVisible();
+	await expect(spendDialog.getByText("Preview")).toBeVisible();
+	await expect(spendDialog.getByRole("button", { name: "Spend", exact: true })).toBeDisabled();
 	await spendDialog.getByLabel("Silver pieces (SP)").fill("5");
 	await expect(spendDialog.getByText("Available: 4")).toBeVisible();
 	await expect(spendDialog.getByText("Returned change")).toBeVisible();

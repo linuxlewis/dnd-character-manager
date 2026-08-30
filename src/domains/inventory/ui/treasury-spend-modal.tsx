@@ -18,7 +18,7 @@ import {
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
 import type { TreasuryData, TreasurySpendPreview, TreasurySpendRequest } from "./treasury-types.js";
-import { createTreasurySpendPreview } from "./treasury-types.js";
+import { createTreasuryNeutralPreview, createTreasurySpendPreview } from "./treasury-types.js";
 
 type NumberDraft = "" | number;
 
@@ -60,15 +60,24 @@ export function TreasurySpendModal({
 	});
 	const currentRequest = toSpendTreasuryRequest(form.values);
 	const draftIsValid = isValidDraft(form.values);
-	const preview =
-		treasury && draftIsValid && currentRequest
-			? createTreasurySpendPreview(treasury, currentRequest)
-			: null;
+	const draftIsNeutral = isNeutralDraft(form.values);
+	const preview = treasury
+		? draftIsNeutral
+			? createTreasuryNeutralPreview(treasury, "spend")
+			: draftIsValid && currentRequest
+				? createTreasurySpendPreview(treasury, currentRequest)
+				: null
+		: null;
+	const previewError =
+		treasury && !draftIsNeutral && (!draftIsValid || currentRequest === null)
+			? getDraftError(form.values)
+			: undefined;
 	const formDisabled = actionsDisabled || mutationPending || reconciliationPending;
 	const submitDisabled =
 		formDisabled ||
 		treasury === undefined ||
 		currentRequest === null ||
+		!draftIsValid ||
 		preview?.canApply === false;
 
 	return (
@@ -87,7 +96,9 @@ export function TreasurySpendModal({
 			<Box
 				component="form"
 				onSubmit={form.onSubmit(() => {
-					if (currentRequest && preview?.canApply) onSubmit(currentRequest, preview);
+					if (draftIsValid && currentRequest && preview?.canApply) {
+						onSubmit(currentRequest, preview);
+					}
 				})}
 			>
 				<Stack gap="md">
@@ -127,7 +138,13 @@ export function TreasurySpendModal({
 						</Alert>
 					)}
 
-					{preview && <TreasuryPreview preview={preview} returnedChange={preview.change} />}
+					{treasury && (
+						<TreasuryPreview
+							errorMessage={previewError}
+							preview={preview ?? undefined}
+							returnedChange={preview?.change}
+						/>
+					)}
 
 					{reconciliationError && (
 						<Alert color="red" title="Treasury reconciliation failed" variant="light">
@@ -205,5 +222,16 @@ function isValidDraft(values: SpendFundsValues) {
 			(value) =>
 				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX),
 		) && Object.values(values).some((value) => typeof value === "number" && value > 0)
+	);
+}
+
+function isNeutralDraft(values: SpendFundsValues) {
+	return Object.values(values).every((value) => value === 0 || value === "");
+}
+
+function getDraftError(values: SpendFundsValues) {
+	return (
+		Object.values(validateSpendFunds(values))[0] ??
+		"Enter a valid positive amount to calculate the change."
 	);
 }

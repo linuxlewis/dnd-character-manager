@@ -26,7 +26,7 @@ describe("TreasurySpendModal", () => {
 			</MantineProvider>,
 		);
 
-		const readableHtml = html.replaceAll("<!-- -->", "");
+		const readableHtml = html.replaceAll("<!-- -->", "").replaceAll("&gt;", ">");
 		expect(readableHtml).toContain("Platinum pieces (PP)");
 		expect(readableHtml).toContain("Gold pieces (GP)");
 		expect(readableHtml).toContain("Silver pieces (SP)");
@@ -42,6 +42,58 @@ describe("TreasurySpendModal", () => {
 		expect(readableHtml).toContain(">Spend<");
 		expect(readableHtml).not.toContain("Preview spend");
 		expect(readableHtml).not.toContain("Confirm spend");
+	});
+
+	it.each([
+		["blank", undefined],
+		["all-zero", { cp: 0, sp: 0, gp: 0, pp: 0 }],
+	] as const)("shows a neutral preview and disables submit for %s drafts", (_label, initialValues) => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasurySpendModal
+					initialValues={initialValues}
+					mutationPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onSubmit={vi.fn()}
+					opened
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "").replaceAll("&gt;", ">");
+		expect(readableHtml).toContain("Preview");
+		expect(readableHtml).toContain("Current balances");
+		expect(readableHtml).toContain("After change");
+		expect(readableHtml).toContain("13.45 GP -> 13.45 GP");
+		expect(readableHtml).not.toContain("Insufficient funds");
+		expect(readableHtml).not.toContain("Preview unavailable");
+		expect(readableHtml).not.toContain("Returned change");
+		expect(html).toContain('type="submit" disabled=""');
+		expect(html).toContain(">Spend</span>");
+	});
+
+	it("keeps the preview visible with an honest error for an invalid draft", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasurySpendModal
+					initialValues={{ cp: 1.5, sp: 0, gp: 0, pp: 0 }}
+					mutationPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onSubmit={vi.fn()}
+					opened
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("Preview unavailable");
+		expect(html).toContain("Enter a nonnegative whole number within the supported limit.");
+		expect(html).not.toContain("Current balances");
+		expect(html).toContain('type="submit" disabled=""');
+		expect(html).toContain(">Spend</span>");
 	});
 
 	it("renders insufficient funds without exposing a second confirmation action", () => {

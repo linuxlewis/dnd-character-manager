@@ -26,7 +26,7 @@ describe("TreasuryAddModal", () => {
 			</MantineProvider>,
 		);
 
-		const readableHtml = html.replaceAll("<!-- -->", "");
+		const readableHtml = html.replaceAll("<!-- -->", "").replaceAll("&gt;", ">");
 		expect(readableHtml).toContain("Platinum pieces (PP)");
 		expect(readableHtml).toContain("Gold pieces (GP)");
 		expect(readableHtml).toContain("Silver pieces (SP)");
@@ -38,6 +38,57 @@ describe("TreasuryAddModal", () => {
 		expect(readableHtml).not.toContain("Preview add");
 		expect(readableHtml).not.toContain("Confirm add funds");
 		expect(html).toContain("font-size:16px");
+	});
+
+	it.each([
+		["blank", undefined],
+		["all-zero", { cp: 0, sp: 0, gp: 0, pp: 0 }],
+	] as const)("shows a neutral preview and disables submit for %s drafts", (_label, initialValues) => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasuryAddModal
+					initialValues={initialValues}
+					mutationPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onSubmit={vi.fn()}
+					opened
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "").replaceAll("&gt;", ">");
+		expect(readableHtml).toContain("Preview");
+		expect(readableHtml).toContain("Current balances");
+		expect(readableHtml).toContain("After change");
+		expect(readableHtml).toContain("13.45 GP -> 13.45 GP");
+		expect(readableHtml).not.toContain("Unable to apply change");
+		expect(readableHtml).not.toContain("Preview unavailable");
+		expect(html).toContain('type="submit" disabled=""');
+		expect(html).toContain(">Add funds</span>");
+	});
+
+	it("keeps the preview visible with an honest error for an invalid draft", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasuryAddModal
+					initialValues={{ cp: 1.5, sp: 0, gp: 0, pp: 0 }}
+					mutationPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onSubmit={vi.fn()}
+					opened
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("Preview unavailable");
+		expect(html).toContain("Enter a nonnegative whole number within the supported limit.");
+		expect(html).not.toContain("Current balances");
+		expect(html).toContain('type="submit" disabled=""');
+		expect(html).toContain(">Add funds</span>");
 	});
 
 	it("renders mutation and reconciliation failures without hiding the one-step form", () => {

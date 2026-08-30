@@ -44,6 +44,30 @@ export type TreasurySpendPreview = TreasuryPreviewBase & {
 };
 export type TreasuryPreview = TreasuryAddPreview | TreasurySpendPreview;
 
+export function createTreasuryNeutralPreview(
+	treasury: TreasuryData,
+	operation: "add",
+): TreasuryAddPreview;
+export function createTreasuryNeutralPreview(
+	treasury: TreasuryData,
+	operation: "spend",
+): TreasurySpendPreview;
+export function createTreasuryNeutralPreview(
+	treasury: TreasuryData,
+	operation: "add" | "spend",
+): TreasuryPreview {
+	const preview = {
+		previous: treasury.balances,
+		next: treasury.balances,
+		delta: { cp: 0, sp: 0, gp: 0, pp: 0 },
+		totalValue: treasury.totalValue,
+		canApply: false,
+	} as const;
+
+	if (operation === "add") return { operation, ...preview };
+	return { operation, ...preview };
+}
+
 export function createTreasuryAddPreview(
 	treasury: TreasuryData,
 	request: TreasuryAddRequest,
