@@ -13,6 +13,8 @@ const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
 const fixtureRunId = `${Date.now().toString(36)}-${process.pid}-${randomUUID().slice(0, 8)}`;
 const fixtureSourcePrefix = `codex-a7-${fixtureRunId}`;
 const fixtureAuditMarker = `a7_${fixtureRunId.replaceAll("-", "_")}`;
+const fixtureLockNamespace = 20260829;
+const fixtureLockId = 7;
 const seededMundaneSourceKey = "phbwepLongsword0";
 const seededMagicSourceKey = "dmgDancingSword0";
 const syntheticMundaneName = `Silvered Blade ${fixtureRunId}`;
@@ -20,6 +22,7 @@ const syntheticMagicName = `Moonblade ${fixtureRunId}`;
 let catalogueFixture: CatalogueJourneyFixture | null = null;
 let syntheticFixtureCreated = false;
 let fixtureAuditOwnership: CatalogueAuditOwnership | null = null;
+let fixtureLockConnection: postgres.ReservedSql | null = null;
 
 test.beforeAll(async () => {
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
@@ -27,11 +30,16 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-	if (sql) {
-		if (syntheticFixtureCreated) await deleteFixtureRows(sql);
-		if (fixtureAuditOwnership) await releaseCatalogueAudit(sql, fixtureAuditOwnership);
+	try {
+		const database = fixtureLockConnection ?? sql;
+		if (database) {
+			if (syntheticFixtureCreated) await deleteFixtureRows(database);
+			if (fixtureAuditOwnership) await releaseCatalogueAudit(database, fixtureAuditOwnership);
+		}
+	} finally {
+		await releaseCatalogueFixtureLock();
+		await sql?.end();
 	}
-	await sql?.end();
 });
 
 test("completes the M2 personal inventory journey", async ({ page }) => {
@@ -275,22 +283,37 @@ function requireCatalogueFixture() {
 async function prepareCatalogueFixture(
 	database: ReturnType<typeof postgres>,
 ): Promise<CatalogueJourneyFixture> {
-	const audit = await readCatalogueAudit(database);
-	const currentItemCount = await countCatalogueItems(database);
-	const seededFixture = await findSeededCatalogueFixture(database);
-	if (seededFixture && isCompleteCatalogueAudit(audit)) {
+	const initialSeededFixture = await findSeededCatalogueFixture(database);
+	if (initialSeededFixture) {
 		await waitForCanonicalSeededProjection(database);
+		return initialSeededFixture;
+	}
+
+	const lockedDatabase = await acquireCatalogueFixtureLock(database);
+	const seededFixture = await findSeededCatalogueFixture(lockedDatabase);
+	if (seededFixture) {
+		await waitForCanonicalSeededProjection(lockedDatabase);
+		await releaseCatalogueFixtureLock();
 		return seededFixture;
 	}
+
+	const audit = await readCatalogueAudit(lockedDatabase);
+	const currentItemCount = await countCatalogueItems(lockedDatabase);
 	if (isUsableCurrentProjection(audit, currentItemCount)) {
+		const syntheticItemCount = await countSyntheticCatalogueItems(lockedDatabase);
+		if (syntheticItemCount > 0 || hasSyntheticAuditMarker(audit)) {
+			throw new Error(
+				"Synthetic A7 catalogue projection remained after acquiring exclusive fixture ownership.",
+			);
+		}
 		throw new Error("Ready catalogue is missing the pinned A7 Longsword/Dancing Sword records.");
 	}
 
 	const fixture = syntheticCatalogueFixture();
 	syntheticFixtureCreated = true;
-	await insertFixtureRows(database, buildCatalogueFixture(fixture));
+	await insertFixtureRows(lockedDatabase, buildCatalogueFixture(fixture));
 
-	const projectionRows = await database<
+	const projectionRows = await lockedDatabase<
 		{ item_category: string; item_kind: string; is_magical: boolean }[]
 	>`
 		SELECT item_category, item_kind, is_magical
@@ -301,7 +324,7 @@ async function prepareCatalogueFixture(
 		  AND seed_pack = 'equipment24'
 	`;
 	const ownership = await claimCatalogueAudit(
-		database,
+		lockedDatabase,
 		audit,
 		getCategoryCounts(projectionRows),
 		projectionRows.length,
@@ -311,25 +334,53 @@ async function prepareCatalogueFixture(
 		return fixture;
 	}
 
-	const concurrentAudit = await readCatalogueAudit(database);
-	const concurrentItemCount = await countCatalogueItems(database);
+	const concurrentAudit = await readCatalogueAudit(lockedDatabase);
+	const concurrentItemCount = await countCatalogueItems(lockedDatabase);
 	if (isUsableCurrentProjection(concurrentAudit, concurrentItemCount)) return fixture;
 	if (
 		isUsableCurrentProjection(
 			concurrentAudit,
-			await countCatalogueItems(database, { excludeFixture: true }),
+			await countCatalogueItems(lockedDatabase, { excludeFixture: true }),
 		)
 	) {
-		await deleteFixtureRows(database);
+		await deleteFixtureRows(lockedDatabase);
 		syntheticFixtureCreated = false;
-		return requireSeededCatalogueFixture(database);
+		const concurrentSeededFixture = await requireSeededCatalogueFixture(lockedDatabase);
+		await releaseCatalogueFixtureLock();
+		return concurrentSeededFixture;
 	}
 
-	await deleteFixtureRows(database);
+	await deleteFixtureRows(lockedDatabase);
 	syntheticFixtureCreated = false;
 	throw new Error(
 		"Catalogue readiness changed during A7 fixture setup; refusing to overwrite the concurrent audit.",
 	);
+}
+
+async function acquireCatalogueFixtureLock(database: ReturnType<typeof postgres>) {
+	const connection = await database.reserve();
+	try {
+		await connection`SELECT pg_advisory_lock(${fixtureLockNamespace}, ${fixtureLockId})`;
+		fixtureLockConnection = connection;
+		return connection;
+	} catch (error) {
+		connection.release();
+		throw error;
+	}
+}
+
+async function releaseCatalogueFixtureLock() {
+	const connection = fixtureLockConnection;
+	if (!connection) return;
+	fixtureLockConnection = null;
+	try {
+		const [result] = await connection<{ unlocked: boolean }[]>`
+			SELECT pg_advisory_unlock(${fixtureLockNamespace}, ${fixtureLockId}) AS unlocked
+		`;
+		if (!result?.unlocked) throw new Error("A7 catalogue fixture advisory lock was not held.");
+	} finally {
+		connection.release();
+	}
 }
 
 async function findSeededCatalogueFixture(
@@ -463,6 +514,19 @@ async function countCatalogueItems(
 	return Number(countRow?.count ?? 0);
 }
 
+async function countSyntheticCatalogueItems(database: ReturnType<typeof postgres>) {
+	const [countRow] = await database<{ count: number | string }[]>`
+		SELECT count(*)::int AS count
+		FROM catalogue_items
+		WHERE source = ${FOUNDRY_DND5E_SOURCE}
+		  AND source_revision = ${CATALOGUE_SOURCE_MANIFEST.sourceRevision}
+		  AND seed_capability = 'equipment'
+		  AND seed_pack = 'equipment24'
+		  AND seed_metadata->>'fixture' LIKE 'codex-a7-%'
+	`;
+	return Number(countRow?.count ?? 0);
+}
+
 async function claimCatalogueAudit(
 	database: ReturnType<typeof postgres>,
 	previous: CatalogueAuditRow | undefined,
@@ -584,6 +648,10 @@ function isCanonicalSeededProjection(audit: CatalogueAuditRow | undefined, itemC
 		Number(audit?.accepted) === 627 &&
 		itemCount === 627
 	);
+}
+
+function hasSyntheticAuditMarker(audit: CatalogueAuditRow | undefined) {
+	return Boolean(audit && Object.keys(audit.category_counts).some((key) => key.startsWith("a7_")));
 }
 
 function isCompleteCatalogueAudit(
