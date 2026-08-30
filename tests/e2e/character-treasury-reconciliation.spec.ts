@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { openInventoryTab } from "./character-detail-helpers.js";
 
 test("reconciles committed add and spend operations after lost responses", async ({ page }) => {
 	const addGate = createReconciliationGate();
@@ -50,6 +51,7 @@ test("reconciles committed add and spend operations after lost responses", async
 
 	await page.goto("/");
 	await createCharacter(page, "Reconciliation Recovery", "Fighter");
+	await openInventoryTab(page);
 	await addFunds(page, 5);
 	await expectBalances(page, "5.00 GP");
 
@@ -127,6 +129,7 @@ test("requires balance review when a lost add response is overtaken before recon
 
 	await page.goto("/");
 	await createCharacter(page, "Indeterminate Recovery", "Fighter");
+	await openInventoryTab(page);
 	await addFunds(page, 5);
 	const dialog = await submitAdd(page, 1);
 

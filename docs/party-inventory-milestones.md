@@ -61,18 +61,20 @@ Manual acceptance:
 1. Confirm catalogue status reports items as unseeded, then run the catalogue seed.
 2. Confirm status reports the pinned source revision and accepted counts for weapons, armor,
    adventuring gear, consumables, potions, scrolls, and magic items.
-3. Open a character and confirm the personal inventory empty state offers an add action.
-4. Search the local SRD catalogue by partial name and confirm both mundane equipment and magic-item
+3. Open a character and confirm `Spells & Abilities` is selected by default with experience, health,
+   and spell slots visible.
+4. Select the `Inventory` tab and confirm the personal inventory empty state offers an add action.
+5. Search the local SRD catalogue by partial name and confirm both mundane equipment and magic-item
    results are available through the same search experience.
-5. Choose a result, confirm the item form is auto-filled with normalized catalogue data and source
+6. Choose a result, confirm the item form is auto-filled with normalized catalogue data and source
    version, then add the item.
-6. Add a custom item with a different type, rarity, and quantity.
-7. Verify icons, rarity colors, quantity badges, search, type filters, and counts.
-8. Open an item, edit it, equip it, and refresh; confirm both data and equipment state persist.
-9. Confirm the saved item still renders while external D&D APIs are unavailable.
-10. Unequip and delete the item through the confirmation flow.
-11. Open another character and confirm it cannot see the first character's items.
-12. Confirm duplicate upstream records are shown once using the documented source precedence and
+7. Add a custom item with a different type, rarity, and quantity.
+8. Verify icons, rarity colors, quantity badges, search, type filters, and counts.
+9. Open an item, edit it, equip it, and refresh; confirm both data and equipment state persist.
+10. Confirm the saved item still renders while external D&D APIs are unavailable.
+11. Unequip and delete the item through the confirmation flow.
+12. Open another character and confirm it cannot see the first character's items.
+13. Confirm duplicate upstream records are shown once using the documented source precedence and
     that 2014 and 2024 variants are never silently merged.
 
 Automated gate: add `tests/e2e/character-inventory.spec.ts`, then run `pnpm lint`,

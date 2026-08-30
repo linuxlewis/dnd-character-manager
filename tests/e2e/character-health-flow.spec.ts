@@ -13,6 +13,15 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Mira" })).toBeVisible();
+	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
+		"aria-selected",
+		"true",
+	);
+	await expect(page.getByRole("tab", { name: "Inventory", exact: true })).toHaveAttribute(
+		"aria-selected",
+		"false",
+	);
+	await expect(page.getByTestId("personal-inventory")).toHaveCount(0);
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeHidden();
 
@@ -66,6 +75,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Tamsin" })).toBeVisible();
+	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
+		"aria-selected",
+		"true",
+	);
 	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.getByText("Cantrips & features")).toBeVisible();
 	await expect(page.getByText("0 / 0 remaining").first()).toBeHidden();

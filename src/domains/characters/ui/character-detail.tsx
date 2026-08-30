@@ -1,4 +1,4 @@
-import { Alert, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { Alert, Badge, Button, Group, Paper, Stack, Tabs, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import { CharacterInventory, CharacterTreasuryPanel } from "../../inventory/ui/index.js";
@@ -60,18 +60,34 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 								Level {characterQuery.data.character.level}
 							</Badge>
 						</Group>
-						<CharacterExperiencePanel character={characterQuery.data.character} />
-						<CharacterHealthPanel
-							characterId={characterQuery.data.character.id}
-							health={characterQuery.data.character.health}
-							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
-						/>
-						<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
-						<CharacterInventory characterId={characterQuery.data.character.id} />
-						<CharacterSpellSlotsPanel
-							characterId={characterQuery.data.character.id}
-							level={characterQuery.data.character.level}
-						/>
+						<Tabs defaultValue="spells-abilities" keepMounted={false}>
+							<Tabs.List aria-label="Character sections">
+								<Tabs.Tab value="spells-abilities">Spells &amp; Abilities</Tabs.Tab>
+								<Tabs.Tab value="inventory">Inventory</Tabs.Tab>
+							</Tabs.List>
+
+							<Tabs.Panel value="spells-abilities" pt="md">
+								<Stack gap="md">
+									<CharacterExperiencePanel character={characterQuery.data.character} />
+									<CharacterHealthPanel
+										characterId={characterQuery.data.character.id}
+										health={characterQuery.data.character.health}
+										recentHealthChanges={characterQuery.data.character.recentHealthChanges}
+									/>
+									<CharacterSpellSlotsPanel
+										characterId={characterQuery.data.character.id}
+										level={characterQuery.data.character.level}
+									/>
+								</Stack>
+							</Tabs.Panel>
+
+							<Tabs.Panel value="inventory" pt="md">
+								<Stack gap="md">
+									<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
+									<CharacterInventory characterId={characterQuery.data.character.id} />
+								</Stack>
+							</Tabs.Panel>
+						</Tabs>
 					</Stack>
 				</Paper>
 			)}

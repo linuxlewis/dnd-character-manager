@@ -47,9 +47,19 @@ describe("CharacterDetail", () => {
 		);
 
 		expect(html).toContain("Character details");
+		expect(html).toContain("Spells &amp; Abilities");
+		expect(html).toContain("Inventory");
+		expect(html).toMatch(/role="tab"[^>]*aria-selected="true"/);
+		expect(html).toMatch(/role="tab"[^>]*aria-selected="false"/);
 		expect(html).toContain("Experience");
 		expect(html).toContain("27,000 XP");
 		expect(html).toContain("7,000 XP to level 8");
+		expect(html).toContain("Health");
+		expect(html).toContain("Spell slots");
+		expect(html.indexOf("Experience")).toBeLessThan(html.indexOf("Health"));
+		expect(html.indexOf("Health")).toBeLessThan(html.indexOf("Spell slots"));
+		expect(html).not.toContain("Personal Treasury");
+		expect(html).not.toContain("Personal inventory");
 		expect(html).toContain("Edit character");
 		expect(html).not.toContain("Edit name");
 		expect(html).not.toContain("Edit level");

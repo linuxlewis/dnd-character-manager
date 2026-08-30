@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-helpers.js";
 
 test("completes the M1 personal treasury journey with live client previews", async ({ page }) => {
 	let previewAttempts = 0;
@@ -13,6 +14,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 
 	await page.goto("/");
 	await createCharacter(page, "Treasury One", "Fighter");
+	await openInventoryTab(page);
 
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 
@@ -62,11 +64,13 @@ test("completes the M1 personal treasury journey with live client previews", asy
 
 	await expect(previewAttempts).toBe(0);
 	await page.reload();
+	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: "Treasury One" })).toBeVisible();
 	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
 
 	await page.getByText("Back to characters").click();
 	await createCharacter(page, "Treasury Two", "Wizard");
+	await openInventoryTab(page);
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 });
 
@@ -75,6 +79,7 @@ test("normalizes the entire balance after spending when an exact coin is availab
 }) => {
 	await page.goto("/");
 	await createCharacter(page, "Legacy Currency", "Fighter");
+	await openInventoryTab(page);
 
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
@@ -106,12 +111,15 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 
 	await page.goto("/");
 	await createCharacter(page, "Load Recovery", "Fighter");
+	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: "Load Recovery" })).toBeVisible();
 	await expect(page.getByText("Personal Treasury unavailable")).toBeVisible();
+	await openSpellsAndAbilitiesTab(page);
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 
 	treasuryAvailable = true;
 	await page.reload();
+	await openInventoryTab(page);
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 });
 
@@ -134,6 +142,7 @@ test("uses a single mutation after a failed add response and keeps the recovery 
 
 	await page.goto("/");
 	await createCharacter(page, "Mutation Recovery", "Fighter");
+	await openInventoryTab(page);
 	await page.getByRole("button", { name: "Add funds" }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
@@ -159,6 +168,7 @@ test("keeps treasury controls within the mobile viewport", async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto("/");
 	await createCharacter(page, "Mobile Treasury", "Fighter");
+	await openInventoryTab(page);
 	await expectNoHorizontalOverflow(page);
 
 	await page.getByRole("button", { name: "Add funds" }).click();

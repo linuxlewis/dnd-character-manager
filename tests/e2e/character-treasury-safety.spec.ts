@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { openInventoryTab } from "./character-detail-helpers.js";
 
 test("recovers a failed reconciliation without replaying the mutation", async ({ page }) => {
 	let mutationCount = 0;
@@ -27,6 +28,7 @@ test("recovers a failed reconciliation without replaying the mutation", async ({
 
 	await page.goto("/");
 	await createCharacter(page, "Reconciliation Retry", "Fighter");
+	await openInventoryTab(page);
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Add funds" });
 	await dialog.getByLabel("Gold pieces (GP)").fill("1");
@@ -61,6 +63,7 @@ test("rejects a stale add mutation and allows a fresh one-step submit", async ({
 
 	await page.goto("/");
 	await createCharacter(page, "Add Freshness", "Fighter");
+	await openInventoryTab(page);
 	const characterId = characterIdFromPage(page);
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Add funds" });
@@ -101,6 +104,7 @@ test("rejects a stale spend mutation and allows a fresh one-step submit", async 
 
 	await page.goto("/");
 	await createCharacter(page, "Spend Freshness", "Fighter");
+	await openInventoryTab(page);
 	const characterId = characterIdFromPage(page);
 	await addFunds(page, 5);
 	await page.getByRole("button", { name: "Spend", exact: true }).click();

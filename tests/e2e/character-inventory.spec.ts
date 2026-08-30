@@ -7,6 +7,7 @@ import {
 	foundryDnd5eRawUrl,
 } from "../../src/domains/catalogue/config/index.js";
 import { CATALOGUE_SOURCE_MANIFEST } from "../../src/domains/catalogue/config/manifest.js";
+import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-helpers.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
@@ -48,6 +49,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	const firstCharacterName = `A7 Inventory Hero ${Date.now()}`;
 	await createCharacter(page, firstCharacterName, "Fighter");
 	const firstCharacterUrl = page.url();
+	await openInventoryTab(page);
 	const inventory = page.getByTestId("personal-inventory");
 
 	await expect(page.getByText("No personal items yet")).toBeVisible();
@@ -92,7 +94,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		"aria-pressed",
 		"false",
 	);
-	await expect(page.getByRole("tab")).toHaveCount(0);
+	await expect(page.getByRole("tab")).toHaveCount(2);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
@@ -134,6 +136,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	).toBeVisible();
 	await page.getByRole("button", { name: `Close ${fixture.mundaneName} details` }).click();
 	await page.reload();
+	await openInventoryTab(page);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
@@ -172,6 +175,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 			}),
 	);
 	await page.reload();
+	await openInventoryTab(page);
 	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeVisible();
 	await page.getByRole("button", { name: `View ${fixture.mundaneName}` }).click();
 	await expect(page.getByText(`Rules ${fixture.rulesVersion}`)).toBeVisible();
@@ -207,11 +211,13 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await page.getByText("Back to characters").click();
 	const secondCharacterName = `A7 Inventory Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
+	await openInventoryTab(page);
 	await expect(page.getByText("No personal items yet")).toBeVisible();
 	await expect(page.getByText(fixture.mundaneName)).toBeHidden();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto(firstCharacterUrl);
+	await openInventoryTab(page);
 	await expectNoHorizontalOverflow(page);
 	await expect(page.getByText("Sage's Elixir")).toBeVisible();
 	await page.getByRole("button", { name: "Add item", exact: true }).click();
@@ -232,9 +238,11 @@ test("keeps character details visible when personal inventory fails", async ({ p
 	});
 	await page.goto("/");
 	await createCharacter(page, `A7 Inventory Failure ${Date.now()}`, "Fighter");
+	await openInventoryTab(page);
 	await expect(page.getByText("Personal inventory unavailable")).toBeVisible();
-	await expect(page.getByText(/10 \/ 10 HP/)).toBeVisible();
 	await expect(page.getByText("Personal Treasury")).toBeVisible();
+	await openSpellsAndAbilitiesTab(page);
+	await expect(page.getByText(/10 \/ 10 HP/)).toBeVisible();
 });
 
 type CatalogueAuditRow = {
