@@ -2,142 +2,116 @@ import { MantineProvider } from "@mantine/core";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { TreasurySpendModal, validateSpendFunds } from "./treasury-spend-modal.js";
-import type { TreasurySpendPreview } from "./treasury-types.js";
 
 describe("TreasurySpendModal", () => {
-	it("rejects nonpositive spend amounts and missing denominations", () => {
-		expect(validateSpendFunds({ amount: 0, denomination: "gp" })).toMatchObject({
-			amount: "Enter a positive whole number.",
+	it("rejects an all-zero spend and accepts mixed whole-number coins", () => {
+		expect(validateSpendFunds({ cp: 0, sp: 0, gp: 0, pp: 0 })).toMatchObject({
+			cp: "Spend at least one coin.",
 		});
-		expect(validateSpendFunds({ amount: 1, denomination: "" })).toMatchObject({
-			denomination: "Choose a denomination.",
-		});
+		expect(validateSpendFunds({ cp: 1, sp: "", gp: 2, pp: "" })).toEqual({});
 	});
 
-	it("renders accessible denomination and amount controls", () => {
+	it("renders four inputs, available balances, and a live change-aware preview", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasurySpendModal
-					confirmPending={false}
+					initialValues={{ cp: 0, sp: 5, gp: 0, pp: 0 }}
+					mutationPending={false}
 					mutationError={null}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
-				/>
-			</MantineProvider>,
-		);
-
-		expect(html).toContain("Denomination");
-		expect(html).toContain("Preview spend");
-		expect(html).toContain("Amount");
-	});
-
-	it("renders the server-returned change in the spend confirmation preview", () => {
-		const preview: TreasurySpendPreview = {
-			operation: "spend",
-			previous: { cp: 5, sp: 4, gp: 3, pp: 1 },
-			next: { cp: 5, sp: 9, gp: 2, pp: 1 },
-			totalValue: { copper: 1_295, gp: 12.95 },
-			canApply: true,
-			change: { cp: 0, sp: 5, gp: 0, pp: 0 },
-		};
-		const html = renderToString(
-			<MantineProvider>
-				<TreasurySpendModal
-					confirmPending={false}
-					initialValues={{ amount: 5, denomination: "sp" }}
-					mutationError={null}
-					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
-					opened
-					preview={preview}
-					previewError={null}
-					previewPending={false}
-					previewRequest={{ amount: { denomination: "sp", amount: 5 } }}
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
 				/>
 			</MantineProvider>,
 		);
 
 		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Platinum pieces (PP)");
+		expect(readableHtml).toContain("Gold pieces (GP)");
+		expect(readableHtml).toContain("Silver pieces (SP)");
+		expect(readableHtml).toContain("Copper pieces (CP)");
+		expect(readableHtml).toContain("Available: 1");
+		expect(readableHtml).toContain("Available: 3");
+		expect(readableHtml).toContain("Available: 4");
+		expect(readableHtml).toContain("Available: 5");
+		expect(readableHtml).toContain("Preview");
 		expect(readableHtml).toContain("Returned change");
 		expect(readableHtml).toContain("SP 5");
-		expect(html).toContain("Confirm spend");
+		expect(readableHtml).toContain("12.95 GP");
+		expect(readableHtml).toContain(">Spend<");
+		expect(readableHtml).not.toContain("Preview spend");
+		expect(readableHtml).not.toContain("Confirm spend");
 	});
 
-	it("renders preview and confirmation-response failures without hiding the form", () => {
+	it("renders insufficient funds without exposing a second confirmation action", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasurySpendModal
-					confirmPending={false}
+					initialValues={{ cp: 0, sp: 0, gp: 100, pp: 0 }}
+					mutationPending={false}
+					mutationError={null}
+					onClose={vi.fn()}
+					onSubmit={vi.fn()}
+					opened
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
+				/>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain("Insufficient funds");
+		expect(html).toContain("The treasury does not contain enough currency.");
+		expect(html).toContain(">Spend<");
+		expect(html).not.toContain("Confirm spend");
+	});
+
+	it("renders mutation and reconciliation failures while keeping the form", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<TreasurySpendModal
+					mutationPending={false}
 					mutationError={new Error("mutation failed")}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
-					opened
-					preview={null}
-					previewError={new Error("preview failed")}
-					previewPending={false}
-					previewRequest={null}
-				/>
-			</MantineProvider>,
-		);
-
-		expect(html).toContain("Spend preview failed");
-		expect(html).toContain("Spend confirmation response unavailable");
-		expect(html).toContain("Preview spend");
-	});
-
-	it("renders reconciliation recovery while keeping spend confirmation gated", () => {
-		const html = renderToString(
-			<MantineProvider>
-				<TreasurySpendModal
-					confirmPending={false}
-					mutationError={null}
-					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
 					onRetryReconciliation={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
 					reconciliationError={new Error("reconciliation failed")}
 					reconciliationPending={false}
+					treasury={treasury({ cp: 0, sp: 0, gp: 0, pp: 0 })}
 				/>
 			</MantineProvider>,
 		);
 
+		expect(html).toContain("Spend failed");
 		expect(html).toContain("Treasury reconciliation failed");
-		expect(html).toContain("Retry treasury reconciliation");
-		expect(html).toContain("Preview spend");
+		expect(html).toContain("Spend");
 	});
 
-	it("locks denomination and amount while confirmation or reconciliation is pending", () => {
+	it("locks all four denomination inputs while the mutation is pending", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasurySpendModal
-					confirmPending
-					initialValues={{ amount: 2, denomination: "gp" }}
+					initialValues={{ cp: 1, sp: 2, gp: 3, pp: 4 }}
+					mutationPending
 					mutationError={null}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
+					treasury={treasury({ cp: 5, sp: 4, gp: 3, pp: 1 })}
 				/>
 			</MantineProvider>,
 		);
 
-		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(3);
+		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(4);
 	});
 });
+
+function treasury(balances: { cp: number; sp: number; gp: number; pp: number }) {
+	return {
+		balances,
+		totalValue: {
+			copper: balances.cp + balances.sp * 10 + balances.gp * 100 + balances.pp * 1_000,
+			gp: (balances.cp + balances.sp * 10 + balances.gp * 100 + balances.pp * 1_000) / 100,
+		},
+	};
+}

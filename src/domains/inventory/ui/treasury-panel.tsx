@@ -18,11 +18,7 @@ export interface TreasuryQueryState {
 	error: Error | null;
 }
 
-export interface TreasuryOperationState<Request, PreviewResponse> {
-	preview: PreviewResponse | null;
-	previewRequest: Request | null;
-	previewPending: boolean;
-	previewError: Error | null;
+export interface TreasuryOperationState {
 	mutationPending: boolean;
 	mutationError: Error | null;
 	reconciliationPending: boolean;
@@ -37,25 +33,21 @@ export interface TreasuryPanelProps {
 		message: string;
 		onAcknowledge: () => void;
 	} | null;
-	add: TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
-		onPreview: (request: TreasuryAddRequest) => void;
+	add: TreasuryOperationState & {
 		onConfirm: (
 			request: TreasuryAddRequest,
 			preview: TreasuryAddPreview,
 			onSuccess: () => void,
 		) => void;
-		onConsumePreview: () => void;
 		onReset: () => void;
 		onRetryReconciliation: () => void;
 	};
-	spend: TreasuryOperationState<TreasurySpendRequest, TreasurySpendPreview> & {
-		onPreview: (request: TreasurySpendRequest) => void;
+	spend: TreasuryOperationState & {
 		onConfirm: (
 			request: TreasurySpendRequest,
 			preview: TreasurySpendPreview,
 			onSuccess: () => void,
 		) => void;
-		onConsumePreview: () => void;
 		onReset: () => void;
 		onRetryReconciliation: () => void;
 	};
@@ -73,8 +65,7 @@ export function TreasuryPanel({
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
 	const treasury = query.data;
-	const actionsDisabled =
-		add.previewPending || add.mutationPending || spend.previewPending || spend.mutationPending;
+	const actionsDisabled = add.mutationPending || spend.mutationPending;
 	const reconciliationBlocked = Boolean(add.reconciliationError || spend.reconciliationError);
 	const allActionsDisabled =
 		actionsDisabled || reconciliationBlocked || indeterminateOutcome !== null;
@@ -87,16 +78,8 @@ export function TreasuryPanel({
 	}
 
 	function closeDialog() {
-		if (
-			activeDialog === "add" &&
-			(add.previewPending || add.mutationPending || add.reconciliationError)
-		)
-			return;
-		if (
-			activeDialog === "spend" &&
-			(spend.previewPending || spend.mutationPending || spend.reconciliationError)
-		)
-			return;
+		if (activeDialog === "add" && (add.mutationPending || add.reconciliationError)) return;
+		if (activeDialog === "spend" && (spend.mutationPending || spend.reconciliationError)) return;
 		setActiveDialog(null);
 	}
 
@@ -138,42 +121,28 @@ export function TreasuryPanel({
 
 			<TreasuryAddModal
 				key={`add-${dialogVersion}`}
-				confirmPending={add.mutationPending}
+				mutationPending={add.mutationPending}
 				actionsDisabled={allActionsDisabled}
 				mutationError={add.mutationError}
+				treasury={treasury}
 				onRetryReconciliation={add.onRetryReconciliation}
 				onClose={closeDialog}
-				onConfirm={(request, preview) => {
-					add.onConsumePreview();
-					add.onConfirm(request, preview, completeDialog);
-				}}
-				onPreview={add.onPreview}
+				onSubmit={(request, preview) => add.onConfirm(request, preview, completeDialog)}
 				opened={activeDialog === "add"}
-				preview={add.preview}
-				previewError={add.previewError}
-				previewPending={add.previewPending}
-				previewRequest={add.previewRequest}
 				reconciliationError={add.reconciliationError}
 				reconciliationPending={add.reconciliationPending}
 				stalePreviewError={add.stalePreviewError}
 			/>
 			<TreasurySpendModal
 				key={`spend-${dialogVersion}`}
-				confirmPending={spend.mutationPending}
+				mutationPending={spend.mutationPending}
 				actionsDisabled={allActionsDisabled}
 				mutationError={spend.mutationError}
+				treasury={treasury}
 				onRetryReconciliation={spend.onRetryReconciliation}
 				onClose={closeDialog}
-				onConfirm={(request, preview) => {
-					spend.onConsumePreview();
-					spend.onConfirm(request, preview, completeDialog);
-				}}
-				onPreview={spend.onPreview}
+				onSubmit={(request, preview) => spend.onConfirm(request, preview, completeDialog)}
 				opened={activeDialog === "spend"}
-				preview={spend.preview}
-				previewError={spend.previewError}
-				previewPending={spend.previewPending}
-				previewRequest={spend.previewRequest}
 				reconciliationError={spend.reconciliationError}
 				reconciliationPending={spend.reconciliationPending}
 				stalePreviewError={spend.stalePreviewError}

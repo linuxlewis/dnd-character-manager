@@ -41,7 +41,7 @@ Manual acceptance:
 1. Start the stack, sign in, and open an existing character.
 2. Confirm a character with no treasury row displays zero PP, GP, SP, and CP without an error.
 3. Add mixed denominations and verify each balance and total GP value.
-4. Spend an amount that requires making change and inspect the preview before confirming.
+4. Spend an amount that requires making change and inspect the live preview before submitting.
 5. Attempt to overspend and confirm balances do not change.
 6. Refresh the browser and confirm balances persist.
 7. Open a second character and confirm its treasury remains independent.

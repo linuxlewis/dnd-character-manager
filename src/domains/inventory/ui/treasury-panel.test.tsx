@@ -11,11 +11,7 @@ import type {
 
 describe("TreasuryPanel", () => {
 	it("isolates treasury loading and failure states", () => {
-		const loadingHtml = renderPanel({
-			data: undefined,
-			isLoading: true,
-			error: null,
-		});
+		const loadingHtml = renderPanel({ data: undefined, isLoading: true, error: null });
 		const errorHtml = renderPanel({
 			data: undefined,
 			isLoading: false,
@@ -27,7 +23,7 @@ describe("TreasuryPanel", () => {
 		expect(toReadableText(errorHtml)).toContain("Refresh the page to try again.");
 	});
 
-	it("renders a loaded treasury independently from the operation state", () => {
+	it("renders a loaded treasury without the personal scope badge", () => {
 		const html = renderPanel({
 			data: {
 				balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
@@ -37,12 +33,12 @@ describe("TreasuryPanel", () => {
 			error: null,
 		});
 
-		expect(html).toContain("Personal Treasury");
+		expect(html).not.toContain("Personal Treasury</span>");
 		expect(toReadableText(html)).toContain("2.00 GP");
 		expect(toReadableText(html)).toContain("Add funds");
 	});
 
-	it("blocks actions until an indeterminate confirmation is acknowledged", () => {
+	it("blocks actions until an indeterminate mutation is acknowledged", () => {
 		const html = renderPanel(
 			{
 				data: {
@@ -98,62 +94,43 @@ function toReadableText(html: string) {
 	return html.replaceAll("<!-- -->", "");
 }
 
-function addOperationState(): TreasuryOperationState<TreasuryAddRequest, TreasuryAddPreview> & {
-	onPreview: (request: TreasuryAddRequest) => void;
+function addOperationState(): TreasuryOperationState & {
 	onConfirm: (
 		request: TreasuryAddRequest,
 		preview: TreasuryAddPreview,
 		onSuccess: () => void,
 	) => void;
-	onConsumePreview: () => void;
 	onReset: () => void;
 	onRetryReconciliation: () => void;
 } {
 	return {
-		preview: null,
-		previewRequest: null,
-		previewPending: false,
-		previewError: null,
 		mutationPending: false,
 		mutationError: null,
 		reconciliationPending: false,
 		reconciliationError: null,
 		stalePreviewError: null,
-		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
-		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
 		onRetryReconciliation: vi.fn(),
 	};
 }
 
-function spendOperationState(): TreasuryOperationState<
-	TreasurySpendRequest,
-	TreasurySpendPreview
-> & {
-	onPreview: (request: TreasurySpendRequest) => void;
+function spendOperationState(): TreasuryOperationState & {
 	onConfirm: (
 		request: TreasurySpendRequest,
 		preview: TreasurySpendPreview,
 		onSuccess: () => void,
 	) => void;
-	onConsumePreview: () => void;
 	onReset: () => void;
 	onRetryReconciliation: () => void;
 } {
 	return {
-		preview: null,
-		previewRequest: null,
-		previewPending: false,
-		previewError: null,
 		mutationPending: false,
 		mutationError: null,
 		reconciliationPending: false,
 		reconciliationError: null,
 		stalePreviewError: null,
-		onPreview: vi.fn(),
 		onConfirm: vi.fn(),
-		onConsumePreview: vi.fn(),
 		onReset: vi.fn(),
 		onRetryReconciliation: vi.fn(),
 	};

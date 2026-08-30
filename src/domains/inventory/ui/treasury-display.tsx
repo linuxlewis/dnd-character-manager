@@ -7,7 +7,7 @@ import {
 import type { TreasuryData } from "./treasury-types.js";
 
 export interface TreasuryDisplayProps {
-	scopeLabel: string;
+	scopeLabel?: string;
 	treasury: TreasuryData;
 	actionsDisabled?: boolean;
 	onAddFunds: () => void;
@@ -24,19 +24,16 @@ export function TreasuryDisplay({
 	return (
 		<Stack gap="md">
 			<Group align="flex-start" justify="space-between" gap="sm" wrap="wrap">
-				<Stack gap={2}>
-					<Group gap="xs">
-						<Title order={3} size="h5">
-							Treasury
-						</Title>
+				<Group gap="xs">
+					<Title order={3} size="h5">
+						Treasury
+					</Title>
+					{scopeLabel && scopeLabel !== "Personal Treasury" && (
 						<Badge color="candle" variant="light">
 							{scopeLabel}
 						</Badge>
-					</Group>
-					<Text c="dimmed" size="sm">
-						Spend only after checking the server-backed result preview.
-					</Text>
-				</Stack>
+					)}
+				</Group>
 				<Group gap="xs" wrap="wrap">
 					<Button disabled={actionsDisabled} onClick={onAddFunds} size="sm" variant="light">
 						Add funds

@@ -1,6 +1,16 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
-test("completes the M1 personal treasury journey", async ({ page }) => {
+test("completes the M1 personal treasury journey with live client previews", async ({ page }) => {
+	let previewAttempts = 0;
+	await page.route("**/api/characters/*/treasury/preview/*", async (route) => {
+		previewAttempts += 1;
+		await route.fulfill({
+			status: 500,
+			contentType: "application/json",
+			body: JSON.stringify({ error: "The browser should not call preview endpoints." }),
+		});
+	});
+
 	await page.goto("/");
 	await createCharacter(page, "Treasury One", "Fighter");
 
@@ -13,43 +23,40 @@ test("completes the M1 personal treasury journey", async ({ page }) => {
 	await addDialog.getByLabel("Gold pieces (GP)").fill("3");
 	await addDialog.getByLabel("Silver pieces (SP)").fill("4");
 	await addDialog.getByLabel("Copper pieces (CP)").fill("5");
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await expect(addDialog.getByText("Server-backed result preview")).toBeVisible();
-	const addNextBalances = addDialog.getByText("Next balances", { exact: true }).locator("..");
-	await expectPreviewBalance(addNextBalances, "PP", "1");
-	await expectPreviewBalance(addNextBalances, "GP", "3");
-	await expectPreviewBalance(addNextBalances, "SP", "4");
-	await expectPreviewBalance(addNextBalances, "CP", "5");
-	await expect(addDialog.getByText("Next total GP value").locator("..")).toContainText("13.45 GP");
-	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await expect(addDialog.getByText("Preview")).toBeVisible();
+	await expect(addDialog.getByText("After change")).toBeVisible();
+	await expect(addDialog.getByText("13.45 GP")).toBeVisible();
+	await expect(addDialog.getByRole("button", { name: "Add funds", exact: true })).toBeEnabled();
+	await expect(addDialog.getByText("Server-backed result preview")).toBeHidden();
+	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 	await expectBalances(page, { pp: "1", gp: "3", sp: "4", cp: "5", total: "13.45 GP" });
 
 	await page.getByRole("button", { name: "Spend" }).click();
 	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
 	await expect(spendDialog).toBeVisible();
-	await spendDialog.getByRole("combobox", { name: "Denomination" }).click();
-	await page.getByRole("option", { name: "Silver pieces (SP)" }).click();
-	await spendDialog.getByLabel("Amount").fill("5");
-	await spendDialog.getByRole("button", { name: "Preview spend" }).click();
+	await spendDialog.getByLabel("Silver pieces (SP)").fill("5");
+	await expect(spendDialog.getByText("Available: 4")).toBeVisible();
 	await expect(spendDialog.getByText("Returned change")).toBeVisible();
-	await expect(spendDialog.getByText("Returned change").locator("..")).toContainText("SP 5");
-	await expect(spendDialog.getByText("Next total GP value").locator("..")).toContainText(
-		"12.95 GP",
-	);
-	await spendDialog.getByRole("button", { name: "Confirm spend" }).click();
+	await expect(spendDialog.getByText("12.95 GP")).toBeVisible();
+	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeHidden();
+	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(spendDialog).toBeHidden();
 	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
 
 	const balancesBeforeOverspend = await readBalances(page);
 	await page.getByRole("button", { name: "Spend" }).click();
-	await spendDialog.getByLabel("Amount").fill("100");
-	await spendDialog.getByRole("button", { name: "Preview spend" }).click();
-	await expect(spendDialog.getByText("Insufficient funds")).toBeVisible();
-	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeDisabled();
+	await page
+		.getByRole("dialog", { name: "Spend funds" })
+		.getByLabel("Gold pieces (GP)")
+		.fill("100");
+	const overspendDialog = page.getByRole("dialog", { name: "Spend funds" });
+	await expect(overspendDialog.getByText("Insufficient funds")).toBeVisible();
+	await expect(overspendDialog.getByRole("button", { name: "Spend", exact: true })).toBeDisabled();
 	await expect(readBalances(page)).resolves.toEqual(balancesBeforeOverspend);
-	await spendDialog.getByRole("button", { name: "Cancel" }).click();
+	await overspendDialog.getByRole("button", { name: "Cancel" }).click();
 
+	await expect(previewAttempts).toBe(0);
 	await page.reload();
 	await expect(page.getByRole("heading", { name: "Treasury One" })).toBeVisible();
 	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
@@ -81,39 +88,7 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 });
 
-test("recovers from a failed treasury preview without exposing stale confirmation", async ({
-	page,
-}) => {
-	let previewAttempts = 0;
-	await page.route("**/api/characters/*/treasury/preview/add", async (route) => {
-		previewAttempts += 1;
-		if (previewAttempts === 1) {
-			return route.fulfill({
-				status: 503,
-				contentType: "application/json",
-				body: JSON.stringify({ error: "Add preview is temporarily unavailable." }),
-			});
-		}
-		return route.continue();
-	});
-
-	await page.goto("/");
-	await createCharacter(page, "Preview Recovery", "Fighter");
-	await page.getByRole("button", { name: "Add funds" }).click();
-	const addDialog = page.getByRole("dialog", { name: "Add funds" });
-	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await expect(addDialog.getByText("Add preview failed")).toBeVisible();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
-
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeVisible();
-	await expect(previewAttempts).toBe(2);
-	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
-	await expectBalances(page, { pp: "0", gp: "1", sp: "0", cp: "0", total: "1.00 GP" });
-});
-
-test("requires review after an unverified confirmation and recovers from a fresh dialog", async ({
+test("uses a single mutation after a failed add response and keeps the recovery warning", async ({
 	page,
 }) => {
 	let mutationAttempts = 0;
@@ -124,7 +99,7 @@ test("requires review after an unverified confirmation and recovers from a fresh
 			return route.fulfill({
 				status: 503,
 				contentType: "application/json",
-				body: JSON.stringify({ error: "Add confirmation is temporarily unavailable." }),
+				body: JSON.stringify({ error: "Add funds is temporarily unavailable." }),
 			});
 		}
 		return route.continue();
@@ -135,8 +110,7 @@ test("requires review after an unverified confirmation and recovers from a fresh
 	await page.getByRole("button", { name: "Add funds" }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 	const warning = page.getByRole("alert").filter({
@@ -147,11 +121,8 @@ test("requires review after an unverified confirmation and recovers from a fresh
 	await warning.getByRole("button", { name: "I reviewed the balance" }).click();
 
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
-	await addDialog.getByRole("button", { name: "Preview add" }).click();
-	await expect(addDialog.getByRole("button", { name: "Confirm add funds" })).toBeVisible();
-	await addDialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 	await expectBalances(page, { pp: "0", gp: "1", sp: "0", cp: "0", total: "1.00 GP" });
 	await expect(mutationAttempts).toBe(2);
@@ -174,14 +145,22 @@ test("keeps treasury controls within the mobile viewport", async ({ page }) => {
 	]) {
 		await expect(addDialog.getByLabel(label)).toHaveCSS("font-size", "16px");
 	}
-	await expect(addDialog.getByRole("button", { name: "Preview add" })).toBeVisible();
+	await expect(addDialog.getByRole("button", { name: "Add funds", exact: true })).toBeVisible();
 	await addDialog.getByRole("button", { name: "Close add funds dialog" }).click();
 
 	await page.getByRole("button", { name: "Spend" }).click();
 	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
 	await expectDialogWithinViewport(page, spendDialog);
-	await expect(spendDialog.getByLabel("Amount")).toHaveCSS("font-size", "16px");
-	await expect(spendDialog.getByRole("button", { name: "Preview spend" })).toBeVisible();
+	for (const label of [
+		"Platinum pieces (PP)",
+		"Gold pieces (GP)",
+		"Silver pieces (SP)",
+		"Copper pieces (CP)",
+	]) {
+		await expect(spendDialog.getByLabel(label)).toHaveCSS("font-size", "16px");
+		await expect(spendDialog.getByText(/Available:/).first()).toBeVisible();
+	}
+	await expect(spendDialog.getByRole("button", { name: "Spend", exact: true })).toBeVisible();
 });
 
 async function createCharacter(page: Page, name: string, className: string) {
@@ -193,19 +172,13 @@ async function createCharacter(page: Page, name: string, className: string) {
 	await expect(page.getByRole("heading", { name })).toBeVisible();
 }
 
-async function expectPreviewBalance(container: Locator, abbreviation: string, amount: string) {
-	await expect(container.getByText(abbreviation, { exact: true }).locator("..")).toContainText(
-		amount,
-	);
-}
-
 async function expectNoHorizontalOverflow(page: Page) {
 	const viewportWidth = page.viewportSize()?.width ?? 0;
 	const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
 	expect(scrollWidth).toBeLessThanOrEqual(viewportWidth);
 }
 
-async function expectDialogWithinViewport(page: Page, dialog: Locator) {
+async function expectDialogWithinViewport(page: Page, dialog: import("@playwright/test").Locator) {
 	const box = await dialog.boundingBox();
 	const viewport = page.viewportSize();
 	expect(box).not.toBeNull();

@@ -1,10 +1,6 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import type {
-	AddCharacterTreasuryPreviewResponse,
-	CharacterTreasuryResponse,
-	SpendCharacterTreasuryPreviewResponse,
-} from "../../../generated/api-client.generated.js";
+import type { CharacterTreasuryResponse } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueries, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import {
 	reconcileAndRelease,
@@ -24,7 +20,7 @@ import type {
 } from "./treasury-types.js";
 
 const INDETERMINATE_OUTCOME_MESSAGE =
-	"The confirmation response was lost and the treasury changed before the result could be verified. The displayed balance is authoritative; review it before making another treasury change.";
+	"The response was lost and the treasury changed before the result could be verified. The displayed balance is authoritative; review it before making another treasury change.";
 
 export function CharacterTreasuryPanel({
 	characterId,
@@ -35,12 +31,8 @@ export function CharacterTreasuryPanel({
 }) {
 	const queryClient = useQueryClient();
 	const query = useQuery(apiQueries.getCharacterTreasury({ characterId }));
-	const addPreviewMutation = useMutation(apiMutations.previewAddCharacterTreasury());
-	const spendPreviewMutation = useMutation(apiMutations.previewSpendCharacterTreasury());
 	const addMutation = useMutation(apiMutations.addCharacterTreasury());
 	const spendMutation = useMutation(apiMutations.spendCharacterTreasury());
-	const [addPreviewRequest, setAddPreviewRequest] = useState<TreasuryAddRequest | null>(null);
-	const [spendPreviewRequest, setSpendPreviewRequest] = useState<TreasurySpendRequest | null>(null);
 	const [addReconciliation, setAddReconciliation] = useState<TreasuryReconciliationState>({
 		error: null,
 		pending: false,
@@ -57,25 +49,12 @@ export function CharacterTreasuryPanel({
 		updateTreasuryQueryCache(queryClient, characterId, response);
 	}
 
-	function previewAdd(request: TreasuryAddRequest) {
-		setAddPreviewRequest(request);
-		addPreviewMutation.reset();
-		addMutation.reset();
-		addPreviewMutation.mutate({ params: { characterId }, body: request });
-	}
-
-	function previewSpend(request: TreasurySpendRequest) {
-		setSpendPreviewRequest(request);
-		spendPreviewMutation.reset();
-		spendMutation.reset();
-		spendPreviewMutation.mutate({ params: { characterId }, body: request });
-	}
-
-	function confirmAdd(
+	function submitAdd(
 		request: TreasuryAddRequest,
 		preview: TreasuryAddPreview,
 		onSuccess: () => void,
 	) {
+		addMutation.reset();
 		addConfirmationRef.current = {
 			conflict: false,
 			expectedNext: preview.next,
@@ -87,10 +66,10 @@ export function CharacterTreasuryPanel({
 			},
 		};
 		setAddReconciliation({ error: null, pending: true });
-		void applyAddConfirmation(request, preview);
+		void applyAdd(request, preview);
 	}
 
-	async function applyAddConfirmation(request: TreasuryAddRequest, preview: TreasuryAddPreview) {
+	async function applyAdd(request: TreasuryAddRequest, preview: TreasuryAddPreview) {
 		try {
 			const response = await addMutation.mutateAsync({
 				params: { characterId },
@@ -107,11 +86,12 @@ export function CharacterTreasuryPanel({
 		}
 	}
 
-	function confirmSpend(
+	function submitSpend(
 		request: TreasurySpendRequest,
 		preview: TreasurySpendPreview,
 		onSuccess: () => void,
 	) {
+		spendMutation.reset();
 		spendConfirmationRef.current = {
 			conflict: false,
 			expectedNext: preview.next,
@@ -123,13 +103,10 @@ export function CharacterTreasuryPanel({
 			},
 		};
 		setSpendReconciliation({ error: null, pending: true });
-		void applySpendConfirmation(request, preview);
+		void applySpend(request, preview);
 	}
 
-	async function applySpendConfirmation(
-		request: TreasurySpendRequest,
-		preview: TreasurySpendPreview,
-	) {
+	async function applySpend(request: TreasurySpendRequest, preview: TreasurySpendPreview) {
 		try {
 			const response = await spendMutation.mutateAsync({
 				params: { characterId },
@@ -174,21 +151,13 @@ export function CharacterTreasuryPanel({
 			add={{
 				mutationError: addConflictError ? null : addMutation.error,
 				mutationPending: addMutation.isPending || addReconciliation.pending,
-				onConfirm: confirmAdd,
-				onConsumePreview: () =>
-					consumeTreasuryPreview(setAddPreviewRequest, () => addPreviewMutation.reset()),
-				onPreview: previewAdd,
+				onConfirm: submitAdd,
 				onReset: () => {
 					addConfirmationRef.current = null;
 					setAddReconciliation({ error: null, pending: false });
-					consumeTreasuryPreview(setAddPreviewRequest, () => addPreviewMutation.reset());
 					addMutation.reset();
 				},
 				onRetryReconciliation: retryAddReconciliation,
-				preview: toAddTreasuryPreview(addPreviewMutation.data),
-				previewError: addPreviewMutation.error,
-				previewPending: addPreviewMutation.isPending,
-				previewRequest: addPreviewRequest,
 				reconciliationError: addReconciliation.error,
 				reconciliationPending: addReconciliation.pending,
 				stalePreviewError: addConflictError,
@@ -210,21 +179,13 @@ export function CharacterTreasuryPanel({
 			spend={{
 				mutationError: spendConflictError ? null : spendMutation.error,
 				mutationPending: spendMutation.isPending || spendReconciliation.pending,
-				onConfirm: confirmSpend,
-				onConsumePreview: () =>
-					consumeTreasuryPreview(setSpendPreviewRequest, () => spendPreviewMutation.reset()),
-				onPreview: previewSpend,
+				onConfirm: submitSpend,
 				onReset: () => {
 					spendConfirmationRef.current = null;
 					setSpendReconciliation({ error: null, pending: false });
-					consumeTreasuryPreview(setSpendPreviewRequest, () => spendPreviewMutation.reset());
 					spendMutation.reset();
 				},
 				onRetryReconciliation: retrySpendReconciliation,
-				preview: toSpendTreasuryPreview(spendPreviewMutation.data),
-				previewError: spendPreviewMutation.error,
-				previewPending: spendPreviewMutation.isPending,
-				previewRequest: spendPreviewRequest,
 				reconciliationError: spendReconciliation.error,
 				reconciliationPending: spendReconciliation.pending,
 				stalePreviewError: spendConflictError,
@@ -247,24 +208,4 @@ export function toTreasuryData(response: CharacterTreasuryResponse): TreasuryDat
 		balances: response.treasury.balances,
 		totalValue: response.treasury.totalValue,
 	};
-}
-
-export function toAddTreasuryPreview(
-	response: AddCharacterTreasuryPreviewResponse | undefined,
-): TreasuryAddPreview | null {
-	return response?.preview ?? null;
-}
-
-export function toSpendTreasuryPreview(
-	response: SpendCharacterTreasuryPreviewResponse | undefined,
-): TreasurySpendPreview | null {
-	return response?.preview ?? null;
-}
-
-export function consumeTreasuryPreview<Request>(
-	setPreviewRequest: (request: Request | null) => void,
-	resetPreview: () => void,
-) {
-	setPreviewRequest(null);
-	resetPreview();
 }

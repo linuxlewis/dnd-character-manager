@@ -115,7 +115,7 @@ pass.
 Writes the reusable treasury display and personal-treasury composition on character detail.
 
 - Denomination cards and total GP value.
-- Add and spend modals with previews.
+- Add and spend modals with live client-side previews and one-step submission.
 - Loading, empty-zero, insufficient-funds, and mutation-error states.
 - Focused `tests/e2e/character-treasury.spec.ts` coverage.
 

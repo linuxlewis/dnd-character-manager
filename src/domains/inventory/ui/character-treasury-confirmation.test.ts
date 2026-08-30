@@ -118,6 +118,7 @@ describe("character treasury confirmation adapter", () => {
 					operation: "add",
 					previous,
 					next: { ...previous, gp: 5 },
+					delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
 					totalValue: { copper: 4_521, gp: 45.21 },
 					canApply: true,
 				},
@@ -133,6 +134,7 @@ describe("character treasury confirmation adapter", () => {
 					operation: "spend",
 					previous,
 					next: { ...previous, gp: 2 },
+					delta: { cp: 0, sp: 0, gp: -1, pp: 0 },
 					totalValue: { copper: 4_221, gp: 42.21 },
 					canApply: true,
 				},
@@ -168,7 +170,7 @@ describe("character treasury confirmation adapter", () => {
 		);
 	});
 
-	it("adapts an explicit treasury conflict into re-preview guidance", () => {
+	it("adapts an explicit treasury conflict into fresh-save guidance", () => {
 		expect(
 			toTreasuryConflictError(
 				new ApiClientError(409, {
@@ -180,7 +182,7 @@ describe("character treasury confirmation adapter", () => {
 					},
 				}),
 			)?.message,
-		).toContain("preview again");
+		).toContain("submit again");
 	});
 });
 

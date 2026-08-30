@@ -47,7 +47,7 @@ export function toTreasuryConflictError(error: unknown) {
 	if (!(error instanceof ApiClientError) || error.status !== 409) return null;
 	if (!isTreasuryConflictResponse(error.body)) return null;
 	return new Error(
-		"Treasury balances changed since this preview. Review the current balances and preview again before confirming.",
+		"Treasury balances changed before this save. Review the current balances and submit again.",
 	);
 }
 

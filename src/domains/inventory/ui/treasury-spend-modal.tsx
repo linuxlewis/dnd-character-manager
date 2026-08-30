@@ -1,60 +1,57 @@
-import { Alert, Box, Button, Group, Modal, NumberInput, Select, Stack, Text } from "@mantine/core";
+import {
+	Alert,
+	Box,
+	Button,
+	Group,
+	Modal,
+	NumberInput,
+	SimpleGrid,
+	Stack,
+	Text,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { DND_CURRENCY_TO_COPPER, POSTGRES_INTEGER_MAX } from "../types/index.js";
 import {
 	getTreasuryErrorMessage,
 	TREASURY_DENOMINATIONS,
 	type TreasuryDenomination,
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
-import type { TreasurySpendPreview, TreasurySpendRequest } from "./treasury-types.js";
+import type { TreasuryData, TreasurySpendPreview, TreasurySpendRequest } from "./treasury-types.js";
+import { createTreasurySpendPreview } from "./treasury-types.js";
 
 type NumberDraft = "" | number;
 
-export interface SpendFundsValues {
-	amount: NumberDraft;
-	denomination: TreasuryDenomination | "";
-}
+export type SpendFundsValues = Record<TreasuryDenomination, NumberDraft>;
 
-const initialValues: SpendFundsValues = { amount: "", denomination: "gp" };
-const denominationOptions = TREASURY_DENOMINATIONS.map(({ key, label }) => ({
-	value: key,
-	label: `${label} (${key.toUpperCase()})`,
-}));
+const initialValues: SpendFundsValues = { cp: "", sp: "", gp: "", pp: "" };
 
 export function TreasurySpendModal({
 	opened,
 	initialValues: providedInitialValues,
-	preview,
-	previewRequest,
-	previewPending,
-	previewError,
+	treasury,
 	mutationError,
-	confirmPending,
+	mutationPending,
 	actionsDisabled = false,
 	reconciliationPending = false,
 	reconciliationError = null,
 	stalePreviewError = null,
 	onRetryReconciliation = () => {},
 	onClose,
-	onPreview,
-	onConfirm,
+	onSubmit,
 }: {
 	opened: boolean;
 	initialValues?: SpendFundsValues;
-	preview: TreasurySpendPreview | null;
-	previewRequest: TreasurySpendRequest | null;
-	previewPending: boolean;
-	previewError: Error | null;
+	treasury?: TreasuryData;
 	mutationError: Error | null;
-	confirmPending: boolean;
+	mutationPending: boolean;
 	actionsDisabled?: boolean;
 	reconciliationPending?: boolean;
 	reconciliationError?: Error | null;
 	stalePreviewError?: Error | null;
 	onRetryReconciliation?: () => void;
 	onClose: () => void;
-	onPreview: (request: TreasurySpendRequest) => void;
-	onConfirm: (request: TreasurySpendRequest, preview: TreasurySpendPreview) => void;
+	onSubmit: (request: TreasurySpendRequest, preview: TreasurySpendPreview) => void;
 }) {
 	const form = useForm<SpendFundsValues>({
 		mode: "controlled",
@@ -62,13 +59,17 @@ export function TreasurySpendModal({
 		validate: validateSpendFunds,
 	});
 	const currentRequest = toSpendTreasuryRequest(form.values);
-	const previewIsCurrent =
-		currentRequest !== null &&
-		preview !== null &&
-		previewRequest !== null &&
-		sameRequest(currentRequest, previewRequest);
-	const visiblePreview = previewIsCurrent ? preview : null;
-	const formDisabled = actionsDisabled || previewPending || confirmPending;
+	const draftIsValid = isValidDraft(form.values);
+	const preview =
+		treasury && draftIsValid && currentRequest
+			? createTreasurySpendPreview(treasury, currentRequest)
+			: null;
+	const formDisabled = actionsDisabled || mutationPending || reconciliationPending;
+	const submitDisabled =
+		formDisabled ||
+		treasury === undefined ||
+		currentRequest === null ||
+		preview?.canApply === false;
 
 	return (
 		<Modal
@@ -85,70 +86,54 @@ export function TreasurySpendModal({
 		>
 			<Box
 				component="form"
-				onSubmit={form.onSubmit((values) => {
-					const request = toSpendTreasuryRequest(values);
-					if (request) onPreview(request);
+				onSubmit={form.onSubmit(() => {
+					if (currentRequest && preview?.canApply) onSubmit(currentRequest, preview);
 				})}
 			>
 				<Stack gap="md">
-					<Text c="dimmed" size="sm">
-						Choose the price denomination and enter a positive whole number.
-					</Text>
-					<Select
-						{...form.getInputProps("denomination")}
-						data={denominationOptions}
-						disabled={formDisabled}
-						label="Denomination"
-						withAsterisk
-					/>
-					<NumberInput
-						{...form.getInputProps("amount")}
-						allowDecimal={false}
-						allowNegative={false}
-						data-autofocus
-						disabled={formDisabled}
-						hideControls
-						label="Amount"
-						min={1}
-						styles={{ input: { fontSize: "16px" } }}
-						withAsterisk
-					/>
+					<SimpleGrid cols={{ base: 2, xs: 2 }} spacing="sm">
+						{TREASURY_DENOMINATIONS.map(({ key, label }, index) => (
+							<Box key={key}>
+								<NumberInput
+									{...form.getInputProps(key)}
+									allowDecimal={false}
+									allowNegative={false}
+									data-autofocus={index === 0 || undefined}
+									disabled={formDisabled}
+									hideControls
+									label={`${label} (${key.toUpperCase()})`}
+									max={POSTGRES_INTEGER_MAX}
+									min={0}
+									styles={{ input: { fontSize: "16px" } }}
+								/>
+								<Text c="dimmed" size="xs">
+									Available: {treasury?.balances[key] ?? 0}
+								</Text>
+							</Box>
+						))}
+					</SimpleGrid>
 
-					{previewError && (
-						<Alert color="red" title="Spend preview failed" variant="light">
-							{getTreasuryErrorMessage(previewError, "The spend preview could not be loaded.")}
-						</Alert>
-					)}
 					{stalePreviewError && (
-						<Alert color="orange" title="Treasury changed since preview" variant="light">
+						<Alert color="orange" title="Treasury changed before save" variant="light">
 							{stalePreviewError.message}
 						</Alert>
 					)}
 					{mutationError && (
-						<Alert color="orange" title="Spend confirmation response unavailable" variant="light">
+						<Alert color="red" title="Spend failed" variant="light">
 							{getTreasuryErrorMessage(
 								mutationError,
-								"The spend confirmation response could not be verified.",
+								"The spend operation could not be completed.",
 							)}
 						</Alert>
 					)}
 
-					{visiblePreview && currentRequest && (
-						<TreasuryPreview
-							confirmDisabled={formDisabled}
-							confirmLoading={confirmPending}
-							confirmLabel="Confirm spend"
-							onConfirm={() => onConfirm(currentRequest, visiblePreview)}
-							preview={visiblePreview}
-							returnedChange={visiblePreview.change}
-						/>
-					)}
+					{preview && <TreasuryPreview preview={preview} returnedChange={preview.change} />}
 
 					{reconciliationError && (
 						<Alert color="red" title="Treasury reconciliation failed" variant="light">
 							{getTreasuryErrorMessage(
 								reconciliationError,
-								"The treasury could not be reconciled after the confirmation attempt.",
+								"The treasury could not be reconciled after the spend attempt.",
 							)}
 							<Button
 								disabled={reconciliationPending}
@@ -166,8 +151,8 @@ export function TreasurySpendModal({
 						<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button disabled={formDisabled} loading={previewPending} type="submit">
-							{visiblePreview ? "Preview again" : "Preview spend"}
+						<Button disabled={submitDisabled} loading={mutationPending} type="submit">
+							Spend
 						</Button>
 					</Group>
 				</Stack>
@@ -177,23 +162,48 @@ export function TreasurySpendModal({
 }
 
 export function validateSpendFunds(values: SpendFundsValues) {
-	return {
-		amount:
-			typeof values.amount !== "number" || !Number.isInteger(values.amount) || values.amount < 1
-				? "Enter a positive whole number."
-				: null,
-		denomination: values.denomination === "" ? "Choose a denomination." : null,
-	};
+	const errors: Partial<Record<TreasuryDenomination, string>> = {};
+	for (const { key } of TREASURY_DENOMINATIONS) {
+		const value = values[key];
+		if (value !== "" && (!Number.isInteger(value) || value < 0 || value > POSTGRES_INTEGER_MAX)) {
+			errors[key] = "Enter a nonnegative whole number within the supported limit.";
+		}
+	}
+	if (Object.values(values).every((value) => value === 0 || value === "")) {
+		errors.cp ??= "Spend at least one coin.";
+	}
+	if (toSpendTreasuryRequest(values) === null && Object.keys(errors).length === 0) {
+		errors.cp = "The total spend is too large to process.";
+	}
+	return errors;
 }
 
 export function toSpendTreasuryRequest(values: SpendFundsValues): TreasurySpendRequest | null {
-	if (values.denomination === "" || typeof values.amount !== "number") return null;
-	return { amount: { denomination: values.denomination, amount: values.amount } };
+	const totalCopper = TREASURY_DENOMINATIONS.reduce(
+		(total, { key }) => total + toNumber(values[key]) * DND_CURRENCY_TO_COPPER[key],
+		0,
+	);
+	if (!Number.isSafeInteger(totalCopper) || totalCopper < 1) return null;
+
+	for (const { key } of TREASURY_DENOMINATIONS) {
+		if (totalCopper % DND_CURRENCY_TO_COPPER[key] !== 0) continue;
+		const amount = totalCopper / DND_CURRENCY_TO_COPPER[key];
+		if (amount <= POSTGRES_INTEGER_MAX) {
+			return { amount: { denomination: key, amount } };
+		}
+	}
+	return null;
 }
 
-function sameRequest(left: TreasurySpendRequest, right: TreasurySpendRequest) {
+function toNumber(value: NumberDraft) {
+	return value === "" ? 0 : value;
+}
+
+function isValidDraft(values: SpendFundsValues) {
 	return (
-		left.amount.denomination === right.amount.denomination &&
-		left.amount.amount === right.amount.amount
+		Object.values(values).every(
+			(value) =>
+				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX),
+		) && Object.values(values).some((value) => typeof value === "number" && value > 0)
 	);
 }

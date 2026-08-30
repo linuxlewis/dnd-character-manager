@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 test("recovers a failed reconciliation without replaying the mutation", async ({ page }) => {
 	let mutationCount = 0;
@@ -30,12 +30,11 @@ test("recovers a failed reconciliation without replaying the mutation", async ({
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Add funds" });
 	await dialog.getByLabel("Gold pieces (GP)").fill("1");
-	await dialog.getByRole("button", { name: "Preview add" }).click();
-	await dialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
 
 	await expect(dialog.getByText("Treasury reconciliation failed")).toBeVisible();
 	await expect(dialog.getByRole("button", { name: "Retry treasury reconciliation" })).toBeVisible();
-	await expect(dialog.getByRole("button", { name: "Preview add" })).toBeDisabled();
+	await expect(dialog.getByRole("button", { name: "Add funds", exact: true })).toBeDisabled();
 	await expect(page.getByRole("button", { name: "Spend", exact: true })).toBeDisabled();
 	expect(mutationCount).toBe(1);
 
@@ -47,16 +46,16 @@ test("recovers a failed reconciliation without replaying the mutation", async ({
 	expect(treasuryGets).toBeGreaterThan(2);
 });
 
-test("rejects a stale add confirmation and requires a new preview", async ({ page }) => {
+test("rejects a stale add mutation and allows a fresh one-step submit", async ({ page }) => {
 	let addMutations = 0;
-	let addPreviews = 0;
+	let previewAttempts = 0;
 	await page.route("**/api/characters/*/treasury", async (route) => {
 		if (route.request().method() !== "PUT") return route.continue();
 		addMutations += 1;
 		return route.continue();
 	});
-	await page.route("**/api/characters/*/treasury/preview/add", async (route) => {
-		addPreviews += 1;
+	await page.route("**/api/characters/*/treasury/preview/*", async (route) => {
+		previewAttempts += 1;
 		return route.continue();
 	});
 
@@ -66,32 +65,25 @@ test("rejects a stale add confirmation and requires a new preview", async ({ pag
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Add funds" });
 	await dialog.getByLabel("Gold pieces (GP)").fill("1");
-	await dialog.getByRole("button", { name: "Preview add" }).click();
 
 	await externalAdd(page, characterId, 2);
-	await dialog.getByRole("button", { name: "Confirm add funds" }).click();
-	await expect(dialog.getByText("Treasury changed since preview")).toBeVisible();
-	await expect(dialog.getByRole("button", { name: "Confirm add funds" })).toBeHidden();
+	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
+	await expect(dialog.getByText("Treasury changed before save")).toBeVisible();
+	await expect(dialog.getByRole("button", { name: "Add funds", exact: true })).toBeEnabled();
 	await expect(page.getByTestId("treasury-total")).toContainText("2.00 GP");
 	expect(addMutations).toBe(2);
-	expect(addPreviews).toBe(1);
+	expect(previewAttempts).toBe(0);
 
-	await dialog.getByRole("button", { name: "Preview add" }).click();
-	await expectPreviewBalance(dialog, "Previous balances", "GP", "2");
-	await expectPreviewBalance(dialog, "Next balances", "GP", "3");
-	expect(addPreviews).toBe(2);
-
-	await dialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(dialog).toBeHidden();
 	await expect(page.getByTestId("treasury-total")).toContainText("3.00 GP");
 	expect(addMutations).toBe(3);
-	expect(addPreviews).toBe(2);
 });
 
-test("rejects a stale spend confirmation and requires a new preview", async ({ page }) => {
+test("rejects a stale spend mutation and allows a fresh one-step submit", async ({ page }) => {
 	let addMutations = 0;
 	let spendMutations = 0;
-	let spendPreviews = 0;
+	let previewAttempts = 0;
 	await page.route("**/api/characters/*/treasury", async (route) => {
 		if (route.request().method() !== "PUT") return route.continue();
 		addMutations += 1;
@@ -102,8 +94,8 @@ test("rejects a stale spend confirmation and requires a new preview", async ({ p
 		spendMutations += 1;
 		return route.continue();
 	});
-	await page.route("**/api/characters/*/treasury/preview/spend", async (route) => {
-		spendPreviews += 1;
+	await page.route("**/api/characters/*/treasury/preview/*", async (route) => {
+		previewAttempts += 1;
 		return route.continue();
 	});
 
@@ -113,28 +105,21 @@ test("rejects a stale spend confirmation and requires a new preview", async ({ p
 	await addFunds(page, 5);
 	await page.getByRole("button", { name: "Spend", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Spend funds" });
-	await dialog.getByLabel("Amount").fill("1");
-	await dialog.getByRole("button", { name: "Preview spend" }).click();
+	await dialog.getByLabel("Gold pieces (GP)").fill("1");
 
 	await externalAdd(page, characterId, 2);
-	await dialog.getByRole("button", { name: "Confirm spend" }).click();
-	await expect(dialog.getByText("Treasury changed since preview")).toBeVisible();
-	await expect(dialog.getByRole("button", { name: "Confirm spend" })).toBeHidden();
+	await dialog.getByRole("button", { name: "Spend", exact: true }).click();
+	await expect(dialog.getByText("Treasury changed before save")).toBeVisible();
+	await expect(dialog.getByRole("button", { name: "Spend", exact: true })).toBeEnabled();
 	await expect(page.getByTestId("treasury-total")).toContainText("7.00 GP");
 	expect(spendMutations).toBe(1);
-	expect(spendPreviews).toBe(1);
+	expect(previewAttempts).toBe(0);
 
-	await dialog.getByRole("button", { name: "Preview spend" }).click();
-	await expectPreviewBalance(dialog, "Previous balances", "GP", "7");
-	await expectPreviewBalance(dialog, "Next balances", "GP", "6");
-	expect(spendPreviews).toBe(2);
-
-	await dialog.getByRole("button", { name: "Confirm spend" }).click();
+	await dialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(dialog).toBeHidden();
 	await expect(page.getByTestId("treasury-total")).toContainText("6.00 GP");
 	expect(addMutations).toBe(2);
 	expect(spendMutations).toBe(2);
-	expect(spendPreviews).toBe(2);
 });
 
 async function createCharacter(page: Page, name: string, className: string) {
@@ -150,8 +135,7 @@ async function addFunds(page: Page, amount: number) {
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Add funds" });
 	await dialog.getByLabel("Gold pieces (GP)").fill(String(amount));
-	await dialog.getByRole("button", { name: "Preview add" }).click();
-	await dialog.getByRole("button", { name: "Confirm add funds" }).click();
+	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(dialog).toBeHidden();
 }
 
@@ -177,16 +161,4 @@ async function externalAdd(page: Page, characterId: string, amount: number) {
 
 function characterIdFromPage(page: Page) {
 	return new URL(page.url()).pathname.split("/").at(-1) ?? "";
-}
-
-async function expectPreviewBalance(
-	dialog: Locator,
-	section: string,
-	abbreviation: string,
-	amount: string,
-) {
-	const container = dialog.getByText(section, { exact: true }).locator("..");
-	await expect(container.getByText(abbreviation, { exact: true }).locator("..")).toContainText(
-		amount,
-	);
 }

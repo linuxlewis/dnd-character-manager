@@ -11,93 +11,69 @@ describe("TreasuryAddModal", () => {
 		expect(validateAddFunds({ cp: 1, sp: "", gp: 2, pp: "" })).toEqual({});
 	});
 
-	it("renders accessible denomination inputs and a preview action", () => {
+	it("renders four compact denomination inputs with a live preview and one action", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryAddModal
-					confirmPending={false}
+					initialValues={{ cp: 5, sp: 4, gp: 3, pp: 1 }}
+					mutationPending={false}
 					mutationError={null}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
+					treasury={treasury({ cp: 0, sp: 0, gp: 0, pp: 0 })}
 				/>
 			</MantineProvider>,
 		);
 
-		expect(html).toContain("Platinum pieces (PP)");
-		expect(html).toContain("Preview add");
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Platinum pieces (PP)");
+		expect(readableHtml).toContain("Gold pieces (GP)");
+		expect(readableHtml).toContain("Silver pieces (SP)");
+		expect(readableHtml).toContain("Copper pieces (CP)");
+		expect(readableHtml).toContain("Preview");
+		expect(readableHtml).toContain("After change");
+		expect(readableHtml).toContain("13.45 GP");
+		expect(readableHtml).toContain(">Add funds<");
+		expect(readableHtml).not.toContain("Preview add");
+		expect(readableHtml).not.toContain("Confirm add funds");
 		expect(html).toContain("font-size:16px");
 	});
 
-	it("renders preview and confirmation-response failures without hiding the form", () => {
+	it("renders mutation and reconciliation failures without hiding the one-step form", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryAddModal
-					confirmPending={false}
+					mutationPending={false}
 					mutationError={new Error("mutation failed")}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
-					opened
-					preview={null}
-					previewError={new Error("preview failed")}
-					previewPending={false}
-					previewRequest={null}
-				/>
-			</MantineProvider>,
-		);
-
-		expect(html).toContain("Add preview failed");
-		expect(html).toContain("Add confirmation response unavailable");
-		expect(html).toContain("Preview add");
-	});
-
-	it("renders reconciliation recovery without exposing confirmation controls", () => {
-		const html = renderToString(
-			<MantineProvider>
-				<TreasuryAddModal
-					confirmPending={false}
-					mutationError={null}
-					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
 					onRetryReconciliation={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
 					reconciliationError={new Error("reconciliation failed")}
 					reconciliationPending={false}
+					treasury={treasury({ cp: 0, sp: 0, gp: 0, pp: 0 })}
 				/>
 			</MantineProvider>,
 		);
 
+		expect(html).toContain("Add funds failed");
 		expect(html).toContain("Treasury reconciliation failed");
-		expect(html).toContain("Retry treasury reconciliation");
-		expect(html).toContain("Preview add");
+		expect(html).toContain("Add funds");
+		expect(html).not.toContain("Server-backed result preview");
 	});
 
-	it("locks every denomination while confirmation or reconciliation is pending", () => {
+	it("locks every denomination while the mutation is pending", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryAddModal
-					confirmPending
 					initialValues={{ cp: 1, sp: 2, gp: 3, pp: 4 }}
+					mutationPending
 					mutationError={null}
 					onClose={vi.fn()}
-					onConfirm={vi.fn()}
-					onPreview={vi.fn()}
+					onSubmit={vi.fn()}
 					opened
-					preview={null}
-					previewError={null}
-					previewPending={false}
-					previewRequest={null}
+					treasury={treasury({ cp: 0, sp: 0, gp: 0, pp: 0 })}
 				/>
 			</MantineProvider>,
 		);
@@ -105,3 +81,13 @@ describe("TreasuryAddModal", () => {
 		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(4);
 	});
 });
+
+function treasury(balances: { cp: number; sp: number; gp: number; pp: number }) {
+	return {
+		balances,
+		totalValue: {
+			copper: balances.cp + balances.sp * 10 + balances.gp * 100 + balances.pp * 1_000,
+			gp: (balances.cp + balances.sp * 10 + balances.gp * 100 + balances.pp * 1_000) / 100,
+		},
+	};
+}

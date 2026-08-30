@@ -96,6 +96,12 @@ export {
 	TreasuryConflictResponseSchema,
 	TreasurySpendErrorResponseSchema,
 } from "./currency.js";
+export type { CurrencyPlan, SpendPlan, SpendPlanResult } from "./currency-planning.js";
+export {
+	CurrencyPlanningOverflowError,
+	calculateSpend,
+	planAdd,
+} from "./currency-planning.js";
 export type {
 	CatalogueItemId,
 	CharacterInventoryScopeOwner,
