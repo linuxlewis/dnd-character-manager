@@ -61,9 +61,10 @@ Manual acceptance:
 1. Confirm catalogue status reports items as unseeded, then run the catalogue seed.
 2. Confirm status reports the pinned source revision and accepted counts for weapons, armor,
    adventuring gear, consumables, potions, scrolls, and magic items.
-3. Open a character and confirm `Spells & Abilities` is selected by default with experience, health,
-   and spell slots visible.
-4. Select the `Inventory` tab and confirm the personal inventory empty state offers an add action.
+3. Open a character and confirm its name, class, level, experience, and health are visible above the
+   lower section, with `Spells & Abilities` selected by default and spell slots visible.
+4. Select the `Inventory` tab and confirm the name, experience, and health remain visible while
+   Treasury and the personal inventory empty state appear below.
 5. Search the local SRD catalogue by partial name and confirm both mundane equipment and magic-item
    results are available through the same search experience.
 6. Choose a result, confirm the item form is auto-filled with normalized catalogue data and source

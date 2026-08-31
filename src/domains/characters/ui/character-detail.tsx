@@ -60,6 +60,12 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 								Level {characterQuery.data.character.level}
 							</Badge>
 						</Group>
+						<CharacterExperiencePanel character={characterQuery.data.character} />
+						<CharacterHealthPanel
+							characterId={characterQuery.data.character.id}
+							health={characterQuery.data.character.health}
+							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
+						/>
 						<Tabs defaultValue="spells-abilities" keepMounted={false}>
 							<Tabs.List aria-label="Character sections">
 								<Tabs.Tab value="spells-abilities">Spells &amp; Abilities</Tabs.Tab>
@@ -67,18 +73,10 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 							</Tabs.List>
 
 							<Tabs.Panel value="spells-abilities" pt="md">
-								<Stack gap="md">
-									<CharacterExperiencePanel character={characterQuery.data.character} />
-									<CharacterHealthPanel
-										characterId={characterQuery.data.character.id}
-										health={characterQuery.data.character.health}
-										recentHealthChanges={characterQuery.data.character.recentHealthChanges}
-									/>
-									<CharacterSpellSlotsPanel
-										characterId={characterQuery.data.character.id}
-										level={characterQuery.data.character.level}
-									/>
-								</Stack>
+								<CharacterSpellSlotsPanel
+									characterId={characterQuery.data.character.id}
+									level={characterQuery.data.character.level}
+								/>
 							</Tabs.Panel>
 
 							<Tabs.Panel value="inventory" pt="md">

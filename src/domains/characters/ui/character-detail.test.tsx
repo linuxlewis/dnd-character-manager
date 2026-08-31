@@ -6,7 +6,7 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { CharacterDetail } from "./character-detail.js";
 
 describe("CharacterDetail", () => {
-	it("renders the detail shell with a single character edit affordance", () => {
+	it("renders the always-visible summary with lower section tabs", () => {
 		const queryClient = new QueryClient();
 		const characterId = "00000000-0000-4000-8000-000000000000";
 		queryClient.setQueryData(apiQueryKeys.getCharacter({ characterId }), {
@@ -57,7 +57,11 @@ describe("CharacterDetail", () => {
 		expect(html).toContain("Health");
 		expect(html).toContain("Spell slots");
 		expect(html.indexOf("Experience")).toBeLessThan(html.indexOf("Health"));
-		expect(html.indexOf("Health")).toBeLessThan(html.indexOf("Spell slots"));
+		const firstTabIndex = html.indexOf('role="tab"');
+		expect(firstTabIndex).toBeGreaterThan(-1);
+		expect(html.indexOf("Experience")).toBeLessThan(firstTabIndex);
+		expect(html.indexOf("Health")).toBeLessThan(firstTabIndex);
+		expect(firstTabIndex).toBeLessThan(html.indexOf("Spell slots"));
 		expect(html).not.toContain("Personal Treasury");
 		expect(html).not.toContain("Personal inventory");
 		expect(html).toContain("Edit character");
