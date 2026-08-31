@@ -11,7 +11,7 @@ describe("TreasurySpendModal", () => {
 		expect(validateSpendFunds({ cp: 1, sp: "", gp: 2, pp: "" })).toEqual({});
 	});
 
-	it("renders four inputs, available balances, and a live change-aware preview", () => {
+	it("renders four inputs, available balances, and a live normalized preview", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasurySpendModal
@@ -36,8 +36,7 @@ describe("TreasurySpendModal", () => {
 		expect(readableHtml).toContain("Available: 4");
 		expect(readableHtml).toContain("Available: 5");
 		expect(readableHtml).toContain("Preview");
-		expect(readableHtml).toContain("Returned change");
-		expect(readableHtml).toContain("SP 5");
+		expect(readableHtml).not.toContain("Returned change");
 		expect(readableHtml).toContain("12.95 GP");
 		expect(readableHtml).toContain(">Spend<");
 		expect(readableHtml).not.toContain("Preview spend");

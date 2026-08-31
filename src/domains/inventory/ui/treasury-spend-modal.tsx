@@ -139,11 +139,7 @@ export function TreasurySpendModal({
 					)}
 
 					{treasury && (
-						<TreasuryPreview
-							errorMessage={previewError}
-							preview={preview ?? undefined}
-							returnedChange={preview?.change}
-						/>
+						<TreasuryPreview errorMessage={previewError} preview={preview ?? undefined} />
 					)}
 
 					{reconciliationError && (

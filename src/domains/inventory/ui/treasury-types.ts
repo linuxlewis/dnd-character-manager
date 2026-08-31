@@ -38,10 +38,7 @@ export interface TreasuryPreviewBase {
 }
 
 export type TreasuryAddPreview = TreasuryPreviewBase & { operation: "add" };
-export type TreasurySpendPreview = TreasuryPreviewBase & {
-	operation: "spend";
-	change?: TreasuryBalance;
-};
+export type TreasurySpendPreview = TreasuryPreviewBase & { operation: "spend" };
 export type TreasuryPreview = TreasuryAddPreview | TreasurySpendPreview;
 
 export function createTreasuryNeutralPreview(
@@ -120,7 +117,6 @@ export function createTreasurySpendPreview(
 			delta: result.plan.delta,
 			totalValue: getCurrencyTotalValue(result.plan.next),
 			canApply: true,
-			...(result.plan.change === undefined ? {} : { change: result.plan.change }),
 		};
 	} catch (error) {
 		if (!(error instanceof CurrencyPlanningOverflowError)) throw error;

@@ -1,7 +1,6 @@
 import { Alert, Group, Paper, SimpleGrid, Stack, Text } from "@mantine/core";
 import {
 	formatTreasuryAmount,
-	formatTreasuryBalance,
 	formatTreasuryGpValue,
 	TREASURY_DENOMINATIONS,
 } from "./treasury-format.js";
@@ -9,11 +8,9 @@ import type { TreasuryBalance, TreasuryPreview as TreasuryPreviewData } from "./
 
 export function TreasuryPreview({
 	preview,
-	returnedChange,
 	errorMessage,
 }: {
 	preview?: TreasuryPreviewData;
-	returnedChange?: TreasuryBalance;
 	errorMessage?: string;
 }) {
 	return (
@@ -56,15 +53,6 @@ export function TreasuryPreview({
 							</Text>
 						</Group>
 					</Paper>
-
-					{returnedChange && (
-						<Paper withBorder p="sm" radius="sm">
-							<Text c="candle" fw={700} size="sm">
-								Returned change
-							</Text>
-							<Text>{formatTreasuryBalance(returnedChange)}</Text>
-						</Paper>
-					)}
 
 					{!preview.canApply && preview.error && (
 						<Alert

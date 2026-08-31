@@ -61,7 +61,6 @@ export function calculateSpend(
 ): SpendPlanResult {
 	const balance = CurrencyBalanceSchema.parse(previous);
 	const request = CurrencySpendRequestSchema.parse(input);
-	const targetIndex = CURRENCY_DENOMINATIONS.indexOf(request.amount.denomination);
 	const requestedCopper = safeCopper(
 		request.amount.amount * DND_CURRENCY_TO_COPPER[request.amount.denomination],
 	);
@@ -82,94 +81,12 @@ export function calculateSpend(
 		};
 	}
 
-	const exactPayment = selectExact(balance, requestedCopper);
-	const selected = zeroBalance();
-	let overpayCopper = 0;
-	const higherValue = sumHigherDenominations(balance, targetIndex);
-
-	if (exactPayment) {
-		copyBalance(exactPayment, selected);
-	} else if (higherValue >= requestedCopper) {
-		selectHigherCoins(balance, targetIndex, requestedCopper, selected);
-		overpayCopper = selectedValue(selected) - requestedCopper;
-	} else {
-		const lowerPayment = selectAtMost(balance, targetIndex, requestedCopper);
-		copyBalance(lowerPayment.selected, selected);
-		let shortfall = requestedCopper - selectedValue(selected);
-		selectHigherCoins(balance, targetIndex, shortfall, selected);
-		shortfall -= selectedValue(selected) - selectedValue(lowerPayment.selected);
-		if (shortfall > 0)
-			throw new CurrencyPlanningOverflowError("Unable to make exact currency change.");
-		overpayCopper = -shortfall;
-	}
-
-	const change = overpayCopper > 0 ? balanceFromCopper(overpayCopper) : undefined;
-	const next = addBalances(subtractBalances(balance, selected), change ?? zeroBalance());
-	return { ok: true, plan: { previous: balance, next, delta: toDelta(balance, next), change } };
-}
-
-function selectExact(
-	balance: CurrencyBalance,
-	requestedCopper: number,
-): CurrencyBalance | undefined {
-	const selected = zeroBalance();
-	let remaining = requestedCopper;
-
-	for (let index = CURRENCY_DENOMINATIONS.length - 1; index >= 0; index -= 1) {
-		const denomination = CURRENCY_DENOMINATIONS[index];
-		const value = DND_CURRENCY_TO_COPPER[denomination];
-		const amount = Math.min(balance[denomination], Math.floor(remaining / value));
-		selected[denomination] = amount;
-		remaining -= amount * value;
-	}
-
-	return remaining === 0 ? selected : undefined;
-}
-
-function selectAtMost(balance: CurrencyBalance, targetIndex: number, requestedCopper: number) {
-	const selected = zeroBalance();
-	let remaining = requestedCopper;
-	for (let index = targetIndex; index >= 0; index -= 1) {
-		const denomination = CURRENCY_DENOMINATIONS[index];
-		const amount = Math.min(
-			balance[denomination],
-			Math.floor(remaining / DND_CURRENCY_TO_COPPER[denomination]),
-		);
-		selected[denomination] = amount;
-		remaining -= amount * DND_CURRENCY_TO_COPPER[denomination];
-	}
-	return { selected, remaining };
-}
-
-function selectHigherCoins(
-	balance: CurrencyBalance,
-	targetIndex: number,
-	requestedCopper: number,
-	selected: CurrencyBalance,
-) {
-	let remaining = requestedCopper;
-	for (let index = targetIndex + 1; index < CURRENCY_DENOMINATIONS.length; index += 1) {
-		if (remaining <= 0) break;
-		const denomination = CURRENCY_DENOMINATIONS[index];
-		const value = DND_CURRENCY_TO_COPPER[denomination];
-		const amount = Math.min(balance[denomination], Math.ceil(remaining / value));
-		selected[denomination] += amount;
-		remaining -= amount * value;
-	}
-}
-
-function sumHigherDenominations(balance: CurrencyBalance, targetIndex: number) {
-	return CURRENCY_DENOMINATIONS.slice(targetIndex + 1).reduce(
-		(total, denomination) => total + balance[denomination] * DND_CURRENCY_TO_COPPER[denomination],
-		0,
-	);
-}
-
-function selectedValue(balance: CurrencyBalance) {
-	return CURRENCY_DENOMINATIONS.reduce(
-		(total, denomination) => total + balance[denomination] * DND_CURRENCY_TO_COPPER[denomination],
-		0,
-	);
+	// Legacy behavior canonicalizes the entire remaining value after every spend.
+	const next = balanceFromCopper(availableCopper - requestedCopper);
+	return {
+		ok: true,
+		plan: { previous: balance, next, delta: toDelta(balance, next) },
+	};
 }
 
 function addBalances(
@@ -181,15 +98,6 @@ function addBalances(
 		sp: left.sp + right.sp,
 		gp: left.gp + right.gp,
 		pp: left.pp + right.pp,
-	});
-}
-
-function subtractBalances(left: CurrencyBalance, right: CurrencyBalance): CurrencyBalance {
-	return parseNextBalance({
-		cp: left.cp - right.cp,
-		sp: left.sp - right.sp,
-		gp: left.gp - right.gp,
-		pp: left.pp - right.pp,
 	});
 }
 
@@ -212,10 +120,6 @@ function toDelta(previous: CurrencyBalance, next: CurrencyBalance): CurrencyDelt
 		gp: next.gp - previous.gp,
 		pp: next.pp - previous.pp,
 	};
-}
-
-function copyBalance(source: CurrencyBalance, target: CurrencyBalance) {
-	for (const denomination of CURRENCY_DENOMINATIONS) target[denomination] = source[denomination];
 }
 
 function zeroBalance(): CurrencyBalance {

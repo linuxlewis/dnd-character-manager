@@ -8,7 +8,11 @@ import type {
 	TreasurySpendPreview,
 	TreasurySpendRequest,
 } from "./treasury-types.js";
-import { createTreasuryNeutralPreview, treasuryBalancesEqual } from "./treasury-types.js";
+import {
+	createTreasuryNeutralPreview,
+	createTreasurySpendPreview,
+	treasuryBalancesEqual,
+} from "./treasury-types.js";
 
 describe("owner-neutral treasury UI types", () => {
 	it("share only balances, previews, and operation payloads", () => {
@@ -54,6 +58,26 @@ describe("owner-neutral treasury UI types", () => {
 			delta: { cp: 0, sp: 0, gp: 0, pp: 0 },
 			totalValue: treasury.totalValue,
 			canApply: false,
+		});
+	});
+
+	it("uses the shared planner for legacy whole-balance spend previews", () => {
+		const treasury = {
+			balances: { cp: 100, sp: 0, gp: 0, pp: 0 },
+			totalValue: { copper: 100, gp: 1 },
+		};
+
+		expect(
+			createTreasurySpendPreview(treasury, {
+				amount: { denomination: "cp", amount: 1 },
+			}),
+		).toEqual({
+			operation: "spend",
+			previous: treasury.balances,
+			next: { cp: 9, sp: 9, gp: 0, pp: 0 },
+			delta: { cp: -91, sp: 9, gp: 0, pp: 0 },
+			totalValue: { copper: 99, gp: 0.99 },
+			canApply: true,
 		});
 	});
 });

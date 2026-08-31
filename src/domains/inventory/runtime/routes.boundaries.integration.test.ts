@@ -111,7 +111,7 @@ describe("character treasury route boundaries", () => {
 		expect(unchanged.json().treasury.balances).toEqual({ cp: 3, sp: 2, gp: 1, pp: 0 });
 	});
 
-	it("returns server-computed change in a spend preview", async () => {
+	it("returns normalized balances in a spend preview", async () => {
 		const cookie = await createSessionCookie(app);
 		const characterId = await createCharacter(app, cookie);
 		const added = await app.inject({
@@ -136,8 +136,8 @@ describe("character treasury route boundaries", () => {
 		expect(preview.json().preview).toMatchObject({
 			canApply: true,
 			next: { cp: 0, sp: 5, gp: 0, pp: 0 },
-			change: { cp: 0, sp: 5, gp: 0, pp: 0 },
 		});
+		expect(preview.json().preview).not.toHaveProperty("change");
 	});
 
 	it("maps treasury overflow to the stable HTTP error response", async () => {

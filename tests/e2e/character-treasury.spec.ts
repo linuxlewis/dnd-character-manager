@@ -41,7 +41,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await expect(spendDialog.getByRole("button", { name: "Spend", exact: true })).toBeDisabled();
 	await spendDialog.getByLabel("Silver pieces (SP)").fill("5");
 	await expect(spendDialog.getByText("Available: 4")).toBeVisible();
-	await expect(spendDialog.getByText("Returned change")).toBeVisible();
+	await expect(spendDialog.getByText("Returned change")).toBeHidden();
 	await expect(spendDialog.getByText("12.95 GP")).toBeVisible();
 	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeHidden();
 	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
@@ -68,6 +68,29 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await page.getByText("Back to characters").click();
 	await createCharacter(page, "Treasury Two", "Wizard");
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+});
+
+test("normalizes the entire balance after spending when an exact coin is available", async ({
+	page,
+}) => {
+	await page.goto("/");
+	await createCharacter(page, "Legacy Currency", "Fighter");
+
+	await page.getByRole("button", { name: "Add funds", exact: true }).click();
+	const addDialog = page.getByRole("dialog", { name: "Add funds" });
+	await addDialog.getByLabel("Copper pieces (CP)").fill("100");
+	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "100", total: "1.00 GP" });
+
+	await page.getByRole("button", { name: "Spend", exact: true }).click();
+	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
+	await spendDialog.getByLabel("Copper pieces (CP)").fill("1");
+	await expect(spendDialog.getByText("Available: 100")).toBeVisible();
+	await expect(spendDialog.getByText("0.99 GP")).toBeVisible();
+	await expect(spendDialog.getByText("Returned change")).toBeHidden();
+	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
+
+	await expectBalances(page, { pp: "0", gp: "0", sp: "9", cp: "9", total: "0.99 GP" });
 });
 
 test("isolates and recovers from treasury load failures", async ({ page }) => {

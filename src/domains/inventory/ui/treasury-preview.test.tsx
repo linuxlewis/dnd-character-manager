@@ -5,7 +5,7 @@ import { TreasuryPreview } from "./treasury-preview.js";
 import type { TreasurySpendPreview } from "./treasury-types.js";
 
 describe("TreasuryPreview", () => {
-	it("renders the current balance, net effect, total, and returned change", () => {
+	it("renders the current balance, net effect, and total without returned change", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryPreview
@@ -17,10 +17,8 @@ describe("TreasuryPreview", () => {
 							delta: { cp: 0, sp: 5, gp: -1, pp: 0 },
 							totalValue: { copper: 1_295, gp: 12.95 },
 							canApply: true,
-							change: { cp: 0, sp: 5, gp: 0, pp: 0 },
 						} satisfies TreasurySpendPreview
 					}
-					returnedChange={{ cp: 0, sp: 5, gp: 0, pp: 0 }}
 				/>
 			</MantineProvider>,
 		);
@@ -31,8 +29,7 @@ describe("TreasuryPreview", () => {
 		expect(readableHtml).toContain("After change");
 		expect(readableHtml).toContain("Net change");
 		expect(readableHtml).toContain("12.95 GP");
-		expect(readableHtml).toContain("Returned change");
-		expect(readableHtml).toContain("SP 5");
+		expect(readableHtml).not.toContain("Returned change");
 		expect(readableHtml).not.toContain("Server-backed result preview");
 		expect(readableHtml).not.toContain("Confirm");
 	});
