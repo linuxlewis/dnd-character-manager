@@ -1,4 +1,5 @@
 import { Badge, Card, Group, Image, Stack, Text } from "@mantine/core";
+import { useState } from "react";
 import type { InventoryItem } from "../types/index.js";
 import {
 	formatItemNumber,
@@ -88,12 +89,37 @@ export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () =
 }
 
 export function ItemThumbnail({ item, size = 64 }: { item: InventoryItem; size?: number }) {
+	if (!item.thumbnailUrl) return <ItemThumbnailFallback item={item} size={size} />;
+
+	return <RemoteItemThumbnail item={item} key={item.thumbnailUrl} size={size} />;
+}
+
+function RemoteItemThumbnail({ item, size }: { item: InventoryItem; size: number }) {
+	const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
+	const thumbnailUrl = item.thumbnailUrl;
+
+	if (!thumbnailUrl || failedThumbnailUrl === thumbnailUrl) {
+		return <ItemThumbnailFallback item={item} size={size} />;
+	}
+
+	return (
+		<Image
+			alt=""
+			fit="cover"
+			h={size}
+			onError={() => setFailedThumbnailUrl(thumbnailUrl)}
+			radius="sm"
+			src={thumbnailUrl}
+			w={size}
+		/>
+	);
+}
+
+function ItemThumbnailFallback({ item, size }: { item: InventoryItem; size: number }) {
 	const TypeIcon = getItemTypeIcon(item.type);
 	const rarityStyle = getItemRarityStyle(item.rarity);
 
-	return item.thumbnailUrl ? (
-		<Image alt="" fit="cover" h={size} radius="sm" src={item.thumbnailUrl} w={size} />
-	) : (
+	return (
 		<Group
 			aria-label={`${getItemTypeLabel(item.type)} icon`}
 			bg={rarityStyle.background}

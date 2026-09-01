@@ -144,11 +144,12 @@ export function createCatalogueItemRepository(
 
 		async searchItems(input) {
 			const where = itemSearchCondition(input);
+			const orderBy = itemSearchOrder(input);
 			const rows = await resolveDatabase()
 				.select(itemColumns())
 				.from(catalogueItemsTable)
 				.where(where)
-				.orderBy(asc(catalogueItemsTable.itemName), asc(catalogueItemsTable.sourceKey))
+				.orderBy(...orderBy)
 				.limit(input.limit);
 			const [totalRow] = await resolveDatabase()
 				.select({ value: count() })
@@ -195,10 +196,11 @@ function itemSearchCondition(input: CatalogueItemSearchQuery) {
 	const conditions = [];
 	const query = input.q.trim();
 	if (query) {
+		const substringPattern = `%${escapeLike(query)}%`;
 		conditions.push(
 			or(
-				ilike(catalogueItemsTable.itemName, `%${query}%`),
-				ilike(catalogueItemsTable.itemDescription, `%${query}%`),
+				ilike(catalogueItemsTable.itemName, substringPattern),
+				ilike(catalogueItemsTable.itemDescription, substringPattern),
 			),
 		);
 	}
@@ -209,4 +211,38 @@ function itemSearchCondition(input: CatalogueItemSearchQuery) {
 		conditions.push(eq(catalogueItemsTable.isMagical, input.isMagical));
 	}
 	return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
+function itemSearchOrder(input: CatalogueItemSearchQuery) {
+	const query = input.q.trim();
+	const deterministicOrder = [
+		asc(catalogueItemsTable.itemName),
+		asc(catalogueItemsTable.sourceKey),
+		asc(catalogueItemsTable.source),
+		asc(catalogueItemsTable.rulesVersion),
+	];
+	if (!query) return deterministicOrder;
+
+	const substringPattern = `%${escapeLike(query)}%`;
+	const wordOrPhrasePattern = `(^|[^[:alnum:]])${escapeRegex(query)}($|[^[:alnum:]])`;
+	const relevance = sql<number>`CASE
+		WHEN lower(${catalogueItemsTable.itemName}) = lower(${query}) THEN 0
+		WHEN ${catalogueItemsTable.itemName} ~* ${wordOrPhrasePattern} THEN 1
+		WHEN ${catalogueItemsTable.itemName} ILIKE ${substringPattern} THEN 2
+		WHEN ${catalogueItemsTable.itemDescription} ILIKE ${substringPattern} THEN 3
+		ELSE 4
+	END`;
+	const nameWordCount = sql<number>`cardinality(
+		regexp_split_to_array(btrim(${catalogueItemsTable.itemName}), ${"[[:space:]]+"})
+	)`;
+
+	return [asc(relevance), asc(nameWordCount), ...deterministicOrder];
+}
+
+function escapeLike(value: string) {
+	return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
+function escapeRegex(value: string) {
+	return value.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
 }

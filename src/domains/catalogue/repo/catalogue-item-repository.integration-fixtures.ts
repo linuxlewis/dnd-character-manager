@@ -3,6 +3,17 @@ import type { CatalogueItemSeed, CatalogueItemSeedAudit } from "../types/index.j
 export const sourceKeys = [
 	"catalogue-item-repository-isolation-rope",
 	"catalogue-item-repository-isolation-rope-legacy",
+	"catalogue-item-repository-rank-exact",
+	"catalogue-item-repository-rank-word",
+	"catalogue-item-repository-rank-start",
+	"catalogue-item-repository-rank-substring",
+	"catalogue-item-repository-rank-description-alpha",
+	"catalogue-item-repository-rank-description-tie-z",
+	"catalogue-item-repository-rank-description-tie-a",
+	"catalogue-item-repository-rank-description-zulu",
+	"catalogue-item-repository-rank-word-greater",
+	"catalogue-item-repository-rank-word-superior",
+	"catalogue-item-repository-rank-word-staff",
 ];
 export const testRevisions = [
 	"1111111111111111111111111111111111111111",
@@ -39,11 +50,13 @@ export function seedItem({
 	sourceKey,
 	rulesVersion,
 	name,
+	description = "C2 repository precedence rope marker.",
 	sourceRevision = testRevisions[0],
 }: {
 	sourceKey: string;
 	rulesVersion: "2014" | "2024";
 	name: string;
+	description?: string;
 	sourceRevision?: string;
 }): CatalogueItemSeed {
 	return {
@@ -61,7 +74,7 @@ export function seedItem({
 		name,
 		kind: "adventuring-gear",
 		category: "Adventuring Gear",
-		description: "C2 repository precedence rope marker.",
+		description,
 		isMagical: false,
 		rarity: null,
 		requiresAttunement: false,

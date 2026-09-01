@@ -108,11 +108,9 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await expect(page.getByText("x2")).toBeVisible();
 	await expect(page.getByText("x3")).toBeVisible();
 	const equipmentCard = page.getByRole("button", { name: `View ${fixture.mundaneName}` });
-	if (fixture.mode === "seeded") {
-		await expect(equipmentCard.locator("img")).toBeVisible();
-	} else {
-		await expect(equipmentCard.getByLabel("Equipment icon")).toBeVisible();
-	}
+	await expect(
+		equipmentCard.locator("img").or(equipmentCard.getByLabel("Equipment icon")),
+	).toBeVisible();
 	await expect(page.getByLabel("Potion icon")).toBeVisible();
 
 	const inventorySearch = page.getByLabel("Search personal inventory");
