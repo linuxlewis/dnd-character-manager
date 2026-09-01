@@ -152,7 +152,8 @@ A player can:
 1. The player opens an existing character detail page.
 2. The page shows that character's PP, GP, SP, and CP balances and total GP value.
 3. The player adds or spends currency through a modal with a result preview.
-4. Spending can make change across denominations but cannot create a negative total balance.
+4. Adding preserves the entered denominations; spending subtracts from total copper value and greedily
+   normalizes the entire remaining balance from PP to GP to SP to CP without creating a negative total.
 5. Currency changes persist independently for each character.
 
 ### Personal Inventory
@@ -360,10 +361,10 @@ accepted as public authorization boundaries.
 |---|---|---|
 | `GET` | `/api/characters/:characterId/treasury` | Get personal balances and total value |
 | `PUT` | `/api/characters/:characterId/treasury` | Add personal funds using a nonnegative currency delta |
-| `POST` | `/api/characters/:characterId/treasury/spend` | Spend personal funds with exact payment preferred, deterministic making-change when needed, and insufficient-funds rejection |
+| `POST` | `/api/characters/:characterId/treasury/spend` | Spend personal funds by subtracting total copper value and greedily normalizing the remaining balance, with insufficient-funds rejection |
 | `POST` | `/api/characters/:characterId/treasury/convert` | Convert personal denominations |
 | `POST` | `/api/characters/:characterId/treasury/preview/add` | Preview adding personal funds without changing balances |
-| `POST` | `/api/characters/:characterId/treasury/preview/spend` | Preview spending personal funds, including any returned change, without changing balances |
+| `POST` | `/api/characters/:characterId/treasury/preview/spend` | Preview spending personal funds and the normalized resulting balances without changing balances |
 
 ### Personal Inventory
 

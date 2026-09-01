@@ -34,14 +34,15 @@ party roadmap and do not block the personal treasury or personal inventory relea
 ## M1. Personal Treasury
 
 Ship when every accessible character displays an independent treasury and the player can add and
-spend currency with previews and automatic making-change.
+spend currency with previews, preserving add denominations and greedily normalizing spend results.
 
 Manual acceptance:
 
 1. Start the stack, sign in, and open an existing character.
 2. Confirm a character with no treasury row displays zero PP, GP, SP, and CP without an error.
 3. Add mixed denominations and verify each balance and total GP value.
-4. Spend an amount that requires making change and inspect the preview before confirming.
+4. Spend an amount and inspect the live preview, including the greedily normalized remaining balance,
+   before submitting.
 5. Attempt to overspend and confirm balances do not change.
 6. Refresh the browser and confirm balances persist.
 7. Open a second character and confirm its treasury remains independent.

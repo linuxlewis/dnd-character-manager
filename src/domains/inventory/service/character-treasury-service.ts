@@ -21,6 +21,7 @@ import {
 	type ConvertCharacterTreasuryResponse,
 	ConvertCharacterTreasuryResponseSchema,
 	type CurrencyBalance,
+	type CurrencyPlan,
 	getCurrencyTotalValue,
 	type SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewRequestSchema,
@@ -30,19 +31,14 @@ import {
 	SpendCharacterTreasuryRequestSchema,
 	type SpendCharacterTreasuryResponse,
 	SpendCharacterTreasuryResponseSchema,
+	type SpendPlan,
 } from "../types/index.js";
 import {
 	InsufficientFundsError,
 	TreasuryConflictError,
 	TreasuryOverflowError,
 } from "./character-treasury-errors.js";
-import {
-	type CurrencyPlan,
-	planAdd,
-	planConversion,
-	planSpend,
-	type SpendPlan,
-} from "./currency-operations.js";
+import { planAdd, planConversion, planSpend } from "./currency-operations.js";
 
 export interface CharacterTreasuryService {
 	getCharacterTreasury(userId: string, characterId: string): Promise<CharacterTreasuryResponse>;
