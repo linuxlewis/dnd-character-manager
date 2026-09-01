@@ -20,6 +20,10 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 | Production Docker Compose | [docs/production.md](./docs/production.md) |
 | Production deployment semantics | [docs/deployment.md](./docs/deployment.md) |
 | D&D MVP plan | [docs/mvp.md](./docs/mvp.md) |
+| D&D 5e catalogue source strategy | [docs/superpowers/specs/2026-07-12-dnd5e-catalogue-source-strategy-design.md](./docs/superpowers/specs/2026-07-12-dnd5e-catalogue-source-strategy-design.md) |
+| Character and party inventory spec | [docs/party-inventory-merge-spec.md](./docs/party-inventory-merge-spec.md) |
+| Character and party inventory plan | [docs/party-inventory-merge-plan.md](./docs/party-inventory-merge-plan.md) |
+| Character and party milestones | [docs/party-inventory-milestones.md](./docs/party-inventory-milestones.md) |
 | Core beliefs & principles | [docs/beliefs.md](./docs/beliefs.md) |
 | Quality tracking | [docs/quality.md](./docs/quality.md) |
 
@@ -53,6 +57,7 @@ pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · Postg
 | `pnpm test:e2e` | Start the stack and run browser e2e tests |
 | `pnpm test` | Run unit, integration, and e2e tests |
 | `pnpm lint` | Run Biome and architecture checks |
+| `pnpm check:docs` | Verify local Markdown links |
 
 ## Before You Start a Task
 
@@ -66,5 +71,6 @@ pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · Postg
 
 1. Run `pnpm lint && pnpm test:unit` for source-only changes
 2. Run `pnpm test` for API, database, UI, or e2e changes
-3. Update [docs/quality.md](./docs/quality.md) if you improved coverage or fixed gaps
-4. If you made architectural decisions, add focused docs under `docs/`
+3. Run `git diff --check && pnpm check:docs` for documentation-only changes
+4. Update [docs/quality.md](./docs/quality.md) if you improved coverage or fixed gaps
+5. If you made architectural decisions, add focused docs under `docs/`

@@ -24,6 +24,12 @@ describe("apiRouteContracts", () => {
 			"searchCharacterSpells",
 			"saveCharacterSpell",
 			"removeCharacterSpell",
+			"getCharacterTreasury",
+			"addCharacterTreasury",
+			"spendCharacterTreasury",
+			"convertCharacterTreasury",
+			"previewAddCharacterTreasury",
+			"previewSpendCharacterTreasury",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

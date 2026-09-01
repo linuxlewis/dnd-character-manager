@@ -17,8 +17,7 @@
 			"!**/dist",
 			"!**/.stack",
 			"!**/test-results",
-			"!**/playwright-report",
-			"!**/*.generated.*"
+			"!**/playwright-report"
 		]
 	}
 }

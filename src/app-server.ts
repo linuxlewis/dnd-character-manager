@@ -6,6 +6,8 @@ import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
+import { registerCharacterTreasuryRoutes } from "./domains/inventory/runtime/index.js";
+import { createCharacterTreasuryService } from "./domains/inventory/service/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -54,6 +56,10 @@ export async function buildServer(options: BuildServerOptions = {}) {
 	);
 	await registerAuthRoutes(app);
 	await registerCharacterRoutes(app, { characterService });
+	await registerCharacterTreasuryRoutes(app, {
+		characterService,
+		characterTreasuryService: createCharacterTreasuryService({ characterService }),
+	});
 
 	if (options.staticRoot) {
 		registerStaticAssetFallback(app, options.staticRoot);

@@ -49,6 +49,7 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 
 - Name database and runtime boundary tests `*.integration.test.ts`.
 - Use the real Postgres database from the stack; do not replace full-stack behavior with in-memory substitutes.
+- Integration files may run in parallel. Each file cleans up only the rows it owns in `beforeEach`, and closes the shared database client in `afterAll`.
 - Reset touched tables in `beforeEach`.
 - Close database clients in `afterAll`.
 - Parse database rows before asserting domain values.
