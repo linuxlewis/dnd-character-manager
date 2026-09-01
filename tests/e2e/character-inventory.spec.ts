@@ -53,7 +53,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: firstCharacterName })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Health" })).toBeVisible();
-	await expect(page.getByText("Personal Treasury")).toBeVisible();
+	await expect(page.getByTestId("treasury-total")).toBeVisible();
 	const inventory = page.getByTestId("personal-inventory");
 
 	await expect(page.getByText("No personal items yet")).toBeVisible();
@@ -244,7 +244,7 @@ test("keeps character details visible when personal inventory fails", async ({ p
 	await createCharacter(page, `A7 Inventory Failure ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await expect(page.getByText("Personal inventory unavailable")).toBeVisible();
-	await expect(page.getByText("Personal Treasury")).toBeVisible();
+	await expect(page.getByTestId("treasury-total")).toBeVisible();
 	await openSpellsAndAbilitiesTab(page);
 	await expect(page.getByText(/10 \/ 10 HP/)).toBeVisible();
 });
