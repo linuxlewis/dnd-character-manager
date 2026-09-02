@@ -43,6 +43,54 @@ describe("createCharacterTreasuryService", () => {
 		expect(repository.mutateCharacterTreasury).toHaveBeenCalledTimes(1);
 	});
 
+	it("passes normalized notes, authoritative requests, and the actor into treasury writes", async () => {
+		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 2, pp: 0 });
+		const service = createCharacterTreasuryService({
+			repository: dependencies.repository,
+			characterService: dependencies.characterService,
+		});
+
+		await service.addCharacterTreasury(userId, characterId, {
+			delta: { cp: 0, sp: 0, gp: 1, pp: 0 },
+			expectedPrevious: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			note: "  Reward from the guild  ",
+		});
+		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenNthCalledWith(
+			1,
+			characterId,
+			expect.any(Function),
+			{
+				expectedPrevious: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				history: {
+					operation: "add",
+					requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+					note: "Reward from the guild",
+					actorUserId: userId,
+				},
+			},
+		);
+
+		await service.spendCharacterTreasury(userId, characterId, {
+			amount: { denomination: "gp", amount: 1 },
+			expectedPrevious: { cp: 0, sp: 0, gp: 3, pp: 0 },
+			note: " \t",
+		});
+		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenNthCalledWith(
+			2,
+			characterId,
+			expect.any(Function),
+			{
+				expectedPrevious: { cp: 0, sp: 0, gp: 3, pp: 0 },
+				history: {
+					operation: "spend",
+					requested: { amount: { denomination: "gp", amount: 1 } },
+					note: null,
+					actorUserId: userId,
+				},
+			},
+		);
+	});
+
 	it("previews and applies legacy whole-balance normalization", async () => {
 		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 1, pp: 0 });
 		const service = createCharacterTreasuryService({

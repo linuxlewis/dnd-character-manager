@@ -64,11 +64,28 @@ describe("inventoryTreasuryRouteContracts", () => {
 				.success,
 		).toBe(true);
 		expect(
+			add?.requestBody?.safeParse({
+				delta: { ...previous, cp: 1 },
+				expectedPrevious: previous,
+				note: "  Reward  ",
+			}).success,
+		).toBe(true);
+		expect(
 			spend?.requestBody?.safeParse({ amount: { denomination: "cp", amount: 1 } }).success,
 		).toBe(false);
+		expect(
+			spend?.requestBody?.safeParse({
+				amount: { denomination: "cp", amount: 1 },
+				expectedPrevious: previous,
+				note: "  Bought supplies  ",
+			}).success,
+		).toBe(true);
 		expect(previewAdd?.requestBody?.safeParse({ delta: { ...previous, cp: 1 } }).success).toBe(
 			true,
 		);
+		expect(
+			previewAdd?.requestBody?.safeParse({ delta: { ...previous, cp: 1 }, note: "Reward" }).success,
+		).toBe(false);
 		expect(
 			previewSpend?.requestBody?.safeParse({ amount: { denomination: "cp", amount: 1 } }).success,
 		).toBe(true);

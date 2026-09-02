@@ -8,6 +8,7 @@ import {
 	SimpleGrid,
 	Stack,
 	Text,
+	TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { DND_CURRENCY_TO_COPPER, POSTGRES_INTEGER_MAX } from "../types/index.js";
@@ -18,13 +19,19 @@ import {
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
 import type { TreasuryData, TreasurySpendPreview, TreasurySpendRequest } from "./treasury-types.js";
-import { createTreasuryNeutralPreview, createTreasurySpendPreview } from "./treasury-types.js";
+import {
+	createTreasuryNeutralPreview,
+	createTreasurySpendPreview,
+	normalizeTreasuryNote,
+} from "./treasury-types.js";
 
 type NumberDraft = "" | number;
 
-export type SpendFundsValues = Record<TreasuryDenomination, NumberDraft>;
+type SpendFundsDenominationValues = Record<TreasuryDenomination, NumberDraft>;
+export type SpendFundsValues = SpendFundsDenominationValues & { note: string };
+type SpendFundsInputValues = SpendFundsDenominationValues & { note?: string };
 
-const initialValues: SpendFundsValues = { cp: "", sp: "", gp: "", pp: "" };
+const initialValues: SpendFundsValues = { cp: "", sp: "", gp: "", pp: "", note: "" };
 
 export function TreasurySpendModal({
 	opened,
@@ -41,7 +48,7 @@ export function TreasurySpendModal({
 	onSubmit,
 }: {
 	opened: boolean;
-	initialValues?: SpendFundsValues;
+	initialValues?: SpendFundsInputValues;
 	treasury?: TreasuryData;
 	mutationError: Error | null;
 	mutationPending: boolean;
@@ -55,7 +62,7 @@ export function TreasurySpendModal({
 }) {
 	const form = useForm<SpendFundsValues>({
 		mode: "controlled",
-		initialValues: providedInitialValues ?? initialValues,
+		initialValues: { ...initialValues, ...providedInitialValues },
 		validate: validateSpendFunds,
 	});
 	const currentRequest = toSpendTreasuryRequest(form.values);
@@ -65,7 +72,7 @@ export function TreasurySpendModal({
 		? draftIsNeutral
 			? createTreasuryNeutralPreview(treasury, "spend")
 			: draftIsValid && currentRequest
-				? createTreasurySpendPreview(treasury, currentRequest)
+				? createTreasurySpendPreview(treasury, { amount: currentRequest.amount })
 				: null
 		: null;
 	const previewError =
@@ -124,6 +131,13 @@ export function TreasurySpendModal({
 						))}
 					</SimpleGrid>
 
+					<TextInput
+						{...form.getInputProps("note")}
+						disabled={formDisabled}
+						label="Note (optional)"
+						maxLength={500}
+					/>
+
 					{stalePreviewError && (
 						<Alert color="orange" title="Treasury changed before save" variant="light">
 							{stalePreviewError.message}
@@ -174,8 +188,8 @@ export function TreasurySpendModal({
 	);
 }
 
-export function validateSpendFunds(values: SpendFundsValues) {
-	const errors: Partial<Record<TreasuryDenomination, string>> = {};
+export function validateSpendFunds(values: SpendFundsInputValues) {
+	const errors: Partial<Record<TreasuryDenomination | "note", string>> = {};
 	for (const { key } of TREASURY_DENOMINATIONS) {
 		const value = values[key];
 		if (value !== "" && (!Number.isInteger(value) || value < 0 || value > POSTGRES_INTEGER_MAX)) {
@@ -188,10 +202,13 @@ export function validateSpendFunds(values: SpendFundsValues) {
 	if (toSpendTreasuryRequest(values) === null && Object.keys(errors).length === 0) {
 		errors.cp = "The total spend is too large to process.";
 	}
+	if (typeof values.note === "string" && values.note.length > 500) {
+		errors.note = "Keep the note to 500 characters or fewer.";
+	}
 	return errors;
 }
 
-export function toSpendTreasuryRequest(values: SpendFundsValues): TreasurySpendRequest | null {
+export function toSpendTreasuryRequest(values: SpendFundsInputValues): TreasurySpendRequest | null {
 	const totalCopper = TREASURY_DENOMINATIONS.reduce(
 		(total, { key }) => total + toNumber(values[key]) * DND_CURRENCY_TO_COPPER[key],
 		0,
@@ -202,7 +219,7 @@ export function toSpendTreasuryRequest(values: SpendFundsValues): TreasurySpendR
 		if (totalCopper % DND_CURRENCY_TO_COPPER[key] !== 0) continue;
 		const amount = totalCopper / DND_CURRENCY_TO_COPPER[key];
 		if (amount <= POSTGRES_INTEGER_MAX) {
-			return { amount: { denomination: key, amount } };
+			return { amount: { denomination: key, amount }, note: normalizeTreasuryNote(values.note) };
 		}
 	}
 	return null;
@@ -214,15 +231,22 @@ function toNumber(value: NumberDraft) {
 
 function isValidDraft(values: SpendFundsValues) {
 	return (
-		Object.values(values).every(
-			(value) =>
-				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX),
-		) && Object.values(values).some((value) => typeof value === "number" && value > 0)
+		TREASURY_DENOMINATIONS.every(({ key }) => {
+			const value = values[key];
+			return (
+				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX)
+			);
+		}) &&
+		TREASURY_DENOMINATIONS.some(({ key }) => {
+			const value = values[key];
+			return typeof value === "number" && value > 0;
+		}) &&
+		(values.note?.length ?? 0) <= 500
 	);
 }
 
 function isNeutralDraft(values: SpendFundsValues) {
-	return Object.values(values).every((value) => value === 0 || value === "");
+	return TREASURY_DENOMINATIONS.every(({ key }) => values[key] === 0 || values[key] === "");
 }
 
 function getDraftError(values: SpendFundsValues) {

@@ -1,4 +1,14 @@
-import { Alert, Box, Button, Group, Modal, NumberInput, SimpleGrid, Stack } from "@mantine/core";
+import {
+	Alert,
+	Box,
+	Button,
+	Group,
+	Modal,
+	NumberInput,
+	SimpleGrid,
+	Stack,
+	TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { POSTGRES_INTEGER_MAX } from "../types/index.js";
 import {
@@ -8,12 +18,18 @@ import {
 } from "./treasury-format.js";
 import { TreasuryPreview } from "./treasury-preview.js";
 import type { TreasuryAddPreview, TreasuryAddRequest, TreasuryData } from "./treasury-types.js";
-import { createTreasuryAddPreview, createTreasuryNeutralPreview } from "./treasury-types.js";
+import {
+	createTreasuryAddPreview,
+	createTreasuryNeutralPreview,
+	normalizeTreasuryNote,
+} from "./treasury-types.js";
 
 export type TreasuryNumberDraft = "" | number;
-export type AddFundsValues = Record<TreasuryDenomination, TreasuryNumberDraft>;
+type AddFundsDenominationValues = Record<TreasuryDenomination, TreasuryNumberDraft>;
+export type AddFundsValues = AddFundsDenominationValues & { note: string };
+type AddFundsInputValues = AddFundsDenominationValues & { note?: string };
 
-const initialValues: AddFundsValues = { cp: "", sp: "", gp: "", pp: "" };
+const initialValues: AddFundsValues = { cp: "", sp: "", gp: "", pp: "", note: "" };
 
 export function TreasuryAddModal({
 	opened,
@@ -30,7 +46,7 @@ export function TreasuryAddModal({
 	onSubmit,
 }: {
 	opened: boolean;
-	initialValues?: AddFundsValues;
+	initialValues?: AddFundsInputValues;
 	treasury?: TreasuryData;
 	mutationError: Error | null;
 	mutationPending: boolean;
@@ -44,7 +60,7 @@ export function TreasuryAddModal({
 }) {
 	const form = useForm<AddFundsValues>({
 		mode: "controlled",
-		initialValues: providedInitialValues ?? initialValues,
+		initialValues: { ...initialValues, ...providedInitialValues },
 		validate: validateAddFunds,
 	});
 	const currentRequest = toAddTreasuryRequest(form.values);
@@ -54,7 +70,7 @@ export function TreasuryAddModal({
 		? draftIsNeutral
 			? createTreasuryNeutralPreview(treasury, "add")
 			: draftIsValid
-				? createTreasuryAddPreview(treasury, currentRequest)
+				? createTreasuryAddPreview(treasury, { delta: currentRequest.delta })
 				: null
 		: null;
 	const previewError =
@@ -100,6 +116,13 @@ export function TreasuryAddModal({
 							/>
 						))}
 					</SimpleGrid>
+
+					<TextInput
+						{...form.getInputProps("note")}
+						disabled={formDisabled}
+						label="Note (optional)"
+						maxLength={500}
+					/>
 
 					{stalePreviewError && (
 						<Alert color="orange" title="Treasury changed before save" variant="light">
@@ -148,21 +171,24 @@ export function TreasuryAddModal({
 	);
 }
 
-export function validateAddFunds(values: AddFundsValues) {
-	const errors: Partial<Record<TreasuryDenomination, string>> = {};
+export function validateAddFunds(values: AddFundsInputValues) {
+	const errors: Partial<Record<TreasuryDenomination | "note", string>> = {};
 	for (const { key } of TREASURY_DENOMINATIONS) {
 		const value = values[key];
 		if (value !== "" && (!Number.isInteger(value) || value < 0 || value > POSTGRES_INTEGER_MAX)) {
 			errors[key] = "Enter a nonnegative whole number within the supported limit.";
 		}
 	}
-	if (Object.values(values).every((value) => value === 0 || value === "")) {
+	if (TREASURY_DENOMINATIONS.every(({ key }) => values[key] === 0 || values[key] === "")) {
 		errors.cp ??= "Add at least one coin.";
+	}
+	if (typeof values.note === "string" && values.note.length > 500) {
+		errors.note = "Keep the note to 500 characters or fewer.";
 	}
 	return errors;
 }
 
-export function toAddTreasuryRequest(values: AddFundsValues): TreasuryAddRequest {
+export function toAddTreasuryRequest(values: AddFundsInputValues): TreasuryAddRequest {
 	return {
 		delta: {
 			cp: toNumber(values.cp),
@@ -170,6 +196,7 @@ export function toAddTreasuryRequest(values: AddFundsValues): TreasuryAddRequest
 			gp: toNumber(values.gp),
 			pp: toNumber(values.pp),
 		},
+		note: normalizeTreasuryNote(values.note),
 	};
 }
 
@@ -179,15 +206,22 @@ function toNumber(value: TreasuryNumberDraft) {
 
 function isValidDraft(values: AddFundsValues) {
 	return (
-		Object.values(values).every(
-			(value) =>
-				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX),
-		) && Object.values(values).some((value) => typeof value === "number" && value > 0)
+		TREASURY_DENOMINATIONS.every(({ key }) => {
+			const value = values[key];
+			return (
+				value === "" || (Number.isInteger(value) && value >= 0 && value <= POSTGRES_INTEGER_MAX)
+			);
+		}) &&
+		TREASURY_DENOMINATIONS.some(({ key }) => {
+			const value = values[key];
+			return typeof value === "number" && value > 0;
+		}) &&
+		(values.note?.length ?? 0) <= 500
 	);
 }
 
 function isNeutralDraft(values: AddFundsValues) {
-	return Object.values(values).every((value) => value === 0 || value === "");
+	return TREASURY_DENOMINATIONS.every(({ key }) => values[key] === 0 || values[key] === "");
 }
 
 function getDraftError(values: AddFundsValues) {

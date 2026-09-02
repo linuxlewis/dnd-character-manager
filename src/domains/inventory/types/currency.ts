@@ -13,6 +13,17 @@ export const CURRENCY_DENOMINATIONS = ["cp", "sp", "gp", "pp"] as const;
 export const CurrencyDenominationSchema = z.enum(CURRENCY_DENOMINATIONS);
 export type CurrencyDenomination = z.infer<typeof CurrencyDenominationSchema>;
 
+export const CurrencyNoteSchema = z
+	.string()
+	.nullable()
+	.transform((value) => {
+		if (value === null) return null;
+		const note = value.trim();
+		return note.length > 0 ? note : null;
+	})
+	.pipe(z.string().max(500).nullable());
+export type CurrencyNote = z.output<typeof CurrencyNoteSchema>;
+
 export const DND_CURRENCY_TO_COPPER = {
 	cp: 1,
 	sp: 10,

@@ -12,6 +12,7 @@ import {
 	CurrencyBalanceSchema,
 	CurrencyConversionRequestSchema,
 	CurrencyDeltaSchema,
+	CurrencyNoteSchema,
 	CurrencySpendRequestSchema,
 	convertDenominationAmount,
 	DND_CURRENCY_TO_COPPER,
@@ -23,7 +24,7 @@ const InventoryHistoryCurrencyDetailsBaseSchema = {
 	previous: CurrencyBalanceSchema,
 	next: CurrencyBalanceSchema,
 	delta: CurrencyDeltaSchema,
-	note: z.preprocess(normalizeHistoryNote, z.string().max(500).regex(/\S/).nullable()),
+	note: CurrencyNoteSchema,
 };
 
 export const InventoryHistoryCurrencyAddDetailsSchema = z
@@ -84,14 +85,8 @@ export type InventoryHistoryLegacyCurrencyDetails = z.infer<
 	typeof InventoryHistoryLegacyCurrencyDetailsSchema
 >;
 
-function normalizeHistoryNote(value: unknown) {
-	if (typeof value !== "string") return value;
-	const note = value.trim();
-	return note.length > 0 ? note : null;
-}
-
 function normalizeLegacyHistoryNote(value: unknown) {
-	const note = normalizeHistoryNote(value);
+	const note = typeof value === "string" ? value.trim() : value;
 	return typeof note === "string" ? note.slice(0, 500) : note;
 }
 

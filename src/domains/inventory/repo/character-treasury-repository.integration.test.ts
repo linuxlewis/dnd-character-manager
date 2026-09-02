@@ -272,7 +272,7 @@ async function createCharacter() {
 		INSERT INTO characters (id, user_id, name, class, level)
 		VALUES (${characterId}, ${userId}, 'Inventory Test Character', 'Fighter', 1)
 	`);
-	return { characterId };
+	return { characterId, userId };
 }
 
 async function countRows(

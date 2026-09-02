@@ -8,6 +8,7 @@ import {
 	CurrencyConversionRequestSchema,
 	CurrencyConversionResponseSchema,
 	CurrencyDeltaSchema,
+	CurrencyNoteSchema,
 	CurrencyPreviewSchema,
 	CurrencySpendRequestSchema,
 	convertDenominationAmount,
@@ -102,6 +103,13 @@ describe("currency schemas and conversion helpers", () => {
 			gp: 2,
 			pp: -1,
 		});
+	});
+
+	it("normalizes optional currency notes at the boundary", () => {
+		expect(CurrencyNoteSchema.parse("  Reward from the guild  ")).toBe("Reward from the guild");
+		expect(CurrencyNoteSchema.parse(" \t")).toBeNull();
+		expect(CurrencyNoteSchema.parse(null)).toBeNull();
+		expect(() => CurrencyNoteSchema.parse("n".repeat(501))).toThrow();
 	});
 
 	it("rejects fractional and negative balance values", () => {

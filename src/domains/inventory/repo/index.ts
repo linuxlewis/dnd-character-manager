@@ -7,9 +7,12 @@ export type {
 } from "./character-item-repository.js";
 export { createCharacterItemRepository } from "./character-item-repository.js";
 export type {
+	CharacterTreasuryHistoryInput,
+	CharacterTreasuryHistoryWriter,
 	CharacterTreasuryMutation,
 	CharacterTreasuryMutationOptions,
 	CharacterTreasuryRepository,
+	CharacterTreasuryRepositoryOptions,
 } from "./character-treasury-repository.js";
 export {
 	CharacterTreasuryPreconditionError,

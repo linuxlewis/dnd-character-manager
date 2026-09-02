@@ -145,6 +145,47 @@ describe("character treasury confirmation adapter", () => {
 		});
 	});
 
+	it("carries trimmed notes into final mutation bodies without changing preview amounts", () => {
+		const previous = { cp: 0, sp: 0, gp: 0, pp: 0 };
+		const addPreview = {
+			operation: "add" as const,
+			previous,
+			next: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			totalValue: { copper: 200, gp: 2 },
+			canApply: true,
+		};
+		const spendPreview = {
+			operation: "spend" as const,
+			previous,
+			next: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: -2, pp: 0 },
+			totalValue: { copper: 0, gp: 0 },
+			canApply: true,
+		};
+
+		expect(
+			toAddCharacterTreasuryRequest(
+				{ delta: { cp: 0, sp: 0, gp: 2, pp: 0 }, note: "  Guild reward  " },
+				addPreview,
+			),
+		).toEqual({
+			delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			expectedPrevious: previous,
+			note: "Guild reward",
+		});
+		expect(
+			toSpendCharacterTreasuryRequest(
+				{ amount: { denomination: "gp", amount: 2 }, note: " \t" },
+				spendPreview,
+			),
+		).toEqual({
+			amount: { denomination: "gp", amount: 2 },
+			expectedPrevious: previous,
+			note: null,
+		});
+	});
+
 	it("classifies applied, conflict, and indeterminate confirmation outcomes", () => {
 		const expectedNext = { cp: 0, sp: 0, gp: 2, pp: 0 };
 		const confirmation = {

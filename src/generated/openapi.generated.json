@@ -4111,6 +4111,17 @@
 										},
 										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["delta", "expectedPrevious"],
@@ -4484,6 +4495,17 @@
 										},
 										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["amount", "expectedPrevious"],

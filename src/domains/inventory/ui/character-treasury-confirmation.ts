@@ -13,7 +13,7 @@ import type {
 	TreasurySpendPreview,
 	TreasurySpendRequest,
 } from "./treasury-types.js";
-import { treasuryBalancesEqual } from "./treasury-types.js";
+import { normalizeTreasuryNote, treasuryBalancesEqual } from "./treasury-types.js";
 
 export type TreasuryReconciliationState = { pending: boolean; error: Error | null };
 
@@ -33,14 +33,22 @@ export function toAddCharacterTreasuryRequest(
 	request: TreasuryAddRequest,
 	preview: TreasuryAddPreview,
 ): AddCharacterTreasuryRequest {
-	return { delta: request.delta, expectedPrevious: preview.previous };
+	return {
+		delta: request.delta,
+		expectedPrevious: preview.previous,
+		...(request.note === undefined ? {} : { note: normalizeTreasuryNote(request.note) }),
+	};
 }
 
 export function toSpendCharacterTreasuryRequest(
 	request: TreasurySpendRequest,
 	preview: TreasurySpendPreview,
 ): SpendCharacterTreasuryRequest {
-	return { amount: request.amount, expectedPrevious: preview.previous };
+	return {
+		amount: request.amount,
+		expectedPrevious: preview.previous,
+		...(request.note === undefined ? {} : { note: normalizeTreasuryNote(request.note) }),
+	};
 }
 
 export function toTreasuryConflictError(error: unknown) {

@@ -20,8 +20,8 @@ export interface TreasuryData {
 	totalValue: TreasuryTotalValue;
 }
 
-export type TreasuryAddRequest = { delta: TreasuryBalance };
-export type TreasurySpendRequest = { amount: CurrencyAmount };
+export type TreasuryAddRequest = { delta: TreasuryBalance; note?: string | null };
+export type TreasurySpendRequest = { amount: CurrencyAmount; note?: string | null };
 
 export interface TreasuryPreviewError {
 	code: string;
@@ -136,4 +136,10 @@ export function treasuryBalancesEqual(left: TreasuryBalance, right: TreasuryBala
 	return (
 		left.cp === right.cp && left.sp === right.sp && left.gp === right.gp && left.pp === right.pp
 	);
+}
+
+export function normalizeTreasuryNote(value: unknown): string | null {
+	if (typeof value !== "string") return null;
+	const note = value.trim();
+	return note.length > 0 ? note : null;
 }
