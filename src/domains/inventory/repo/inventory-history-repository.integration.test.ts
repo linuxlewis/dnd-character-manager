@@ -23,31 +23,37 @@ describe("inventory history persistence", () => {
 		const first = await createScope();
 		const second = await createScope();
 		const repository = createInventoryHistoryRepository();
+		const itemId = crypto.randomUUID();
 		const oldest = await repository.appendHistoryEntry(first.scopeId, {
 			action: "item_added",
 			entityType: "item",
-			entityId: crypto.randomUUID(),
+			entityId: itemId,
 			entityName: "Rope",
-			details: { quantity: 1 },
+			details: { version: 1, item: historyItem(itemId, 1) },
 		});
 		const middle = await repository.appendHistoryEntry(first.scopeId, {
 			action: "item_updated",
 			entityType: "item",
-			entityId: oldest.entityId,
+			entityId: itemId,
 			entityName: "Rope",
-			details: { quantity: 2 },
+			details: {
+				version: 1,
+				before: historyItem(itemId, 1),
+				after: historyItem(itemId, 2),
+				changedFields: ["quantity"],
+			},
 		});
 		const newest = await repository.appendHistoryEntry(first.scopeId, {
 			action: "item_removed",
 			entityType: "item",
-			entityId: oldest.entityId,
+			entityId: itemId,
 			entityName: "Rope",
-			details: { quantity: 0 },
+			details: { version: 1, item: historyItem(itemId, 2) },
 		});
 		await repository.appendHistoryEntry(second.scopeId, {
 			action: "currency_updated",
 			entityType: "currency",
-			details: { gp: 1 },
+			details: currencyDetails(1),
 		});
 		await setHistoryTimes(oldest.id, middle.id, newest.id);
 
@@ -66,7 +72,7 @@ describe("inventory history persistence", () => {
 		await repository.appendHistoryEntry(scopeId, {
 			action: "currency_updated",
 			entityType: "currency",
-			details: { gp: 2 },
+			details: currencyDetails(2),
 		});
 		await getDb().delete(inventoryScopesTable).where(eq(inventoryScopesTable.id, scopeId));
 		const [remaining] = await getDb()
@@ -75,7 +81,108 @@ describe("inventory history persistence", () => {
 			.where(eq(inventoryHistoryEntriesTable.inventoryScopeId, scopeId));
 		expect(Number(remaining?.value ?? 0)).toBe(0);
 	});
+
+	it("filters by action and entity type without crossing scopes", async () => {
+		const first = await createScope();
+		const second = await createScope();
+		const repository = createInventoryHistoryRepository();
+		const itemId = crypto.randomUUID();
+		await repository.appendHistoryEntry(first.scopeId, {
+			action: "item_added",
+			entityType: "item",
+			entityId: itemId,
+			details: { version: 1, item: historyItem(itemId) },
+		});
+		await repository.appendHistoryEntry(first.scopeId, {
+			action: "currency_updated",
+			entityType: "currency",
+			details: currencyDetails(1),
+		});
+		await repository.appendHistoryEntry(second.scopeId, {
+			action: "item_added",
+			entityType: "item",
+			entityId: itemId,
+			details: { version: 1, item: historyItem(itemId) },
+		});
+
+		const itemPage = await repository.listHistoryEntries(first.scopeId, {
+			action: "item_added",
+			entityType: "item",
+		});
+		expect(itemPage).toMatchObject({ total: 1, limit: 50, offset: 0, hasMore: false });
+		expect(itemPage.entries[0]?.inventoryScopeId).toBe(first.scopeId);
+		const currencyPage = await repository.listHistoryEntries(first.scopeId, {
+			entityType: "currency",
+		});
+		expect(currencyPage).toMatchObject({ total: 1, hasMore: false });
+		expect(currencyPage.entries[0]?.entityType).toBe("currency");
+	});
+
+	it("orders tied timestamps by descending history id and preserves actor rows", async () => {
+		const { scopeId } = await createScope();
+		const actorUserId = crypto.randomUUID();
+		await getDb()
+			.insert(userTable)
+			.values({
+				id: actorUserId,
+				name: "Inventory History Actor",
+				email: `${actorUserId}@example.test`,
+				emailVerified: false,
+				isAnonymous: true,
+			});
+		const repository = createInventoryHistoryRepository();
+		const first = await repository.appendHistoryEntry(scopeId, {
+			action: "currency_updated",
+			entityType: "currency",
+			actorUserId,
+			details: currencyDetails(1),
+		});
+		const second = await repository.appendHistoryEntry(scopeId, {
+			action: "currency_updated",
+			entityType: "currency",
+			actorUserId,
+			details: currencyDetails(2),
+		});
+		await getDb().execute(sql`
+			UPDATE inventory_history_entries
+			SET created_at = TIMESTAMPTZ '2026-08-29 12:00:00+00'
+			WHERE id IN (${first.id}, ${second.id})
+		`);
+
+		const page = await repository.listHistoryEntries(scopeId, { limit: 1 });
+		expect(page.entries[0]?.id).toBe(second.id > first.id ? second.id : first.id);
+		expect(page.entries[0]?.actorUserId).toBe(actorUserId);
+		await getDb().delete(userTable).where(eq(userTable.id, actorUserId));
+		const afterActorDelete = await repository.listHistoryEntries(scopeId);
+		expect(afterActorDelete.entries.every((entry) => entry.actorUserId === null)).toBe(true);
+	});
 });
+
+function historyItem(id: string, quantity = 1) {
+	return {
+		id,
+		name: "Rope",
+		type: "misc" as const,
+		category: "Adventuring Gear",
+		rarity: null,
+		quantity,
+		weight: 10,
+		estimatedValue: 1,
+		isEquipped: false,
+	};
+}
+
+function currencyDetails(gold: number) {
+	return {
+		version: 1 as const,
+		operation: "add" as const,
+		previous: { cp: 0, sp: 0, gp: 0, pp: 0 },
+		next: { cp: 0, sp: 0, gp: gold, pp: 0 },
+		delta: { cp: 0, sp: 0, gp: gold, pp: 0 },
+		requested: { delta: { cp: 0, sp: 0, gp: gold, pp: 0 } },
+		note: null,
+	};
+}
 
 async function createScope() {
 	const userId = crypto.randomUUID();

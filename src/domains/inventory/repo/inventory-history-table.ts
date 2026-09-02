@@ -1,3 +1,4 @@
+import { userTable } from "@providers/auth/schema.js";
 import { sql } from "drizzle-orm";
 import { check, index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
@@ -13,6 +14,7 @@ export const inventoryHistoryEntriesTable = pgTable(
 		entityType: text("entity_type").notNull(),
 		entityId: uuid("entity_id"),
 		entityName: text("entity_name"),
+		actorUserId: uuid("actor_user_id").references(() => userTable.id, { onDelete: "set null" }),
 		details: jsonb("details").$type<unknown>().notNull().default({}),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},

@@ -1,17 +1,44 @@
 import { z } from "zod";
+import {
+	InventoryHistoryActionSchema,
+	InventoryHistoryDetailsSchema,
+	InventoryHistoryEntityTypeSchema,
+	parseInventoryHistoryDetails,
+} from "./history-details.js";
 import { InventoryItemIdSchema, InventoryScopeIdSchema } from "./ids.js";
-import { JsonObjectSchema } from "./item.js";
 
-export const InventoryHistoryActionSchema = z.enum([
-	"item_added",
-	"item_updated",
-	"item_removed",
-	"currency_updated",
-]);
-export type InventoryHistoryAction = z.infer<typeof InventoryHistoryActionSchema>;
+export type {
+	InventoryHistoryAction,
+	InventoryHistoryCurrencyAddDetails,
+	InventoryHistoryCurrencyConvertDetails,
+	InventoryHistoryCurrencySpendDetails,
+	InventoryHistoryCurrencyUpdatedDetails,
+	InventoryHistoryDetails,
+	InventoryHistoryEntityType,
+	InventoryHistoryItemAddedDetails,
+	InventoryHistoryItemChangedField,
+	InventoryHistoryItemRemovedDetails,
+	InventoryHistoryItemSnapshot,
+	InventoryHistoryItemUpdatedDetails,
+} from "./history-details.js";
+export {
+	InventoryHistoryActionSchema,
+	InventoryHistoryCurrencyAddDetailsSchema,
+	InventoryHistoryCurrencyConvertDetailsSchema,
+	InventoryHistoryCurrencySpendDetailsSchema,
+	InventoryHistoryCurrencyUpdatedDetailsSchema,
+	InventoryHistoryDetailsSchema,
+	InventoryHistoryEntityTypeSchema,
+	InventoryHistoryItemAddedDetailsSchema,
+	InventoryHistoryItemChangedFieldSchema,
+	InventoryHistoryItemRemovedDetailsSchema,
+	InventoryHistoryItemSnapshotSchema,
+	InventoryHistoryItemUpdatedDetailsSchema,
+	parseInventoryHistoryDetails,
+} from "./history-details.js";
 
-export const InventoryHistoryEntityTypeSchema = z.enum(["item", "currency"]);
-export type InventoryHistoryEntityType = z.infer<typeof InventoryHistoryEntityTypeSchema>;
+export const InventoryHistoryActorUserIdSchema = z.string().uuid();
+export type InventoryHistoryActorUserId = z.infer<typeof InventoryHistoryActorUserIdSchema>;
 
 export const InventoryHistoryEntrySchema = z
 	.object({
@@ -21,10 +48,22 @@ export const InventoryHistoryEntrySchema = z
 		entityType: InventoryHistoryEntityTypeSchema,
 		entityId: InventoryItemIdSchema.nullable(),
 		entityName: z.string().min(1).max(120).nullable(),
-		details: JsonObjectSchema,
+		actorUserId: InventoryHistoryActorUserIdSchema.nullable(),
+		details: InventoryHistoryDetailsSchema,
 		createdAt: z.iso.datetime(),
 	})
-	.strict();
+	.strict()
+	.superRefine((entry, ctx) => {
+		try {
+			parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+		} catch {
+			ctx.addIssue({
+				code: "custom",
+				path: ["details"],
+				message: "History details do not match the action and entity type.",
+			});
+		}
+	});
 export type InventoryHistoryEntry = z.infer<typeof InventoryHistoryEntrySchema>;
 
 export const InventoryHistoryEntryInputSchema = z
@@ -33,15 +72,29 @@ export const InventoryHistoryEntryInputSchema = z
 		entityType: InventoryHistoryEntityTypeSchema,
 		entityId: InventoryItemIdSchema.nullable().optional().default(null),
 		entityName: z.string().min(1).max(120).nullable().optional().default(null),
-		details: JsonObjectSchema.default({}),
+		actorUserId: InventoryHistoryActorUserIdSchema.nullable().optional().default(null),
+		details: InventoryHistoryDetailsSchema,
 	})
-	.strict();
+	.strict()
+	.superRefine((entry, ctx) => {
+		try {
+			parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+		} catch {
+			ctx.addIssue({
+				code: "custom",
+				path: ["details"],
+				message: "History details do not match the action and entity type.",
+			});
+		}
+	});
 export type InventoryHistoryEntryInput = z.input<typeof InventoryHistoryEntryInputSchema>;
 
 export const InventoryHistoryPageRequestSchema = z
 	.object({
 		limit: z.number().int().min(1).max(100).default(50),
 		offset: z.number().int().nonnegative().default(0),
+		action: InventoryHistoryActionSchema.nullable().optional(),
+		entityType: InventoryHistoryEntityTypeSchema.nullable().optional(),
 	})
 	.strict();
 export type InventoryHistoryPageRequest = z.infer<typeof InventoryHistoryPageRequestSchema>;
@@ -56,3 +109,22 @@ export const InventoryHistoryPageSchema = z
 	})
 	.strict();
 export type InventoryHistoryPage = z.infer<typeof InventoryHistoryPageSchema>;
+
+export function parseInventoryHistoryEntryInput(input: unknown): InventoryHistoryEntryInput {
+	const parsed = z
+		.object({
+			action: InventoryHistoryActionSchema,
+			entityType: InventoryHistoryEntityTypeSchema,
+			entityId: InventoryItemIdSchema.nullable().optional(),
+			entityName: z.string().min(1).max(120).nullable().optional(),
+			actorUserId: InventoryHistoryActorUserIdSchema.nullable().optional(),
+			details: z.unknown(),
+		})
+		.strict()
+		.parse(input);
+
+	return InventoryHistoryEntryInputSchema.parse({
+		...parsed,
+		details: parseInventoryHistoryDetails(parsed.action, parsed.entityType, parsed.details),
+	});
+}
