@@ -1,6 +1,6 @@
 # Character and Party Inventory - Product Spec
 
-Last verified: 2026-08-29
+Last verified: 2026-09-01
 
 Status: Draft
 
@@ -439,6 +439,8 @@ Personal items additionally show equip and unequip controls. Party items never a
 
 ### Character Detail Composition
 
+- Personal inventory follows the route-backed `Inventory` section and responsive shell defined in
+  the [character detail navigation and layout design spec](./character-detail-navigation-design-spec.md).
 - Personal treasury and personal inventory appear without requiring a party.
 - When linked, party treasury and shared items appear in a clearly separate section.
 - Personal and party mutations use distinct actions and cannot silently move resources.
