@@ -1,8 +1,17 @@
 import { z } from "zod";
+import type {
+	InventoryHistoryAction,
+	InventoryHistoryDetails,
+	InventoryHistoryEntityType,
+} from "./history-details.js";
 import {
 	InventoryHistoryActionSchema,
 	InventoryHistoryDetailsSchema,
 	InventoryHistoryEntityTypeSchema,
+	InventoryHistoryItemAddedDetailsSchema,
+	InventoryHistoryItemRemovedDetailsSchema,
+	InventoryHistoryItemUpdatedDetailsSchema,
+	InventoryHistoryVersionedDetailsSchema,
 	parseInventoryHistoryDetails,
 } from "./history-details.js";
 import { InventoryItemIdSchema, InventoryScopeIdSchema } from "./ids.js";
@@ -20,6 +29,8 @@ export type {
 	InventoryHistoryItemRemovedDetails,
 	InventoryHistoryItemSnapshot,
 	InventoryHistoryItemUpdatedDetails,
+	InventoryHistoryLegacyCurrencyDetails,
+	InventoryHistoryVersionedDetails,
 } from "./history-details.js";
 export {
 	InventoryHistoryActionSchema,
@@ -34,6 +45,8 @@ export {
 	InventoryHistoryItemRemovedDetailsSchema,
 	InventoryHistoryItemSnapshotSchema,
 	InventoryHistoryItemUpdatedDetailsSchema,
+	InventoryHistoryLegacyCurrencyDetailsSchema,
+	InventoryHistoryVersionedDetailsSchema,
 	parseInventoryHistoryDetails,
 } from "./history-details.js";
 
@@ -55,7 +68,8 @@ export const InventoryHistoryEntrySchema = z
 	.strict()
 	.superRefine((entry, ctx) => {
 		try {
-			parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+			const details = parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+			validateHistoryEntryMetadata(entry, details, ctx);
 		} catch {
 			ctx.addIssue({
 				code: "custom",
@@ -73,12 +87,13 @@ export const InventoryHistoryEntryInputSchema = z
 		entityId: InventoryItemIdSchema.nullable().optional().default(null),
 		entityName: z.string().min(1).max(120).nullable().optional().default(null),
 		actorUserId: InventoryHistoryActorUserIdSchema.nullable().optional().default(null),
-		details: InventoryHistoryDetailsSchema,
+		details: InventoryHistoryVersionedDetailsSchema,
 	})
 	.strict()
 	.superRefine((entry, ctx) => {
 		try {
-			parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+			const details = parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+			validateHistoryEntryMetadata(entry, details, ctx);
 		} catch {
 			ctx.addIssue({
 				code: "custom",
@@ -91,7 +106,7 @@ export type InventoryHistoryEntryInput = z.input<typeof InventoryHistoryEntryInp
 
 export const InventoryHistoryPageRequestSchema = z
 	.object({
-		limit: z.number().int().min(1).max(100).default(50),
+		limit: z.number().int().min(1).max(100).default(20),
 		offset: z.number().int().nonnegative().default(0),
 		action: InventoryHistoryActionSchema.nullable().optional(),
 		entityType: InventoryHistoryEntityTypeSchema.nullable().optional(),
@@ -127,4 +142,66 @@ export function parseInventoryHistoryEntryInput(input: unknown): InventoryHistor
 		...parsed,
 		details: parseInventoryHistoryDetails(parsed.action, parsed.entityType, parsed.details),
 	});
+}
+
+function validateHistoryEntryMetadata(
+	entry: {
+		entityType: InventoryHistoryEntityType;
+		action: InventoryHistoryAction;
+		entityId: string | null;
+		entityName: string | null;
+	},
+	details: InventoryHistoryDetails,
+	ctx: z.RefinementCtx,
+) {
+	if (entry.entityType === "currency") {
+		if (entry.entityId !== null) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["entityId"],
+				message: "Currency history entries cannot have an entity ID.",
+			});
+		}
+		if (entry.entityName !== null) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["entityName"],
+				message: "Currency history entries cannot have an entity name.",
+			});
+		}
+		return;
+	}
+
+	if (entry.entityId === null) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["entityId"],
+			message: "Item history entries require an entity ID.",
+		});
+	}
+	if (entry.entityName === null) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["entityName"],
+			message: "Item history entries require an entity name.",
+		});
+	}
+	if (entry.entityId === null) return;
+
+	const snapshotIds =
+		entry.action === "item_updated"
+			? (() => {
+					const parsed = InventoryHistoryItemUpdatedDetailsSchema.parse(details);
+					return [parsed.before.id, parsed.after.id];
+				})()
+			: entry.action === "item_added"
+				? [InventoryHistoryItemAddedDetailsSchema.parse(details).item.id]
+				: [InventoryHistoryItemRemovedDetailsSchema.parse(details).item.id];
+	if (snapshotIds.some((snapshotId) => snapshotId !== entry.entityId)) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["details"],
+			message: "Item history snapshot IDs must match the entity ID.",
+		});
+	}
 }

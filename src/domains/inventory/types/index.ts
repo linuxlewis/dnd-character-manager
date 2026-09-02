@@ -118,8 +118,10 @@ export type {
 	InventoryHistoryItemRemovedDetails,
 	InventoryHistoryItemSnapshot,
 	InventoryHistoryItemUpdatedDetails,
+	InventoryHistoryLegacyCurrencyDetails,
 	InventoryHistoryPage,
 	InventoryHistoryPageRequest,
+	InventoryHistoryVersionedDetails,
 } from "./history.js";
 export {
 	InventoryHistoryActionSchema,
@@ -137,8 +139,10 @@ export {
 	InventoryHistoryItemRemovedDetailsSchema,
 	InventoryHistoryItemSnapshotSchema,
 	InventoryHistoryItemUpdatedDetailsSchema,
+	InventoryHistoryLegacyCurrencyDetailsSchema,
 	InventoryHistoryPageRequestSchema,
 	InventoryHistoryPageSchema,
+	InventoryHistoryVersionedDetailsSchema,
 	parseInventoryHistoryDetails,
 	parseInventoryHistoryEntryInput,
 } from "./history.js";

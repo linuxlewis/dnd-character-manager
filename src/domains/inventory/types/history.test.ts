@@ -33,12 +33,14 @@ describe("inventory history schemas", () => {
 			InventoryHistoryEntryInputSchema.parse({
 				action: "item_added",
 				entityType: "item",
+				entityId: itemId,
+				entityName: "Rope",
 				actorUserId,
 				details,
 			}),
 		).toMatchObject({
-			entityId: null,
-			entityName: null,
+			entityId: itemId,
+			entityName: "Rope",
 			actorUserId,
 			details,
 		});
@@ -86,8 +88,58 @@ describe("inventory history schemas", () => {
 		).toThrow();
 	});
 
+	it("enforces history row metadata and snapshot identity invariants", () => {
+		const itemDetails = { version: 1, item };
+		expect(() =>
+			InventoryHistoryEntryInputSchema.parse({
+				action: "item_added",
+				entityType: "item",
+				details: itemDetails,
+			}),
+		).toThrow();
+		expect(() =>
+			InventoryHistoryEntryInputSchema.parse({
+				action: "item_added",
+				entityType: "item",
+				entityId: itemId,
+				details: itemDetails,
+			}),
+		).toThrow();
+		expect(() =>
+			InventoryHistoryEntryInputSchema.parse({
+				action: "currency_updated",
+				entityType: "currency",
+				entityId: itemId,
+				entityName: "Coins",
+				details: {
+					version: 1,
+					operation: "add",
+					previous: { cp: 0, sp: 0, gp: 0, pp: 0 },
+					next: { cp: 0, sp: 0, gp: 1, pp: 0 },
+					delta: { cp: 0, sp: 0, gp: 1, pp: 0 },
+					requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+					note: null,
+				},
+			}),
+		).toThrow();
+		expect(() =>
+			InventoryHistoryEntryInputSchema.parse({
+				action: "item_updated",
+				entityType: "item",
+				entityId: itemId,
+				entityName: "Rope",
+				details: {
+					version: 1,
+					before: item,
+					after: { ...item, id: entryId },
+					changedFields: ["quantity"],
+				},
+			}),
+		).toThrow();
+	});
+
 	it("validates bounded paging and strict page shapes", () => {
-		expect(InventoryHistoryPageRequestSchema.parse({})).toEqual({ limit: 50, offset: 0 });
+		expect(InventoryHistoryPageRequestSchema.parse({})).toEqual({ limit: 20, offset: 0 });
 		expect(
 			InventoryHistoryPageRequestSchema.parse({
 				limit: 20,
@@ -96,6 +148,10 @@ describe("inventory history schemas", () => {
 				entityType: "item",
 			}),
 		).toEqual({ limit: 20, offset: 5, action: "item_updated", entityType: "item" });
+		expect(() => InventoryHistoryPageRequestSchema.parse({ action: "not_an_action" })).toThrow();
+		expect(() =>
+			InventoryHistoryPageRequestSchema.parse({ entityType: "not_an_entity" }),
+		).toThrow();
 		expect(
 			InventoryHistoryPageSchema.parse({
 				entries: [],

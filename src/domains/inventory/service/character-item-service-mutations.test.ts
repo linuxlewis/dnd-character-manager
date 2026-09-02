@@ -30,11 +30,16 @@ describe("CharacterItemService mutations", () => {
 		const service = createCharacterItemService(fakes);
 
 		await service.updateCharacterItem(userId, characterId, before.id, { catalogueItemId: null });
-		expect(fakes.repository.updateItemWithHistory).toHaveBeenCalledWith(scopeId, before.id, {
-			catalogueItemId: null,
-			catalogueSourceKey: null,
-			catalogueRulesVersion: null,
-		});
+		expect(fakes.repository.updateItemWithHistory).toHaveBeenCalledWith(
+			scopeId,
+			before.id,
+			{
+				catalogueItemId: null,
+				catalogueSourceKey: null,
+				catalogueRulesVersion: null,
+			},
+			userId,
+		);
 	});
 
 	it("makes equip idempotent and scope constrained", async () => {
@@ -50,6 +55,7 @@ describe("CharacterItemService mutations", () => {
 			scopeId,
 			equipped.id,
 			true,
+			userId,
 		);
 
 		const unequipped = item({ isEquipped: false });
@@ -59,6 +65,16 @@ describe("CharacterItemService mutations", () => {
 			scopeId,
 			unequipped.id,
 			true,
+			userId,
+		);
+
+		fakes.repository.setEquippedWithHistory.mockResolvedValue(unequipped);
+		await service.unequipCharacterItem(userId, characterId, equipped.id);
+		expect(fakes.repository.setEquippedWithHistory).toHaveBeenCalledWith(
+			scopeId,
+			equipped.id,
+			false,
+			userId,
 		);
 	});
 
@@ -71,7 +87,11 @@ describe("CharacterItemService mutations", () => {
 		await expect(
 			service.deleteCharacterItem(userId, characterId, removed.id),
 		).resolves.toBeUndefined();
-		expect(fakes.repository.deleteItemWithHistory).toHaveBeenCalledWith(scopeId, removed.id);
+		expect(fakes.repository.deleteItemWithHistory).toHaveBeenCalledWith(
+			scopeId,
+			removed.id,
+			userId,
+		);
 
 		fakes.repository.findItem.mockRejectedValue(new Error("database offline"));
 		await expect(service.getCharacterItem(userId, characterId, removed.id)).rejects.toBeInstanceOf(

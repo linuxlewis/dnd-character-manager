@@ -70,20 +70,39 @@ describe("character item persistence", () => {
 	});
 
 	it("writes exactly one deterministic history entry per successful character mutation", async () => {
-		const { characterId, scopeId } = await createScope();
+		const { characterId, scopeId, userId: actorUserId } = await createScope();
 		const repository = createCharacterItemRepository();
-		const created = await repository.createItemForCharacterWithHistory(characterId, {
-			name: "History Item",
-			type: "misc",
-			category: "Gear",
-			properties: { source: "test" },
-		});
-		const updated = await repository.updateItemWithHistory(scopeId, created.id, {
-			quantity: 2,
-		});
-		const equipped = await repository.setEquippedWithHistory(scopeId, created.id, true);
-		const unequipped = await repository.setEquippedWithHistory(scopeId, created.id, false);
-		const deleted = await repository.deleteItemWithHistory(scopeId, created.id);
+		const created = await repository.createItemForCharacterWithHistory(
+			characterId,
+			{
+				name: "History Item",
+				type: "misc",
+				category: "Gear",
+				properties: { source: "test" },
+			},
+			actorUserId,
+		);
+		const updated = await repository.updateItemWithHistory(
+			scopeId,
+			created.id,
+			{
+				quantity: 2,
+			},
+			actorUserId,
+		);
+		const equipped = await repository.setEquippedWithHistory(
+			scopeId,
+			created.id,
+			true,
+			actorUserId,
+		);
+		const unequipped = await repository.setEquippedWithHistory(
+			scopeId,
+			created.id,
+			false,
+			actorUserId,
+		);
+		const deleted = await repository.deleteItemWithHistory(scopeId, created.id, actorUserId);
 
 		expect(updated).toMatchObject({ id: created.id, quantity: 2 });
 		expect(equipped).toMatchObject({ id: created.id, isEquipped: true });
@@ -96,6 +115,7 @@ describe("character item persistence", () => {
 				action: inventoryHistoryEntriesTable.action,
 				entityId: inventoryHistoryEntriesTable.entityId,
 				entityName: inventoryHistoryEntriesTable.entityName,
+				actorUserId: inventoryHistoryEntriesTable.actorUserId,
 				details: inventoryHistoryEntriesTable.details,
 			})
 			.from(inventoryHistoryEntriesTable)
@@ -103,6 +123,7 @@ describe("character item persistence", () => {
 			.orderBy(desc(inventoryHistoryEntriesTable.createdAt), desc(inventoryHistoryEntriesTable.id));
 
 		expect(entries).toHaveLength(5);
+		expect(entries.every((entry) => entry.actorUserId === actorUserId)).toBe(true);
 		expect(entries).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
@@ -146,7 +167,7 @@ async function createScope() {
 		VALUES (${characterId}, ${userId}, 'Character Item Test Character', 'Fighter', 1)
 	`);
 	await getDb().insert(inventoryScopesTable).values({ id: scopeId, characterId });
-	return { characterId, scopeId };
+	return { characterId, scopeId, userId };
 }
 
 async function historyCount(scopeId: string) {

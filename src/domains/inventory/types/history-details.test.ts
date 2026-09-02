@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	InventoryHistoryCurrencyAddDetailsSchema,
 	InventoryHistoryCurrencyConvertDetailsSchema,
 	InventoryHistoryCurrencySpendDetailsSchema,
 	InventoryHistoryItemAddedDetailsSchema,
@@ -19,6 +20,24 @@ const item = {
 };
 
 describe("inventory history details", () => {
+	it("reads legacy currency changes payloads", () => {
+		expect(
+			parseInventoryHistoryDetails("currency_updated", "currency", {
+				changes: {
+					old: { cp: 0, sp: 0, gp: 2, pp: 1 },
+					new: { cp: 5, sp: 0, gp: 2, pp: 1 },
+				},
+				note: "  Found in the chest  ",
+			}),
+		).toEqual({
+			changes: {
+				old: { cp: 0, sp: 0, gp: 2, pp: 1 },
+				new: { cp: 5, sp: 0, gp: 2, pp: 1 },
+			},
+			note: "Found in the chest",
+		});
+	});
+
 	it("parses spend and conversion payloads", () => {
 		expect(
 			InventoryHistoryCurrencySpendDetailsSchema.parse({
@@ -42,6 +61,60 @@ describe("inventory history details", () => {
 				note: null,
 			}),
 		).toBeDefined();
+	});
+
+	it("normalizes canonical currency notes and validates operation invariants", () => {
+		const add = InventoryHistoryCurrencyAddDetailsSchema.parse({
+			version: 1,
+			operation: "add",
+			previous: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			next: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			requested: { delta: { cp: 0, sp: 0, gp: 2, pp: 0 } },
+			note: "  Added reward  ",
+		});
+		expect(add.note).toBe("Added reward");
+
+		const blankNote = InventoryHistoryCurrencyAddDetailsSchema.parse({
+			...add,
+			note: " \t",
+		});
+		expect(blankNote.note).toBeNull();
+
+		for (const details of [
+			{
+				...add,
+				operation: "add" as const,
+				delta: { cp: 0, sp: 0, gp: 1, pp: 0 },
+				requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+			},
+			{
+				version: 1 as const,
+				operation: "spend" as const,
+				previous: { cp: 0, sp: 0, gp: 15, pp: 0 },
+				next: { cp: 0, sp: 0, gp: 0, pp: 0 },
+				delta: { cp: 0, sp: 0, gp: -14, pp: 0 },
+				requested: { amount: { denomination: "gp" as const, amount: 15 } },
+				note: null,
+			},
+			{
+				version: 1 as const,
+				operation: "convert" as const,
+				previous: { cp: 0, sp: 0, gp: 0, pp: 1 },
+				next: { cp: 0, sp: 0, gp: 10, pp: 0 },
+				delta: { cp: 0, sp: 0, gp: 9, pp: -1 },
+				requested: { from: "pp" as const, to: "gp" as const, amount: 1 },
+				note: null,
+			},
+		]) {
+			expect(() => parseInventoryHistoryDetails("currency_updated", "currency", details)).toThrow();
+		}
+		expect(() =>
+			InventoryHistoryCurrencyAddDetailsSchema.parse({
+				...add,
+				requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+			}),
+		).toThrow();
 	});
 
 	it("normalizes a legacy item detail object to version one", () => {

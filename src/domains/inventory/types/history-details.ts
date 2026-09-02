@@ -1,14 +1,26 @@
 import { z } from "zod";
 import {
-	CurrencyAddRequestSchema,
-	CurrencyBalanceSchema,
-	CurrencyConversionRequestSchema,
-	CurrencyDeltaSchema,
-	CurrencySpendRequestSchema,
-} from "./currency.js";
+	InventoryHistoryCurrencyUpdatedDetailsSchema,
+	InventoryHistoryLegacyCurrencyDetailsSchema,
+} from "./history-currency-details.js";
 import { InventoryItemIdSchema } from "./ids.js";
 import { InventoryItemRaritySchema, InventoryItemTypeSchema } from "./item.js";
 import { PositivePostgresIntegerSchema, PostgresNonNegativeRealSchema } from "./numeric.js";
+
+export type {
+	InventoryHistoryCurrencyAddDetails,
+	InventoryHistoryCurrencyConvertDetails,
+	InventoryHistoryCurrencySpendDetails,
+	InventoryHistoryCurrencyUpdatedDetails,
+	InventoryHistoryLegacyCurrencyDetails,
+} from "./history-currency-details.js";
+export {
+	InventoryHistoryCurrencyAddDetailsSchema,
+	InventoryHistoryCurrencyConvertDetailsSchema,
+	InventoryHistoryCurrencySpendDetailsSchema,
+	InventoryHistoryCurrencyUpdatedDetailsSchema,
+	InventoryHistoryLegacyCurrencyDetailsSchema,
+} from "./history-currency-details.js";
 
 export const InventoryHistoryActionSchema = z.enum([
 	"item_added",
@@ -68,61 +80,19 @@ export type InventoryHistoryItemUpdatedDetails = z.infer<
 	typeof InventoryHistoryItemUpdatedDetailsSchema
 >;
 
-const InventoryHistoryCurrencyDetailsBaseSchema = {
-	version: z.literal(1),
-	previous: CurrencyBalanceSchema,
-	next: CurrencyBalanceSchema,
-	delta: CurrencyDeltaSchema,
-	note: z.string().max(500).regex(/\S/).nullable(),
-};
-
-export const InventoryHistoryCurrencyAddDetailsSchema = z
-	.object({
-		...InventoryHistoryCurrencyDetailsBaseSchema,
-		operation: z.literal("add"),
-		requested: CurrencyAddRequestSchema,
-	})
-	.strict();
-export type InventoryHistoryCurrencyAddDetails = z.infer<
-	typeof InventoryHistoryCurrencyAddDetailsSchema
->;
-
-export const InventoryHistoryCurrencySpendDetailsSchema = z
-	.object({
-		...InventoryHistoryCurrencyDetailsBaseSchema,
-		operation: z.literal("spend"),
-		requested: CurrencySpendRequestSchema,
-	})
-	.strict();
-export type InventoryHistoryCurrencySpendDetails = z.infer<
-	typeof InventoryHistoryCurrencySpendDetailsSchema
->;
-
-export const InventoryHistoryCurrencyConvertDetailsSchema = z
-	.object({
-		...InventoryHistoryCurrencyDetailsBaseSchema,
-		operation: z.literal("convert"),
-		requested: CurrencyConversionRequestSchema,
-	})
-	.strict();
-export type InventoryHistoryCurrencyConvertDetails = z.infer<
-	typeof InventoryHistoryCurrencyConvertDetailsSchema
->;
-
-export const InventoryHistoryCurrencyUpdatedDetailsSchema = z.union([
-	InventoryHistoryCurrencyAddDetailsSchema,
-	InventoryHistoryCurrencySpendDetailsSchema,
-	InventoryHistoryCurrencyConvertDetailsSchema,
-]);
-export type InventoryHistoryCurrencyUpdatedDetails = z.infer<
-	typeof InventoryHistoryCurrencyUpdatedDetailsSchema
->;
-
-export const InventoryHistoryDetailsSchema = z.union([
+export const InventoryHistoryVersionedDetailsSchema = z.union([
 	InventoryHistoryItemAddedDetailsSchema,
 	InventoryHistoryItemUpdatedDetailsSchema,
 	InventoryHistoryItemRemovedDetailsSchema,
 	InventoryHistoryCurrencyUpdatedDetailsSchema,
+]);
+export type InventoryHistoryVersionedDetails = z.infer<
+	typeof InventoryHistoryVersionedDetailsSchema
+>;
+
+export const InventoryHistoryDetailsSchema = z.union([
+	InventoryHistoryVersionedDetailsSchema,
+	InventoryHistoryLegacyCurrencyDetailsSchema,
 ]);
 export type InventoryHistoryDetails = z.infer<typeof InventoryHistoryDetailsSchema>;
 
@@ -140,7 +110,8 @@ export function parseInventoryHistoryDetails(
 		if (parsedAction === "item_removed") return parseVersionedOrLegacyItemRemoved(details);
 	}
 	if (parsedEntityType === "currency" && parsedAction === "currency_updated") {
-		return InventoryHistoryCurrencyUpdatedDetailsSchema.parse(details);
+		if (hasVersion(details)) return InventoryHistoryCurrencyUpdatedDetailsSchema.parse(details);
+		return InventoryHistoryLegacyCurrencyDetailsSchema.parse(details);
 	}
 
 	throw new z.ZodError([
@@ -197,7 +168,8 @@ function parseVersionedOrLegacyItemUpdated(details: unknown): InventoryHistoryIt
 		version: 1,
 		before,
 		after,
-		changedFields: parsed.changedFields ?? getChangedFields(before, after),
+		changedFields:
+			parsed.changedFields ?? getChangedFields(parsed.before, parsed.after, before, after),
 	});
 }
 
@@ -224,6 +196,8 @@ function toItemSnapshot(value: unknown): InventoryHistoryItemSnapshot {
 }
 
 function getChangedFields(
+	legacyBefore: LegacyItemSnapshot,
+	legacyAfter: LegacyItemSnapshot,
 	before: InventoryHistoryItemSnapshot,
 	after: InventoryHistoryItemSnapshot,
 ): InventoryHistoryItemChangedField[] {
@@ -238,5 +212,11 @@ function getChangedFields(
 		"isEquipped",
 		"notes",
 	] as const;
-	return fields.filter((field) => before[field] !== after[field]);
+	const changedFields = fields.filter((field) => before[field] !== after[field]);
+	if (legacyBefore.notes !== legacyAfter.notes && !changedFields.includes("notes")) {
+		changedFields.push("notes");
+	}
+	return changedFields;
 }
+
+type LegacyItemSnapshot = z.infer<typeof LegacyItemSnapshotSchema>;

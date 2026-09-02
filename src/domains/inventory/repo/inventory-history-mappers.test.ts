@@ -86,6 +86,64 @@ describe("inventory history mappers", () => {
 		expect(entry.details).toMatchObject({ version: 1, changedFields: ["quantity"] });
 	});
 
+	it("retains a notes changed marker when long note content is redacted", () => {
+		const beforeNotes = "a".repeat(501);
+		const afterNotes = "b".repeat(501);
+		const entry = toInventoryHistoryEntry({
+			id: entryId,
+			inventoryScopeId: scopeId,
+			action: "item_updated",
+			entityType: "item",
+			entityId: itemId,
+			entityName: "Rope",
+			actorUserId: null,
+			details: {
+				before: { ...item, notes: beforeNotes },
+				after: { ...item, notes: afterNotes },
+				item: null,
+			},
+			createdAt: "2026-08-29T12:00:00.000Z",
+		});
+
+		expect(entry.details).toMatchObject({
+			version: 1,
+			changedFields: ["notes"],
+			before: expect.not.objectContaining({ notes: expect.anything() }),
+			after: expect.not.objectContaining({ notes: expect.anything() }),
+		});
+	});
+
+	it("reads legacy currency changes rows", () => {
+		expect(
+			toInventoryHistoryEntry({
+				id: entryId,
+				inventoryScopeId: scopeId,
+				action: "currency_updated",
+				entityType: "currency",
+				entityId: null,
+				entityName: null,
+				actorUserId: null,
+				details: {
+					changes: {
+						old: { cp: 0, sp: 0, gp: 1, pp: 0 },
+						new: { cp: 0, sp: 0, gp: 2, pp: 0 },
+					},
+				},
+				createdAt: "2026-08-29T12:00:00.000Z",
+			}),
+		).toMatchObject({
+			action: "currency_updated",
+			entityType: "currency",
+			details: {
+				changes: {
+					old: { gp: 1 },
+					new: { gp: 2 },
+				},
+				note: null,
+			},
+		});
+	});
+
 	it("writes versioned details and defaults a missing actor to null", () => {
 		expect(
 			toInventoryHistoryInsert(scopeId, {

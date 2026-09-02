@@ -91,6 +91,7 @@ describe("inventory history persistence", () => {
 			action: "item_added",
 			entityType: "item",
 			entityId: itemId,
+			entityName: "Rope",
 			details: { version: 1, item: historyItem(itemId) },
 		});
 		await repository.appendHistoryEntry(first.scopeId, {
@@ -102,6 +103,7 @@ describe("inventory history persistence", () => {
 			action: "item_added",
 			entityType: "item",
 			entityId: itemId,
+			entityName: "Rope",
 			details: { version: 1, item: historyItem(itemId) },
 		});
 
@@ -109,7 +111,7 @@ describe("inventory history persistence", () => {
 			action: "item_added",
 			entityType: "item",
 		});
-		expect(itemPage).toMatchObject({ total: 1, limit: 50, offset: 0, hasMore: false });
+		expect(itemPage).toMatchObject({ total: 1, limit: 20, offset: 0, hasMore: false });
 		expect(itemPage.entries[0]?.inventoryScopeId).toBe(first.scopeId);
 		const currencyPage = await repository.listHistoryEntries(first.scopeId, {
 			entityType: "currency",
@@ -118,9 +120,44 @@ describe("inventory history persistence", () => {
 		expect(currencyPage.entries[0]?.entityType).toBe("currency");
 	});
 
+	it("lists legacy currency changes rows without rejecting the page", async () => {
+		const { scopeId } = await createScope();
+		const legacyId = crypto.randomUUID();
+		await getDb()
+			.insert(inventoryHistoryEntriesTable)
+			.values({
+				id: legacyId,
+				inventoryScopeId: scopeId,
+				action: "currency_updated",
+				entityType: "currency",
+				entityId: null,
+				entityName: null,
+				details: {
+					changes: {
+						old: { cp: 0, sp: 0, gp: 1, pp: 0 },
+						new: { cp: 0, sp: 0, gp: 2, pp: 0 },
+					},
+				},
+			});
+
+		const page = await createInventoryHistoryRepository().listHistoryEntries(scopeId);
+		expect(page).toMatchObject({ total: 1, limit: 20, offset: 0, hasMore: false });
+		expect(page.entries[0]).toMatchObject({
+			id: legacyId,
+			details: {
+				changes: {
+					old: { gp: 1 },
+					new: { gp: 2 },
+				},
+				note: null,
+			},
+		});
+	});
+
 	it("orders tied timestamps by descending history id and preserves actor rows", async () => {
 		const { scopeId } = await createScope();
 		const actorUserId = crypto.randomUUID();
+		createdUserIds.push(actorUserId);
 		await getDb()
 			.insert(userTable)
 			.values({
@@ -131,30 +168,34 @@ describe("inventory history persistence", () => {
 				isAnonymous: true,
 			});
 		const repository = createInventoryHistoryRepository();
-		const first = await repository.appendHistoryEntry(scopeId, {
-			action: "currency_updated",
-			entityType: "currency",
-			actorUserId,
-			details: currencyDetails(1),
-		});
-		const second = await repository.appendHistoryEntry(scopeId, {
-			action: "currency_updated",
-			entityType: "currency",
-			actorUserId,
-			details: currencyDetails(2),
-		});
-		await getDb().execute(sql`
-			UPDATE inventory_history_entries
-			SET created_at = TIMESTAMPTZ '2026-08-29 12:00:00+00'
-			WHERE id IN (${first.id}, ${second.id})
-		`);
+		try {
+			const first = await repository.appendHistoryEntry(scopeId, {
+				action: "currency_updated",
+				entityType: "currency",
+				actorUserId,
+				details: currencyDetails(1),
+			});
+			const second = await repository.appendHistoryEntry(scopeId, {
+				action: "currency_updated",
+				entityType: "currency",
+				actorUserId,
+				details: currencyDetails(2),
+			});
+			await getDb().execute(sql`
+				UPDATE inventory_history_entries
+				SET created_at = TIMESTAMPTZ '2026-08-29 12:00:00+00'
+				WHERE id IN (${first.id}, ${second.id})
+			`);
 
-		const page = await repository.listHistoryEntries(scopeId, { limit: 1 });
-		expect(page.entries[0]?.id).toBe(second.id > first.id ? second.id : first.id);
-		expect(page.entries[0]?.actorUserId).toBe(actorUserId);
-		await getDb().delete(userTable).where(eq(userTable.id, actorUserId));
-		const afterActorDelete = await repository.listHistoryEntries(scopeId);
-		expect(afterActorDelete.entries.every((entry) => entry.actorUserId === null)).toBe(true);
+			const page = await repository.listHistoryEntries(scopeId, { limit: 1 });
+			expect(page.entries[0]?.id).toBe(second.id > first.id ? second.id : first.id);
+			expect(page.entries[0]?.actorUserId).toBe(actorUserId);
+			await getDb().delete(userTable).where(eq(userTable.id, actorUserId));
+			const afterActorDelete = await repository.listHistoryEntries(scopeId);
+			expect(afterActorDelete.entries.every((entry) => entry.actorUserId === null)).toBe(true);
+		} finally {
+			await getDb().delete(userTable).where(eq(userTable.id, actorUserId));
+		}
 	});
 });
 
