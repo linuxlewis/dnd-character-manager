@@ -55,6 +55,10 @@ The current app already has the persistence foundation from A5/A6:
   with the item mutation.
 - History rows are listed newest-first with deterministic `createdAt` and `id` ordering.
 - The repository returns `total`, `limit`, `offset`, and `hasMore`.
+- The shipped spend modal presents four whole-number inputs for PP, GP, SP, and CP. Its
+  `toSpendTreasuryRequest` mapper sums those inputs in copper, then collapses the total to the first
+  representable denomination in PP-to-CP order for the single-denomination spend API request. The
+  four-input draft is UI state, not a four-denomination API contract.
 
 The current gaps are:
 
@@ -176,8 +180,8 @@ change and renders `Equipped <name>` or `Unequipped <name>` instead of a generic
   "version": 1,
   "operation": "spend",
   "previous": { "cp": 0, "sp": 0, "gp": 0, "pp": 2 },
-  "next": { "cp": 0, "sp": 0, "gp": 85, "pp": 1 },
-  "delta": { "cp": 0, "sp": 0, "gp": 85, "pp": -1 },
+  "next": { "cp": 0, "sp": 0, "gp": 5, "pp": 0 },
+  "delta": { "cp": 0, "sp": 0, "gp": 5, "pp": -2 },
   "requested": { "amount": { "denomination": "gp", "amount": 15 } },
   "note": "Bought climbing gear"
 }
@@ -187,8 +191,9 @@ change and renders `Equipped <name>` or `Unequipped <name>` instead of a generic
 
 - `add`: `requested.delta` contains the four submitted nonnegative denominations.
 - `spend`: `requested.amount` contains the submitted denomination and positive coin count, such
-  as `{ "denomination": "gp", "amount": 15 }`. The stored `delta` reflects the actual normalized
-  balance change, including making change.
+  as `{ "denomination": "gp", "amount": 15 }`. This is the single-denomination request produced
+  by the current four-input UI mapper, not the raw four-field draft. The stored `delta` reflects the
+  actual normalized balance change, including making change.
 - `convert`: `requested` contains `{ "from": "pp", "to": "gp", "amount": 1 }`.
 - `previous` and `next` are authoritative server balances.
 - `delta` is `next - previous` per denomination and may contain positive values during a spend
@@ -354,7 +359,7 @@ panel and before the personal inventory panel. Do not add another character-leve
 +------------------------------------------------------------+
 | Recent activity                                 View all > |
 | [seal] Spent 15 GP                         6 minutes ago    |
-|        1 PP 85 GP remaining                                |
+|        5 GP remaining                                      |
 |        "Bought climbing gear"                              |
 +------------------------------------------------------------+
 
@@ -422,7 +427,7 @@ Inventory Manager interaction.
                                   |--------------------------------------|
                                   | TODAY                                 |
                                   |   [coin]-- Spent 15 GP        2:14 PM |
-                                  |      |    1 PP 85 GP remaining           |
+                                  |      |    5 GP remaining                  |
                                   |      |    "Bought climbing gear"      |
                                   |      |                                |
                                   |   [sword]- Equipped Longsword  1:58 PM|
@@ -535,7 +540,7 @@ Balance: 10 GP -> 12 GP 5 SP
 
 ```text
 Spent 15 GP
-Balance: 2 PP -> 1 PP 85 GP
+Balance: 2 PP -> 5 GP
 "Bought climbing gear"
 ```
 
@@ -550,7 +555,7 @@ Balance: 2 PP 3 GP -> 1 PP 13 GP
   before/after line does not fit.
 - Notes appear as a separate dimmed line with quotation marks. Preserve user punctuation, trim
   whitespace, and clamp to two lines in the drawer.
-- Do not render a list such as `-1 PP, +85 GP` as the only spend explanation; it is mathematically
+- Do not render a list such as `-2 PP, +5 GP` as the only spend explanation; it is mathematically
   correct but does not clearly state that the player spent `15 GP` and received change.
 - Screen-reader text includes the denomination names, while visible text may use `CP`, `SP`, `GP`,
   and `PP`.
