@@ -123,6 +123,7 @@ describe("inventory history persistence", () => {
 	it("lists legacy currency changes rows without rejecting the page", async () => {
 		const { scopeId } = await createScope();
 		const legacyId = crypto.randomUUID();
+		const legacyNote = "n".repeat(501);
 		await getDb()
 			.insert(inventoryHistoryEntriesTable)
 			.values({
@@ -137,6 +138,7 @@ describe("inventory history persistence", () => {
 						old: { cp: 0, sp: 0, gp: 1, pp: 0 },
 						new: { cp: 0, sp: 0, gp: 2, pp: 0 },
 					},
+					note: legacyNote,
 				},
 			});
 
@@ -149,7 +151,7 @@ describe("inventory history persistence", () => {
 					old: { gp: 1 },
 					new: { gp: 2 },
 				},
-				note: null,
+				note: "n".repeat(500),
 			},
 		});
 	});

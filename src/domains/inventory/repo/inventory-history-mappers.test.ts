@@ -114,6 +114,7 @@ describe("inventory history mappers", () => {
 	});
 
 	it("reads legacy currency changes rows", () => {
+		const legacyNote = "n".repeat(501);
 		expect(
 			toInventoryHistoryEntry({
 				id: entryId,
@@ -128,6 +129,7 @@ describe("inventory history mappers", () => {
 						old: { cp: 0, sp: 0, gp: 1, pp: 0 },
 						new: { cp: 0, sp: 0, gp: 2, pp: 0 },
 					},
+					note: legacyNote,
 				},
 				createdAt: "2026-08-29T12:00:00.000Z",
 			}),
@@ -139,7 +141,7 @@ describe("inventory history mappers", () => {
 					old: { gp: 1 },
 					new: { gp: 2 },
 				},
-				note: null,
+				note: "n".repeat(500),
 			},
 		});
 	});

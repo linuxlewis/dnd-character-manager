@@ -4,7 +4,6 @@ import type {
 	CurrencyBalance,
 	CurrencyConversionRequest,
 	CurrencyDelta,
-	CurrencyOperation,
 	CurrencySpendRequest,
 } from "./currency.js";
 import {
@@ -14,6 +13,9 @@ import {
 	CurrencyConversionRequestSchema,
 	CurrencyDeltaSchema,
 	CurrencySpendRequestSchema,
+	convertDenominationAmount,
+	DND_CURRENCY_TO_COPPER,
+	getCurrencyValueInCopper,
 } from "./currency.js";
 
 const InventoryHistoryCurrencyDetailsBaseSchema = {
@@ -73,7 +75,7 @@ export const InventoryHistoryLegacyCurrencyDetailsSchema = z
 	.object({
 		changes: z.object({ old: CurrencyBalanceSchema, new: CurrencyBalanceSchema }).strict(),
 		note: z
-			.preprocess(normalizeHistoryNote, z.string().max(500).regex(/\S/).nullable())
+			.preprocess(normalizeLegacyHistoryNote, z.string().max(500).regex(/\S/).nullable())
 			.optional()
 			.default(null),
 	})
@@ -88,14 +90,21 @@ function normalizeHistoryNote(value: unknown) {
 	return note.length > 0 ? note : null;
 }
 
+function normalizeLegacyHistoryNote(value: unknown) {
+	const note = normalizeHistoryNote(value);
+	return typeof note === "string" ? note.slice(0, 500) : note;
+}
+
 function validateCurrencyInvariants(
 	value: {
 		previous: CurrencyBalance;
 		next: CurrencyBalance;
 		delta: CurrencyDelta;
-		operation: CurrencyOperation;
-		requested: CurrencyAddRequest | CurrencySpendRequest | CurrencyConversionRequest;
-	},
+	} & (
+		| { operation: "add"; requested: CurrencyAddRequest }
+		| { operation: "spend"; requested: CurrencySpendRequest }
+		| { operation: "convert"; requested: CurrencyConversionRequest }
+	),
 	ctx: z.RefinementCtx,
 ) {
 	for (const denomination of CURRENCY_DENOMINATIONS) {
@@ -120,5 +129,46 @@ function validateCurrencyInvariants(
 				});
 			}
 		}
+		return;
+	}
+
+	if (value.operation === "spend") {
+		const requestedCopper =
+			value.requested.amount.amount * DND_CURRENCY_TO_COPPER[value.requested.amount.denomination];
+		const actualCopperChange =
+			getCurrencyValueInCopper(value.next) - getCurrencyValueInCopper(value.previous);
+		if (actualCopperChange !== -requestedCopper) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["next"],
+				message: "Spend balances must reduce total copper value by the requested amount.",
+			});
+		}
+		return;
+	}
+
+	const convertedAmount = convertDenominationAmount(
+		value.requested.amount,
+		value.requested.from,
+		value.requested.to,
+	);
+	const expectedDelta = { cp: 0, sp: 0, gp: 0, pp: 0 };
+	expectedDelta[value.requested.from] -= value.requested.amount;
+	expectedDelta[value.requested.to] += convertedAmount;
+	for (const denomination of CURRENCY_DENOMINATIONS) {
+		if (value.delta[denomination] !== expectedDelta[denomination]) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["delta", denomination],
+				message: "Conversion delta must match the requested source and target effects.",
+			});
+		}
+	}
+	if (getCurrencyValueInCopper(value.next) !== getCurrencyValueInCopper(value.previous)) {
+		ctx.addIssue({
+			code: "custom",
+			path: ["next"],
+			message: "Conversion must preserve total copper value.",
+		});
 	}
 }
