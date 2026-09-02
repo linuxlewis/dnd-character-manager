@@ -1,10 +1,9 @@
 import { z } from "zod";
-
-export const CatalogueSourceSchema = z.enum(["foundry-dnd5e", "open5e", "dnd5eapi-legacy"]);
-export type CatalogueSource = z.infer<typeof CatalogueSourceSchema>;
-
-export const RulesVersionSchema = z.enum(["2014", "2024"]);
-export type RulesVersion = z.infer<typeof RulesVersionSchema>;
+import {
+	CatalogueFoundrySpellSeedProvenanceSchema,
+	CatalogueSourceSchema,
+	RulesVersionSchema,
+} from "./provenance.js";
 
 export const CatalogueSpellIndexSchema = z
 	.string()
@@ -26,12 +25,7 @@ export const CatalogueSpellMetadataItemSchema = z.object({
 	value: z.string().min(1).max(500),
 });
 
-export const CatalogueSpellSeedSchema = z.object({
-	source: CatalogueSourceSchema,
-	sourceKey: z.string().min(1).max(240),
-	sourcePath: z.string().min(1).max(500),
-	rulesVersion: RulesVersionSchema,
-	license: z.string().max(120),
+const CatalogueSpellFieldsSchema = z.object({
 	spellIndex: CatalogueSpellIndexSchema,
 	name: CatalogueSpellNameSchema,
 	level: CatalogueSpellLevelSchema,
@@ -39,11 +33,30 @@ export const CatalogueSpellSeedSchema = z.object({
 	desc: z.array(CatalogueSpellDetailTextSchema).min(1).max(20),
 	higherLevel: z.array(CatalogueSpellDetailTextSchema).max(10),
 	metadata: z.array(CatalogueSpellMetadataItemSchema).max(20),
-	sourcePayload: z.unknown(),
 });
+export const CatalogueSpellSeedSchema = CatalogueFoundrySpellSeedProvenanceSchema.and(
+	CatalogueSpellFieldsSchema,
+);
 export type CatalogueSpellSeed = z.infer<typeof CatalogueSpellSeedSchema>;
 
-export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
+export const CatalogueSpellStoredProvenanceSchema = z.object({
+	source: CatalogueSourceSchema,
+	sourceKey: z.string().min(1).max(240),
+	sourcePath: z.string().min(1).max(500),
+	rulesVersion: RulesVersionSchema,
+	license: z.string().max(120),
+	sourcePayload: z.unknown(),
+	// Revision, pack, and sourceUrl are intentionally absent: old rows cannot persist them.
+});
+export type CatalogueSpellStoredProvenance = z.infer<typeof CatalogueSpellStoredProvenanceSchema>;
+
+export const CatalogueSpellProvenanceSchema = CatalogueSpellStoredProvenanceSchema.extend({
+	capability: z.literal("spells"),
+	pack: z.literal("spells24"),
+});
+export type CatalogueSpellProvenance = z.infer<typeof CatalogueSpellProvenanceSchema>;
+
+export const CatalogueSpellSearchResultSchema = CatalogueSpellFieldsSchema.pick({
 	spellIndex: true,
 	name: true,
 	level: true,
@@ -51,5 +64,7 @@ export const CatalogueSpellSearchResultSchema = CatalogueSpellSeedSchema.pick({
 });
 export type CatalogueSpellSearchResult = z.infer<typeof CatalogueSpellSearchResultSchema>;
 
-export const CatalogueSpellDetailsSchema = CatalogueSpellSeedSchema;
+export const CatalogueSpellDetailsSchema = CatalogueSpellStoredProvenanceSchema.merge(
+	CatalogueSpellFieldsSchema,
+);
 export type CatalogueSpellDetails = z.infer<typeof CatalogueSpellDetailsSchema>;

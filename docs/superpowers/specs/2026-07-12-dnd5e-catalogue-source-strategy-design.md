@@ -8,11 +8,18 @@ Approved direction: hybrid source strategy. Equipment sequencing updated 2026-08
 
 ## Current Implementation Status
 
-As of 2026-08-29, the repository has a `catalogue` domain, a local `catalogue_spells` Postgres table,
-and a manual `pnpm seed` flow that downloads and ingests Foundry `dnd5e` `spells24` records. Character
-spell lookup prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback
-behavior. Foundry `equipment24` is not yet ingested, and the configured Foundry ref still defaults to
-the moving `master` branch.
+As of 2026-08-29, the repository has a `catalogue` domain, local `catalogue_spells` and
+`catalogue_items` Postgres projections, and an explicit `pnpm seed spells|items|all` flow that
+downloads and ingests Foundry `dnd5e` `spells24` and `equipment24` records. Character spell lookup
+prefers the local catalogue when it is seeded and retains Open5e/5e-bits fallback behavior. The
+Foundry source is pinned to commit
+`f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6` from
+`https://github.com/foundryvtt/dnd5e`; that revision contains both `packs/_source/spells24/` and
+`packs/_source/equipment24/`. Item rows persist source revision, pack metadata, per-record provenance,
+and raw payload; the item seed audit persists processed, accepted, rejected, and representative
+category counts. The manifest records the verified repository MIT license separately from each
+record's `system.source.license`; an absent per-record content license remains an empty value and is
+never inferred from the repository license.
 
 The inventory implementation will extend the same catalogue boundary with typed equipment ingestion.
 Foundry `dnd5e` at a pinned tag or commit is the primary local dataset for both spells and items.
@@ -183,12 +190,13 @@ those C1/C2 requirements and the A5-A7 personal inventory packages pass their ma
   - 5e-bits legacy spell/detail fallback.
 - Integration tests for local catalogue persistence and search/detail routes.
 - Contract tests for generated OpenAPI catalogue routes.
-- E2E tests for user-visible catalogue workflows:
+- C2 unit, repository integration, route, and generated-contract tests own the catalogue item
+  mapper, persistence, search/detail, provenance, audit, precedence, and unavailable behavior.
+- E2E tests for user-visible catalogue workflows are owned by the downstream inventory package:
   - Spell search still finds SRD 2024 spells.
   - Saved spell details survive fallback behavior.
-- Equipment mapper, route, and e2e tests should be added when equipment import/search is pulled into
-  implementation scope; for M2, that scope includes typed Foundry `equipment24` ingestion, source
-  audit counts, and unavailable/not-seeded status behavior.
+- A7 owns the user-visible `character-inventory.spec.ts` equipment-search journey; C2 does not add a
+  separate Playwright spec because it has no browser workflow.
 - A source-audit test or script should assert minimum expected SRD 2024 counts before generated
   source snapshots are accepted.
 

@@ -1,3 +1,21 @@
+export type {
+	CatalogueItemClientOptions,
+	CatalogueItemSnapshot,
+	CharacterItemCatalogueClient,
+} from "./catalogue-item-client.js";
+export { createCatalogueItemClient } from "./catalogue-item-client.js";
+export { mapCatalogueItemToInventoryItem } from "./catalogue-item-mapping.js";
+export {
+	CatalogueItemNotFoundError,
+	CatalogueItemUnavailableError,
+	CharacterItemNotFoundError,
+	CharacterItemPersistenceError,
+} from "./character-item-errors.js";
+export type {
+	CharacterItemService,
+	CharacterItemServiceOptions,
+} from "./character-item-service.js";
+export { createCharacterItemService } from "./character-item-service.js";
 export {
 	InsufficientDenominationError,
 	InsufficientFundsError,

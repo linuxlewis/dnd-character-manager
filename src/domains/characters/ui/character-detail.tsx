@@ -1,7 +1,7 @@
-import { Alert, Badge, Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { Alert, Badge, Button, Group, Paper, Stack, Tabs, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
-import { CharacterTreasuryPanel } from "../../inventory/ui/index.js";
+import { CharacterInventory, CharacterTreasuryPanel } from "../../inventory/ui/index.js";
 import { CharacterEditor } from "./character-editor.js";
 import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
@@ -66,11 +66,26 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 							health={characterQuery.data.character.health}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
 						/>
-						<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
-						<CharacterSpellSlotsPanel
-							characterId={characterQuery.data.character.id}
-							level={characterQuery.data.character.level}
-						/>
+						<Tabs defaultValue="spells-abilities" keepMounted={false}>
+							<Tabs.List aria-label="Character sections">
+								<Tabs.Tab value="spells-abilities">Spells &amp; Abilities</Tabs.Tab>
+								<Tabs.Tab value="inventory">Inventory</Tabs.Tab>
+							</Tabs.List>
+
+							<Tabs.Panel value="spells-abilities" pt="md">
+								<CharacterSpellSlotsPanel
+									characterId={characterQuery.data.character.id}
+									level={characterQuery.data.character.level}
+								/>
+							</Tabs.Panel>
+
+							<Tabs.Panel value="inventory" pt="md">
+								<Stack gap="md">
+									<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
+									<CharacterInventory characterId={characterQuery.data.character.id} />
+								</Stack>
+							</Tabs.Panel>
+						</Tabs>
 					</Stack>
 				</Paper>
 			)}

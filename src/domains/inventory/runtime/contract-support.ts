@@ -1,9 +1,19 @@
 import { z } from "zod";
-import { InventoryCharacterIdSchema } from "../types/index.js";
+import { InventoryCharacterIdSchema, InventoryItemIdSchema } from "../types/index.js";
 
 export const CharacterTreasuryPathParamsSchema = z
 	.object({ characterId: InventoryCharacterIdSchema })
 	.strict();
+
+export const CharacterItemPathParamsSchema = z
+	.object({ characterId: InventoryCharacterIdSchema })
+	.strict();
+
+export const CharacterItemDetailPathParamsSchema = z
+	.object({ characterId: InventoryCharacterIdSchema, itemId: InventoryItemIdSchema })
+	.strict();
+
+export const CharacterItemErrorResponseSchema = z.object({ error: z.string() }).strict();
 
 export const TreasuryErrorResponseSchema = z.object({ error: z.string() }).strict();
 

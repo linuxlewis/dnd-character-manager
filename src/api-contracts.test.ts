@@ -30,6 +30,16 @@ describe("apiRouteContracts", () => {
 			"convertCharacterTreasury",
 			"previewAddCharacterTreasury",
 			"previewSpendCharacterTreasury",
+			"createCharacterItem",
+			"listCharacterItems",
+			"getCharacterItemDetails",
+			"updateCharacterItem",
+			"deleteCharacterItem",
+			"equipCharacterItem",
+			"unequipCharacterItem",
+			"searchCatalogueItems",
+			"getCatalogueItemDetails",
+			"getCatalogueStatus",
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});

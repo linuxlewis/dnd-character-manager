@@ -103,6 +103,22 @@ export {
 	planAdd,
 } from "./currency-planning.js";
 export type {
+	InventoryHistoryAction,
+	InventoryHistoryEntityType,
+	InventoryHistoryEntry,
+	InventoryHistoryEntryInput,
+	InventoryHistoryPage,
+	InventoryHistoryPageRequest,
+} from "./history.js";
+export {
+	InventoryHistoryActionSchema,
+	InventoryHistoryEntityTypeSchema,
+	InventoryHistoryEntryInputSchema,
+	InventoryHistoryEntrySchema,
+	InventoryHistoryPageRequestSchema,
+	InventoryHistoryPageSchema,
+} from "./history.js";
+export type {
 	CatalogueItemId,
 	CharacterInventoryScopeOwner,
 	InventoryCharacterId,
@@ -132,6 +148,7 @@ export type {
 	CharacterItemFilter,
 	InventoryItem,
 	InventoryItemBase,
+	InventoryItemFilter,
 	InventoryItemRarity,
 	InventoryItemType,
 	InventoryRulesVersion,
@@ -141,6 +158,7 @@ export type {
 export {
 	CharacterItemFilterSchema,
 	InventoryItemBaseSchema,
+	InventoryItemFilterSchema,
 	InventoryItemRaritySchema,
 	InventoryItemSchema,
 	InventoryItemTypeSchema,

@@ -1,7 +1,14 @@
-import type { CatalogueSpellService } from "../../catalogue/service/index.js";
-import { createCatalogueSpellService } from "../../catalogue/service/index.js";
+import type {
+	CatalogueRemoteSpellService,
+	CatalogueSpellService,
+} from "../../catalogue/service/index.js";
+import {
+	CatalogueRemoteSpellServiceError,
+	createCatalogueRemoteSpellService,
+	createCatalogueSpellService,
+} from "../../catalogue/service/index.js";
 import type { DndApiSpellClient } from "../repo/index.js";
-import { createDndApiSpellClient, DndApiSpellClientError } from "../repo/index.js";
+import { DndApiSpellClientError } from "../repo/index.js";
 import type { DndSpellDetails, DndSpellSearchResult } from "../types/index.js";
 import { DndSpellDetailsSchema, DndSpellSearchResultSchema } from "../types/index.js";
 
@@ -11,17 +18,26 @@ type CatalogueSpellSearchResult = Awaited<
 type CatalogueSpellDetails = NonNullable<
 	Awaited<ReturnType<CatalogueSpellService["getSpellDetails"]>>
 >;
+type CatalogueRemoteSpellSearchResult = Awaited<
+	ReturnType<CatalogueRemoteSpellService["searchSpells"]>
+>[number];
+type CatalogueRemoteSpellDetails = Awaited<
+	ReturnType<CatalogueRemoteSpellService["getSpellDetails"]>
+>;
 
 export interface CatalogueBackedSpellClientOptions {
 	catalogueService?: CatalogueSpellService;
 	fallbackClient?: DndApiSpellClient;
+	remoteSpellService?: CatalogueRemoteSpellService;
 }
 
 export function createCatalogueBackedSpellClient(
 	options: CatalogueBackedSpellClientOptions = {},
 ): DndApiSpellClient {
 	const catalogueService = options.catalogueService ?? createCatalogueSpellService();
-	const fallbackClient = options.fallbackClient ?? createDndApiSpellClient();
+	const remoteSpellService = options.remoteSpellService ?? createCatalogueRemoteSpellService();
+	const fallbackClient =
+		options.fallbackClient ?? createCharacterRemoteSpellAdapter(remoteSpellService);
 
 	return {
 		async searchSpells(input) {
@@ -61,11 +77,25 @@ export function createCatalogueBackedSpellClient(
 	};
 }
 
+function createCharacterRemoteSpellAdapter(
+	service: CatalogueRemoteSpellService,
+): DndApiSpellClient {
+	return {
+		searchSpells: (input) =>
+			service.searchSpells(input).then((results) => results.map(toDndRemoteSpellSearchResult)),
+		findSpell: (index, source) =>
+			service.findSpell(index, source).then(toDndRemoteSpellSearchResult),
+		getSpellDetails: (index, source) =>
+			service.getSpellDetails(index, source).then(toDndRemoteSpellDetails),
+	};
+}
+
 async function withSpellClientError<T>(operation: () => Promise<T>) {
 	try {
 		return await operation();
 	} catch (error) {
 		if (error instanceof DndApiSpellClientError) throw error;
+		if (error instanceof CatalogueRemoteSpellServiceError) throw new DndApiSpellClientError();
 		throw new DndApiSpellClientError();
 	}
 }
@@ -78,6 +108,16 @@ function toDndSpellSearchResult(spell: CatalogueSpellSearchResult): DndSpellSear
 		url: spell.url,
 		source: "spell",
 	});
+}
+
+function toDndRemoteSpellSearchResult(
+	spell: CatalogueRemoteSpellSearchResult,
+): DndSpellSearchResult {
+	return DndSpellSearchResultSchema.parse(spell);
+}
+
+function toDndRemoteSpellDetails(spell: CatalogueRemoteSpellDetails): DndSpellDetails {
+	return DndSpellDetailsSchema.parse(spell);
 }
 
 function toDndSpellDetails(spell: CatalogueSpellDetails): DndSpellDetails {

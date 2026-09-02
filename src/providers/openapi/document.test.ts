@@ -55,4 +55,31 @@ describe("createOpenApiDocument", () => {
 			},
 		});
 	});
+
+	it("emits query parameters with required and optional schema metadata", () => {
+		const document = createOpenApiDocument({
+			title: "Test API",
+			version: "0.0.0",
+			routes: [
+				{
+					method: "get",
+					operationId: "listWidgets",
+					path: "/api/widgets",
+					queryParams: z.object({
+						q: z.string().optional(),
+						isMagical: z.boolean(),
+						limit: z.number().default(50),
+					}),
+					responses: { 200: { description: "Widgets" } },
+					summary: "List widgets",
+				},
+			],
+		});
+
+		expect(document.paths["/api/widgets"].get.parameters).toEqual([
+			expect.objectContaining({ name: "q", in: "query", required: false }),
+			expect.objectContaining({ name: "isMagical", in: "query", required: true }),
+			expect.objectContaining({ name: "limit", in: "query", required: false }),
+		]);
+	});
 });

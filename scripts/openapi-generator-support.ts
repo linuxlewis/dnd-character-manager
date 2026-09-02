@@ -114,6 +114,7 @@ export function pathTemplate(path: string) {
 export function methodParameters(client: ApiClientContract) {
 	const params = [];
 	if (client.pathParamsType) params.push(`params: ${client.pathParamsType}`);
+	if (client.queryParamsType) params.push(`query: ${client.queryParamsType}`);
 	if (client.requestBodyType) params.push(`body: ${client.requestBodyType}`);
 	params.push("options: ApiRequestOptions = {}");
 	return params.join(", ");

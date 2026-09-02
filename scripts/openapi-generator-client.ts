@@ -16,17 +16,22 @@ export type ClientGroup = readonly [string, readonly ApiRouteContract[]];
 
 export function generateClientDomain(group: string, routes: readonly ApiRouteContract[]) {
 	const imports = mergeUsedImports(routes, (client) => [
+		...identifiersReferencedBy(client.queryParamsType, client),
 		...identifiersReferencedBy(client.requestBodyType, client),
 		...identifiersReferencedBy(client.responseType, client),
 		...identifiersReferencedBy(client.responseParser, client, "value"),
 	]);
 	const methods = routes.map(generateClientMethod).join("\n\n");
+	const queryImport = routes.some((route) => route.client?.queryParamsType)
+		? 'import { appendQuery } from "./api-client-core.generated.js";'
+		: "";
 
 	return [
 		generatedHeader(),
 		"",
 		imports,
 		'import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";',
+		queryImport,
 		"",
 		`export function create${toPascalCase(group)}ApiClient(runtime: ApiClientRuntime) {`,
 		"\treturn {",
@@ -103,6 +108,15 @@ export function generateClientCore(clientGroups: readonly ClientGroup[]) {
 		"export const apiClient = createApiClient();",
 		"",
 		"export type ApiClient = ReturnType<typeof createApiClient>;",
+		"",
+		"export function appendQuery(path: string, query: Record<string, unknown>) {",
+		"\tconst search = new URLSearchParams();",
+		"\tfor (const [key, value] of Object.entries(query)) {",
+		"\t\tif (value !== undefined) search.set(key, String(value));",
+		"\t}",
+		"\tconst suffix = search.toString();",
+		`\treturn suffix ? ${String.fromCharCode(96)}\${path}?\${suffix}${String.fromCharCode(96)} : path;`,
+		"}",
 		"",
 		"async function request<TResponse>(",
 		"\tfetchImpl: typeof fetch,",
@@ -193,7 +207,7 @@ function generateClientMethod(route: ApiRouteContract) {
 	const requestLines = [
 		`\treturn runtime.request<${client.responseType}>(`,
 		`\t\t${JSON.stringify(route.method.toUpperCase())},`,
-		`\t\t${client.pathParamsType ? pathTemplate(route.path) : JSON.stringify(route.path)},`,
+		`\t\t${client.queryParamsType ? queryPathTemplate(route.path, client.pathParamsType) : client.pathParamsType ? pathTemplate(route.path) : JSON.stringify(route.path)},`,
 		"\t\toptions,",
 		requestBody ? `\t\t${requestBody}` : undefined,
 		parser ? `\t\t${parser}` : undefined,
@@ -205,4 +219,9 @@ function generateClientMethod(route: ApiRouteContract) {
 		...requestLines,
 		"},",
 	].join("\n");
+}
+
+function queryPathTemplate(path: string, hasPathParams: string | undefined) {
+	const pathValue = hasPathParams ? pathTemplate(path) : JSON.stringify(path);
+	return `appendQuery(${pathValue}, query)`;
 }

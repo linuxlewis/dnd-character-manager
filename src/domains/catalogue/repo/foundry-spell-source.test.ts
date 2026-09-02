@@ -92,6 +92,11 @@ describe("parseFoundrySpellSource", () => {
 					identifier: "divine-smite",
 				},
 			},
+			sourceRevision: "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6",
+			capability: "spells",
+			pack: "spells24",
+			sourceUrl:
+				"https://raw.githubusercontent.com/foundryvtt/dnd5e/f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6/packs/_source/spells24/1st-level/divine-smite.yml",
 		});
 		expect(spell.desc).toEqual([
 			"The target takes an extra 2d8 Radiant damage from the attack. The damage increases by 1d8 if the target is a Fiend or an Undead.",

@@ -5,6 +5,7 @@ import type {
 	AddCharacterTreasuryPreviewRequest,
 	AddCharacterTreasuryRequest,
 	ConvertCharacterTreasuryRequest,
+	CreateCharacterItemRequest,
 	CreateCharacterRequest,
 	MagicLinkRequest,
 	RestoreCharacterSpellSlotRequest,
@@ -14,6 +15,7 @@ import type {
 	SpendCharacterTreasuryRequest,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterHealthRequest,
+	UpdateCharacterItemRequest,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
 	UpdateCharacterSpellSlotsRequest,
@@ -177,6 +179,45 @@ export function createApiMutationOptions(client: ApiClient = apiClient) {
 					params: { characterId: string };
 					body: SpendCharacterTreasuryPreviewRequest;
 				}) => client.previewSpendCharacterTreasury(variables.params, variables.body, options),
+			}),
+
+		createCharacterItem: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "createCharacterItem"] as const,
+				mutationFn: (variables: {
+					params: { characterId: string };
+					body: CreateCharacterItemRequest;
+				}) => client.createCharacterItem(variables.params, variables.body, options),
+			}),
+
+		updateCharacterItem: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "updateCharacterItem"] as const,
+				mutationFn: (variables: {
+					params: { characterId: string; itemId: string };
+					body: UpdateCharacterItemRequest;
+				}) => client.updateCharacterItem(variables.params, variables.body, options),
+			}),
+
+		deleteCharacterItem: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "deleteCharacterItem"] as const,
+				mutationFn: (params: { characterId: string; itemId: string }) =>
+					client.deleteCharacterItem(params, options),
+			}),
+
+		equipCharacterItem: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "equipCharacterItem"] as const,
+				mutationFn: (params: { characterId: string; itemId: string }) =>
+					client.equipCharacterItem(params, options),
+			}),
+
+		unequipCharacterItem: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "unequipCharacterItem"] as const,
+				mutationFn: (params: { characterId: string; itemId: string }) =>
+					client.unequipCharacterItem(params, options),
 			}),
 	};
 }

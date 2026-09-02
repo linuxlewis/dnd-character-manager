@@ -1,0 +1,86 @@
+import {
+	boolean,
+	index,
+	integer,
+	jsonb,
+	pgTable,
+	real,
+	text,
+	timestamp,
+	uniqueIndex,
+	uuid,
+} from "drizzle-orm/pg-core";
+import type {
+	CatalogueItemKind,
+	CatalogueItemRarity,
+	CatalogueSource,
+	RulesVersion,
+} from "../types/index.js";
+
+export const catalogueItemsTable = pgTable(
+	"catalogue_items",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		source: text("source").$type<CatalogueSource>().notNull(),
+		sourceKey: text("source_key").notNull(),
+		sourcePath: text("source_path").notNull(),
+		sourceRevision: text("source_revision").notNull(),
+		sourceUrl: text("source_url").notNull(),
+		rulesVersion: text("rules_version").$type<RulesVersion>().notNull(),
+		license: text("license").notNull(),
+		seedCapability: text("seed_capability").notNull(),
+		seedPack: text("seed_pack").notNull(),
+		seedMetadata: jsonb("seed_metadata").$type<unknown>().notNull(),
+		itemIdentifier: text("item_identifier").notNull(),
+		itemName: text("item_name").notNull(),
+		itemKind: text("item_kind").$type<CatalogueItemKind>().notNull(),
+		itemCategory: text("item_category").notNull(),
+		itemDescription: text("item_description").notNull(),
+		isMagical: boolean("is_magical").notNull(),
+		itemRarity: text("item_rarity").$type<CatalogueItemRarity | null>(),
+		requiresAttunement: boolean("requires_attunement").notNull(),
+		costValue: real("cost_value"),
+		costDenomination: text("cost_denomination"),
+		weight: real("weight"),
+		thumbnailUrl: text("thumbnail_url"),
+		properties: jsonb("properties").$type<unknown>().notNull(),
+		stats: jsonb("stats").$type<unknown>().notNull(),
+		sourcePayload: jsonb("source_payload").$type<unknown>().notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(table) => [
+		uniqueIndex("catalogue_items_source_identity_unique").on(
+			table.source,
+			table.sourceKey,
+			table.rulesVersion,
+		),
+		index("catalogue_items_name_idx").on(table.itemName),
+		index("catalogue_items_kind_category_idx").on(table.itemKind, table.itemCategory),
+		index("catalogue_items_rules_name_idx").on(table.rulesVersion, table.itemName),
+	],
+);
+
+export const catalogueItemSeedAuditsTable = pgTable(
+	"catalogue_item_seed_audits",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		source: text("source").$type<CatalogueSource>().notNull(),
+		sourceRevision: text("source_revision").notNull(),
+		rulesVersion: text("rules_version").$type<RulesVersion>().notNull(),
+		capability: text("capability").notNull(),
+		pack: text("pack").notNull(),
+		processed: integer("processed").notNull(),
+		accepted: integer("accepted").notNull(),
+		rejected: integer("rejected").notNull(),
+		categoryCounts: jsonb("category_counts").$type<unknown>().notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(table) => [
+		uniqueIndex("catalogue_item_seed_audits_identity_unique").on(
+			table.source,
+			table.sourceRevision,
+			table.pack,
+		),
+	],
+);

@@ -1,9 +1,40 @@
 import { describe, expect, it, vi } from "vitest";
-import type { CatalogueSpellService } from "../../catalogue/service/index.js";
+import type {
+	CatalogueRemoteSpellService,
+	CatalogueSpellService,
+} from "../../catalogue/service/index.js";
+import { CatalogueRemoteSpellServiceError } from "../../catalogue/service/index.js";
 import type { DndApiSpellClient } from "../repo/index.js";
 import { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
 
 describe("createCatalogueBackedSpellClient", () => {
+	it("uses the injected catalogue remote service for default fallback wiring", async () => {
+		const catalogueService = fakeCatalogueService();
+		const remoteSpellService = fakeRemoteSpellService();
+		catalogueService.hasSeededSpells.mockResolvedValue(false);
+		remoteSpellService.searchSpells.mockResolvedValue([
+			{ index: "light", name: "Light", level: 0, url: "/api/2024/spells/light", source: "spell" },
+		]);
+
+		const client = createCatalogueBackedSpellClient({ catalogueService, remoteSpellService });
+
+		await expect(client.searchSpells({ query: "light", slotLevel: 0 })).resolves.toMatchObject([
+			{ index: "light", source: "spell" },
+		]);
+		expect(remoteSpellService.searchSpells).toHaveBeenCalledWith({ query: "light", slotLevel: 0 });
+	});
+
+	it("maps catalogue remote service errors to the existing character error", async () => {
+		const catalogueService = fakeCatalogueService();
+		const remoteSpellService = fakeRemoteSpellService();
+		catalogueService.hasSeededSpells.mockResolvedValue(false);
+		remoteSpellService.searchSpells.mockRejectedValue(new CatalogueRemoteSpellServiceError());
+		const client = createCatalogueBackedSpellClient({ catalogueService, remoteSpellService });
+
+		await expect(client.searchSpells({ query: "light", slotLevel: 0 })).rejects.toMatchObject({
+			name: "DndApiSpellClientError",
+		});
+	});
 	it("searches the local catalogue when spells have been seeded", async () => {
 		const catalogueService = fakeCatalogueService();
 		const fallbackClient = fakeFallbackClient();
@@ -171,6 +202,22 @@ function fakeFallbackClient() {
 		getSpellDetails: vi.fn(),
 	} satisfies {
 		[K in keyof DndApiSpellClient]: DndApiSpellClient[K] extends (...args: infer A) => infer R
+			? ReturnType<typeof vi.fn<(...args: A) => R>>
+			: never;
+	};
+}
+
+function fakeRemoteSpellService() {
+	return {
+		searchSpells: vi.fn(),
+		findSpell: vi.fn(),
+		getSpellDetails: vi.fn(),
+		search: vi.fn(),
+		detail: vi.fn(),
+	} satisfies {
+		[K in keyof CatalogueRemoteSpellService]: CatalogueRemoteSpellService[K] extends (
+			...args: infer A
+		) => infer R
 			? ReturnType<typeof vi.fn<(...args: A) => R>>
 			: never;
 	};

@@ -1,29 +1,28 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
 import {
-	cleanupInventoryRouteDatabase,
-	createSessionCookie,
-	resetInventoryRouteDatabase,
+	createInventoryRouteDatabaseTracker,
 	scopeRowCount,
 	treasuryRowCount,
 } from "./routes.integration-helpers.js";
 
 let app: Awaited<ReturnType<typeof buildServer>>;
+const database = createInventoryRouteDatabaseTracker();
 
 beforeAll(async () => {
 	app = await buildServer();
 });
 
-beforeEach(resetInventoryRouteDatabase);
+beforeEach(() => database.reset());
 
 afterAll(async () => {
-	await cleanupInventoryRouteDatabase();
+	await database.cleanup();
 	await app.close();
 });
 
 describe("character treasury routes", () => {
 	it("authorizes by session, persists operations, and keeps characters isolated", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const created = await app.inject({
 			method: "POST",
 			url: "/api/characters",
@@ -144,7 +143,7 @@ describe("character treasury routes", () => {
 		});
 		expect(secondTreasury.json().treasury.totalValue).toEqual({ copper: 0, gp: 0 });
 
-		const otherCookie = await createSessionCookie(app);
+		const otherCookie = await database.createSessionCookie(app);
 		const inaccessible = await app.inject({
 			method: "GET",
 			url: `/api/characters/${characterId}/treasury`,
@@ -154,7 +153,7 @@ describe("character treasury routes", () => {
 	});
 
 	it("rejects stale confirmations and replays without applying another mutation", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const created = await app.inject({
 			method: "POST",
 			url: "/api/characters",
@@ -231,7 +230,7 @@ describe("character treasury routes", () => {
 	});
 
 	it("returns 400 for malformed UUIDs and request bodies", async () => {
-		const cookie = await createSessionCookie(app);
+		const cookie = await database.createSessionCookie(app);
 		const invalidPath = await app.inject({
 			method: "GET",
 			url: "/api/characters/not-a-uuid/treasury",

@@ -157,6 +157,20 @@ describe("createCatalogueSpellService", () => {
 		expect(repository.upsertSpells).not.toHaveBeenCalled();
 	});
 
+	it("rejects a Foundry tree that omits a configured pack", async () => {
+		const service = createCatalogueSpellService({
+			repository: fakeRepository(),
+			fetcher: fakeFoundryFetcher(
+				{ "packs/_source/spells24/1st-level/light.yml": lightYaml },
+				{ includeEquipmentPack: false },
+			),
+		});
+
+		await expect(service.seedFoundrySrd2024Spells()).rejects.toThrow(
+			"missing catalogue pack: equipment24",
+		);
+	});
+
 	it("delegates local search and detail reads to the repository", async () => {
 		const repository = fakeRepository();
 		repository.countSpells.mockResolvedValue(1);
@@ -206,12 +220,16 @@ function fakeRepository() {
 function fakeFoundryFetcher(
 	files: Record<string, string>,
 	options: {
+		includeEquipmentPack?: boolean;
 		onRawFetchEnd?: () => void;
 		onRawFetchStart?: () => void;
 		rawDelayMs?: number;
 	} = {},
 ) {
-	const paths = Object.keys(files);
+	const paths = [
+		...Object.keys(files),
+		...(options.includeEquipmentPack === false ? [] : ["packs/_source/equipment24/_folder.yml"]),
+	];
 	return async (url: string | URL | Request): Promise<Response> => {
 		const value = String(url);
 		if (value.includes("/git/trees/")) {

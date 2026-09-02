@@ -1,0 +1,248 @@
+import { getDb } from "@providers/database/index.js";
+import { and, asc, count, eq, ilike, not, or, sql } from "drizzle-orm";
+import { z } from "zod";
+import type {
+	CatalogueItemDetails,
+	CatalogueItemSearchQuery,
+	CatalogueItemSearchResult,
+	CatalogueItemSeed,
+	CatalogueItemSeedAudit,
+} from "../types/index.js";
+import {
+	CatalogueItemIdSchema,
+	CatalogueItemSeedAuditSchema,
+	CatalogueItemSeedSchema,
+} from "../types/index.js";
+import {
+	itemColumns,
+	itemUpdateSet,
+	toAuditInsert,
+	toCatalogueItemDetails,
+	toCatalogueItemInsert,
+	toCatalogueItemSearchResult,
+} from "./catalogue-item-mappers.js";
+import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-item-table.js";
+
+export interface CatalogueItemRepository {
+	upsertItems(items: CatalogueItemSeed[], audit: CatalogueItemSeedAudit): Promise<number>;
+	countItems(
+		projection?: Pick<CatalogueItemSeedAudit, "source" | "sourceRevision" | "capability" | "pack"> &
+			Partial<Pick<CatalogueItemSeedAudit, "rulesVersion">>,
+	): Promise<number>;
+	searchItems(
+		input: CatalogueItemSearchQuery,
+	): Promise<{ items: CatalogueItemSearchResult[]; total: number }>;
+	findItem(id: string): Promise<CatalogueItemDetails | null>;
+	findLatestAudit(): Promise<CatalogueItemSeedAudit | null>;
+}
+
+type CatalogueItemTransaction = Parameters<
+	Parameters<ReturnType<typeof getDb>["transaction"]>[0]
+>[0];
+type CatalogueItemDatabase = ReturnType<typeof getDb> | CatalogueItemTransaction;
+
+export function createCatalogueItemRepository(
+	database?: CatalogueItemDatabase,
+): CatalogueItemRepository {
+	const resolveDatabase = () => database ?? getDb();
+
+	return {
+		async upsertItems(items, audit) {
+			const parsedItems = z.array(CatalogueItemSeedSchema).parse(items);
+			const parsedAudit = CatalogueItemSeedAuditSchema.parse(audit);
+			if (parsedAudit.accepted !== parsedItems.length) {
+				throw new Error(
+					"Catalogue item audit accepted count must match the replacement projection.",
+				);
+			}
+			if (
+				parsedItems.some(
+					(item) =>
+						item.source !== parsedAudit.source ||
+						item.sourceRevision !== parsedAudit.sourceRevision ||
+						item.capability !== parsedAudit.capability ||
+						item.pack !== parsedAudit.pack,
+				)
+			) {
+				throw new Error("Catalogue item audit provenance must match every replacement item.");
+			}
+			await resolveDatabase().transaction(async (tx) => {
+				if (parsedItems.length > 0) {
+					await tx
+						.insert(catalogueItemsTable)
+						.values(parsedItems.map(toCatalogueItemInsert))
+						.onConflictDoUpdate({
+							target: [
+								catalogueItemsTable.source,
+								catalogueItemsTable.sourceKey,
+								catalogueItemsTable.rulesVersion,
+							],
+							set: itemUpdateSet(),
+						});
+				}
+				const incomingIdentity =
+					parsedItems.length > 0
+						? or(
+								...parsedItems.map((item) =>
+									and(
+										eq(catalogueItemsTable.source, item.source),
+										eq(catalogueItemsTable.sourceKey, item.sourceKey),
+										eq(catalogueItemsTable.rulesVersion, item.rulesVersion),
+									),
+								),
+							)
+						: undefined;
+				await tx
+					.delete(catalogueItemsTable)
+					.where(
+						and(
+							eq(catalogueItemsTable.source, parsedAudit.source),
+							eq(catalogueItemsTable.seedCapability, parsedAudit.capability),
+							eq(catalogueItemsTable.seedPack, parsedAudit.pack),
+							incomingIdentity ? not(incomingIdentity) : undefined,
+						),
+					);
+				await tx
+					.insert(catalogueItemSeedAuditsTable)
+					.values(toAuditInsert(parsedAudit))
+					.onConflictDoUpdate({
+						target: [
+							catalogueItemSeedAuditsTable.source,
+							catalogueItemSeedAuditsTable.sourceRevision,
+							catalogueItemSeedAuditsTable.pack,
+						],
+						set: {
+							processed: sql.raw("excluded.processed"),
+							accepted: sql.raw("excluded.accepted"),
+							rejected: sql.raw("excluded.rejected"),
+							categoryCounts: sql.raw("excluded.category_counts"),
+							createdAt: sql`now()`,
+						},
+					});
+			});
+			return parsedItems.length;
+		},
+
+		async countItems(projection) {
+			const where = projection
+				? and(
+						eq(catalogueItemsTable.source, projection.source),
+						eq(catalogueItemsTable.sourceRevision, projection.sourceRevision),
+						eq(catalogueItemsTable.seedCapability, projection.capability),
+						eq(catalogueItemsTable.seedPack, projection.pack),
+						projection.rulesVersion
+							? eq(catalogueItemsTable.rulesVersion, projection.rulesVersion)
+							: undefined,
+					)
+				: undefined;
+			const [row] = await resolveDatabase()
+				.select({ value: count() })
+				.from(catalogueItemsTable)
+				.where(where);
+			return Number(row?.value ?? 0);
+		},
+
+		async searchItems(input) {
+			const where = itemSearchCondition(input);
+			const orderBy = itemSearchOrder(input);
+			const rows = await resolveDatabase()
+				.select(itemColumns())
+				.from(catalogueItemsTable)
+				.where(where)
+				.orderBy(...orderBy)
+				.limit(input.limit);
+			const [totalRow] = await resolveDatabase()
+				.select({ value: count() })
+				.from(catalogueItemsTable)
+				.where(where);
+			return {
+				items: rows.map(toCatalogueItemSearchResult),
+				total: Number(totalRow?.value ?? 0),
+			};
+		},
+
+		async findItem(id) {
+			const parsedId = CatalogueItemIdSchema.parse(id);
+			const [row] = await resolveDatabase()
+				.select(itemColumns())
+				.from(catalogueItemsTable)
+				.where(eq(catalogueItemsTable.id, parsedId))
+				.limit(1);
+			return row ? toCatalogueItemDetails(row) : null;
+		},
+
+		async findLatestAudit() {
+			const [row] = await resolveDatabase()
+				.select({
+					source: catalogueItemSeedAuditsTable.source,
+					sourceRevision: catalogueItemSeedAuditsTable.sourceRevision,
+					rulesVersion: catalogueItemSeedAuditsTable.rulesVersion,
+					capability: catalogueItemSeedAuditsTable.capability,
+					pack: catalogueItemSeedAuditsTable.pack,
+					processed: catalogueItemSeedAuditsTable.processed,
+					accepted: catalogueItemSeedAuditsTable.accepted,
+					rejected: catalogueItemSeedAuditsTable.rejected,
+					categoryCounts: catalogueItemSeedAuditsTable.categoryCounts,
+				})
+				.from(catalogueItemSeedAuditsTable)
+				.orderBy(sql`${catalogueItemSeedAuditsTable.createdAt} DESC`)
+				.limit(1);
+			return row ? CatalogueItemSeedAuditSchema.parse(row) : null;
+		},
+	};
+}
+
+function itemSearchCondition(input: CatalogueItemSearchQuery) {
+	const conditions = [];
+	const query = input.q.trim();
+	if (query) {
+		const substringPattern = `%${escapeLike(query)}%`;
+		conditions.push(
+			or(
+				ilike(catalogueItemsTable.itemName, substringPattern),
+				ilike(catalogueItemsTable.itemDescription, substringPattern),
+			),
+		);
+	}
+	if (input.kind) conditions.push(eq(catalogueItemsTable.itemKind, input.kind));
+	if (input.category) conditions.push(ilike(catalogueItemsTable.itemCategory, input.category));
+	if (input.rulesVersion) conditions.push(eq(catalogueItemsTable.rulesVersion, input.rulesVersion));
+	if (input.isMagical !== undefined) {
+		conditions.push(eq(catalogueItemsTable.isMagical, input.isMagical));
+	}
+	return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
+function itemSearchOrder(input: CatalogueItemSearchQuery) {
+	const query = input.q.trim();
+	const deterministicOrder = [
+		asc(catalogueItemsTable.itemName),
+		asc(catalogueItemsTable.sourceKey),
+		asc(catalogueItemsTable.source),
+		asc(catalogueItemsTable.rulesVersion),
+	];
+	if (!query) return deterministicOrder;
+
+	const substringPattern = `%${escapeLike(query)}%`;
+	const wordOrPhrasePattern = `(^|[^[:alnum:]])${escapeRegex(query)}($|[^[:alnum:]])`;
+	const relevance = sql<number>`CASE
+		WHEN lower(${catalogueItemsTable.itemName}) = lower(${query}) THEN 0
+		WHEN ${catalogueItemsTable.itemName} ~* ${wordOrPhrasePattern} THEN 1
+		WHEN ${catalogueItemsTable.itemName} ILIKE ${substringPattern} THEN 2
+		WHEN ${catalogueItemsTable.itemDescription} ILIKE ${substringPattern} THEN 3
+		ELSE 4
+	END`;
+	const nameWordCount = sql<number>`cardinality(
+		regexp_split_to_array(btrim(${catalogueItemsTable.itemName}), ${"[[:space:]]+"})
+	)`;
+
+	return [asc(relevance), asc(nameWordCount), ...deterministicOrder];
+}
+
+function escapeLike(value: string) {
+	return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
+function escapeRegex(value: string) {
+	return value.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+}

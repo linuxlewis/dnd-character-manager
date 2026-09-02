@@ -1,9 +1,15 @@
 import { z } from "zod";
-import type { DndSpellDetails, DndSpellSearchResult, SpellEntrySource } from "../types/index.js";
+import type {
+	CatalogueRemoteSpellDetails,
+	CatalogueRemoteSpellSearchResult,
+	CatalogueRemoteSpellSource,
+} from "../types/index.js";
 import {
-	DndSpellDetailsSchema,
-	DndSpellSearchResultSchema,
-	SpellIndexSchema,
+	CatalogueRemoteSpellDetailsSchema,
+	CatalogueRemoteSpellIndexSchema,
+	CatalogueRemoteSpellQuerySchema,
+	CatalogueRemoteSpellSearchResultSchema,
+	CatalogueRemoteSpellSourceSchema,
 } from "../types/index.js";
 
 const DndApiReferenceSchema = z.object({
@@ -49,21 +55,22 @@ export async function searchLegacyFeatures(
 	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	query: string,
-): Promise<DndSpellSearchResult[]> {
+): Promise<CatalogueRemoteSpellSearchResult[]> {
+	const parsedQuery = CatalogueRemoteSpellQuerySchema.parse(query).trim();
 	const response = await fetcher(
-		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(query)}`,
+		`${legacyBaseUrl}/api/2014/features?name=${encodeURIComponent(parsedQuery)}`,
 	);
 	if (!response.ok) throw new Error("Legacy D&D feature search request failed.");
 
 	const parsed = DndApiFeatureSearchResponseSchema.parse(await response.json());
 	const details = await Promise.all(
 		parsed.results
-			.filter((feature) => matchesName(feature.name, query))
+			.filter((feature) => matchesName(feature.name, parsedQuery))
 			.map((feature) => getLegacySpellDetails(legacyBaseUrl, fetcher, feature.index, "feature")),
 	);
 
 	return details.map((feature) =>
-		DndSpellSearchResultSchema.parse({
+		CatalogueRemoteSpellSearchResultSchema.parse({
 			index: feature.index,
 			name: feature.name,
 			level: feature.level,
@@ -77,22 +84,23 @@ export async function getLegacySpellDetails(
 	legacyBaseUrl: string,
 	fetcher: typeof fetch,
 	spellIndex: string,
-	source: SpellEntrySource,
-): Promise<DndSpellDetails> {
-	const index = SpellIndexSchema.parse(spellIndex);
-	const resource = source === "feature" ? "features" : "spells";
+	source: CatalogueRemoteSpellSource,
+): Promise<CatalogueRemoteSpellDetails> {
+	const index = CatalogueRemoteSpellIndexSchema.parse(spellIndex);
+	const parsedSource = CatalogueRemoteSpellSourceSchema.parse(source);
+	const resource = parsedSource === "feature" ? "features" : "spells";
 	const response = await fetcher(`${legacyBaseUrl}/api/2014/${resource}/${index}`);
 	if (!response.ok) throw new Error("Legacy D&D spell detail request failed.");
 	const schema =
 		source === "feature" ? DndApiFeatureDetailResponseSchema : DndApiSpellDetailResponseSchema;
-	return parseLegacySpellDetails(schema.parse(await response.json()), source);
+	return parseLegacySpellDetails(schema.parse(await response.json()), parsedSource);
 }
 
 function parseLegacySpellDetails(
 	entry:
 		| z.infer<typeof DndApiFeatureDetailResponseSchema>
 		| z.infer<typeof DndApiSpellDetailResponseSchema>,
-	source: SpellEntrySource,
+	source: CatalogueRemoteSpellSource,
 ) {
 	const details =
 		source === "feature"
@@ -105,7 +113,7 @@ function parseLegacySpellDetails(
 					metadata: spellMetadata(entry as z.infer<typeof DndApiSpellDetailResponseSchema>),
 				};
 
-	return DndSpellDetailsSchema.parse({
+	return CatalogueRemoteSpellDetailsSchema.parse({
 		index: entry.index,
 		name: entry.name,
 		level: entry.level,

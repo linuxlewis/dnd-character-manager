@@ -232,7 +232,8 @@ generic payload model.
 | `createdAt` | timestamptz | |
 | `updatedAt` | timestamptz | |
 
-Catalogue upserts use `(source, sourceKey)` as the source identity and retain a stable row ID.
+Catalogue upserts use `(source, sourceKey, rulesVersion)` as the source identity and retain a stable
+row ID, so 2014 and 2024 records remain distinct.
 
 ### Inventory Scopes
 

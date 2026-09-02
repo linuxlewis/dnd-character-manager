@@ -102,6 +102,7 @@ export const thingRouteContracts = [
 | `operationId` | Yes | Stable OpenAPI operation name. Use a verb phrase like `createThing`; do not reuse within the app. |
 | `path` | Yes | Fastify-style route path. Use `:id` path parameters; the OpenAPI builder converts them to `{id}`. |
 | `pathParams` | When the path has params | Zod object for path params. Keys must match every `:param` segment in `path`. |
+| `queryParams` | When the route accepts query parameters | Zod object for query parameters. The OpenAPI builder emits one `in: "query"` parameter per schema property, preserving required/default/type metadata. |
 | `requestBody` | For JSON body routes | Zod schema for the request JSON body. Omit for bodyless routes. |
 | `responses` | Yes | Map of HTTP status codes to response descriptions and optional Zod response schemas. Omit `schema` for empty responses like `204`. |
 | `summary` | Yes | Short human-readable OpenAPI summary. |
@@ -117,6 +118,7 @@ export const thingRouteContracts = [
 | `functionName` | Yes | Method name on `apiClient`, such as `apiClient.createThing`. |
 | `imports` | When client types or parsers are referenced | Type/value imports emitted into the generated route-group client. Paths are relative to that generated module. |
 | `pathParamsType` | When the path has params | TypeScript type for the generated `params` argument, usually `{ id: string }`. |
+| `queryParamsType` | When `queryParams` exists | TypeScript type for the generated `query` argument. The generated client serializes defined values into URL query parameters, including `false`, and omits `undefined`. |
 | `requestBodyType` | When `requestBody` exists | TypeScript type for the generated `body` argument. |
 | `responseType` | Yes | Promise result type for the generated client method. Use `void` for `204`-only success responses. |
 | `responseParser` | For JSON responses | Zod parser expression used by the generated client at the browser boundary, such as `ThingResponseSchema` or `ThingResponseSchema.array()`. |
@@ -133,6 +135,25 @@ client: {
 ```
 
 For a `DELETE` route that returns `204`, omit `responseParser` and use `responseType: "void"`.
+
+For a query route, set both contract fields so the server document and generated client stay aligned:
+
+```ts
+{
+	queryParams: ListThingsQuerySchema,
+	client: {
+		functionName: "listThings",
+		queryParamsType: "ListThingsQuery",
+		responseType: "ThingListResponse",
+		responseParser: "ThingListResponseSchema",
+	},
+}
+```
+
+The generated method accepts `(query, options)` and appends query values with
+`URLSearchParams`. Optional values are omitted when `undefined`; boolean values are serialized as
+`true` or `false`, so a false filter is not lost. The generated TanStack Query key and options also
+include the complete query object.
 
 ## Generated TanStack Query Helpers
 
