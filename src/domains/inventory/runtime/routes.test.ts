@@ -63,7 +63,7 @@ describe("registerCharacterTreasuryRoutes", () => {
 			const convertResponse = await app.inject({
 				method: "POST",
 				url: `/api/characters/${characterId}/treasury/convert`,
-				payload: { from: "pp", to: "gp", amount: 1 },
+				payload: { from: "pp", to: "gp", amount: 1, note: "  Converted coins  " },
 			});
 			const addPreviewResponse = await app.inject({
 				method: "POST",
@@ -95,6 +95,12 @@ describe("registerCharacterTreasuryRoutes", () => {
 			expect(service.spendCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
 				amount: { denomination: "gp", amount: 1 },
 				expectedPrevious: zeroBalance,
+			});
+			expect(service.convertCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
+				from: "pp",
+				to: "gp",
+				amount: 1,
+				note: "Converted coins",
 			});
 			expect(service.previewAddCharacterTreasury).toHaveBeenCalledWith(userId, characterId, {
 				delta: { cp: 1, sp: 0, gp: 0, pp: 0 },

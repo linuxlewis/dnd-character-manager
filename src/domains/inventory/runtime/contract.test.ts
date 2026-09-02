@@ -50,6 +50,9 @@ describe("inventoryTreasuryRouteContracts", () => {
 		const spend = inventoryTreasuryRouteContracts.find(
 			(route) => route.operationId === "spendCharacterTreasury",
 		);
+		const convert = inventoryTreasuryRouteContracts.find(
+			(route) => route.operationId === "convertCharacterTreasury",
+		);
 		const previewAdd = inventoryTreasuryRouteContracts.find(
 			(route) => route.operationId === "previewAddCharacterTreasury",
 		);
@@ -78,6 +81,14 @@ describe("inventoryTreasuryRouteContracts", () => {
 				amount: { denomination: "cp", amount: 1 },
 				expectedPrevious: previous,
 				note: "  Bought supplies  ",
+			}).success,
+		).toBe(true);
+		expect(
+			convert?.requestBody?.safeParse({
+				from: "pp",
+				to: "gp",
+				amount: 1,
+				note: "  Converted coins  ",
 			}).success,
 		).toBe(true);
 		expect(previewAdd?.requestBody?.safeParse({ delta: { ...previous, cp: 1 } }).success).toBe(

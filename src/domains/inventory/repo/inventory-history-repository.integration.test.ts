@@ -141,10 +141,32 @@ describe("inventory history persistence", () => {
 					note: legacyNote,
 				},
 			});
+		const blankLegacyIds = [crypto.randomUUID(), crypto.randomUUID()];
+		for (const [id, note] of blankLegacyIds.map(
+			(id, index) => [id, index === 0 ? "" : " \t\n"] as const,
+		)) {
+			await getDb()
+				.insert(inventoryHistoryEntriesTable)
+				.values({
+					id,
+					inventoryScopeId: scopeId,
+					action: "currency_updated",
+					entityType: "currency",
+					entityId: null,
+					entityName: null,
+					details: {
+						changes: {
+							old: { cp: 0, sp: 0, gp: 2, pp: 0 },
+							new: { cp: 0, sp: 0, gp: 3, pp: 0 },
+						},
+						note,
+					},
+				});
+		}
 
 		const page = await createInventoryHistoryRepository().listHistoryEntries(scopeId);
-		expect(page).toMatchObject({ total: 1, limit: 20, offset: 0, hasMore: false });
-		expect(page.entries[0]).toMatchObject({
+		expect(page).toMatchObject({ total: 3, limit: 20, offset: 0, hasMore: false });
+		expect(page.entries.find((entry) => entry.id === legacyId)).toMatchObject({
 			id: legacyId,
 			details: {
 				changes: {
@@ -154,6 +176,9 @@ describe("inventory history persistence", () => {
 				note: "n".repeat(500),
 			},
 		});
+		for (const id of blankLegacyIds) {
+			expect(page.entries.find((entry) => entry.id === id)?.details).toMatchObject({ note: null });
+		}
 	});
 
 	it("orders tied timestamps by descending history id and preserves actor rows", async () => {

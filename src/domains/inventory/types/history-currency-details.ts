@@ -87,7 +87,7 @@ export type InventoryHistoryLegacyCurrencyDetails = z.infer<
 
 function normalizeLegacyHistoryNote(value: unknown) {
 	const note = typeof value === "string" ? value.trim() : value;
-	return typeof note === "string" ? note.slice(0, 500) : note;
+	return typeof note === "string" ? (note.length > 0 ? note.slice(0, 500) : null) : note;
 }
 
 function validateCurrencyInvariants(

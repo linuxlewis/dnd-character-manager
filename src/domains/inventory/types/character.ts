@@ -63,8 +63,10 @@ export const SpendCharacterTreasuryRequestSchema = CurrencySpendRequestSchema.ex
 }).strict();
 export type SpendCharacterTreasuryRequest = z.input<typeof SpendCharacterTreasuryRequestSchema>;
 
-export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema;
-export type ConvertCharacterTreasuryRequest = z.infer<typeof ConvertCharacterTreasuryRequestSchema>;
+export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema.extend({
+	note: CurrencyNoteSchema.optional(),
+}).strict();
+export type ConvertCharacterTreasuryRequest = z.input<typeof ConvertCharacterTreasuryRequestSchema>;
 
 export const CharacterTreasuryMutationResponseSchema = z
 	.object({

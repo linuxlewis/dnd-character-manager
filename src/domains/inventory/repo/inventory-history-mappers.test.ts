@@ -146,6 +146,30 @@ describe("inventory history mappers", () => {
 		});
 	});
 
+	it("normalizes blank and whitespace-only legacy currency notes to null", () => {
+		for (const note of ["", " \t\n"]) {
+			const entry = toInventoryHistoryEntry({
+				id: entryId,
+				inventoryScopeId: scopeId,
+				action: "currency_updated",
+				entityType: "currency",
+				entityId: null,
+				entityName: null,
+				actorUserId: null,
+				details: {
+					changes: {
+						old: { cp: 0, sp: 0, gp: 1, pp: 0 },
+						new: { cp: 0, sp: 0, gp: 2, pp: 0 },
+					},
+					note,
+				},
+				createdAt: "2026-08-29T12:00:00.000Z",
+			});
+
+			expect(entry.details).toMatchObject({ note: null });
+		}
+	});
+
 	it("writes versioned details and defaults a missing actor to null", () => {
 		expect(
 			toInventoryHistoryInsert(scopeId, {

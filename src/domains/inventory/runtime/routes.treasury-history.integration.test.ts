@@ -65,12 +65,26 @@ describe("character treasury history routes", () => {
 		expect(spent.statusCode).toBe(200);
 		expect(spent.json().treasury.balances).toEqual({ cp: 0, sp: 0, gp: 5, pp: 0 });
 
+		const converted = await app.inject({
+			method: "POST",
+			url: `/api/characters/${characterId}/treasury/convert`,
+			headers: { cookie },
+			payload: {
+				from: "gp",
+				to: "sp",
+				amount: 1,
+				note: "  Converted for change  ",
+			},
+		});
+		expect(converted.statusCode).toBe(200);
+		expect(converted.json().treasury.balances).toEqual({ cp: 0, sp: 10, gp: 4, pp: 0 });
+
 		const [scope] = await getDb()
 			.select({ id: inventoryScopesTable.id })
 			.from(inventoryScopesTable)
 			.where(eq(inventoryScopesTable.characterId, characterId));
 		const history = await createInventoryHistoryRepository().listHistoryEntries(scope.id);
-		expect(history.total).toBe(2);
+		expect(history.total).toBe(3);
 		expect(history.entries.every((entry) => entry.actorUserId === actorUserId)).toBe(true);
 		expect(history.entries).toEqual(
 			expect.arrayContaining([
@@ -90,6 +104,17 @@ describe("character treasury history routes", () => {
 						requested: { amount: { denomination: "gp", amount: 15 } },
 						note: "Bought climbing gear",
 					}),
+				}),
+				expect.objectContaining({
+					details: {
+						version: 1,
+						operation: "convert",
+						previous: { cp: 0, sp: 0, gp: 5, pp: 0 },
+						next: { cp: 0, sp: 10, gp: 4, pp: 0 },
+						delta: { cp: 0, sp: 10, gp: -1, pp: 0 },
+						requested: { from: "gp", to: "sp", amount: 1 },
+						note: "Converted for change",
+					},
 				}),
 			]),
 		);
@@ -136,6 +161,14 @@ describe("character treasury history routes", () => {
 			payload: addRequest,
 		});
 		expect(stale.statusCode).toBe(409);
+
+		const rejectedConversion = await app.inject({
+			method: "POST",
+			url: `/api/characters/${characterId}/treasury/convert`,
+			headers: { cookie },
+			payload: { from: "pp", to: "gp", amount: 1, note: "  No conversion  " },
+		});
+		expect(rejectedConversion.statusCode).toBe(409);
 
 		const zero = await app.inject({
 			method: "PUT",

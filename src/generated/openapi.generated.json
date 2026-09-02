@@ -4951,6 +4951,17 @@
 										"type": "integer",
 										"minimum": 1,
 										"maximum": 2147483647
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["from", "to", "amount"],

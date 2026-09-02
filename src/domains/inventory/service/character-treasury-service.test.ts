@@ -204,8 +204,21 @@ describe("createCharacterTreasuryService", () => {
 			from: "pp",
 			to: "gp",
 			amount: 1,
+			note: "  Converted before the journey  ",
 		});
 		expect(response.treasury.balances).toEqual({ cp: 0, sp: 0, gp: 10, pp: 0 });
+		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenCalledWith(
+			characterId,
+			expect.any(Function),
+			{
+				history: {
+					operation: "convert",
+					requested: { from: "pp", to: "gp", amount: 1 },
+					note: "Converted before the journey",
+					actorUserId: userId,
+				},
+			},
+		);
 
 		const inaccessible = fakeDependencies();
 		inaccessible.characterService.getCharacter.mockRejectedValue(new CharacterNotFoundError());

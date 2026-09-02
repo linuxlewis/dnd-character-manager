@@ -4,6 +4,7 @@ import type {
 	CharacterTreasury,
 	CurrencyAddRequest,
 	CurrencyBalance,
+	CurrencyConversionRequest,
 	CurrencyNote,
 	CurrencySpendRequest,
 	InventoryHistoryEntryInput,
@@ -40,6 +41,12 @@ export type CharacterTreasuryHistoryInput =
 	| {
 			operation: "spend";
 			requested: CurrencySpendRequest;
+			note: CurrencyNote;
+			actorUserId: string | null;
+	  }
+	| {
+			operation: "convert";
+			requested: CurrencyConversionRequest;
 			note: CurrencyNote;
 			actorUserId: string | null;
 	  };
@@ -216,7 +223,9 @@ function toTreasuryHistoryInput(
 		details:
 			history.operation === "add"
 				? { ...commonDetails, operation: "add", requested: history.requested }
-				: { ...commonDetails, operation: "spend", requested: history.requested },
+				: history.operation === "spend"
+					? { ...commonDetails, operation: "spend", requested: history.requested }
+					: { ...commonDetails, operation: "convert", requested: history.requested },
 	};
 }
 
