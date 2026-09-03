@@ -51,6 +51,20 @@ jobs:
           deploy_sha="${{ steps.revision.outputs.sha }}"
           workspace="/home/sbolgert/workspace/dnd-character-manager"
           compose=(docker compose --env-file .env.production -f docker-compose.prod.yml)
+          production_host="characters.dndinventorymanager.com"
+          production_origin="https://${production_host}"
+          production_curl=(
+            curl
+            --fail
+            --connect-timeout 5
+            --max-time 20
+            --retry 3
+            --retry-delay 2
+            --retry-all-errors
+            --silent
+            --show-error
+            --connect-to "${production_host}:443:host.docker.internal:443"
+          )
 
           cd "$workspace"
 
@@ -75,7 +89,9 @@ jobs:
 
           "${compose[@]}" exec -T app node -e "fetch('http://127.0.0.1:4000/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
           "${compose[@]}" exec -T app node -e "fetch('http://127.0.0.1:4000/openapi.json').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-          curl --fail --retry 6 --retry-delay 5 -I https://characters.dndinventorymanager.com
+          # The runner is containerized, so public DNS would hairpin through the home router.
+          # Connect directly to host Caddy while retaining the production hostname for TLS and routing.
+          "${production_curl[@]}" --head "${production_origin}/"
 
           require_revalidated_cache() {
             local path="$1"
@@ -83,7 +99,7 @@ jobs:
             local cache_control
             local normalized
 
-            headers="$(curl --fail --retry 6 --retry-delay 5 --silent --show-error --head "https://characters.dndinventorymanager.com${path}")"
+            headers="$("${production_curl[@]}" --head "${production_origin}${path}")"
             cache_control="$(
               printf '%s\n' "$headers" | awk '
                 tolower($0) ~ /^cache-control:/ {
