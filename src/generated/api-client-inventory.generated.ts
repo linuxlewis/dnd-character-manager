@@ -20,7 +20,7 @@ import {
 	AddCharacterTreasuryResponseSchema,
 	CharacterTreasuryResponseSchema,
 	ConvertCharacterTreasuryResponseSchema,
-	ListCharacterHistoryResponseSchema,
+	ListCharacterHistoryResponseCompatibilityParser,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryResponseSchema,
 } from "../domains/inventory/types/index.js";
@@ -122,7 +122,7 @@ export function createInventoryApiClient(runtime: ApiClientRuntime) {
 				appendQuery(`/api/characters/${params.characterId}/history`, query),
 				options,
 				undefined,
-				(body: unknown) => ListCharacterHistoryResponseSchema.parse(body),
+				(body: unknown) => ListCharacterHistoryResponseCompatibilityParser.parse(body),
 			);
 		},
 	};

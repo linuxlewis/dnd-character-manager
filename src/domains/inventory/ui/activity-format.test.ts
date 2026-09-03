@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CharacterHistoryEntry } from "../types/index.js";
+import type { CharacterHistoryEntry, InventoryHistoryItemSnapshot } from "../types/index.js";
 import {
 	appendActivityPage,
 	dedupeActivityEntries,
@@ -89,6 +89,28 @@ describe("personal activity formatters", () => {
 	it("keeps malformed rows visible as a safe fallback", () => {
 		const malformed = itemEntry("item_added", { version: 1, item: {} });
 		expect(formatHistoryEntry(malformed).summary).toBe("This activity entry cannot be displayed.");
+		expect(
+			formatHistoryEntry({
+				...malformed,
+				details: { version: 2, item: itemSnapshot() } as never,
+			}).summary,
+		).toBe("This activity entry cannot be displayed.");
+		expect(
+			formatHistoryEntry({
+				...malformed,
+				details: {
+					version: 1,
+					operation: "add",
+					previous: { cp: 0, sp: 0, gp: 0, pp: 0 },
+					next: { cp: 0, sp: 0, gp: 1, pp: 0 },
+					delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+					requested: { delta: { cp: 0, sp: 0, gp: 2, pp: 0 } },
+					note: null,
+				},
+				entityType: "currency",
+				action: "currency_updated",
+			}).summary,
+		).toBe("This activity entry cannot be displayed.");
 	});
 
 	it("groups local dates and removes duplicate page entries", () => {
@@ -157,7 +179,7 @@ function currencyEntry(details: unknown) {
 	} as CharacterHistoryEntry;
 }
 
-function itemSnapshot(overrides: Record<string, unknown> = {}) {
+function itemSnapshot(overrides: Record<string, unknown> = {}): InventoryHistoryItemSnapshot {
 	return {
 		id: "00000000-0000-4000-8000-000000000001",
 		name: "Test item",
@@ -169,5 +191,5 @@ function itemSnapshot(overrides: Record<string, unknown> = {}) {
 		estimatedValue: null,
 		isEquipped: false,
 		...overrides,
-	};
+	} as InventoryHistoryItemSnapshot;
 }

@@ -1,4 +1,4 @@
-import { Box, Stack, Text, Tooltip } from "@mantine/core";
+import { Box, Stack, Text, ThemeIcon, Tooltip } from "@mantine/core";
 import type { LucideIcon } from "lucide-react";
 import { Coins, Package, Pencil, Trash2 } from "lucide-react";
 import { formatFullTimestamp, formatHistoryEntry, formatRelativeTime } from "./activity-format.js";
@@ -47,29 +47,25 @@ export function FormattedActivityEntryView({
 		<Box
 			className="character-activity-entry"
 			style={{
-				display: "grid",
-				gridTemplateColumns: "32px minmax(0, 1fr)",
 				gap: "var(--mantine-spacing-sm)",
 				position: "relative",
 			}}
 		>
-			<Box
+			<ThemeIcon
 				aria-hidden="true"
 				className="character-activity-seal"
+				radius="sm"
+				size={32}
+				variant="default"
 				style={{
-					alignItems: "center",
 					backgroundColor: "var(--mantine-color-dark-7)",
 					border: `1px solid var(--mantine-color-${iconColor}-6)`,
-					display: "flex",
-					height: 32,
-					justifyContent: "center",
 					position: "relative",
-					width: 32,
 					zIndex: 1,
 				}}
 			>
 				<Icon color={`var(--mantine-color-${iconColor}-5)`} size={16} strokeWidth={2} />
-			</Box>
+			</ThemeIcon>
 			<Box style={{ minWidth: 0 }}>
 				<Box className="character-activity-summary">
 					<Text
@@ -137,12 +133,8 @@ export function ActivitySkeleton({ count = 1 }: { count?: number }) {
 				<Box
 					aria-hidden="true"
 					key={key}
-					style={{
-						display: "grid",
-						gridTemplateColumns: "32px minmax(0, 1fr)",
-						gap: "var(--mantine-spacing-sm)",
-						width: "100%",
-					}}
+					className="character-activity-entry"
+					style={{ gap: "var(--mantine-spacing-sm)", width: "100%" }}
 				>
 					<Box h={32} bg="dark.6" style={{ borderRadius: "var(--mantine-radius-sm)" }} />
 					<Box pt={2}>

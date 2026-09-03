@@ -16,19 +16,21 @@
 	gap: var(--mantine-spacing-sm);
 }
 
+.character-activity-entry {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr);
+}
+
+.character-activity-group-rail {
+	left: 15.5px;
+	width: 1px;
+}
+
 .character-activity-detail,
 .character-activity-note {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.character-activity-drawer-detail,
-.character-activity-drawer-note {
-	display: -webkit-box;
-	overflow: hidden;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
 }
 
 .character-activity-number {
@@ -43,5 +45,13 @@
 	.character-activity-time {
 		display: block;
 		margin-top: 2px;
+	}
+
+	.character-activity-entry {
+		grid-template-columns: 28px minmax(0, 1fr);
+	}
+
+	.character-activity-group-rail {
+		left: 13.5px;
 	}
 }

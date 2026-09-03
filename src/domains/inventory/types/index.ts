@@ -154,6 +154,10 @@ export {
 	parseInventoryHistoryDetails,
 	parseInventoryHistoryEntryInput,
 } from "./history.js";
+export {
+	decodeCharacterHistoryPage,
+	ListCharacterHistoryResponseCompatibilityParser,
+} from "./history-compatibility.js";
 export type {
 	CatalogueItemId,
 	CharacterInventoryScopeOwner,

@@ -24,13 +24,35 @@ const NAMES: Record<(typeof DENOMINATIONS)[number], string> = {
 export function formatCurrencyHistoryEntry(entry: CharacterHistoryEntry): FormattedActivityEntry {
 	const details = asRecord(entry.details);
 	if (!details) return createMalformedActivityEntry();
-
-	const previous = toCurrencyBalance(details.previous);
-	const next = toCurrencyBalance(details.next);
-	const operation = details.operation;
-	if (previous && next && isCurrencyOperation(operation)) {
+	if (details.version !== undefined) {
+		if (details.version !== 1) return createMalformedActivityEntry();
+		const previous = toCurrencyBalance(details.previous);
+		const next = toCurrencyBalance(details.next);
+		const delta = toCurrencyDelta(details.delta);
+		const operation = details.operation;
+		if (
+			!previous ||
+			!next ||
+			!delta ||
+			!isCurrencyOperation(operation) ||
+			!balancesMatchDelta(previous, next, delta)
+		) {
+			return createMalformedActivityEntry();
+		}
 		const requested = formatRequestedCurrency(operation, asRecord(details.requested));
 		if (!requested) return createMalformedActivityEntry();
+		if (operation === "add" && !addRequestMatchesDelta(asRecord(details.requested), delta)) {
+			return createMalformedActivityEntry();
+		}
+		if (
+			operation === "spend" &&
+			!spendRequestMatchesBalance(asRecord(details.requested), previous, next)
+		) {
+			return createMalformedActivityEntry();
+		}
+		if (operation === "convert" && !conversionMatchesDelta(asRecord(details.requested), delta)) {
+			return createMalformedActivityEntry();
+		}
 		return {
 			accessibleDetail: formatBalanceDetail(previous, next, true),
 			accessibleSummary: requested.accessible,
@@ -64,7 +86,7 @@ export function formatCurrencyHistoryEntry(entry: CharacterHistoryEntry): Format
 function formatRequestedCurrency(operation: string, requested: Record<string, unknown> | null) {
 	if (!requested) return null;
 	if (operation === "add") {
-		const delta = toCurrencyBalance(requested.delta);
+		const delta = toCurrencyDelta(requested.delta);
 		const amount = delta ? formatCoins(delta) : null;
 		return amount ? formatAction("Added", amount) : null;
 	}
@@ -148,6 +170,99 @@ function toCurrencyBalance(value: unknown): CurrencyBalance | null {
 		pp: balance.pp as number,
 		sp: balance.sp as number,
 	};
+}
+
+type CurrencyDelta = {
+	cp: number;
+	gp: number;
+	pp: number;
+	sp: number;
+};
+
+function toCurrencyDelta(value: unknown): CurrencyDelta | null {
+	const delta = asRecord(value);
+	if (
+		!delta ||
+		!DENOMINATIONS.every(
+			(denomination) =>
+				typeof delta[denomination] === "number" && Number.isSafeInteger(delta[denomination]),
+		)
+	) {
+		return null;
+	}
+	return {
+		cp: delta.cp as number,
+		gp: delta.gp as number,
+		pp: delta.pp as number,
+		sp: delta.sp as number,
+	};
+}
+
+function balancesMatchDelta(
+	previous: CurrencyBalance,
+	next: CurrencyBalance,
+	delta: CurrencyDelta,
+) {
+	return DENOMINATIONS.every(
+		(denomination) => next[denomination] - previous[denomination] === delta[denomination],
+	);
+}
+
+function addRequestMatchesDelta(requested: Record<string, unknown> | null, delta: CurrencyDelta) {
+	const requestedDelta = requested ? toCurrencyDelta(requested.delta) : null;
+	return (
+		requestedDelta !== null &&
+		DENOMINATIONS.some((denomination) => requestedDelta[denomination] > 0) &&
+		DENOMINATIONS.every(
+			(denomination) =>
+				requestedDelta[denomination] === delta[denomination] && requestedDelta[denomination] >= 0,
+		)
+	);
+}
+
+function spendRequestMatchesBalance(
+	requested: Record<string, unknown> | null,
+	previous: CurrencyBalance,
+	next: CurrencyBalance,
+) {
+	const amount = requested ? asRecord(requested.amount) : null;
+	if (!amount || !isDenomination(amount.denomination) || !isPositiveInteger(amount.amount))
+		return false;
+	const values = { cp: 1, sp: 10, gp: 100, pp: 1_000 };
+	const previousCopper = DENOMINATIONS.reduce(
+		(total, denomination) => total + previous[denomination] * values[denomination],
+		0,
+	);
+	const nextCopper = DENOMINATIONS.reduce(
+		(total, denomination) => total + next[denomination] * values[denomination],
+		0,
+	);
+	return nextCopper - previousCopper === -(amount.amount as number) * values[amount.denomination];
+}
+
+function conversionMatchesDelta(requested: Record<string, unknown> | null, delta: CurrencyDelta) {
+	if (
+		!requested ||
+		!isDenomination(requested.from) ||
+		!isDenomination(requested.to) ||
+		requested.from === requested.to ||
+		!isPositiveInteger(requested.amount)
+	) {
+		return false;
+	}
+	const values = { cp: 1, sp: 10, gp: 100, pp: 1_000 };
+	const convertedAmount =
+		((requested.amount as number) * values[requested.from]) / values[requested.to];
+	if (!Number.isSafeInteger(convertedAmount)) return false;
+	return DENOMINATIONS.every((denomination) => {
+		const expected =
+			denomination === requested.from
+				? -(requested.amount as number)
+				: denomination === requested.to
+					? convertedAmount
+					: 0;
+		return delta[denomination] === expected;
+	});
 }
 
 function normalizeNote(value: unknown) {

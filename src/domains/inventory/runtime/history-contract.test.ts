@@ -18,7 +18,7 @@ describe("character history route contract", () => {
 			functionName: "listCharacterHistory",
 			queryParamsType: "ListCharacterHistoryRequest",
 			responseType: "ListCharacterHistoryResponse",
-			responseParser: "ListCharacterHistoryResponseSchema",
+			responseParser: "ListCharacterHistoryResponseCompatibilityParser",
 		});
 	});
 

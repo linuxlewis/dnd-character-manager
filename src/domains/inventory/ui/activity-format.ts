@@ -5,6 +5,7 @@ import {
 	type ActivityFilter,
 	createMalformedActivityEntry,
 	type FormattedActivityEntry,
+	isMalformedHistoryEntry,
 } from "./activity-format-shared.js";
 import { formatCurrencyHistoryEntry } from "./activity-format-treasury.js";
 
@@ -18,6 +19,7 @@ export type {
 
 export function formatHistoryEntry(entry: CharacterHistoryEntry): FormattedActivityEntry {
 	try {
+		if (isMalformedHistoryEntry(entry)) return createMalformedActivityEntry();
 		if (entry.entityType === "item") return formatItemHistoryEntry(entry);
 		if (entry.entityType === "currency") return formatCurrencyHistoryEntry(entry);
 	} catch {

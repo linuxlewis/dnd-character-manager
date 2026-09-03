@@ -36,14 +36,19 @@ export function createMalformedActivityEntry(): FormattedActivityEntry {
 	};
 }
 
+export function isMalformedHistoryEntry(entry: CharacterHistoryEntry) {
+	const details = asRecord(entry.details);
+	return details?.__malformedHistoryEntry === true;
+}
+
 export function asRecord(value: unknown): Record<string, unknown> | null {
 	return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
 export function isPositiveInteger(value: unknown): value is number {
-	return typeof value === "number" && Number.isInteger(value) && value > 0;
+	return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
 export function isNonNegativeInteger(value: unknown): value is number {
-	return typeof value === "number" && Number.isInteger(value) && value >= 0;
+	return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }

@@ -20,7 +20,10 @@ const characterHistorySchemaImports = [
 	{
 		kind: "value",
 		module: "../domains/inventory/types/index.js",
-		names: ["ListCharacterHistoryResponseSchema"],
+		names: [
+			"ListCharacterHistoryResponseCompatibilityParser",
+			"ListCharacterHistoryResponseSchema",
+		],
 	},
 ] as const;
 
@@ -53,7 +56,7 @@ export const characterHistoryRouteContracts = [
 			imports: [...characterHistoryTypeImports, ...characterHistorySchemaImports],
 			pathParamsType: "{ characterId: string }",
 			queryParamsType: "ListCharacterHistoryRequest",
-			responseParser: "ListCharacterHistoryResponseSchema",
+			responseParser: "ListCharacterHistoryResponseCompatibilityParser",
 			responseType: "ListCharacterHistoryResponse",
 		},
 	},

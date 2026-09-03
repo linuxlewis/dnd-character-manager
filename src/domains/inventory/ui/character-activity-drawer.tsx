@@ -8,7 +8,7 @@ import {
 	Stack,
 	Text,
 } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiQueries } from "../../../generated/api-client.generated.js";
 import type { CharacterHistoryEntry } from "../types/index.js";
@@ -26,9 +26,8 @@ const PAGE_SIZE = 20;
 
 type ActivityPaginationState = {
 	characterId: string;
-	entries: CharacterHistoryEntry[];
 	filter: ActivityFilter;
-	offset: number;
+	offsets: number[];
 };
 
 const FILTER_OPTIONS = [
@@ -52,57 +51,80 @@ export function CharacterActivityDrawer({
 }) {
 	const [pagination, setPagination] = useState<ActivityPaginationState>({
 		characterId,
-		entries: [],
 		filter: "all",
-		offset: 0,
+		offsets: [0],
 	});
 	const sameCharacter = pagination.characterId === characterId;
 	const filter = sameCharacter ? pagination.filter : "all";
-	const offset = sameCharacter ? pagination.offset : 0;
-	const loadedEntries = sameCharacter ? pagination.entries : [];
-	const query = useQuery({
-		...apiQueries.listCharacterHistory(
-			{ characterId },
-			formatHistoryQuery(filter, offset, PAGE_SIZE),
-		),
-		enabled: opened,
-		retry: false,
-		staleTime: 30_000,
+	const offsets = sameCharacter ? pagination.offsets : [0];
+	const pageQueries = useQueries({
+		queries: offsets.map((offset) => ({
+			...apiQueries.listCharacterHistory(
+				{ characterId },
+				formatHistoryQuery(filter, offset, PAGE_SIZE),
+			),
+			enabled: opened,
+			retry: false,
+			staleTime: 30_000,
+		})),
 	});
-	const pageEntries = query.data?.entries ?? [];
-	const entries = appendActivityPage(loadedEntries, pageEntries);
+	const firstQuery = pageQueries[0];
+	const lastQuery = pageQueries[pageQueries.length - 1];
+	const entries = pageQueries.reduce<CharacterHistoryEntry[]>(
+		(loaded, pageQuery) => appendActivityPage(loaded, pageQuery.data?.entries ?? []),
+		[],
+	);
+	const initialLoading = firstQuery?.isLoading ?? false;
+	const initialError = firstQuery?.error;
+	const loadingMore = offsets.length > 1 && Boolean(lastQuery?.isFetching);
+	const paginationError = offsets.length > 1 && Boolean(lastQuery?.error) && entries.length > 0;
 
 	function changeFilter(nextFilter: string) {
 		if (nextFilter !== "all" && nextFilter !== "items" && nextFilter !== "treasury") return;
-		setPagination({ characterId, entries: [], filter: nextFilter, offset: 0 });
+		setPagination({ characterId, filter: nextFilter, offsets: [0] });
 	}
 
 	function loadMore() {
-		if (!query.data?.hasMore) return;
+		if (!lastQuery?.data?.hasMore || lastQuery.isFetching) return;
 		setPagination({
 			characterId,
-			entries,
 			filter,
-			offset: query.data.offset + query.data.limit,
+			offsets: [...offsets, lastQuery.data.offset + lastQuery.data.limit],
 		});
 	}
 
 	return (
 		<Drawer
 			aria-label="Inventory activity"
-			closeButtonProps={{ "aria-label": "Close inventory activity", size: "lg" }}
+			closeButtonProps={{
+				"aria-label": "Close inventory activity",
+				size: "lg",
+				style: { minHeight: 44, minWidth: 44 },
+			}}
 			onClose={onClose}
 			opened={opened}
 			position="right"
 			size={480}
 			styles={{
-				body: { paddingBottom: "calc(var(--mantine-spacing-lg) + env(safe-area-inset-bottom))" },
-				content: { maxWidth: "100vw" },
+				body: {
+					display: "flex",
+					flex: "1 1 auto",
+					flexDirection: "column",
+					minHeight: 0,
+					paddingBottom: "calc(var(--mantine-spacing-lg) + env(safe-area-inset-bottom))",
+				},
+				content: {
+					display: "flex",
+					flexDirection: "column",
+					height: "100dvh",
+					maxWidth: "100vw",
+					width: "min(480px, 100vw)",
+				},
 			}}
 			title="Inventory activity"
 			withinPortal={withinPortal}
 		>
-			<Stack gap="md" style={{ minHeight: "100%" }}>
+			<Stack gap="md" style={{ flex: "1 1 auto", minHeight: 0 }}>
 				<Text c="dimmed" size="sm">
 					{characterName}
 				</Text>
@@ -119,20 +141,23 @@ export function CharacterActivityDrawer({
 					value={filter}
 				/>
 
-				<ScrollArea offsetScrollbars style={{ flex: 1 }}>
-					{offset === 0 && query.isLoading && <ActivitySkeleton count={4} />}
-					{offset === 0 && query.error && (
-						<ActivityInitialError onRetry={() => void query.refetch()} />
+				<ScrollArea
+					className="character-activity-scroll"
+					offsetScrollbars
+					styles={{ viewport: { height: "100%" } }}
+					style={{ flex: "1 1 auto", minHeight: 0 }}
+				>
+					{offsets.length === 1 && initialLoading && <ActivitySkeleton count={4} />}
+					{offsets.length === 1 && initialError && (
+						<ActivityInitialError onRetry={() => void firstQuery?.refetch()} />
 					)}
-					{!query.isLoading && !query.error && entries.length === 0 && (
+					{!initialLoading && !initialError && entries.length === 0 && (
 						<ActivityEmpty filter={filter} onShowAll={() => changeFilter("all")} />
 					)}
 					{entries.length > 0 && <ActivityGroups entries={entries} />}
-					{offset > 0 && query.isFetching && <ActivitySkeleton count={2} />}
-					{offset > 0 && query.error && entries.length > 0 && (
-						<ActivityPaginationError onRetry={() => void query.refetch()} />
-					)}
-					{!query.error && query.data?.hasMore && !query.isFetching && (
+					{loadingMore && <ActivitySkeleton count={2} />}
+					{paginationError && <ActivityPaginationError onRetry={() => void lastQuery?.refetch()} />}
+					{!paginationError && lastQuery?.data?.hasMore && !loadingMore && (
 						<Button fullWidth mt="md" onClick={loadMore} style={{ minHeight: 44 }} variant="light">
 							Load more activity
 						</Button>
@@ -154,13 +179,12 @@ function ActivityGroups({ entries }: { entries: CharacterHistoryEntry[] }) {
 					<Box style={{ position: "relative" }}>
 						<Box
 							aria-hidden="true"
+							className="character-activity-group-rail"
 							style={{
 								backgroundColor: "var(--mantine-color-dark-4)",
 								bottom: 16,
-								left: 15,
 								position: "absolute",
 								top: 16,
-								width: 1,
 							}}
 						/>
 						<Stack gap="lg">

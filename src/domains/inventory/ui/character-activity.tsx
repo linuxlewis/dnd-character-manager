@@ -26,6 +26,7 @@ export function CharacterActivity({
 		<Stack data-testid="recent-activity" gap="sm">
 			<ActivityPreview onOpen={() => setOpened(true)} query={query} />
 			<CharacterActivityDrawer
+				key={characterId}
 				characterId={characterId}
 				characterName={characterName}
 				onClose={() => setOpened(false)}

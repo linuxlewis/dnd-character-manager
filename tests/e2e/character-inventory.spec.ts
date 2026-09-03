@@ -106,7 +106,12 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 			.getByText("Rare", { exact: true }),
 	).toBeVisible();
 	await expect(page.getByText("x2")).toBeVisible();
-	await expect(page.getByText("x3")).toBeVisible();
+	await expect(
+		page
+			.getByTestId(/inventory-item-/)
+			.filter({ hasText: "Sage's Elixir" })
+			.getByText("x3", { exact: true }),
+	).toBeVisible();
 	const equipmentCard = page.getByRole("button", { name: `View ${fixture.mundaneName}` });
 	await expect(
 		equipmentCard.locator("img").or(equipmentCard.getByLabel("Equipment icon")),
