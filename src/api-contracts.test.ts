@@ -37,6 +37,7 @@ describe("apiRouteContracts", () => {
 			"deleteCharacterItem",
 			"equipCharacterItem",
 			"unequipCharacterItem",
+			"listCharacterHistory",
 			"searchCatalogueItems",
 			"getCatalogueItemDetails",
 			"getCatalogueStatus",

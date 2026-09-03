@@ -5,6 +5,11 @@ export type {
 } from "./catalogue-item-client.js";
 export { createCatalogueItemClient } from "./catalogue-item-client.js";
 export { mapCatalogueItemToInventoryItem } from "./catalogue-item-mapping.js";
+export type {
+	CharacterHistoryService,
+	CharacterHistoryServiceOptions,
+} from "./character-history-service.js";
+export { createCharacterHistoryService } from "./character-history-service.js";
 export {
 	CatalogueItemNotFoundError,
 	CatalogueItemUnavailableError,

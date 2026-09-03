@@ -5,6 +5,10 @@ export const CharacterTreasuryPathParamsSchema = z
 	.object({ characterId: InventoryCharacterIdSchema })
 	.strict();
 
+export const CharacterHistoryPathParamsSchema = z
+	.object({ characterId: InventoryCharacterIdSchema })
+	.strict();
+
 export const CharacterItemPathParamsSchema = z
 	.object({ characterId: InventoryCharacterIdSchema })
 	.strict();
@@ -16,6 +20,8 @@ export const CharacterItemDetailPathParamsSchema = z
 export const CharacterItemErrorResponseSchema = z.object({ error: z.string() }).strict();
 
 export const TreasuryErrorResponseSchema = z.object({ error: z.string() }).strict();
+
+export const CharacterHistoryErrorResponseSchema = z.object({ error: z.string() }).strict();
 
 export const inventoryTreasuryTypeImports = [
 	{

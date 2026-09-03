@@ -8,10 +8,12 @@ import { registerCatalogueRoutes } from "./domains/catalogue/runtime/index.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
 import {
+	registerCharacterHistoryRoutes,
 	registerCharacterItemRoutes,
 	registerCharacterTreasuryRoutes,
 } from "./domains/inventory/runtime/index.js";
 import {
+	createCharacterHistoryService,
 	createCharacterItemService,
 	createCharacterTreasuryService,
 } from "./domains/inventory/service/index.js";
@@ -70,6 +72,10 @@ export async function buildServer(options: BuildServerOptions = {}) {
 	await registerCharacterItemRoutes(app, {
 		characterService,
 		characterItemService: createCharacterItemService({ characterService }),
+	});
+	await registerCharacterHistoryRoutes(app, {
+		characterService,
+		characterHistoryService: createCharacterHistoryService({ characterService }),
 	});
 	await registerCatalogueRoutes(app);
 

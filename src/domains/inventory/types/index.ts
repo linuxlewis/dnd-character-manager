@@ -105,6 +105,7 @@ export {
 	planAdd,
 } from "./currency-planning.js";
 export type {
+	CharacterHistoryEntry,
 	InventoryHistoryAction,
 	InventoryHistoryActorUserId,
 	InventoryHistoryCurrencyAddDetails,
@@ -124,8 +125,11 @@ export type {
 	InventoryHistoryPage,
 	InventoryHistoryPageRequest,
 	InventoryHistoryVersionedDetails,
+	ListCharacterHistoryRequest,
+	ListCharacterHistoryResponse,
 } from "./history.js";
 export {
+	CharacterHistoryEntrySchema,
 	InventoryHistoryActionSchema,
 	InventoryHistoryActorUserIdSchema,
 	InventoryHistoryCurrencyAddDetailsSchema,
@@ -145,6 +149,8 @@ export {
 	InventoryHistoryPageRequestSchema,
 	InventoryHistoryPageSchema,
 	InventoryHistoryVersionedDetailsSchema,
+	ListCharacterHistoryRequestSchema,
+	ListCharacterHistoryResponseSchema,
 	parseInventoryHistoryDetails,
 	parseInventoryHistoryEntryInput,
 } from "./history.js";

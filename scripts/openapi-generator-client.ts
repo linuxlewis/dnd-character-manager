@@ -184,7 +184,7 @@ export function groupClientRoutes(routes: readonly ApiRouteContract[]) {
 }
 
 function clientGroup(route: ApiRouteContract) {
-	if (route.tags?.includes("treasury")) return "inventory";
+	if (route.tags?.includes("treasury") || route.tags?.includes("history")) return "inventory";
 
 	const pathSegments = route.path.split("/").filter(Boolean);
 	if (pathSegments[1] === "characters" && ["spells", "items"].includes(pathSegments[3] ?? "")) {

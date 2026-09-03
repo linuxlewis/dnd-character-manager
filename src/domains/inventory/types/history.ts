@@ -53,7 +53,7 @@ export {
 export const InventoryHistoryActorUserIdSchema = z.string().uuid();
 export type InventoryHistoryActorUserId = z.infer<typeof InventoryHistoryActorUserIdSchema>;
 
-export const InventoryHistoryEntrySchema = z
+const InventoryHistoryEntryFieldsSchema = z
 	.object({
 		id: z.string().uuid(),
 		inventoryScopeId: InventoryScopeIdSchema,
@@ -65,19 +65,10 @@ export const InventoryHistoryEntrySchema = z
 		details: InventoryHistoryDetailsSchema,
 		createdAt: z.iso.datetime(),
 	})
-	.strict()
-	.superRefine((entry, ctx) => {
-		try {
-			const details = parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
-			validateHistoryEntryMetadata(entry, details, ctx);
-		} catch {
-			ctx.addIssue({
-				code: "custom",
-				path: ["details"],
-				message: "History details do not match the action and entity type.",
-			});
-		}
-	});
+	.strict();
+
+export const InventoryHistoryEntrySchema =
+	InventoryHistoryEntryFieldsSchema.superRefine(validateHistoryEntry);
 export type InventoryHistoryEntry = z.infer<typeof InventoryHistoryEntrySchema>;
 
 export const InventoryHistoryEntryInputSchema = z
@@ -114,6 +105,16 @@ export const InventoryHistoryPageRequestSchema = z
 	.strict();
 export type InventoryHistoryPageRequest = z.infer<typeof InventoryHistoryPageRequestSchema>;
 
+export const ListCharacterHistoryRequestSchema = z
+	.object({
+		limit: z.coerce.number().int().min(1).max(100).default(20),
+		offset: z.coerce.number().int().nonnegative().default(0),
+		action: InventoryHistoryActionSchema.nullable().optional(),
+		entityType: InventoryHistoryEntityTypeSchema.nullable().optional(),
+	})
+	.strict();
+export type ListCharacterHistoryRequest = z.infer<typeof ListCharacterHistoryRequestSchema>;
+
 export const InventoryHistoryPageSchema = z
 	.object({
 		entries: z.array(InventoryHistoryEntrySchema),
@@ -124,6 +125,22 @@ export const InventoryHistoryPageSchema = z
 	})
 	.strict();
 export type InventoryHistoryPage = z.infer<typeof InventoryHistoryPageSchema>;
+
+export const CharacterHistoryEntrySchema = InventoryHistoryEntryFieldsSchema.omit({
+	inventoryScopeId: true,
+}).superRefine(validateHistoryEntry);
+export type CharacterHistoryEntry = z.infer<typeof CharacterHistoryEntrySchema>;
+
+export const ListCharacterHistoryResponseSchema = z
+	.object({
+		entries: z.array(CharacterHistoryEntrySchema),
+		total: z.number().int().nonnegative(),
+		limit: z.number().int().min(1).max(100),
+		offset: z.number().int().nonnegative(),
+		hasMore: z.boolean(),
+	})
+	.strict();
+export type ListCharacterHistoryResponse = z.infer<typeof ListCharacterHistoryResponseSchema>;
 
 export function parseInventoryHistoryEntryInput(input: unknown): InventoryHistoryEntryInput {
 	const parsed = z
@@ -202,6 +219,28 @@ function validateHistoryEntryMetadata(
 			code: "custom",
 			path: ["details"],
 			message: "Item history snapshot IDs must match the entity ID.",
+		});
+	}
+}
+
+function validateHistoryEntry(
+	entry: {
+		action: InventoryHistoryAction;
+		entityType: InventoryHistoryEntityType;
+		entityId: string | null;
+		entityName: string | null;
+		details: InventoryHistoryDetails;
+	},
+	ctx: z.RefinementCtx,
+) {
+	try {
+		const details = parseInventoryHistoryDetails(entry.action, entry.entityType, entry.details);
+		validateHistoryEntryMetadata(entry, details, ctx);
+	} catch {
+		ctx.addIssue({
+			code: "custom",
+			path: ["details"],
+			message: "History details do not match the action and entity type.",
 		});
 	}
 }

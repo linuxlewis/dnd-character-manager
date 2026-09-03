@@ -8,6 +8,8 @@ import type {
 	CharacterTreasuryResponse,
 	ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryResponse,
+	ListCharacterHistoryRequest,
+	ListCharacterHistoryResponse,
 	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewResponse,
 	SpendCharacterTreasuryRequest,
@@ -18,10 +20,12 @@ import {
 	AddCharacterTreasuryResponseSchema,
 	CharacterTreasuryResponseSchema,
 	ConvertCharacterTreasuryResponseSchema,
+	ListCharacterHistoryResponseSchema,
 	SpendCharacterTreasuryPreviewResponseSchema,
 	SpendCharacterTreasuryResponseSchema,
 } from "../domains/inventory/types/index.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
+import { appendQuery } from "./api-client-core.generated.js";
 
 export function createInventoryApiClient(runtime: ApiClientRuntime) {
 	return {
@@ -105,6 +109,20 @@ export function createInventoryApiClient(runtime: ApiClientRuntime) {
 				options,
 				body,
 				(body: unknown) => SpendCharacterTreasuryPreviewResponseSchema.parse(body),
+			);
+		},
+
+		listCharacterHistory(
+			params: { characterId: string },
+			query: ListCharacterHistoryRequest,
+			options: ApiRequestOptions = {},
+		): Promise<ListCharacterHistoryResponse> {
+			return runtime.request<ListCharacterHistoryResponse>(
+				"GET",
+				appendQuery(`/api/characters/${params.characterId}/history`, query),
+				options,
+				undefined,
+				(body: unknown) => ListCharacterHistoryResponseSchema.parse(body),
 			);
 		},
 	};
