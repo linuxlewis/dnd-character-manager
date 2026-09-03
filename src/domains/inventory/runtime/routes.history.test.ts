@@ -1,7 +1,10 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
-import type { CharacterHistoryService } from "../service/index.js";
+import {
+	CharacterHistoryPersistenceError,
+	type CharacterHistoryService,
+} from "../service/index.js";
 import type { RegisterCharacterHistoryRoutesOptions } from "./routes.history.js";
 import { registerCharacterHistoryRoutes } from "./routes.history.js";
 
@@ -54,6 +57,8 @@ describe("registerCharacterHistoryRoutes", () => {
 		"offset=-1",
 		"action=invalid",
 		"entityType=invalid",
+		"action=null",
+		"entityType=null",
 	])("rejects invalid query value %s before authentication or service calls", async (query) => {
 		const service = fakeService();
 		const getCurrentUser = vi.fn();
@@ -68,6 +73,42 @@ describe("registerCharacterHistoryRoutes", () => {
 			expect(response.json()).toEqual({ error: "Invalid character history query." });
 			expect(getCurrentUser).not.toHaveBeenCalled();
 			expect(service.listCharacterHistory).not.toHaveBeenCalled();
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("rejects invalid paths before authentication", async () => {
+		const service = fakeService();
+		const getCurrentUser = vi.fn();
+		const app = await buildApp(service, getCurrentUser);
+
+		try {
+			const response = await app.inject({
+				method: "GET",
+				url: "/api/characters/not-a-uuid/history",
+			});
+			expect(response.statusCode).toBe(400);
+			expect(response.json()).toEqual({ error: "Invalid character history path." });
+			expect(getCurrentUser).not.toHaveBeenCalled();
+			expect(service.listCharacterHistory).not.toHaveBeenCalled();
+		} finally {
+			await app.close();
+		}
+	});
+
+	it("maps history persistence failures to the declared internal error", async () => {
+		const service = fakeService();
+		service.listCharacterHistory.mockRejectedValue(new CharacterHistoryPersistenceError());
+		const app = await buildApp(service);
+
+		try {
+			const response = await app.inject({
+				method: "GET",
+				url: `/api/characters/${characterId}/history`,
+			});
+			expect(response.statusCode).toBe(500);
+			expect(response.json()).toEqual({ error: "Character history operation failed." });
 		} finally {
 			await app.close();
 		}

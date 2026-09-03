@@ -8716,15 +8716,8 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "string",
-									"enum": ["item_added", "item_updated", "item_removed", "currency_updated"]
-								},
-								{
-									"type": "null"
-								}
-							]
+							"type": "string",
+							"enum": ["item_added", "item_updated", "item_removed", "currency_updated"]
 						}
 					},
 					{
@@ -8732,15 +8725,8 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "string",
-									"enum": ["item", "currency"]
-								},
-								{
-									"type": "null"
-								}
-							]
+							"type": "string",
+							"enum": ["item", "currency"]
 						}
 					}
 				],

@@ -1,11 +1,13 @@
 import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { z } from "zod";
 import type { CharacterService } from "../../characters/service/index.js";
 import { CharacterNotFoundError, createCharacterService } from "../../characters/service/index.js";
 import type { CharacterHistoryService } from "../service/index.js";
-import { createCharacterHistoryService } from "../service/index.js";
+import {
+	CharacterHistoryPersistenceError,
+	createCharacterHistoryService,
+} from "../service/index.js";
 import { ListCharacterHistoryRequestSchema } from "../types/index.js";
 import {
 	CharacterHistoryErrorResponseSchema,
@@ -63,11 +65,11 @@ export function parseQuery(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export function sendCharacterHistoryError(error: unknown, reply: FastifyReply) {
-	if (error instanceof z.ZodError) {
-		return reply.status(400).send({ error: "Invalid character history request." });
-	}
 	if (error instanceof CharacterNotFoundError) {
 		return reply.status(404).send({ error: "Character not found." });
+	}
+	if (error instanceof CharacterHistoryPersistenceError) {
+		return reply.status(500).send({ error: "Character history operation failed." });
 	}
 	return reply
 		.status(500)

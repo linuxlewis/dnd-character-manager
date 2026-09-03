@@ -189,6 +189,8 @@ describe("inventory history schemas", () => {
 		expect(() => ListCharacterHistoryRequestSchema.parse({ offset: "-1" })).toThrow();
 		expect(() => ListCharacterHistoryRequestSchema.parse({ action: "invalid" })).toThrow();
 		expect(() => ListCharacterHistoryRequestSchema.parse({ entityType: "invalid" })).toThrow();
+		expect(() => ListCharacterHistoryRequestSchema.parse({ action: null })).toThrow();
+		expect(() => ListCharacterHistoryRequestSchema.parse({ entityType: null })).toThrow();
 	});
 
 	it("defines a public page without the internal scope identifier", () => {

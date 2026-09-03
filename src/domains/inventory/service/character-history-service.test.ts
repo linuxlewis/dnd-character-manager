@@ -6,6 +6,7 @@ import type {
 	InventoryHistoryRepository,
 } from "../repo/index.js";
 import type { InventoryHistoryPage } from "../types/index.js";
+import { CharacterHistoryPersistenceError } from "./character-history-errors.js";
 import type { CharacterHistoryServiceOptions } from "./character-history-service.js";
 import { createCharacterHistoryService } from "./character-history-service.js";
 
@@ -72,6 +73,28 @@ describe("CharacterHistoryService", () => {
 		);
 		expect(dependencies.scopeRepository.findCharacterScopeId).not.toHaveBeenCalled();
 		expect(dependencies.repository.listHistoryEntries).not.toHaveBeenCalled();
+	});
+
+	it("wraps repository and public response parsing failures as persistence errors", async () => {
+		const dependencies = fakeDependencies();
+		const service = createCharacterHistoryService(dependencies.options);
+
+		dependencies.repository.listHistoryEntries.mockRejectedValueOnce(new Error("malformed row"));
+		await expect(service.listCharacterHistory(userId, characterId)).rejects.toMatchObject({
+			name: "CharacterHistoryPersistenceError",
+			cause: expect.objectContaining({ message: "malformed row" }),
+		});
+
+		dependencies.repository.listHistoryEntries.mockResolvedValueOnce({
+			entries: [{}],
+			total: 1,
+			limit: 20,
+			offset: 0,
+			hasMore: false,
+		} as unknown as InventoryHistoryPage);
+		await expect(service.listCharacterHistory(userId, characterId)).rejects.toBeInstanceOf(
+			CharacterHistoryPersistenceError,
+		);
 	});
 });
 

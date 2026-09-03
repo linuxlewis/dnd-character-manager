@@ -74,6 +74,15 @@ describe("character history route", () => {
 			item: { name: "Rope", quantity: 1 },
 		});
 
+		const otherUserCookie = await database.createSessionCookie(app);
+		const otherUserHistory = await app.inject({
+			method: "GET",
+			url: `/api/characters/${characterId}/history`,
+			headers: { cookie: otherUserCookie },
+		});
+		expect(otherUserHistory.statusCode).toBe(404);
+		expect(otherUserHistory.json()).toEqual({ error: "Character not found." });
+
 		const otherCharacterHistory = await app.inject({
 			method: "GET",
 			url: `/api/characters/${otherCharacterId}/history`,
@@ -162,6 +171,8 @@ describe("character history route", () => {
 			"offset=-1",
 			"action=unknown",
 			"entityType=unknown",
+			"action=null",
+			"entityType=null",
 		]) {
 			const response = await app.inject({
 				method: "GET",
@@ -171,6 +182,38 @@ describe("character history route", () => {
 			expect(response.statusCode).toBe(400);
 			expect(response.json()).toEqual({ error: "Invalid character history query." });
 		}
+	});
+
+	it("maps a malformed persisted row to the internal error response", async () => {
+		const cookie = await database.createSessionCookie(app);
+		const characterId = await createCharacter(cookie);
+		const item = await app.inject({
+			method: "POST",
+			url: `/api/characters/${characterId}/items`,
+			headers: { cookie },
+			payload: { name: "Rope", type: "misc", category: "Gear", properties: {} },
+		});
+		expect(item.statusCode).toBe(201);
+
+		const history = await app.inject({
+			method: "GET",
+			url: `/api/characters/${characterId}/history`,
+			headers: { cookie },
+		});
+		const [entry] = history.json().entries as Array<{ id: string }>;
+		await getDb().execute(sql`
+			UPDATE inventory_history_entries
+			SET details = '{}'::jsonb
+			WHERE id = ${entry.id}
+		`);
+
+		const response = await app.inject({
+			method: "GET",
+			url: `/api/characters/${characterId}/history`,
+			headers: { cookie },
+		});
+		expect(response.statusCode).toBe(500);
+		expect(response.json()).toEqual({ error: "Character history operation failed." });
 	});
 });
 

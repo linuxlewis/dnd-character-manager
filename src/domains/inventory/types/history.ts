@@ -99,8 +99,8 @@ export const InventoryHistoryPageRequestSchema = z
 	.object({
 		limit: z.number().int().min(1).max(100).default(20),
 		offset: z.number().int().nonnegative().default(0),
-		action: InventoryHistoryActionSchema.nullable().optional(),
-		entityType: InventoryHistoryEntityTypeSchema.nullable().optional(),
+		action: InventoryHistoryActionSchema.optional(),
+		entityType: InventoryHistoryEntityTypeSchema.optional(),
 	})
 	.strict();
 export type InventoryHistoryPageRequest = z.infer<typeof InventoryHistoryPageRequestSchema>;
@@ -109,8 +109,8 @@ export const ListCharacterHistoryRequestSchema = z
 	.object({
 		limit: z.coerce.number().int().min(1).max(100).default(20),
 		offset: z.coerce.number().int().nonnegative().default(0),
-		action: InventoryHistoryActionSchema.nullable().optional(),
-		entityType: InventoryHistoryEntityTypeSchema.nullable().optional(),
+		action: InventoryHistoryActionSchema.optional(),
+		entityType: InventoryHistoryEntityTypeSchema.optional(),
 	})
 	.strict();
 export type ListCharacterHistoryRequest = z.infer<typeof ListCharacterHistoryRequestSchema>;

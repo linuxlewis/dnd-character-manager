@@ -94,6 +94,28 @@ describe("generated API client", () => {
 		).toBe("/api/catalogue/items?q=rope&isMagical=false");
 	});
 
+	it("omits absent character history filters from the generated request", async () => {
+		const responseBody = { entries: [], total: 0, limit: 20, offset: 0, hasMore: false };
+		const fetchImpl = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify(responseBody), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
+		const client = createApiClient({ baseUrl: "http://example.test", fetch: fetchImpl });
+
+		await expect(
+			client.listCharacterHistory(
+				{ characterId: "00000000-0000-4000-8000-000000000020" },
+				{ limit: 20, offset: 0 },
+			),
+		).resolves.toEqual(responseBody);
+		expect(fetchImpl).toHaveBeenCalledWith(
+			"http://example.test/api/characters/00000000-0000-4000-8000-000000000020/history?limit=20&offset=0",
+			expect.objectContaining({ method: "GET" }),
+		);
+	});
+
 	it("does not rely on checked-in generated content for the topology assertion", () => {
 		const output = readFileSync("src/generated/api-client.generated.ts", "utf8");
 		expect(output).toContain("api-types.generated.js");

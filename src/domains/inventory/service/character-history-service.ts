@@ -17,6 +17,7 @@ import {
 	ListCharacterHistoryRequestSchema,
 	ListCharacterHistoryResponseSchema,
 } from "../types/index.js";
+import { CharacterHistoryPersistenceError } from "./character-history-errors.js";
 
 export interface CharacterHistoryService {
 	listCharacterHistory(
@@ -43,11 +44,15 @@ export function createCharacterHistoryService(
 		async listCharacterHistory(userId, characterId, input = {}) {
 			const request = ListCharacterHistoryRequestSchema.parse(input);
 			await characterService.getCharacter(userId, characterId);
-			const scopeId = await scopeRepository.findCharacterScopeId(characterId);
-			if (!scopeId) return emptyHistoryPage(request);
+			try {
+				const scopeId = await scopeRepository.findCharacterScopeId(characterId);
+				if (!scopeId) return emptyHistoryPage(request);
 
-			const page = await repository.listHistoryEntries(scopeId, request);
-			return toCharacterHistoryPage(page);
+				const page = await repository.listHistoryEntries(scopeId, request);
+				return toCharacterHistoryPage(page);
+			} catch (error) {
+				throw new CharacterHistoryPersistenceError(undefined, error);
+			}
 		},
 	};
 }
