@@ -1,3 +1,5 @@
+export { CharacterActivity } from "./character-activity.js";
+export { CharacterActivityDrawer } from "./character-activity-drawer.js";
 export { CharacterInventory } from "./character-inventory.js";
 export { CharacterTreasuryPanel } from "./character-treasury-panel.js";
 export { InventoryFilterBar } from "./inventory-filter-bar.js";

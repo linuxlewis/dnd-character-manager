@@ -6,6 +6,7 @@ import type {
 	TreasuryConflictResponse,
 } from "../../../generated/api-client.generated.js";
 import { ApiClientError, apiQueryKeys } from "../../../generated/api-client.generated.js";
+import { invalidateCharacterHistory } from "./activity-cache.js";
 import type {
 	TreasuryAddPreview,
 	TreasuryAddRequest,
@@ -89,6 +90,9 @@ export async function reconcileAndRelease(
 		setState({ error: null, pending: false });
 		if (!confirmation) return;
 		const outcome = classifyTreasuryConfirmationOutcome(confirmation, response.treasury.balances);
+		if (outcome === "applied") {
+			void invalidateCharacterHistory(queryClient, characterId).catch(() => undefined);
+		}
 		if (outcome === "applied") confirmation.onApplied();
 		if (outcome === "indeterminate") confirmation.onIndeterminate();
 	} catch (error) {

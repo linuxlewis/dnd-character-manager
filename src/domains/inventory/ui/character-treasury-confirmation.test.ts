@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { ApiClientError, apiQueryKeys } from "../../../generated/api-client.generated.js";
+import { characterHistoryQueryPrefix } from "./activity-cache.js";
 import {
 	classifyTreasuryConfirmationOutcome,
 	reconcileAndRelease,
@@ -105,6 +106,35 @@ describe("character treasury confirmation adapter", () => {
 
 		expect(onApplied).not.toHaveBeenCalled();
 		expect(onIndeterminate).toHaveBeenCalledOnce();
+		expect(confirmationRef.current).toBeNull();
+	});
+
+	it("invalidates character history after treasury reconciliation confirms an applied change", async () => {
+		const characterId = "00000000-0000-4000-8000-000000000001";
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
+			treasury: {
+				characterId,
+				balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				totalValue: { copper: 200, gp: 2 },
+			},
+		});
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
+		const confirmationRef = {
+			current: {
+				conflict: false,
+				expectedNext: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				mutationSucceeded: true,
+				onApplied: vi.fn(),
+				onIndeterminate: vi.fn(),
+			},
+		};
+
+		await reconcileAndRelease(queryClient, characterId, vi.fn(), confirmationRef);
+
+		expect(invalidateQueries).toHaveBeenCalledWith({
+			queryKey: characterHistoryQueryPrefix(characterId),
+		});
 		expect(confirmationRef.current).toBeNull();
 	});
 
