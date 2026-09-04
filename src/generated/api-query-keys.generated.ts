@@ -10,6 +10,8 @@ export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
 	getCharacter: (params: { characterId: string }) => ["api", "getCharacter", params] as const,
 	listCharacters: () => ["api", "listCharacters"] as const,
+	getCharacterAttributes: (params: { characterId: string }) =>
+		["api", "getCharacterAttributes", params] as const,
 	getCharacterSpellSlots: (params: { characterId: string }) =>
 		["api", "getCharacterSpellSlots", params] as const,
 	getSpellSearchDetails: (params: { characterId: string }, query: SpellSearchDetailsQuery) =>

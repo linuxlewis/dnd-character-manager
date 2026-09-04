@@ -4,15 +4,17 @@ import * as schema from "./schema.js";
 
 it("registers each physical table and relation configuration once", () => {
 	const tables = Object.values(schema).filter((value) => is(value, Table));
-	expect(tables).toHaveLength(17);
-	expect(new Set(tables).size).toBe(17);
+	expect(tables).toHaveLength(19);
+	expect(new Set(tables).size).toBe(19);
 	expect(tables.map(getTableName).sort()).toEqual([
 		"account",
 		"catalogue_item_seed_audits",
 		"catalogue_items",
 		"catalogue_spells",
+		"character_attributes",
 		"character_health",
 		"character_health_events",
+		"character_proficiencies",
 		"character_spell_slot_events",
 		"character_spell_slots",
 		"character_spells",
