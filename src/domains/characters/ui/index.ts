@@ -1,3 +1,4 @@
+export { CharacterAttributesPanel } from "./character-attributes-panel.js";
 export { CharacterEditor } from "./character-editor.js";
 export { CharacterExperiencePanel } from "./character-experience-panel.js";
 export {

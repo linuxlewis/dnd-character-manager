@@ -122,6 +122,9 @@ export function CharacterEditor({
 				});
 				applyCharacterResponse(response);
 				setSavedFields((fields) => [...fields, "Level"]);
+				await queryClient.invalidateQueries({
+					queryKey: apiQueryKeys.getCharacterAttributes({ characterId }),
+				});
 				didSave = true;
 			}
 

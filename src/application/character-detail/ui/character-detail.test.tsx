@@ -62,7 +62,6 @@ describe("CharacterDetail", () => {
 				recentHealthChanges: [],
 			},
 		});
-
 		const html = renderToString(
 			<MantineProvider>
 				<QueryClientProvider client={queryClient}>
@@ -72,6 +71,7 @@ describe("CharacterDetail", () => {
 		);
 
 		expect(html).toContain("Character workspace header");
+		expect(html).toContain("Attributes &amp; Rolls");
 		expect(html).toContain("Spells &amp; Abilities");
 		expect(html).toContain("Inventory");
 		expect(html).toContain('aria-current="page"');
