@@ -1,19 +1,35 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
-import { inArray } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { eq, inArray } from "drizzle-orm";
+import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { withTransactionFailure } from "./character-attributes-repository-test-helpers.js";
 import { createCharacterRepository } from "./character-repository.js";
+import {
+	characterAttributesTable,
+	characterHealthTable,
+	charactersTable,
+} from "./character-table.js";
 
 const createdUserIds: string[] = [];
 
+beforeEach(async () => {
+	await cleanupCreatedUsers();
+});
+
 afterEach(async () => {
-	if (createdUserIds.length > 0) {
+	await cleanupCreatedUsers();
+});
+
+async function cleanupCreatedUsers() {
+	if (createdUserIds.length === 0) return;
+	try {
 		await getDb()
 			.delete(userTable)
 			.where(inArray(userTable.id, [...createdUserIds]));
+	} finally {
 		createdUserIds.length = 0;
 	}
-});
+}
 
 afterAll(async () => {
 	await closeDb();
@@ -176,6 +192,45 @@ describe("createCharacterRepository", () => {
 				level: 4,
 			},
 		]);
+	});
+
+	it("rolls back character creation when attribute initialization fails after health", async () => {
+		const userId = await createUser();
+		const repository = createCharacterRepository(
+			undefined,
+			withTransactionFailure(getDb(), "insert", 3),
+		);
+
+		await expect(
+			repository.createCharacter({
+				userId,
+				name: "Rollback",
+				className: "Fighter",
+				level: 1,
+				maxHp: 10,
+			}),
+		).rejects.toThrow("Injected transaction failure");
+
+		await expect(
+			getDb()
+				.select({ id: charactersTable.id })
+				.from(charactersTable)
+				.where(eq(charactersTable.userId, userId)),
+		).resolves.toEqual([]);
+		await expect(
+			getDb()
+				.select({ characterId: characterHealthTable.characterId })
+				.from(characterHealthTable)
+				.innerJoin(charactersTable, eq(charactersTable.id, characterHealthTable.characterId))
+				.where(eq(charactersTable.userId, userId)),
+		).resolves.toEqual([]);
+		await expect(
+			getDb()
+				.select({ characterId: characterAttributesTable.characterId })
+				.from(characterAttributesTable)
+				.innerJoin(charactersTable, eq(charactersTable.id, characterAttributesTable.characterId))
+				.where(eq(charactersTable.userId, userId)),
+		).resolves.toEqual([]);
 	});
 });
 
