@@ -45,6 +45,8 @@ describe("CharacterAttributesPanel", () => {
 		expect(html).toContain("Checks &amp; skills");
 		expect(html).toContain("Stealth");
 		expect(html).toContain("+9");
+		expect(html).toContain("Passive Perception");
+		expect(html).not.toContain("+15");
 	});
 });
 
