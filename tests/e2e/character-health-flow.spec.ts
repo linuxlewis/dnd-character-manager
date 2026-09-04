@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mockCharacterSpellApi } from "../support/character-spell-api.js";
 
 const spellApiTimeoutMs = 30_000;
 
@@ -65,6 +66,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 
 test("configures spell slots and tracks spell usage on detail", async ({ page }) => {
 	test.setTimeout(120_000);
+	await mockCharacterSpellApi(page);
 	await page.goto("/");
 
 	await page.getByText("Create character").first().click();
