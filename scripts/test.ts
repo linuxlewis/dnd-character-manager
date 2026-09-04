@@ -1,7 +1,16 @@
-import { type ChildProcess, spawn } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { isProcessAlive, readMetadata, runCommand } from "./stack-shared.js";
+import { type CatalogueTestFixture, startCatalogueTestFixture } from "./catalogue-test-fixture.js";
+import { createCleanupStack } from "./cleanup-stack.js";
+import {
+	assertNoExternalDatabaseUrl,
+	getOwnedDatabaseUrl,
+	isProcessAlive,
+	readMetadata,
+	runCommand,
+	runCommandAsync,
+} from "./stack-shared.js";
+import { assertE2eCatalogueCanBeConfigured } from "./test-policy.js";
 
 const args = new Set(process.argv.slice(2));
 const suites = {
@@ -12,19 +21,51 @@ const suites = {
 
 const needsStack = suites.integration || suites.e2e;
 let shouldStopStack = false;
-let catalogueFixture: CatalogueTestFixtureProcess | undefined;
+let catalogueFixture: CatalogueTestFixture | undefined;
 
 let exitCode = 0;
+const cleanup = createCleanupStack();
+cleanup.add(async () => {
+	if (!catalogueFixture) return;
+	const fixture = catalogueFixture;
+	catalogueFixture = undefined;
+	await fixture.close();
+});
+cleanup.add(() => {
+	if (shouldStopStack) runCommand("pnpm", ["stop"]);
+});
+
+const signalExitCodes = { SIGINT: 130, SIGTERM: 143 } as const;
+let signalExitRequested = false;
+const signalHandlers = Object.entries(signalExitCodes).map(([signal, code]) => {
+	const handler = () => {
+		if (signalExitRequested) return;
+		signalExitRequested = true;
+		console.error(`Received ${signal}; cleaning up the owned test resources.`);
+		void cleanup.run().then(
+			() => process.exit(code),
+			(error) => {
+				console.error(error instanceof Error ? error.message : String(error));
+				process.exit(1);
+			},
+		);
+	};
+	process.once(signal, handler);
+	return { handler, signal };
+});
 
 try {
+	assertNoExternalDatabaseUrl();
+
 	if (suites.unit) {
 		runCommand("pnpm", ["test:unit"]);
 	}
 
 	if (needsStack) {
 		shouldStopStack = !isStackRunning(readMetadata());
+		assertE2eCatalogueCanBeConfigured(suites.e2e, !shouldStopStack);
 		if (suites.e2e && shouldStopStack) {
-			catalogueFixture = await startCatalogueTestFixtureProcess();
+			catalogueFixture = await startCatalogueTestFixture();
 		}
 		runCommand(
 			"pnpm",
@@ -33,30 +74,32 @@ try {
 				? {
 						CATALOGUE_LEGACY_BASE_URL: catalogueFixture.legacyBaseUrl,
 						CATALOGUE_OPEN5E_BASE_URL: catalogueFixture.open5eBaseUrl,
+						DATABASE_URL: undefined,
 					}
-				: {},
+				: { DATABASE_URL: undefined },
 		);
 		const metadata = readMetadata();
 		if (!metadata) {
 			throw new Error("Stack start completed without metadata.");
 		}
+		const databaseUrl = getOwnedDatabaseUrl(metadata);
 
 		if (suites.integration) {
 			const integrationTests = collectIntegrationTests(join(process.cwd(), "src"));
 			if (integrationTests.length === 0) {
 				console.log("No integration test files found.");
 			} else {
-				runCommand("pnpm", ["exec", "vitest", "run", ...integrationTests], {
-					DATABASE_URL: metadata.databaseUrl,
+				await runCommandAsync("pnpm", ["exec", "vitest", "run", ...integrationTests], {
+					DATABASE_URL: databaseUrl,
 				});
 			}
 		}
 
 		if (suites.e2e) {
-			runCommand("pnpm", ["exec", "playwright", "test"], {
+			await runCommandAsync("pnpm", ["exec", "playwright", "test"], {
 				API_ORIGIN: metadata.urls.api,
 				WEB_URL: metadata.urls.web,
-				DATABASE_URL: metadata.databaseUrl,
+				DATABASE_URL: databaseUrl,
 			});
 		}
 	}
@@ -64,21 +107,14 @@ try {
 	exitCode = 1;
 	console.error(err instanceof Error ? err.message : String(err));
 } finally {
-	if (shouldStopStack) {
-		try {
-			runCommand("pnpm", ["stop"]);
-		} catch (err) {
-			exitCode = 1;
-			console.error(err instanceof Error ? err.message : String(err));
-		}
+	for (const { signal, handler } of signalHandlers) {
+		process.removeListener(signal, handler);
 	}
-	if (catalogueFixture) {
-		try {
-			await catalogueFixture.close();
-		} catch (err) {
-			exitCode = 1;
-			console.error(err instanceof Error ? err.message : String(err));
-		}
+	try {
+		await cleanup.run();
+	} catch (err) {
+		exitCode = 1;
+		console.error(err instanceof Error ? err.message : String(err));
 	}
 }
 
@@ -99,71 +135,4 @@ function collectIntegrationTests(dir: string): string[] {
 		if (entry.isFile() && /\.integration\.test\.tsx?$/.test(entry.name)) return [path];
 		return [];
 	});
-}
-
-interface CatalogueTestFixtureProcess {
-	open5eBaseUrl: string;
-	legacyBaseUrl: string;
-	close: () => Promise<void>;
-}
-
-async function startCatalogueTestFixtureProcess(): Promise<CatalogueTestFixtureProcess> {
-	const child = spawn("pnpm", ["exec", "tsx", "scripts/catalogue-test-fixture-server.ts"], {
-		cwd: process.cwd(),
-		detached: true,
-		env: process.env,
-		stdio: ["ignore", "pipe", "inherit"],
-	});
-	try {
-		const ready = await readFixtureReadyLine(child);
-		return {
-			...ready,
-			close: () => stopFixtureProcess(child),
-		};
-	} catch (error) {
-		await stopFixtureProcess(child);
-		throw error;
-	}
-}
-
-async function readFixtureReadyLine(child: ChildProcess) {
-	if (!child.stdout) throw new Error("Catalogue test fixture did not expose stdout.");
-	const stdout = child.stdout;
-	stdout.setEncoding("utf8");
-	return new Promise<{ open5eBaseUrl: string; legacyBaseUrl: string }>((resolve, reject) => {
-		let output = "";
-		const onData = (chunk: string) => {
-			output += chunk;
-			const line = output.split("\n").find((value) => value.startsWith("CATALOGUE_FIXTURE_READY "));
-			if (!line) return;
-			stdout.off("data", onData);
-			try {
-				resolve(JSON.parse(line.slice("CATALOGUE_FIXTURE_READY ".length)));
-			} catch (error) {
-				reject(new Error(`Invalid catalogue fixture metadata: ${String(error)}`));
-			}
-		};
-		stdout.on("data", onData);
-		child.once("error", reject);
-		child.once("exit", (code, signal) => {
-			reject(
-				new Error(`Catalogue test fixture exited before ready (${code ?? signal ?? "unknown"}).`),
-			);
-		});
-	});
-}
-
-async function stopFixtureProcess(child: ChildProcess) {
-	if (child.exitCode !== null || child.signalCode !== null || !child.pid) return;
-	const exited = new Promise<void>((resolve) => child.once("exit", () => resolve()));
-	try {
-		process.kill(-child.pid, "SIGTERM");
-	} catch {
-		try {
-			process.kill(child.pid, "SIGTERM");
-		} catch {
-			return;
-		}
-	}
-	await exited;
 }

@@ -2,8 +2,10 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
 import {
+	assertNoExternalDatabaseUrl,
 	computePortSeeds,
 	findFreePort,
+	getOwnedDatabaseUrl,
 	getStackPaths,
 	isProcessAlive,
 	readMetadata,
@@ -13,6 +15,8 @@ import {
 	waitForHttp,
 	writeMetadata,
 } from "./stack-shared.js";
+
+assertNoExternalDatabaseUrl();
 
 const existing = readMetadata();
 if (existing && isProcessAlive(existing.pids.api) && isProcessAlive(existing.pids.web)) {
@@ -32,26 +36,20 @@ if (existing && isProcessAlive(existing.pids.api) && isProcessAlive(existing.pid
 const paths = getStackPaths();
 const seeds = computePortSeeds(paths.hash);
 const host = process.env.HOST ?? "127.0.0.1";
-const configuredDatabaseUrl = process.env.DATABASE_URL;
 const ports = {
 	api: await findFreePort(seeds.api),
 	web: await findFreePort(seeds.web),
-	postgres: configuredDatabaseUrl
-		? databasePort(configuredDatabaseUrl)
-		: await findFreePort(seeds.postgres),
+	postgres: await findFreePort(seeds.postgres),
 };
 
 mkdirSync(paths.logDir, { recursive: true });
 
-const databaseUrl =
-	configuredDatabaseUrl ?? `postgres://app:localdev@127.0.0.1:${ports.postgres}/app`;
+const databaseUrl = getOwnedDatabaseUrl({ ports });
 
-if (!configuredDatabaseUrl) {
-	console.log(`starting stack database for ${paths.projectName}`);
-	runCommand("docker", ["compose", "-p", paths.projectName, "up", "-d", "db"], {
-		POSTGRES_PORT: String(ports.postgres),
-	});
-}
+console.log(`starting owned stack database for ${paths.projectName}`);
+runCommand("docker", ["compose", "-p", paths.projectName, "up", "-d", "db"], {
+	POSTGRES_PORT: String(ports.postgres),
+});
 
 console.log("waiting for database");
 await waitForPostgres(databaseUrl);
@@ -70,7 +68,6 @@ const metadata: StackMetadata = {
 		api: `http://${host}:${ports.api}`,
 		web: `http://${host}:${ports.web}`,
 	},
-	databaseUrl,
 	pids: {},
 	logs: {
 		api: join(paths.logDir, "api.log"),
@@ -132,12 +129,4 @@ async function waitForPostgres(databaseUrl: string) {
 		await new Promise((resolve) => setTimeout(resolve, 500));
 	}
 	throw new Error(`Timed out waiting for Postgres: ${String(lastError)}`);
-}
-
-function databasePort(databaseUrl: string) {
-	const port = Number(new URL(databaseUrl).port || 5432);
-	if (!Number.isInteger(port) || port < 1 || port > 65_535) {
-		throw new Error("DATABASE_URL must contain a valid Postgres port.");
-	}
-	return port;
 }

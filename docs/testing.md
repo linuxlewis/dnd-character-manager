@@ -29,13 +29,13 @@ pnpm preview
 pnpm stop
 ```
 
-`pnpm start` starts Docker Compose Postgres, runs migrations, starts the API and Vite web server, and writes metadata under `.stack/<worktree>/metadata.json`. The metadata includes `DATABASE_URL`, API URL, web URL, process IDs, and log file paths.
+`pnpm start` starts an owned Docker Compose Postgres database, runs migrations, starts the API and Vite web server, and writes metadata under `.stack/<worktree>/metadata.json`. The metadata includes the owned stack's port, API URL, web URL, process IDs, and log file paths; it never stores `DATABASE_URL` or database credentials.
 
 `pnpm preview` builds the web app and serves the built assets with Vite preview while still using Docker Compose Postgres and the API server. Use it for pseudo-production smoke checks.
 
-Ports are allocated dynamically per worktree. The stack computes stable seed ports from the repository path, scans for free ports, and records the chosen values in metadata. Do not hard-code local ports in tests, docs, or agent workflows; read `WEB_URL`, `API_ORIGIN`, and `DATABASE_URL` from the stack command environment or `.stack/<worktree>/metadata.json`.
+Ports are allocated dynamically per worktree. The stack computes stable seed ports from the repository path, scans for free ports, and records the chosen values in metadata. Do not hard-code local ports in tests, docs, or agent workflows; read `WEB_URL` and `API_ORIGIN` from the stack command environment or `.stack/<worktree>/metadata.json`. Integration and e2e orchestration reconstructs the local `DATABASE_URL` from the owned Postgres port; externally supplied database URLs are rejected by local stack commands.
 
-`pnpm test:integration`, `pnpm test:e2e`, and `pnpm test` start the stack automatically when needed. If the stack is already running, they reuse it and leave it running. If they start it themselves, they stop it before exiting. Test artifacts and logs are kept under `.stack/`, `test-results/`, and `playwright-report/`.
+`pnpm test:integration`, `pnpm test:e2e`, and `pnpm test` start the stack automatically when needed. Integration tests may reuse the current worktree's running stack. Browser tests need to attach the catalogue-owned loopback fixture before API startup, so they fail fast when that worktree stack is already running; run `pnpm stop` for that worktree and rerun the browser command. Unrelated stacks and databases are not stopped or mutated. Fresh browser runs close the in-process fixture and owned stack on success, failure, `SIGINT`, and `SIGTERM`. Test artifacts and logs are kept under `.stack/`, `test-results/`, and `playwright-report/`.
 
 ## Writing Unit Tests
 
