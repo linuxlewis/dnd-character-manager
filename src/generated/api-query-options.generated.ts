@@ -29,6 +29,12 @@ export function createApiQueryOptions(client: ApiClient = apiClient) {
 				queryFn: () => client.getCharacter(params, options),
 			}),
 
+		getCharacterAttributes: (params: { characterId: string }, options: ApiRequestOptions = {}) =>
+			queryOptions({
+				queryKey: apiQueryKeys.getCharacterAttributes(params),
+				queryFn: () => client.getCharacterAttributes(params, options),
+			}),
+
 		getCharacterSpellSlots: (params: { characterId: string }, options: ApiRequestOptions = {}) =>
 			queryOptions({
 				queryKey: apiQueryKeys.getCharacterSpellSlots(params),

@@ -62,9 +62,12 @@ describe("character attributes read consistency", () => {
 		}
 
 		await expect(readPromise).resolves.toEqual({
-			scores: first.scores,
-			savingThrowProficiencies: first.savingThrowProficiencies,
-			skillProficiencies: first.skillProficiencies,
+			level: 1,
+			state: {
+				scores: first.scores,
+				savingThrowProficiencies: first.savingThrowProficiencies,
+				skillProficiencies: first.skillProficiencies,
+			},
 		});
 	});
 
@@ -81,7 +84,7 @@ describe("character attributes read consistency", () => {
 			gate.release();
 		}
 
-		await expect(readPromise).resolves.toMatchObject({ scores: defaultScores() });
+		await expect(readPromise).resolves.toMatchObject({ state: { scores: defaultScores() } });
 	});
 });
 
