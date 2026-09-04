@@ -1,26 +1,19 @@
-import {
-	Alert,
-	Box,
-	Button,
-	Drawer,
-	ScrollArea,
-	SegmentedControl,
-	Stack,
-	Text,
-} from "@mantine/core";
+import { Button, Drawer, ScrollArea, SegmentedControl, Stack, Text } from "@mantine/core";
 import { useQueries } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { apiQueries } from "../../../generated/api-client.generated.js";
 import type { CharacterHistoryEntry } from "../types/index.js";
-import { ActivityEntry, ActivitySkeleton } from "./activity-entry.js";
+import { ActivitySkeleton } from "./activity-entry.js";
+import { type ActivityFilter, appendActivityPage, formatHistoryQuery } from "./activity-format.js";
 import {
-	type ActivityFilter,
-	appendActivityPage,
-	formatHistoryQuery,
-	getActivityFilterLabel,
-	groupActivityEntries,
-} from "./activity-format.js";
+	ActivityEmpty,
+	ActivityGroups,
+	ActivityInitialError,
+	ActivityPaginationError,
+} from "./character-activity-drawer-content.js";
 import "./activity.css";
+
+export { ActivityPaginationError } from "./character-activity-drawer-content.js";
 
 const PAGE_SIZE = 20;
 
@@ -117,9 +110,20 @@ export function CharacterActivityDrawer({
 		(firstQuery?.isLoading ?? false) ||
 		(!hasMatchingCoherentPageSet && firstPageFetching) ||
 		(entries.length === 0 && hasMatchingCoherentPageSet && anyPageFetching);
-	const initialError = hasMatchingCoherentPageSet ? null : firstQuery?.error;
+	const hasPageError = pageQueries.some((pageQuery) => Boolean(pageQuery.error));
+	const hasRetainedPageError = pageQueries.some(
+		(pageQuery) => Boolean(pageQuery.error) && pageQuery.data !== undefined,
+	);
+	const hasPartialError = hasPageError && entries.length > 0;
+	const initialError = hasPartialError || hasMatchingCoherentPageSet ? null : firstQuery?.error;
 	const loadingMore = offsets.length > 1 && Boolean(lastQuery?.isFetching) && !lastQuery?.data;
 	const paginationError = offsets.length > 1 && Boolean(lastQuery?.error) && entries.length > 0;
+
+	function retryFailedPages() {
+		for (const pageQuery of pageQueries) {
+			if (pageQuery.error) void pageQuery.refetch();
+		}
+	}
 
 	function changeFilter(nextFilter: string) {
 		if (nextFilter !== "all" && nextFilter !== "items" && nextFilter !== "treasury") return;
@@ -198,85 +202,30 @@ export function CharacterActivityDrawer({
 					)}
 					{entries.length > 0 && <ActivityGroups entries={entries} />}
 					{loadingMore && <ActivitySkeleton count={2} />}
-					{paginationError && <ActivityPaginationError onRetry={() => void lastQuery?.refetch()} />}
-					{!paginationError && lastQuery?.data?.hasMore && !loadingMore && !anyPageFetching && (
-						<Button fullWidth mt="md" onClick={loadMore} style={{ minHeight: 44 }} variant="light">
-							Load more activity
-						</Button>
+					{hasPartialError && (
+						<ActivityPaginationError
+							onRetry={retryFailedPages}
+							retryLabel={hasRetainedPageError ? "Retry activity" : undefined}
+							title={hasRetainedPageError ? "Activity update incomplete" : undefined}
+						/>
 					)}
+					{!hasPartialError &&
+						!paginationError &&
+						lastQuery?.data?.hasMore &&
+						!loadingMore &&
+						!anyPageFetching && (
+							<Button
+								fullWidth
+								mt="md"
+								onClick={loadMore}
+								style={{ minHeight: 44 }}
+								variant="light"
+							>
+								Load more activity
+							</Button>
+						)}
 				</ScrollArea>
 			</Stack>
 		</Drawer>
-	);
-}
-
-function ActivityGroups({ entries }: { entries: CharacterHistoryEntry[] }) {
-	return (
-		<Stack gap="lg">
-			{groupActivityEntries(entries).map((group) => (
-				<Box component="section" key={group.key}>
-					<Text component="h3" c="dimmed" fw={700} mb="sm" size="xs" tt="uppercase">
-						{group.label}
-					</Text>
-					<Box style={{ position: "relative" }}>
-						<Box
-							aria-hidden="true"
-							className="character-activity-group-rail"
-							style={{
-								backgroundColor: "var(--mantine-color-dark-4)",
-								bottom: 16,
-								position: "absolute",
-								top: 16,
-							}}
-						/>
-						<Stack gap="lg">
-							{group.entries.map((entry) => (
-								<ActivityEntry entry={entry} key={entry.id} />
-							))}
-						</Stack>
-					</Box>
-				</Box>
-			))}
-		</Stack>
-	);
-}
-
-function ActivityEmpty({ filter, onShowAll }: { filter: ActivityFilter; onShowAll: () => void }) {
-	const label = getActivityFilterLabel(filter);
-	return (
-		<Stack align="center" gap="sm" py="xl">
-			<Text fw={700}>{filter === "all" ? "No activity yet" : `No ${label} activity`}</Text>
-			<Text c="dimmed" maw={300} size="sm" ta="center">
-				{filter === "all"
-					? "Changes to items and treasury will appear here."
-					: `No ${label} changes are recorded for this character.`}
-			</Text>
-			{filter !== "all" && (
-				<Button onClick={onShowAll} style={{ minHeight: 44 }} variant="light">
-					Show all activity
-				</Button>
-			)}
-		</Stack>
-	);
-}
-
-function ActivityInitialError({ onRetry }: { onRetry: () => void }) {
-	return (
-		<Alert color="red" title="Activity unavailable" variant="light">
-			<Text size="sm">The activity log could not be loaded.</Text>
-			<Button mt="sm" onClick={onRetry} style={{ minHeight: 44 }} variant="light">
-				Retry activity
-			</Button>
-		</Alert>
-	);
-}
-
-export function ActivityPaginationError({ onRetry }: { onRetry: () => void }) {
-	return (
-		<Alert color="red" mt="md" title="More activity unavailable" variant="light">
-			<Button onClick={onRetry} style={{ minHeight: 44 }} variant="light">
-				Try loading more
-			</Button>
-		</Alert>
 	);
 }

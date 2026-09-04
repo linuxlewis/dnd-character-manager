@@ -202,6 +202,120 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	await expect(drawer.locator("time").first()).toHaveCSS("display", "block");
 });
 
+test("retains the ledger and retries a failed loaded page refresh", async ({ page }) => {
+	let historyRefreshed = false;
+	let failFirstPageRefresh = true;
+	let failedPageRequest: string | null = null;
+	const historyRequests: string[] = [];
+
+	await page.route("**/api/characters/*/history**", async (route) => {
+		const requestUrl = new URL(route.request().url());
+		const offset = Number(requestUrl.searchParams.get("offset") ?? 0);
+		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
+		historyRequests.push(requestUrl.href);
+
+		if (limit === 1) {
+			return fulfillHistory(
+				route,
+				[historyRefreshed ? mutationEntry("Refresh error trigger") : itemEntry(0)],
+				1,
+				limit,
+				0,
+				false,
+			);
+		}
+		if (historyRefreshed && offset === 0 && failFirstPageRefresh) {
+			failFirstPageRefresh = false;
+			failedPageRequest = requestUrl.href;
+			return route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Activity refresh unavailable" }),
+			});
+		}
+		if (!historyRefreshed) {
+			return fulfillHistory(
+				route,
+				offset === 0 ? itemEntries(20) : [itemEntry(20)],
+				21,
+				limit,
+				offset,
+				offset === 0,
+			);
+		}
+		return fulfillHistory(
+			route,
+			offset === 0
+				? [mutationEntry("Refresh error trigger"), ...itemEntries(19)]
+				: itemEntries(3, 19),
+			23,
+			limit,
+			offset,
+			true,
+		);
+	});
+	await page.route("**/api/characters/*/items", async (route) => {
+		if (route.request().method() !== "POST") return route.continue();
+		const response = await route.fetch();
+		historyRefreshed = true;
+		return route.fulfill({ response });
+	});
+
+	await page.goto("/");
+	await createCharacter(page, `Activity Refresh Error ${Date.now()}`, "Fighter");
+	await openInventoryTab(page);
+	const preview = page.getByRole("button", { name: "View inventory activity" });
+	await preview.click();
+	const drawer = page.getByRole("dialog", { name: "Inventory activity" });
+	await drawer.getByRole("button", { name: "Load more activity", exact: true }).click();
+	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
+	await drawer.getByRole("button", { name: "Close inventory activity", exact: true }).click();
+
+	const inventory = page.getByTestId("personal-inventory");
+	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
+	const addDialog = page.getByRole("dialog", { name: "Add personal item" });
+	await addDialog.getByLabel("Name").fill("Refresh error trigger");
+	await addDialog.getByLabel("Category").fill("Testing");
+	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
+	await expect(addDialog).toBeHidden();
+
+	await expect(preview.getByText("Added Refresh error trigger", { exact: true })).toBeVisible();
+	await preview.click();
+	await expect.poll(() => failedPageRequest).not.toBeNull();
+	const failedUrl = new URL(failedPageRequest ?? "http://127.0.0.1/");
+	expect(failedUrl.pathname.endsWith("/history")).toBe(true);
+	expect(failedUrl.searchParams.get("offset")).toBe("0");
+	expect(failedUrl.searchParams.get("limit")).toBe("20");
+	await expect(drawer.getByText("Added Ledger Item 00", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Activity update incomplete", { exact: true })).toBeVisible();
+	await expect(drawer.getByRole("button", { name: "Retry activity", exact: true })).toBeVisible();
+	await expect(drawer.getByRole("button", { name: "Load more activity", exact: true })).toHaveCount(
+		0,
+	);
+
+	await drawer.getByRole("button", { name: "Retry activity", exact: true }).click();
+	await expect
+		.poll(
+			() =>
+				historyRequests.filter((request) => {
+					const url = new URL(request);
+					return url.searchParams.get("limit") === "20" && url.searchParams.get("offset") === "0";
+				}).length,
+		)
+		.toBe(3);
+	await expect(drawer.getByText("Added Refresh error trigger", { exact: true })).toBeVisible();
+	for (let index = 0; index <= 21; index += 1) {
+		await expect(
+			drawer.getByText(`Added Ledger Item ${String(index).padStart(2, "0")}`, { exact: true }),
+		).toHaveCount(1);
+	}
+	await expect(drawer.getByText("Activity update incomplete", { exact: true })).toHaveCount(0);
+	await expect(
+		drawer.getByRole("button", { name: "Load more activity", exact: true }),
+	).toBeVisible();
+});
+
 test("keeps loaded activity during a failed page and retries the page boundary", async ({
 	page,
 }) => {
@@ -365,19 +479,19 @@ function itemEntry(index: number) {
 	};
 }
 
-function mutationEntry() {
+function mutationEntry(name = "Mutation trigger") {
 	const entry = itemEntry(99);
 	return {
 		...entry,
 		id: `${historyIdPrefix}000000000099`,
 		entityId: `${historyIdPrefix}000000000299`,
-		entityName: "Mutation trigger",
+		entityName: name,
 		details: {
 			...entry.details,
 			item: {
 				...entry.details.item,
 				id: `${historyIdPrefix}000000000299`,
-				name: "Mutation trigger",
+				name,
 			},
 		},
 	};
