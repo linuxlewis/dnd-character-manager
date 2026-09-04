@@ -78,7 +78,7 @@ export function FormattedActivityEntryView({
 					>
 						{entry.summary}
 					</Text>
-					<ActivityTime createdAt={createdAt} />
+					<ActivityTime createdAt={createdAt} focusable={!compact} />
 				</Box>
 				{entry.detail && (
 					<Text
@@ -107,7 +107,13 @@ export function FormattedActivityEntryView({
 	);
 }
 
-export function ActivityTime({ createdAt }: { createdAt: string }) {
+export function ActivityTime({
+	createdAt,
+	focusable = true,
+}: {
+	createdAt: string;
+	focusable?: boolean;
+}) {
 	const fullTimestamp = formatFullTimestamp(createdAt);
 	return (
 		<Tooltip events={{ focus: true, hover: true, touch: true }} label={fullTimestamp} withArrow>
@@ -118,7 +124,7 @@ export function ActivityTime({ createdAt }: { createdAt: string }) {
 				component="time"
 				dateTime={createdAt}
 				size="xs"
-				tabIndex={0}
+				tabIndex={focusable ? 0 : undefined}
 			>
 				{formatRelativeTime(createdAt)}
 			</Text>

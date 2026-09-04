@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getCatalogueRemoteSourceConfig } from "../config/index.js";
 import type {
 	CatalogueRemoteSpellDetails,
 	CatalogueRemoteSpellSearchResult,
@@ -13,8 +14,6 @@ import {
 } from "../types/index.js";
 import { getLegacySpellDetails, searchLegacyFeatures } from "./catalogue-legacy-spell-client.js";
 
-const OPEN5E_API_BASE_URL = "https://api.open5e.com/v2";
-const DND_API_2014_REST_BASE_URL = "https://www.dnd5eapi.co";
 const OPEN5E_SRD_2024_DOCUMENT_KEY = "srd-2024";
 const OPEN5E_DETAIL_FIELDS =
 	"key,name,level,desc,higher_level,casting_time,range_text,duration,verbal,somatic,material,material_specified,school,classes";
@@ -78,8 +77,9 @@ export class CatalogueRemoteSpellClientError extends Error {
 export function createCatalogueRemoteSpellClient(
 	options: CatalogueRemoteSpellClientOptions = {},
 ): CatalogueRemoteSpellClient {
-	const open5eBaseUrl = trimTrailingSlash(options.open5eBaseUrl ?? OPEN5E_API_BASE_URL);
-	const legacyBaseUrl = trimTrailingSlash(options.legacyBaseUrl ?? DND_API_2014_REST_BASE_URL);
+	const configuredSources = getCatalogueRemoteSourceConfig();
+	const open5eBaseUrl = trimTrailingSlash(options.open5eBaseUrl ?? configuredSources.open5eBaseUrl);
+	const legacyBaseUrl = trimTrailingSlash(options.legacyBaseUrl ?? configuredSources.legacyBaseUrl);
 	const fetcher = options.fetcher ?? fetch;
 	return {
 		async searchSpells(input) {

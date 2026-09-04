@@ -9,6 +9,10 @@
 	outline-offset: 3px;
 }
 
+.character-activity-drawer-content {
+	--drawer-size: min(480px, 100vw);
+}
+
 .character-activity-summary {
 	display: flex;
 	align-items: baseline;
@@ -61,5 +65,11 @@
 
 	.character-activity-group-rail {
 		left: 13.5px;
+	}
+}
+
+@media (max-width: 47.99em) {
+	.character-activity-drawer-content {
+		--drawer-size: 100vw;
 	}
 }

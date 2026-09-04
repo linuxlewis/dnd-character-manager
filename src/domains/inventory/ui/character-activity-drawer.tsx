@@ -115,7 +115,10 @@ export function CharacterActivityDrawer({
 		(pageQuery) => Boolean(pageQuery.error) && pageQuery.data !== undefined,
 	);
 	const hasPartialError = hasPageError && entries.length > 0;
-	const initialError = hasPartialError || hasMatchingCoherentPageSet ? null : firstQuery?.error;
+	const initialError =
+		hasPartialError || (hasMatchingCoherentPageSet && entries.length > 0)
+			? null
+			: firstQuery?.error;
 	const loadingMore = offsets.length > 1 && Boolean(lastQuery?.isFetching) && !lastQuery?.data;
 	const paginationError = offsets.length > 1 && Boolean(lastQuery?.error) && entries.length > 0;
 
@@ -151,6 +154,7 @@ export function CharacterActivityDrawer({
 			opened={opened}
 			position="right"
 			size={480}
+			classNames={{ content: "character-activity-drawer-content" }}
 			styles={{
 				body: {
 					display: "flex",
@@ -164,7 +168,6 @@ export function CharacterActivityDrawer({
 					flexDirection: "column",
 					height: "100dvh",
 					maxWidth: "100vw",
-					width: "min(480px, 100vw)",
 				},
 			}}
 			title="Inventory activity"

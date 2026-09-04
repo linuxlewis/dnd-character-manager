@@ -66,6 +66,13 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	const preview = page.getByRole("button", { name: "View inventory activity" });
 	await expect(preview).toBeVisible();
 	await expect(preview.getByText("Added Ledger Item 00", { exact: true })).toBeVisible();
+	const previewTabStops = await preview.evaluate(
+		(element) =>
+			[...element.querySelectorAll<HTMLElement>("*")].filter((child) => child.tabIndex >= 0).length,
+	);
+	expect(previewTabStops).toBe(0);
+	await preview.focus();
+	await expect(preview).toBeFocused();
 	await preview.click();
 
 	const drawer = page.getByRole("dialog", { name: "Inventory activity" });
@@ -106,6 +113,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	const timeTrigger = drawer.locator("time").first();
 	const timeLabel = await timeTrigger.getAttribute("aria-label");
 	const fullTimestamp = timeLabel?.replace("Recorded ", "");
+	await expect(timeTrigger).toHaveAttribute("tabindex", "0");
 	await timeTrigger.focus();
 	await page.keyboard.press("Tab");
 	await page.keyboard.press("Shift+Tab");
@@ -188,6 +196,15 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 		drawer.getByText("This activity entry cannot be displayed.", { exact: true }),
 	).toHaveCount(1);
 	await expect(historyRequests.some((request) => request.includes("offset=20"))).toBe(true);
+
+	await page.setViewportSize({ width: 600, height: 844 });
+	const intermediateDrawer = await drawer.boundingBox();
+	const intermediateViewport = page.viewportSize();
+	expect(intermediateDrawer).not.toBeNull();
+	expect(intermediateViewport).not.toBeNull();
+	if (intermediateDrawer && intermediateViewport) {
+		expect(intermediateDrawer.width).toBe(intermediateViewport.width);
+	}
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	const mobileDrawer = await drawer.boundingBox();
@@ -314,6 +331,95 @@ test("retains the ledger and retries a failed loaded page refresh", async ({ pag
 	await expect(
 		drawer.getByRole("button", { name: "Load more activity", exact: true }),
 	).toBeVisible();
+});
+
+test("shows an activity retry when a previously empty history refetch fails", async ({ page }) => {
+	let historyRefreshed = false;
+	let failFirstPageRefresh = true;
+	let failedPageRequest: string | null = null;
+	const historyRequests: string[] = [];
+
+	await page.route("**/api/characters/*/history**", async (route) => {
+		const requestUrl = new URL(route.request().url());
+		const offset = Number(requestUrl.searchParams.get("offset") ?? 0);
+		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
+		historyRequests.push(requestUrl.href);
+
+		if (limit === 1) {
+			return fulfillHistory(
+				route,
+				historyRefreshed ? [mutationEntry("Empty refresh recovery")] : [],
+				historyRefreshed ? 1 : 0,
+				limit,
+				0,
+				false,
+			);
+		}
+		if (offset === 0 && historyRefreshed && failFirstPageRefresh) {
+			failFirstPageRefresh = false;
+			failedPageRequest = requestUrl.href;
+			return route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Activity refresh unavailable" }),
+			});
+		}
+		return fulfillHistory(
+			route,
+			historyRefreshed ? [mutationEntry("Empty refresh recovery")] : [],
+			historyRefreshed ? 1 : 0,
+			limit,
+			offset,
+			false,
+		);
+	});
+	await page.route("**/api/characters/*/items", async (route) => {
+		if (route.request().method() !== "POST") return route.continue();
+		const response = await route.fetch();
+		historyRefreshed = true;
+		return route.fulfill({ response });
+	});
+
+	await page.goto("/");
+	await createCharacter(page, `Activity Empty Refresh ${Date.now()}`, "Fighter");
+	await openInventoryTab(page);
+	const preview = page.getByRole("button", { name: "View inventory activity" });
+	await preview.click();
+	const drawer = page.getByRole("dialog", { name: "Inventory activity" });
+	await expect(drawer.getByText("No activity yet", { exact: true })).toBeVisible();
+	await drawer.getByRole("button", { name: "Close inventory activity", exact: true }).click();
+
+	const inventory = page.getByTestId("personal-inventory");
+	await inventory.getByRole("button", { name: "Add item", exact: true }).click();
+	const addDialog = page.getByRole("dialog", { name: "Add personal item" });
+	await addDialog.getByLabel("Name").fill("Empty refresh recovery");
+	await addDialog.getByLabel("Category").fill("Testing");
+	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
+	await expect(addDialog).toBeHidden();
+	await expect(preview.getByText("Added Empty refresh recovery", { exact: true })).toBeVisible();
+
+	await preview.click();
+	await expect.poll(() => failedPageRequest).not.toBeNull();
+	const failedUrl = new URL(failedPageRequest ?? "http://127.0.0.1/");
+	expect(failedUrl.pathname.endsWith("/history")).toBe(true);
+	expect(failedUrl.searchParams.get("offset")).toBe("0");
+	expect(failedUrl.searchParams.get("limit")).toBe("20");
+	await expect(drawer.getByText("Activity unavailable", { exact: true })).toBeVisible();
+	await expect(drawer.getByRole("button", { name: "Retry activity", exact: true })).toBeVisible();
+	await expect(drawer.getByText("No activity yet", { exact: true })).toHaveCount(0);
+
+	await drawer.getByRole("button", { name: "Retry activity", exact: true }).click();
+	await expect
+		.poll(
+			() =>
+				historyRequests.filter((request) => {
+					const url = new URL(request);
+					return url.searchParams.get("limit") === "20" && url.searchParams.get("offset") === "0";
+				}).length,
+		)
+		.toBe(3);
+	await expect(drawer.getByText("Added Empty refresh recovery", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Activity unavailable", { exact: true })).toHaveCount(0);
 });
 
 test("keeps loaded activity during a failed page and retries the page boundary", async ({

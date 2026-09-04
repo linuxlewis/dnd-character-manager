@@ -5,7 +5,7 @@ export default defineConfig({
 	test: {
 		globals: true,
 		include: [
-			"scripts/openapi-generator*.test.ts",
+			"scripts/**/*.test.ts",
 			"src/**/*.test.ts",
 			"src/**/*.test.tsx",
 			"src/**/*.integration.test.ts",
