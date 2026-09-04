@@ -34,5 +34,8 @@ describe("RollGroups", () => {
 		expect(html).toContain("Dexterity");
 		expect(html).toContain("Expertise");
 		expect(html).toContain("+4");
+		expect(html).toContain("Passive Perception");
+		expect(html).not.toContain("+10");
+		expect(html).toContain(">10</");
 	});
 });

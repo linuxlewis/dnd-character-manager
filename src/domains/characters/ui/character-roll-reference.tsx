@@ -38,7 +38,9 @@ export function RollGroups({
 										<Group justify="space-between" wrap="nowrap">
 											<Text>{roll.label}</Text>
 											<Text className="numeric" fw={700}>
-												{formatSignedModifier(roll.total)}
+												{roll.category === "passive"
+													? roll.total
+													: formatSignedModifier(roll.total)}
 											</Text>
 										</Group>
 									</Accordion.Control>
