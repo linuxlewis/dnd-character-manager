@@ -1,5 +1,5 @@
 import { Anchor, Box } from "@mantine/core";
-import { Backpack, BookOpen } from "lucide-react";
+import { Backpack, BookOpen, Dices } from "lucide-react";
 import type { NavigateToCharacterRoute } from "../../../domains/characters/ui/index.js";
 import {
 	type CharacterSection,
@@ -8,8 +8,27 @@ import {
 } from "../../../domains/characters/ui/index.js";
 
 const sections = [
-	{ id: "spells", label: "Spells", accessibleLabel: "Spells & Abilities", Icon: BookOpen },
-	{ id: "inventory", label: "Inventory", accessibleLabel: "Inventory", Icon: Backpack },
+	{
+		id: "attributes",
+		label: "Attributes & Rolls",
+		compactLabel: "Rolls",
+		accessibleLabel: "Attributes & Rolls",
+		Icon: Dices,
+	},
+	{
+		id: "spells",
+		label: "Spells & Abilities",
+		compactLabel: "Spells",
+		accessibleLabel: "Spells & Abilities",
+		Icon: BookOpen,
+	},
+	{
+		id: "inventory",
+		label: "Inventory",
+		compactLabel: "Inventory",
+		accessibleLabel: "Inventory",
+		Icon: Backpack,
+	},
 ] as const;
 
 export function CharacterSectionNavigation({
@@ -23,7 +42,7 @@ export function CharacterSectionNavigation({
 }) {
 	return (
 		<Box component="nav" className="character-section-navigation" aria-label="Character sections">
-			{sections.map(({ id, label, accessibleLabel, Icon }) => {
+			{sections.map(({ id, label, compactLabel, accessibleLabel, Icon }) => {
 				const route = { screen: "detail", id: characterId, section: id } as const;
 				return (
 					<Anchor
@@ -40,7 +59,8 @@ export function CharacterSectionNavigation({
 						}}
 					>
 						<Icon size={20} aria-hidden="true" />
-						<span>{label}</span>
+						<span className="character-section-full-label">{label}</span>
+						<span className="character-section-compact-label">{compactLabel}</span>
 					</Anchor>
 				);
 			})}

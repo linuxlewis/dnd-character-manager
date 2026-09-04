@@ -64,7 +64,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	);
 	await expect(
 		page.getByRole("navigation", { name: "Character sections" }).getByRole("link"),
-	).toHaveCount(2);
+	).toHaveCount(3);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)

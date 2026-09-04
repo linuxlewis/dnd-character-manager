@@ -13,3 +13,10 @@ export async function openSpellsAndAbilitiesTab(page: Page) {
 	await spellsTab.click();
 	await expect(spellsTab).toHaveAttribute("aria-current", "page");
 }
+
+export async function openAttributesAndRollsTab(page: Page) {
+	const attributesTab = page.getByRole("link", { name: "Attributes & Rolls", exact: true });
+	await expect(attributesTab).toBeVisible();
+	await attributesTab.click();
+	await expect(attributesTab).toHaveAttribute("aria-current", "page");
+}

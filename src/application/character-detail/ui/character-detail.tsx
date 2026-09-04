@@ -2,6 +2,7 @@ import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@manti
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import {
+	CharacterAttributesPanel,
 	CharacterRibbon,
 	type CharacterSection,
 	characterRoutePath,
@@ -37,11 +38,17 @@ export function CharacterDetail({
 }: CharacterDetailProps) {
 	const queryClient = useQueryClient();
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
+	const sectionLabel =
+		section === "attributes"
+			? "Attributes & Rolls"
+			: section === "spells"
+				? "Spells & Abilities"
+				: "Inventory";
 
 	return (
 		<Stack gap="md" className="character-workspace">
 			<VisuallyHidden role="status" aria-live="polite">
-				{section === "spells" ? "Spells & Abilities section" : "Inventory section"}
+				{sectionLabel} section
 			</VisuallyHidden>
 			{(!characterQuery.data || characterQuery.error) && (
 				<Group justify="space-between" align="center">
@@ -86,11 +93,13 @@ export function CharacterDetail({
 						/>
 					</section>
 					<CharacterSectionNavigation characterId={id} section={section} onNavigate={onNavigate} />
-					<section
-						className="character-section-content"
-						aria-label={section === "spells" ? "Spells & Abilities" : "Inventory"}
-					>
-						{section === "spells" ? (
+					<section className="character-section-content" aria-label={sectionLabel}>
+						{section === "attributes" ? (
+							<CharacterAttributesPanel
+								characterId={id}
+								characterLevel={characterQuery.data.character.level}
+							/>
+						) : section === "spells" ? (
 							<CharacterSpellSlotsPanel
 								characterId={id}
 								level={characterQuery.data.character.level}
