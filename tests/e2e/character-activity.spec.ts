@@ -8,6 +8,12 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 }) => {
 	let historyRefreshed = false;
 	const historyRequests: string[] = [];
+	let releaseRefreshedPage!: () => void;
+	let refreshedPageBlocked = false;
+	let refreshedFirstPageResolved = false;
+	const refreshedPage = new Promise<void>((resolve) => {
+		releaseRefreshedPage = resolve;
+	});
 
 	await page.route("**/api/characters/*/history**", async (route) => {
 		const requestUrl = new URL(route.request().url());
@@ -15,18 +21,22 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
 		const entityType = requestUrl.searchParams.get("entityType");
 		historyRequests.push(requestUrl.search);
+		if (historyRefreshed && offset === 20 && !refreshedPageBlocked) {
+			refreshedPageBlocked = true;
+			await refreshedPage;
+		}
 
 		if (entityType === "currency") {
 			return fulfillHistory(route, [treasuryEntry()], 1, limit, offset, false);
 		}
 		if (entityType === "item") {
-			return fulfillHistory(route, itemEntries(20), 20, limit, offset, false);
+			return fulfillHistory(route, itemEntries(20, 50), 20, limit, offset, false);
 		}
 		if (limit === 1) {
 			return fulfillHistory(
 				route,
 				historyRefreshed ? [mutationEntry()] : [itemEntry(0)],
-				historyRefreshed ? 23 : 22,
+				historyRefreshed ? 24 : 23,
 				limit,
 				offset,
 				false,
@@ -35,12 +45,13 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 
 		const entries = historyRefreshed
 			? offset === 0
-				? [mutationEntry(), ...itemEntries(19)]
-				: [...itemEntries(2, 19), malformedEntry()]
+				? [mutationEntry(), ...itemEntries(18), treasuryEntry()]
+				: [...itemEntries(3, 18), malformedEntry()]
 			: offset === 0
-				? itemEntries(20)
-				: [itemEntry(20), malformedEntry()];
-		return fulfillHistory(route, entries, historyRefreshed ? 23 : 22, limit, offset, offset === 0);
+				? [...itemEntries(19), treasuryEntry()]
+				: [itemEntry(19), itemEntry(20), malformedEntry()];
+		if (historyRefreshed && offset === 0) refreshedFirstPageResolved = true;
+		return fulfillHistory(route, entries, historyRefreshed ? 24 : 23, limit, offset, offset === 0);
 	});
 	await page.route("**/api/characters/*/items", async (route) => {
 		if (route.request().method() !== "POST") return route.continue();
@@ -60,33 +71,93 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	const drawer = page.getByRole("dialog", { name: "Inventory activity" });
 	await expect(drawer).toBeVisible();
 	await expect(drawer.getByRole("radio", { name: "All", exact: true })).toBeChecked();
-	await expect(drawer.getByText("Added Ledger Item 19", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Added 1 GP", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Added Ledger Item 18", { exact: true })).toBeVisible();
+	await expect(
+		drawer.getByRole("button", { name: "Close inventory activity", exact: true }),
+	).toBeFocused();
+
+	const drawerHeader = drawer.locator(".mantine-Drawer-header");
+	const filter = drawer.locator(".character-activity-filter");
+	const scrollViewport = drawer.locator(".character-activity-scroll .mantine-ScrollArea-viewport");
+	const headerBeforeScroll = await drawerHeader.boundingBox();
+	const filterBeforeScroll = await filter.boundingBox();
+	const scrollMetrics = await scrollViewport.evaluate((element) => ({
+		clientHeight: element.clientHeight,
+		scrollHeight: element.scrollHeight,
+	}));
+	expect(scrollMetrics.scrollHeight).toBeGreaterThan(scrollMetrics.clientHeight);
+	await scrollViewport.evaluate((element) => {
+		element.scrollTop = element.scrollHeight;
+	});
+	await expect
+		.poll(() => scrollViewport.evaluate((element) => element.scrollTop))
+		.toBeGreaterThan(0);
+	const headerAfterScroll = await drawerHeader.boundingBox();
+	const filterAfterScroll = await filter.boundingBox();
+	expect(headerAfterScroll?.y).toBe(headerBeforeScroll?.y);
+	expect(filterAfterScroll?.y).toBe(filterBeforeScroll?.y);
+
+	const closeButton = drawer.getByRole("button", { name: "Close inventory activity", exact: true });
+	const closeButtonBox = await closeButton.boundingBox();
+	expect(closeButtonBox?.width).toBeGreaterThanOrEqual(44);
+	expect(closeButtonBox?.height).toBeGreaterThanOrEqual(44);
+
+	const timeTrigger = drawer.locator("time").first();
+	const timeLabel = await timeTrigger.getAttribute("aria-label");
+	const fullTimestamp = timeLabel?.replace("Recorded ", "");
+	await timeTrigger.focus();
+	await page.keyboard.press("Tab");
+	await page.keyboard.press("Shift+Tab");
+	await expect(timeTrigger).toBeFocused();
+	const timestampTooltip = page.getByRole("tooltip", { name: fullTimestamp, exact: true });
+	await expect(timestampTooltip).toBeVisible();
+	await expect(timestampTooltip).toHaveText(fullTimestamp ?? "");
+
 	await drawer.getByRole("button", { name: "Load more activity", exact: true }).click();
+	await expect(drawer.getByText("Added Ledger Item 19", { exact: true })).toBeVisible();
 	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
 	await expect(
 		drawer.getByText("This activity entry cannot be displayed.", { exact: true }),
 	).toBeVisible();
 
-	const itemRequest = page.waitForRequest(
-		(request) =>
-			request.url().includes("/history?") &&
-			new URL(request.url()).searchParams.get("entityType") === "item",
-	);
+	const itemRequest = page.waitForRequest((request) => {
+		const url = new URL(request.url());
+		return (
+			url.pathname.endsWith("/history") &&
+			url.searchParams.get("entityType") === "item" &&
+			url.searchParams.get("offset") === "0"
+		);
+	});
 	await drawer.getByText("Items", { exact: true }).click();
 	await itemRequest;
 	await expect(drawer.getByRole("radio", { name: "Items", exact: true })).toBeChecked();
-	await expect(drawer.getByText("Added 1 GP", { exact: true })).toBeHidden();
+	await expect(drawer.getByText("Added 1 GP", { exact: true })).toHaveCount(0);
+	await expect(drawer.getByText("Added Ledger Item 00", { exact: true })).toHaveCount(0);
+	await expect(drawer.getByText("Added Ledger Item 50", { exact: true })).toBeVisible();
 
-	const treasuryRequest = page.waitForRequest(
-		(request) =>
-			request.url().includes("/history?") &&
-			new URL(request.url()).searchParams.get("entityType") === "currency",
-	);
+	await closeButton.click();
+	await expect(preview).toBeFocused();
+	await preview.click();
+	await expect(drawer).toBeVisible();
+	await expect(drawer.getByRole("radio", { name: "Items", exact: true })).toBeChecked();
+	await expect(drawer.getByText("Added Ledger Item 50", { exact: true })).toBeVisible();
+
+	const treasuryRequest = page.waitForRequest((request) => {
+		const url = new URL(request.url());
+		return (
+			url.pathname.endsWith("/history") &&
+			url.searchParams.get("entityType") === "currency" &&
+			url.searchParams.get("offset") === "0"
+		);
+	});
 	await drawer.getByText("Treasury", { exact: true }).click();
 	await treasuryRequest;
 	await expect(drawer.getByText("Added 1 GP", { exact: true })).toBeVisible();
+	await expect(drawer.getByText("Added Ledger Item 50", { exact: true })).toHaveCount(0);
 
 	await drawer.getByText("All", { exact: true }).click();
+	await expect(drawer.getByRole("radio", { name: "All", exact: true })).toBeChecked();
 	await drawer.getByRole("button", { name: "Load more activity", exact: true }).click();
 	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
 	await drawer.getByRole("button", { name: "Close inventory activity", exact: true }).click();
@@ -102,6 +173,10 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 
 	await expect(preview.getByText("Added Mutation trigger", { exact: true })).toBeVisible();
 	await preview.click();
+	await expect.poll(() => refreshedFirstPageResolved).toBe(true);
+	await expect(drawer.getByText("Added Mutation trigger", { exact: true })).toHaveCount(0);
+	await expect(drawer.getByText("Added Ledger Item 18", { exact: true })).toHaveCount(1);
+	releaseRefreshedPage();
 	await expect(drawer.getByText("Added Mutation trigger", { exact: true })).toBeVisible();
 	for (let index = 0; index <= 20; index += 1) {
 		await expect(
@@ -120,6 +195,11 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	expect(mobileDrawer).not.toBeNull();
 	expect(viewport).not.toBeNull();
 	if (mobileDrawer && viewport) expect(mobileDrawer.width).toBe(viewport.width);
+	await expect(drawer.locator(".character-activity-entry").first()).toHaveCSS(
+		"grid-template-columns",
+		/^28px /,
+	);
+	await expect(drawer.locator("time").first()).toHaveCSS("display", "block");
 });
 
 test("keeps loaded activity during a failed page and retries the page boundary", async ({
@@ -190,6 +270,53 @@ test("retries the preview and resets the filter for another character", async ({
 	const secondDrawer = page.getByRole("dialog", { name: "Inventory activity" });
 	await expect(secondDrawer.getByRole("radio", { name: "All", exact: true })).toBeChecked();
 	await expect(secondDrawer.getByText("Activity Second", { exact: false })).toBeVisible();
+});
+
+test("keeps full drawer details readable while clamping long notes", async ({ page }) => {
+	await page.route("**/api/characters/*/history**", async (route) => {
+		const requestUrl = new URL(route.request().url());
+		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
+		return fulfillHistory(route, [longUpdatedEntry()], 1, limit, 0, false);
+	});
+
+	await page.goto("/");
+	await createCharacter(page, `Activity Detail ${Date.now()}`, "Fighter");
+	await openInventoryTab(page);
+	await page.getByRole("button", { name: "View inventory activity" }).click();
+
+	const drawer = page.getByRole("dialog", { name: "Inventory activity" });
+	await expect(drawer).toBeVisible();
+	const detail = drawer.locator(".character-activity-drawer-detail");
+	const note = drawer.locator(".character-activity-drawer-note");
+	await expect(detail).toBeVisible();
+	await expect(note).toBeVisible();
+
+	const noteMetrics = await note.evaluate((element) => {
+		const style = window.getComputedStyle(element);
+		return {
+			clientHeight: element.clientHeight,
+			display: style.display,
+			lineClamp: style.webkitLineClamp,
+			overflow: style.overflow,
+			scrollHeight: element.scrollHeight,
+		};
+	});
+	const detailMetrics = await detail.evaluate((element) => {
+		const style = window.getComputedStyle(element);
+		return {
+			clientHeight: element.clientHeight,
+			display: style.display,
+			lineClamp: style.webkitLineClamp,
+			scrollHeight: element.scrollHeight,
+		};
+	});
+
+	expect(noteMetrics.lineClamp).toBe("2");
+	expect(noteMetrics.overflow).toBe("hidden");
+	expect(noteMetrics.scrollHeight).toBeGreaterThan(noteMetrics.clientHeight);
+	expect(detailMetrics.display).not.toBe("-webkit-box");
+	expect(detailMetrics.lineClamp).not.toBe("2");
+	expect(detailMetrics.scrollHeight).toBe(detailMetrics.clientHeight);
 });
 
 async function fulfillHistory(
@@ -286,6 +413,47 @@ function treasuryEntry() {
 			delta: { cp: 0, sp: 0, gp: 1, pp: 0 },
 			requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
 			note: null,
+		},
+	};
+}
+
+function longUpdatedEntry() {
+	const itemId = `${historyIdPrefix}000000000401`;
+	const beforeName = `Before ${"etched travel journal ".repeat(4)}`.trim();
+	const afterName = `After ${"etched travel journal ".repeat(4)}`.trim();
+	const beforeCategory = `Before ${"field notes and maps ".repeat(4)}`.trim();
+	const afterCategory = `After ${"field notes and maps ".repeat(4)}`.trim();
+	const before = {
+		id: itemId,
+		name: beforeName,
+		type: "misc",
+		category: beforeCategory,
+		rarity: null,
+		quantity: 1,
+		weight: null,
+		estimatedValue: null,
+		isEquipped: false,
+		notes: "An old note.",
+	};
+	const after = {
+		...before,
+		name: afterName,
+		category: afterCategory,
+		notes: `A detailed expedition note ${"about the route, weather, and camp supplies ".repeat(8)}`,
+	};
+	return {
+		id: `${historyIdPrefix}000000000402`,
+		entityId: itemId,
+		entityName: afterName,
+		entityType: "item",
+		action: "item_updated",
+		actorUserId: null,
+		createdAt: "2026-09-03T12:00:00.000Z",
+		details: {
+			version: 1,
+			before,
+			after,
+			changedFields: ["name", "category", "notes"],
 		},
 	};
 }

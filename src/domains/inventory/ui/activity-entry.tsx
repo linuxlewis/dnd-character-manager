@@ -110,7 +110,7 @@ export function FormattedActivityEntryView({
 export function ActivityTime({ createdAt }: { createdAt: string }) {
 	const fullTimestamp = formatFullTimestamp(createdAt);
 	return (
-		<Tooltip label={fullTimestamp} withArrow>
+		<Tooltip events={{ focus: true, hover: true, touch: true }} label={fullTimestamp} withArrow>
 			<Text
 				aria-label={`Recorded ${fullTimestamp}`}
 				className="character-activity-time"
@@ -118,6 +118,7 @@ export function ActivityTime({ createdAt }: { createdAt: string }) {
 				component="time"
 				dateTime={createdAt}
 				size="xs"
+				tabIndex={0}
 			>
 				{formatRelativeTime(createdAt)}
 			</Text>

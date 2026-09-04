@@ -9,7 +9,7 @@ import {
 	Text,
 } from "@mantine/core";
 import { useQueries } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { apiQueries } from "../../../generated/api-client.generated.js";
 import type { CharacterHistoryEntry } from "../types/index.js";
 import { ActivityEntry, ActivitySkeleton } from "./activity-entry.js";
@@ -28,6 +28,14 @@ type ActivityPaginationState = {
 	characterId: string;
 	filter: ActivityFilter;
 	offsets: number[];
+};
+
+type CoherentActivityPageSet = {
+	entries: CharacterHistoryEntry[];
+	filter: ActivityFilter;
+	key: string;
+	offsets: number[];
+	characterId: string;
 };
 
 const FILTER_OPTIONS = [
@@ -54,6 +62,7 @@ export function CharacterActivityDrawer({
 		filter: "all",
 		offsets: [0],
 	});
+	const coherentPageSet = useRef<CoherentActivityPageSet | null>(null);
 	const sameCharacter = pagination.characterId === characterId;
 	const filter = sameCharacter ? pagination.filter : "all";
 	const offsets = sameCharacter ? pagination.offsets : [0];
@@ -70,13 +79,46 @@ export function CharacterActivityDrawer({
 	});
 	const firstQuery = pageQueries[0];
 	const lastQuery = pageQueries[pageQueries.length - 1];
-	const entries = pageQueries.reduce<CharacterHistoryEntry[]>(
+	const pageEntries = pageQueries.reduce<CharacterHistoryEntry[]>(
 		(loaded, pageQuery) => appendActivityPage(loaded, pageQuery.data?.entries ?? []),
 		[],
 	);
-	const initialLoading = firstQuery?.isLoading ?? false;
-	const initialError = firstQuery?.error;
-	const loadingMore = offsets.length > 1 && Boolean(lastQuery?.isFetching);
+	const pageSetKey = `${characterId}:${filter}:${offsets.join(",")}`;
+	const allPagesLoaded = pageQueries.every((pageQuery) => pageQuery.data !== undefined);
+	const anyPageFetching = pageQueries.some((pageQuery) => pageQuery.isFetching);
+	const firstPageFetching = pageQueries.some(
+		(pageQuery, index) => index === 0 && pageQuery.isFetching,
+	);
+	const pagesSettled =
+		allPagesLoaded && pageQueries.every((pageQuery) => !pageQuery.isFetching && !pageQuery.error);
+	const hasMatchingCoherentPageSet = coherentPageSet.current?.key === pageSetKey;
+	const hasCoherentPrefix =
+		coherentPageSet.current?.characterId === characterId &&
+		coherentPageSet.current.filter === filter &&
+		offsets.length === coherentPageSet.current.offsets.length + 1 &&
+		offsets.every((offset, index) => offset === coherentPageSet.current?.offsets[index]);
+	if (pagesSettled) {
+		coherentPageSet.current = {
+			characterId,
+			entries: pageEntries,
+			filter,
+			key: pageSetKey,
+			offsets,
+		};
+	}
+	const entries = pagesSettled
+		? pageEntries
+		: hasMatchingCoherentPageSet || hasCoherentPrefix
+			? (coherentPageSet.current?.entries ?? pageEntries)
+			: anyPageFetching
+				? []
+				: pageEntries;
+	const initialLoading =
+		(firstQuery?.isLoading ?? false) ||
+		(!hasMatchingCoherentPageSet && firstPageFetching) ||
+		(entries.length === 0 && hasMatchingCoherentPageSet && anyPageFetching);
+	const initialError = hasMatchingCoherentPageSet ? null : firstQuery?.error;
+	const loadingMore = offsets.length > 1 && Boolean(lastQuery?.isFetching) && !lastQuery?.data;
 	const paginationError = offsets.length > 1 && Boolean(lastQuery?.error) && entries.length > 0;
 
 	function changeFilter(nextFilter: string) {
@@ -157,7 +199,7 @@ export function CharacterActivityDrawer({
 					{entries.length > 0 && <ActivityGroups entries={entries} />}
 					{loadingMore && <ActivitySkeleton count={2} />}
 					{paginationError && <ActivityPaginationError onRetry={() => void lastQuery?.refetch()} />}
-					{!paginationError && lastQuery?.data?.hasMore && !loadingMore && (
+					{!paginationError && lastQuery?.data?.hasMore && !loadingMore && !anyPageFetching && (
 						<Button fullWidth mt="md" onClick={loadMore} style={{ minHeight: 44 }} variant="light">
 							Load more activity
 						</Button>

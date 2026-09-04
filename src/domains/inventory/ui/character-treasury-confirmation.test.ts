@@ -83,6 +83,7 @@ describe("character treasury confirmation adapter", () => {
 	it("reports an indeterminate outcome after a lost response and changed balance", async () => {
 		const characterId = "00000000-0000-4000-8000-000000000001";
 		const queryClient = new QueryClient();
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
 		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
 			treasury: {
 				...zeroTreasury(characterId).treasury,
@@ -107,11 +108,23 @@ describe("character treasury confirmation adapter", () => {
 		expect(onApplied).not.toHaveBeenCalled();
 		expect(onIndeterminate).toHaveBeenCalledOnce();
 		expect(confirmationRef.current).toBeNull();
+		expect(invalidateQueries).not.toHaveBeenCalledWith({
+			queryKey: characterHistoryQueryPrefix(characterId),
+		});
 	});
 
 	it("invalidates character history after treasury reconciliation confirms an applied change", async () => {
 		const characterId = "00000000-0000-4000-8000-000000000001";
 		const queryClient = new QueryClient();
+		const historyKey = apiQueryKeys.listCharacterHistory({ characterId }, { limit: 20, offset: 0 });
+		const existingHistory = {
+			entries: [{ id: "existing-history-entry" }],
+			total: 1,
+			limit: 20,
+			offset: 0,
+			hasMore: false,
+		};
+		queryClient.setQueryData(historyKey, existingHistory);
 		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
 			treasury: {
 				characterId,
@@ -135,6 +148,7 @@ describe("character treasury confirmation adapter", () => {
 		expect(invalidateQueries).toHaveBeenCalledWith({
 			queryKey: characterHistoryQueryPrefix(characterId),
 		});
+		expect(queryClient.getQueryData(historyKey)).toEqual(existingHistory);
 		expect(confirmationRef.current).toBeNull();
 	});
 

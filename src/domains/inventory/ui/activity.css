@@ -33,6 +33,14 @@
 	white-space: nowrap;
 }
 
+.character-activity-drawer-note {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+}
+
 .character-activity-number {
 	font-variant-numeric: tabular-nums;
 }
