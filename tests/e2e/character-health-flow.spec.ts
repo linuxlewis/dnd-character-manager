@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { mockCharacterSpellApi } from "../support/character-spell-api.js";
+import { openSpellsAndAbilitiesTab } from "./character-detail-helpers.js";
 
 const spellApiTimeoutMs = 30_000;
 
@@ -14,26 +15,24 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Mira" })).toBeVisible();
-	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"true",
+	await expect(page.getByRole("link", { name: "Attributes & Rolls", exact: true })).toHaveAttribute(
+		"aria-current",
+		"page",
 	);
-	await expect(page.getByRole("tab", { name: "Inventory", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"false",
-	);
+	await expect(page.getByRole("link", { name: "Spells & Abilities", exact: true })).toBeVisible();
 	await expect(page.getByTestId("personal-inventory")).toHaveCount(0);
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeHidden();
 
 	await page.getByRole("button", { exact: true, name: "Edit" }).click();
-	await expect(page.getByLabel("Max HP")).toHaveCSS("font-size", "16px");
-	await expect(page.getByLabel("Temp HP")).toHaveCSS("font-size", "16px");
-	await page.getByLabel("Temp HP").fill("5");
-	await page.getByRole("button", { name: "Save" }).click();
+	const healthDialog = page.getByRole("dialog", { name: "Edit health" });
+	await expect(healthDialog.getByLabel("Max HP")).toHaveCSS("font-size", "16px");
+	await expect(healthDialog.getByLabel("Temp HP")).toHaveCSS("font-size", "16px");
+	await healthDialog.getByLabel("Temp HP").fill("5");
+	await healthDialog.getByRole("button", { exact: true, name: "Save" }).click();
 	await expect(page.getByText("15 / 15 HP (Temp HP +5)")).toBeVisible();
 
-	await page.getByRole("button", { name: /History/ }).click();
+	await page.getByRole("button", { name: /^History \(/ }).click();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeVisible();
 
 	await page.getByRole("button", { name: "Heal" }).click();
@@ -42,16 +41,20 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("button", { name: "Cancel" }).click();
 
 	await page.getByRole("button", { name: "Damage" }).click();
-	await expect(page.getByLabel("Amount")).toBeFocused();
-	await expect(page.getByLabel("Amount")).toHaveCSS("font-size", "16px");
-	await page.getByLabel("Amount").fill("4");
-	await page.getByRole("button", { name: "Save" }).click();
+	const damageDialog = page.getByRole("dialog", { name: "Damage" });
+	await expect(damageDialog.getByLabel("Amount")).toBeFocused();
+	await expect(damageDialog.getByLabel("Amount")).toHaveCSS("font-size", "16px");
+	await damageDialog.getByLabel("Amount").fill("4");
+	await damageDialog.getByRole("button", { exact: true, name: "Save" }).click();
 	await expect(page.getByText("11 / 15 HP (Temp HP +5)")).toBeVisible();
 	await expect(page.getByText("HP -4")).toBeVisible();
 
 	await page.getByRole("button", { exact: true, name: "Edit" }).click();
 	await page.getByLabel("Max HP").fill("20");
-	await page.getByRole("button", { name: "Save" }).click();
+	await page
+		.getByRole("dialog", { name: "Edit health" })
+		.getByRole("button", { exact: true, name: "Save" })
+		.click();
 	await expect(page.getByText("21 / 25 HP (Temp HP +5)")).toBeVisible();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeVisible();
 
@@ -60,7 +63,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("link", { name: "Mira" }).click();
 	await expect(page.getByText("21 / 25 HP (Temp HP +5)")).toBeVisible();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeHidden();
-	await page.getByRole("button", { name: /History/ }).click();
+	await page.getByRole("button", { name: /^History \(/ }).click();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeVisible();
 });
 
@@ -77,10 +80,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Tamsin" })).toBeVisible();
-	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"true",
-	);
+	await openSpellsAndAbilitiesTab(page);
 	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.getByText("Cantrips & features")).toBeVisible();
 	await expect(page.getByText("0 / 0 remaining").first()).toBeHidden();

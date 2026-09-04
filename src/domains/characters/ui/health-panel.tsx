@@ -116,12 +116,15 @@ export function CharacterHealthPanel({
 				</Group>
 				<Group align="center" gap="xs" wrap="wrap">
 					<Progress
+						aria-label={`Health: ${health.currentHp} of ${health.effectiveMaxHp} HP`}
 						color={getHealthColor(health)}
 						radius="sm"
 						size="lg"
-						style={{ flex: 1, minWidth: 180 }}
+						style={{ flex: "1 1 100%" }}
 						value={healthPercent}
 					/>
+				</Group>
+				<Group align="center" gap="xs" grow wrap="nowrap">
 					<Button color="green" onClick={() => openAmountDialog("heal")} size="xs">
 						Heal
 					</Button>

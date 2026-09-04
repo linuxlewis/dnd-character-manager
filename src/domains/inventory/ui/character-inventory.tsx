@@ -1,6 +1,7 @@
 import {
 	Alert,
 	Badge,
+	Box,
 	Button,
 	Group,
 	Loader,
@@ -30,7 +31,13 @@ import { ItemCard } from "./item-card.js";
 import { ItemDetailDrawer } from "./item-detail-drawer.js";
 import { ItemForm } from "./item-form.js";
 
-export function CharacterInventory({ characterId }: { characterId: string }) {
+export function CharacterInventory({
+	characterId,
+	embedded = false,
+}: {
+	characterId: string;
+	embedded?: boolean;
+}) {
 	const queryClient = useQueryClient();
 	const [searchInput, setSearchInput] = useState("");
 	const [activeType, setActiveType] = useState<InventoryFilter>("all");
@@ -47,7 +54,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		type: activeType === "all" ? undefined : activeType,
 	};
 	const countFilter = { search: search || undefined };
-
 	const inventoryQuery = useQuery({
 		...apiQueries.listCharacterItems({ characterId }, activeFilter),
 		retry: false,
@@ -133,7 +139,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		equipMutation.isPending ||
 		unequipMutation.isPending ||
 		deleteMutation.isPending;
-
 	function openCreateForm() {
 		setMutationError(null);
 		setFormItem(undefined);
@@ -141,7 +146,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		setFormVersion((version) => version + 1);
 		setFormOpen(true);
 	}
-
 	function openEditForm() {
 		if (!detailItem) return;
 		setMutationError(null);
@@ -151,7 +155,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		setSelectedItem(null);
 		setFormOpen(true);
 	}
-
 	function submitForm(request: CreateCharacterItemRequest | UpdateCharacterItemRequest) {
 		if (formMode === "create") {
 			createMutation.mutate({
@@ -167,24 +170,20 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 			});
 		}
 	}
-
 	function performEquip() {
 		if (!detailItem) return;
 		equipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performUnequip() {
 		if (!detailItem) return;
 		unequipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performDelete() {
 		if (!detailItem) return;
 		deleteMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
-	return (
-		<Paper data-testid="personal-inventory" p={{ base: "md", sm: "lg" }} withBorder>
+	const content = (
+		<>
 			<Stack gap="md">
 				<Group align="flex-start" justify="space-between" wrap="wrap">
 					<Stack gap={2}>
@@ -202,7 +201,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 					</Stack>
 					<Button onClick={openCreateForm}>Add item</Button>
 				</Group>
-
 				<Group align="flex-end" gap="sm" grow wrap="wrap">
 					<TextInput
 						aria-label="Search personal inventory"
@@ -215,7 +213,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 						{inventoryQuery.data ? `${inventoryQuery.data.total} matching` : ""}
 					</Text>
 				</Group>
-
 				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
 
 				<InventoryFilterBar
@@ -224,7 +221,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 					onChange={setActiveType}
 					totalCount={totalCount}
 				/>
-
 				{inventoryQuery.isLoading && (
 					<Group justify="center" py="xl">
 						<Loader size="sm" />
@@ -272,7 +268,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 					</Alert>
 				)}
 			</Stack>
-
 			<ItemForm
 				error={mutationError}
 				initialItem={formItem}
@@ -294,6 +289,13 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 				opened={selectedItem !== null}
 				pending={mutationsPending}
 			/>
+		</>
+	);
+	return embedded ? (
+		<Box data-testid="personal-inventory">{content}</Box>
+	) : (
+		<Paper data-testid="personal-inventory" p={{ base: "md", sm: "lg" }} withBorder>
+			{content}
 		</Paper>
 	);
 }

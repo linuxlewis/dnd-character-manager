@@ -22,7 +22,14 @@ export function HealthAmountModal({
 	title: string;
 }) {
 	return (
-		<Modal onClose={onClose} opened={opened} title={title} withinPortal={false}>
+		<Modal
+			closeButtonProps={{ "aria-label": `Close ${title.toLowerCase()} dialog` }}
+			onClose={onClose}
+			opened={opened}
+			styles={modalStyles}
+			title={title}
+			withinPortal={false}
+		>
 			<Box
 				component="form"
 				onSubmit={(event) => {
@@ -75,7 +82,14 @@ export function HealthEditModal({
 	temporaryDraft: NumberDraft;
 }) {
 	return (
-		<Modal onClose={onClose} opened={opened} title="Edit health" withinPortal={false}>
+		<Modal
+			closeButtonProps={{ "aria-label": "Close edit health dialog" }}
+			onClose={onClose}
+			opened={opened}
+			styles={modalStyles}
+			title="Edit health"
+			withinPortal={false}
+		>
 			<Box
 				component="form"
 				onSubmit={(event) => {
@@ -115,6 +129,11 @@ export function HealthEditModal({
 		</Modal>
 	);
 }
+
+const modalStyles = {
+	content: { maxWidth: "calc(100vw - 2rem)" },
+	inner: { left: 0, padding: 0, right: 0 },
+};
 
 function toDraft(value: number | string): NumberDraft {
 	return typeof value === "number" && Number.isFinite(value) ? value : "";

@@ -27,7 +27,69 @@ body {
 	padding-bottom: var(--mantine-spacing-xl);
 }
 
+.character-section-navigation {
+	border-bottom: 1px solid var(--mantine-color-dark-5);
+}
+
+.character-section-link {
+	align-items: center;
+	display: inline-flex;
+	font-size: var(--mantine-font-size-sm);
+	font-weight: 600;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0 var(--mantine-spacing-md);
+	position: relative;
+	white-space: nowrap;
+}
+
+.character-section-link::after {
+	background: transparent;
+	bottom: -1px;
+	content: "";
+	height: 2px;
+	left: var(--mantine-spacing-md);
+	position: absolute;
+	right: var(--mantine-spacing-md);
+}
+
+.character-section-link.active {
+	color: var(--mantine-color-bloodstone-4);
+}
+
+.character-section-link.active::after {
+	background: var(--mantine-color-bloodstone-5);
+}
+
+.character-section-compact-label {
+	display: none;
+}
+
+@media (max-width: 47.99em) {
+	.character-section-link {
+		flex: 1 1 0;
+		padding: 0 var(--mantine-spacing-xs);
+	}
+
+	.character-section-link::after {
+		left: var(--mantine-spacing-xs);
+		right: var(--mantine-spacing-xs);
+	}
+
+	.character-section-full-label {
+		display: none;
+	}
+
+	.character-section-compact-label {
+		display: inline;
+	}
+}
+
 ::selection {
 	background: var(--mantine-color-bloodstone-7);
 	color: var(--mantine-color-white);
+}
+
+.numeric {
+	font-variant-numeric: tabular-nums;
 }

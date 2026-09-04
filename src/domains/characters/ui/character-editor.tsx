@@ -109,6 +109,9 @@ export function CharacterEditor({
 					body: { level: nextLevel },
 				});
 				applyCharacterResponse(response);
+				await queryClient.invalidateQueries({
+					queryKey: apiQueryKeys.getCharacterAttributes({ characterId }),
+				});
 				didSave = true;
 			}
 
