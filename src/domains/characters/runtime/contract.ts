@@ -1,5 +1,7 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import { ListCharactersResponseSchema } from "../types/index.js";
+import { characterAttributesRouteContracts } from "./character-attributes-contracts.js";
+
 export const characterRouteContracts = [
 	{
 		method: "get",
@@ -26,4 +28,5 @@ export const characterRouteContracts = [
 			responseType: "ListCharactersResponse",
 		},
 	},
+	...characterAttributesRouteContracts,
 ] as const satisfies readonly ApiRouteContract[];

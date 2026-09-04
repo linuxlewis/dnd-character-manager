@@ -1,4 +1,5 @@
 export type {
+	CharacterAttributesPersistenceSnapshot,
 	CharacterAttributesPersistenceState,
 	CharacterAttributesRepository,
 } from "./character-attributes-repository.js";
