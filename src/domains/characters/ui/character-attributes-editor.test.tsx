@@ -40,7 +40,12 @@ describe("CharacterAttributesEditor", () => {
 		expect(html).toContain("Edit attributes");
 		expect(html).toContain("Ability scores &amp; saves");
 		expect(html).toContain("Skill proficiencies");
-		expect(html).toContain("Save proficient");
+		expect(html).toContain("Strength save proficient");
+		expect(html).toContain("Dexterity save proficient");
+		expect(html).toContain("Constitution save proficient");
+		expect(html).toContain("Intelligence save proficient");
+		expect(html).toContain("Wisdom save proficient");
+		expect(html).toContain("Charisma save proficient");
 		expect(html.match(/data-path="skillProficiencies\.[0-9]+\.rank"/g) ?? []).toHaveLength(18);
 		expect(html).toContain('value="None"');
 		expect(html).toContain("Preview");
