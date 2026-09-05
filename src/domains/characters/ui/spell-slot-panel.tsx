@@ -17,6 +17,7 @@ import type { SpellSearchResult } from "./spell-search-modal.js";
 import type { SpellSlotActionError } from "./spell-slot-panel-alerts.js";
 import { SpellSlotPanelContent } from "./spell-slot-panel-content.js";
 import { type SpellSearchPanelState, SpellSlotPanelDialogs } from "./spell-slot-panel-dialogs.js";
+import { useSpellSlotActionRecovery } from "./use-spell-slot-action-recovery.js";
 
 export function CharacterSpellSlotsPanel({
 	characterId,
@@ -49,6 +50,11 @@ export function CharacterSpellSlotsPanel({
 		CharacterSpellsResponse["spells"][number] | null
 	>(null);
 	const queryClient = useQueryClient();
+	const spellSlotRecovery = useSpellSlotActionRecovery({
+		characterId,
+		onSlotResponse: updateCachedSpellSlots,
+		queryClient,
+	});
 	const spellSlots = spellSlotsQuery.data?.spellSlots ?? [];
 	const characterSpells = characterSpellsQuery.data?.spells ?? [];
 	const nonSlotSpells = characterSpells.filter((spell) => spell.slotLevel === 0);
@@ -83,6 +89,7 @@ export function CharacterSpellSlotsPanel({
 	});
 	function updateCachedSpellSlots(response: CharacterSpellSlotsResponse) {
 		setSpellSlotActionError(null);
+		spellSlotRecovery.clear();
 		setDraftTotals({});
 		setIsEditing(false);
 		queryClient.setQueryData(apiQueryKeys.getCharacterSpellSlots({ characterId }), response);
@@ -99,12 +106,10 @@ export function CharacterSpellSlotsPanel({
 	});
 	const expendMutation = useMutation({
 		...apiMutations.useCharacterSpellSlot(),
-		onError: (error) => setSpellSlotActionError({ action: "using a spell slot", error }),
 		onSuccess: updateCachedSpellSlots,
 	});
 	const restoreMutation = useMutation({
 		...apiMutations.restoreCharacterSpellSlot(),
-		onError: (error) => setSpellSlotActionError({ action: "restoring a spell slot", error }),
 		onSuccess: updateCachedSpellSlots,
 	});
 	const defaultsMutation = useMutation({
@@ -137,6 +142,7 @@ export function CharacterSpellSlotsPanel({
 		if (spellSlots.length === 0) return;
 		updateMutation.reset();
 		setSpellSlotActionError(null);
+		spellSlotRecovery.clear();
 		updateMutation.mutate({
 			params: { characterId },
 			body: {
@@ -147,31 +153,30 @@ export function CharacterSpellSlotsPanel({
 			},
 		});
 	}
-
 	function expendSlot(slot: CharacterSpellSlot) {
 		expendMutation.reset();
-		setSpellSlotActionError(null);
-		expendMutation.mutate({ params: { characterId }, body: { level: slot.level } });
+		void spellSlotRecovery.start(slot, "used", () =>
+			expendMutation.mutateAsync({ params: { characterId }, body: { level: slot.level } }),
+		);
 	}
-
 	function restoreSlot(slot: CharacterSpellSlot) {
 		restoreMutation.reset();
-		setSpellSlotActionError(null);
-		restoreMutation.mutate({ params: { characterId }, body: { level: slot.level } });
+		void spellSlotRecovery.start(slot, "restored", () =>
+			restoreMutation.mutateAsync({ params: { characterId }, body: { level: slot.level } }),
+		);
 	}
-
 	function applyDefaults() {
 		defaultsMutation.reset();
 		setSpellSlotActionError(null);
+		spellSlotRecovery.clear();
 		defaultsMutation.mutate({ characterId });
 	}
-
 	function toggleEditing() {
 		setSpellSlotActionError(null);
+		spellSlotRecovery.clear();
 		setDraftTotals({});
 		setIsEditing((editing) => !editing);
 	}
-
 	function openSpellSearch(slotLevel: number) {
 		const nextSearch = { slotLevel, query: "" };
 		saveSpellMutation.reset();
@@ -179,13 +184,11 @@ export function CharacterSpellSlotsPanel({
 		setSearchVersion((version) => version + 1);
 		setSpellSearch(nextSearch);
 	}
-
 	function closeSpellSearch() {
 		saveSpellMutation.reset();
 		setSpellActionError(null);
 		setSpellSearch(null);
 	}
-
 	function openSpellDetails(spell: CharacterSpellsResponse["spells"][number]) {
 		void queryClient.resetQueries({
 			queryKey: apiQueryKeys.getCharacterSpellDetails({ characterId, spellId: spell.id }),
@@ -193,26 +196,22 @@ export function CharacterSpellSlotsPanel({
 		});
 		setSelectedSpellId(spell.id);
 	}
-
 	function openRemoveSpell(spell: CharacterSpellsResponse["spells"][number]) {
 		removeSpellMutation.reset();
 		setSpellActionError(null);
 		setSpellToRemove(spell);
 	}
-
 	function closeRemoveSpellDialog() {
 		if (removeSpellMutation.isPending) return;
 		removeSpellMutation.reset();
 		setSpellActionError(null);
 		setSpellToRemove(null);
 	}
-
 	function updateSpellSearchQuery(query: string) {
 		saveSpellMutation.reset();
 		setSpellActionError(null);
 		setSpellSearch((current) => (current ? { ...current, query } : current));
 	}
-
 	function saveSpell(spell: SpellSearchResult) {
 		if (!spellSearch) return;
 		saveSpellMutation.reset();
@@ -222,14 +221,12 @@ export function CharacterSpellSlotsPanel({
 			body: { slotLevel: spellSearch.slotLevel, spellIndex: spell.index, source: spell.source },
 		});
 	}
-
 	function removeSpell() {
 		if (!spellToRemove) return;
 		removeSpellMutation.reset();
 		setSpellActionError(null);
 		removeSpellMutation.mutate({ characterId, spellId: spellToRemove.id });
 	}
-
 	return (
 		<SpellSlotPanelContent
 			defaultsPending={defaultsMutation.isPending}
@@ -248,16 +245,27 @@ export function CharacterSpellSlotsPanel({
 			onRestoreSlot={restoreSlot}
 			onRetrySpellSlots={() => void spellSlotsQuery.refetch()}
 			onRetrySpells={() => void characterSpellsQuery.refetch()}
+			onRetryReconciliation={() => void spellSlotRecovery.reconcile()}
+			onAcknowledgeCurrentSlots={() => spellSlotRecovery.clear()}
 			onSaveConfiguration={saveConfiguration}
 			onToggleEditing={toggleEditing}
 			onToggleHistory={() => setHistoryOpen((opened) => !opened)}
 			onUseSlot={expendSlot}
 			sectionHeadingRef={sectionHeadingRef}
-			spellSlotActionError={spellSlotActionError}
+			spellSlotActionError={spellSlotRecovery.actionError ?? spellSlotActionError}
 			spellSlots={spellSlots}
 			spellSlotsLoading={spellSlotsQuery.isLoading}
 			spellSlotsUnavailable={spellSlotsUnavailable}
 			spellsUnavailable={spellsUnavailable}
+			reconciliationPending={spellSlotRecovery.reconciliationPending}
+			slotActionsDisabled={
+				spellSlotRecovery.actionsBlocked ||
+				spellSlotRecovery.reconciliationPending ||
+				expendMutation.isPending ||
+				restoreMutation.isPending ||
+				updateMutation.isPending ||
+				defaultsMutation.isPending
+			}
 			updatePending={updateMutation.isPending}
 		>
 			<SpellSlotPanelDialogs
@@ -286,7 +294,6 @@ export function CharacterSpellSlotsPanel({
 		</SpellSlotPanelContent>
 	);
 }
-
 function toSlotTotal(value: NumberDraft, fallback: number) {
 	return typeof value === "number" && Number.isInteger(value) ? value : fallback;
 }

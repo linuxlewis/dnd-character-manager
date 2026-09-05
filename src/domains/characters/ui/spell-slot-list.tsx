@@ -14,6 +14,7 @@ interface SpellSlotListProps {
 	onRemoveSpell: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onRestoreSlot: (slot: CharacterSpellSlot) => void;
 	onUseSlot: (slot: CharacterSpellSlot) => void;
+	actionsDisabled?: boolean;
 	spellSlots: CharacterSpellSlot[];
 }
 
@@ -27,6 +28,7 @@ export function SpellSlotList({
 	onRemoveSpell,
 	onRestoreSlot,
 	onUseSlot,
+	actionsDisabled = false,
 	spellSlots,
 }: SpellSlotListProps) {
 	if (spellSlots.length === 0) return null;
@@ -90,7 +92,7 @@ export function SpellSlotList({
 							<Group gap="xs" grow style={{ flex: "1 1 12rem" }} wrap="nowrap">
 								<Button
 									aria-label={`Use ${formatSpellLevel(slot.level)}`}
-									disabled={slot.remaining <= 0}
+									disabled={actionsDisabled || slot.remaining <= 0}
 									onClick={() => onUseSlot(slot)}
 									size="xs"
 									variant="default"
@@ -99,7 +101,7 @@ export function SpellSlotList({
 								</Button>
 								<Button
 									aria-label={`Restore ${formatSpellLevel(slot.level)}`}
-									disabled={slot.used <= 0}
+									disabled={actionsDisabled || slot.used <= 0}
 									onClick={() => onRestoreSlot(slot)}
 									size="xs"
 									variant="default"

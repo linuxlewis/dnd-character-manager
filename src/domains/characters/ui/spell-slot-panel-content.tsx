@@ -30,6 +30,8 @@ export function SpellSlotPanelContent({
 	onRestoreSlot,
 	onRetrySpellSlots,
 	onRetrySpells,
+	onRetryReconciliation,
+	onAcknowledgeCurrentSlots,
 	onSaveConfiguration,
 	onToggleEditing,
 	onToggleHistory,
@@ -40,6 +42,8 @@ export function SpellSlotPanelContent({
 	spellSlotsLoading,
 	spellSlotsUnavailable,
 	spellsUnavailable,
+	reconciliationPending,
+	slotActionsDisabled,
 	updatePending,
 }: {
 	children: ReactNode;
@@ -59,6 +63,8 @@ export function SpellSlotPanelContent({
 	onRestoreSlot: (slot: CharacterSpellSlot) => void;
 	onRetrySpellSlots: () => void;
 	onRetrySpells: () => void;
+	onRetryReconciliation?: () => void;
+	onAcknowledgeCurrentSlots?: () => void;
 	onSaveConfiguration: () => void;
 	onToggleEditing: () => void;
 	onToggleHistory: () => void;
@@ -69,6 +75,8 @@ export function SpellSlotPanelContent({
 	spellSlotsLoading: boolean;
 	spellSlotsUnavailable: boolean;
 	spellsUnavailable: boolean;
+	reconciliationPending?: boolean;
+	slotActionsDisabled?: boolean;
 	updatePending: boolean;
 }) {
 	return (
@@ -148,11 +156,15 @@ export function SpellSlotPanelContent({
 				onRemoveSpell={onRemoveSpell}
 				onRestoreSlot={onRestoreSlot}
 				onUseSlot={onUseSlot}
+				actionsDisabled={slotActionsDisabled}
 				spellSlots={spellSlots}
 			/>
 			<SpellSlotPanelAlerts
 				onRetrySpellSlots={onRetrySpellSlots}
 				onRetrySpells={onRetrySpells}
+				onRetryReconciliation={onRetryReconciliation}
+				onAcknowledgeCurrentSlots={onAcknowledgeCurrentSlots}
+				reconciliationPending={reconciliationPending}
 				spellSlotActionError={spellSlotActionError}
 				spellSlotsUnavailable={spellSlotsUnavailable}
 				spellsUnavailable={spellsUnavailable}

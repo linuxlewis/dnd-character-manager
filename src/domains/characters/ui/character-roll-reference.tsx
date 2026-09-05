@@ -29,7 +29,7 @@ export function RollGroups({
 				if (categoryRolls.length === 0) return null;
 				return (
 					<Stack gap="xs" key={category}>
-						<Text c="dimmed" fw={700} size="sm" tt="uppercase">
+						<Text className="attributes-metadata" fw={700} size="sm" tt="uppercase">
 							{categoryLabels[category]}
 						</Text>
 						<Accordion multiple value={expanded} onChange={onExpandedChange} variant="default">
@@ -43,7 +43,7 @@ export function RollGroups({
 										<Group className="roll-reference-control" justify="space-between" wrap="nowrap">
 											<Stack gap={2} style={{ minWidth: 0 }}>
 												<Text>{roll.label}</Text>
-												<Text c="dimmed" size="xs">
+												<Text className="attributes-metadata" size="xs">
 													{getAbilityLabel(roll.ability)}
 													{roll.proficiencyRank === null
 														? ""
@@ -57,12 +57,12 @@ export function RollGroups({
 									</Accordion.Control>
 									<Accordion.Panel>
 										<Stack className="roll-breakdown" gap="xs" pl="md">
-											<Text c="dimmed" size="xs">
+											<Text className="attributes-metadata" size="xs">
 												Source: {getAbilityLabel(roll.ability)}
 											</Text>
 											{roll.components.map((component) => (
 												<Group justify="space-between" key={`${roll.id}-${component.type}`}>
-													<Text c="dimmed" size="sm">
+													<Text className="attributes-metadata" size="sm">
 														{component.label}
 													</Text>
 													<Text className="numeric" size="sm">

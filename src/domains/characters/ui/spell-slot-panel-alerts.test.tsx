@@ -56,4 +56,55 @@ describe("SpellSlotPanelAlerts", () => {
 		expect(readableHtml).not.toContain("Retry spell slots");
 		expect(readableHtml).not.toContain("Retry spells");
 	});
+
+	it("explains a committed response-lost action without offering a blind repeat", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSlotPanelAlerts
+					onRetrySpellSlots={vi.fn()}
+					onRetrySpells={vi.fn()}
+					spellSlotActionError={{
+						action: "using a spell slot",
+						error: new Error("response lost"),
+						status: "applied",
+					}}
+					spellSlotsUnavailable={false}
+					spellsUnavailable={false}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Spell slot action applied");
+		expect(readableHtml).toContain("response was lost");
+		expect(readableHtml).toContain("do not repeat this action");
+		expect(readableHtml).not.toContain("Retry spell slot reconciliation");
+	});
+
+	it("blocks blind repeats and offers read-only recovery when reconciliation fails", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSlotPanelAlerts
+					onRetryReconciliation={vi.fn()}
+					onRetrySpellSlots={vi.fn()}
+					onRetrySpells={vi.fn()}
+					reconciliationPending={false}
+					spellSlotActionError={{
+						action: "using a spell slot",
+						error: new Error("response lost"),
+						reconciliationError: new Error("slot GET failed"),
+						status: "reconciliation-failed",
+					}}
+					spellSlotsUnavailable={false}
+					spellsUnavailable={false}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Spell slot state could not be verified");
+		expect(readableHtml).toContain("Do not repeat the action until reconciliation succeeds");
+		expect(readableHtml).toContain("Retry spell slot reconciliation");
+		expect(readableHtml).toContain("does not repeat the action");
+	});
 });
