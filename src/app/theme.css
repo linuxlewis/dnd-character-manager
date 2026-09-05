@@ -41,6 +41,9 @@ body {
 
 .character-section-navigation-track {
 	min-width: max-content;
+}
+
+.character-section-navigation-track.has-overflow {
 	padding-inline-end: 2.5rem;
 }
 
