@@ -21,12 +21,25 @@ export function createCharacterHealthService(
 ): CharacterHealthService {
 	return {
 		async updateCharacterHealth(userId, characterId, input) {
-			const previous = await repository.findCharacterHealth(userId, characterId);
-			if (!previous) throw new CharacterNotFoundError();
-
-			const next = normalizeHealthUpdate(previous, input);
-			const change = toHealthChange(previous, next);
-			const result = await repository.saveCharacterHealth(userId, characterId, next, change);
+			const result = await repository.mutateCharacterHealth(userId, characterId, (previous) => {
+				const currentHpDelta = input.currentHpDelta;
+				const isCurrentHpAction = currentHpDelta !== undefined && currentHpDelta !== 0;
+				const next = normalizeHealthUpdate(
+					previous,
+					isCurrentHpAction
+						? {
+								currentHp: clamp(previous.currentHp + (currentHpDelta ?? 0), 0, 9999),
+								maxHp: previous.maxHp,
+								temporaryHp: previous.temporaryHp,
+							}
+						: {
+								...input,
+								currentHp:
+									input.currentHpDelta === undefined ? input.currentHp : previous.currentHp,
+							},
+				);
+				return { health: next, change: toHealthChange(previous, next) };
+			});
 			if (!result) throw new CharacterNotFoundError();
 			return result;
 		},

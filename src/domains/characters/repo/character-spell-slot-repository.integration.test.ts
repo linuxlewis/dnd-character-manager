@@ -55,16 +55,19 @@ describe("createCharacterSpellSlotRepository", () => {
 			const next = previous.map((slot) =>
 				slot.level === 1 ? { ...slot, total: 6, used: index, remaining: 6 - index } : slot,
 			);
-			result = await repository.saveCharacterSpellSlots(userId, character.id, next, [
-				{
-					action: "used",
-					level: 1,
-					previous: previous[0],
-					next: next[0],
-					totalDelta: 0,
-					usedDelta: 1,
-				},
-			]);
+			result = await repository.mutateCharacterSpellSlots(userId, character.id, (current) => ({
+				slots: next,
+				changes: [
+					{
+						action: "used",
+						level: 1,
+						previous: current[0],
+						next: next[0],
+						totalDelta: 0,
+						usedDelta: 1,
+					},
+				],
+			}));
 			previous = next;
 			await new Promise((resolve) => setTimeout(resolve, 5));
 		}

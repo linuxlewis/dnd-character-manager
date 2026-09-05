@@ -56,43 +56,36 @@ export function createCharacterSpellSlotService(
 		},
 
 		async updateCharacterSpellSlots(userId, characterId, input) {
-			const previous = await repository.findCharacterSpellSlots(userId, characterId);
-			if (!previous) throw new CharacterNotFoundError();
-			const update = normalizeSpellSlotConfiguration(previous, input);
-			return saveSpellSlots(repository, userId, characterId, update.next, update.events);
+			return mutateSpellSlots(repository, userId, characterId, (previous) =>
+				normalizeSpellSlotConfiguration(previous, input),
+			);
 		},
 
 		async expendCharacterSpellSlot(userId, characterId, input) {
-			const previous = await repository.findCharacterSpellSlots(userId, characterId);
-			if (!previous) throw new CharacterNotFoundError();
-			const update = applySpellSlotChange(previous, input, "used");
-			return saveSpellSlots(repository, userId, characterId, update.next, [update.event]);
+			return mutateSpellSlots(repository, userId, characterId, (previous) => {
+				const update = applySpellSlotChange(previous, input, "used");
+				return { next: update.next, events: [update.event] };
+			});
 		},
 
 		async restoreCharacterSpellSlot(userId, characterId, input) {
-			const previous = await repository.findCharacterSpellSlots(userId, characterId);
-			if (!previous) throw new CharacterNotFoundError();
-			const update = applySpellSlotChange(previous, input, "restored");
-			return saveSpellSlots(repository, userId, characterId, update.next, [update.event]);
+			return mutateSpellSlots(repository, userId, characterId, (previous) => {
+				const update = applySpellSlotChange(previous, input, "restored");
+				return { next: update.next, events: [update.event] };
+			});
 		},
 
 		async applyDefaultSpellSlots(userId, characterId) {
 			const context = await repository.findCharacterSpellSlotContext(userId, characterId);
 			if (!context) throw new CharacterNotFoundError();
-			const previous = await repository.findCharacterSpellSlots(userId, characterId);
-			if (!previous) throw new CharacterNotFoundError();
-
 			try {
 				const defaults = await defaultsClient.findDefaultSpellSlots(
 					context.className,
 					context.level,
 				);
-				const update = normalizeSpellSlotConfiguration(
-					previous,
-					{ slots: defaults },
-					"defaults-applied",
+				return mutateSpellSlots(repository, userId, characterId, (previous) =>
+					normalizeSpellSlotConfiguration(previous, { slots: defaults }, "defaults-applied"),
 				);
-				return saveSpellSlots(repository, userId, characterId, update.next, update.events);
 			} catch (error) {
 				if (error instanceof DndApiSpellSlotClientError) {
 					throw new SpellSlotDefaultsUnavailableError();
@@ -149,14 +142,19 @@ export function applySpellSlotChange(
 	return { next, event };
 }
 
-async function saveSpellSlots(
+async function mutateSpellSlots(
 	repository: CharacterSpellSlotRepository,
 	userId: string,
 	characterId: string,
-	slots: CharacterSpellSlot[],
-	events: NewSpellSlotChange[],
+	mutation: (previous: CharacterSpellSlot[]) => {
+		next: CharacterSpellSlot[];
+		events: NewSpellSlotChange[];
+	},
 ) {
-	const result = await repository.saveCharacterSpellSlots(userId, characterId, slots, events);
+	const result = await repository.mutateCharacterSpellSlots(userId, characterId, (previous) => {
+		const update = mutation(previous);
+		return { slots: update.next, changes: update.events };
+	});
 	if (!result) throw new CharacterNotFoundError();
 	return result;
 }

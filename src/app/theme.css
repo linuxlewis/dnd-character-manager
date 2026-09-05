@@ -32,6 +32,10 @@ body {
 	position: relative;
 }
 
+.character-section-navigation.has-overflow {
+	padding-inline-end: 2.5rem;
+}
+
 .character-section-navigation-scroll {
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -153,7 +157,7 @@ body {
 
 .ability-reference-row > :first-child {
 	min-width: 0;
-	overflow-wrap: anywhere;
+	white-space: nowrap;
 }
 
 .ability-reference-row > .numeric {
@@ -201,6 +205,23 @@ body {
 	.ability-score-list {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.ability-reference-row {
+		align-items: flex-start;
+		gap: 0.125rem;
+		flex-direction: column;
+		justify-content: flex-start;
+		padding-inline: 0.125rem;
+	}
+
+	.ability-reference-label {
+		width: 100%;
+	}
+
+	.ability-reference-row > .numeric {
+		justify-content: space-between;
+		width: 100%;
 	}
 
 	.attributes-ledger-rolls {

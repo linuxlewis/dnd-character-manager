@@ -44,7 +44,6 @@ describe("createCharacterHealthRepository", () => {
 			healthRepository.findCharacterHealth(crypto.randomUUID(), created.id),
 		).resolves.toBeNull();
 
-		let previous: CharacterHealth = created.health;
 		let result = null;
 		for (let index = 1; index <= 6; index += 1) {
 			const next: CharacterHealth = {
@@ -53,14 +52,16 @@ describe("createCharacterHealthRepository", () => {
 				temporaryHp: 0,
 				effectiveMaxHp: 18,
 			};
-			result = await healthRepository.saveCharacterHealth(userId, created.id, next, {
-				previous,
-				next,
-				currentHpDelta: next.currentHp - previous.currentHp,
-				maxHpDelta: 0,
-				temporaryHpDelta: 0,
-			});
-			previous = next;
+			result = await healthRepository.mutateCharacterHealth(userId, created.id, (current) => ({
+				health: next,
+				change: {
+					previous: current,
+					next,
+					currentHpDelta: next.currentHp - current.currentHp,
+					maxHpDelta: 0,
+					temporaryHpDelta: 0,
+				},
+			}));
 			await new Promise((resolve) => setTimeout(resolve, 5));
 		}
 

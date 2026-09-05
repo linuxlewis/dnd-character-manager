@@ -18,11 +18,10 @@ const previousHealth: CharacterHealth = {
 describe("createCharacterHealthService", () => {
 	it("normalizes a health update before saving it", async () => {
 		const repository = fakeRepository();
-		repository.findCharacterHealth.mockResolvedValue(previousHealth);
-		repository.saveCharacterHealth.mockImplementation(async (_userId, _characterId, health) => ({
-			health,
-			recentHealthChanges: [],
-		}));
+		repository.mutateCharacterHealth.mockImplementation(async (_userId, _characterId, mutation) => {
+			const result = mutation(previousHealth);
+			return { health: result.health, recentHealthChanges: [] };
+		});
 
 		await expect(
 			createCharacterHealthService(repository).updateCharacterHealth("user-1", "character-1", {
@@ -39,26 +38,16 @@ describe("createCharacterHealthService", () => {
 			},
 			recentHealthChanges: [],
 		});
-		expect(repository.saveCharacterHealth).toHaveBeenCalledWith(
+		expect(repository.mutateCharacterHealth).toHaveBeenCalledWith(
 			"user-1",
 			"character-1",
-			{
-				currentHp: 15,
-				maxHp: 20,
-				temporaryHp: 5,
-				effectiveMaxHp: 25,
-			},
-			expect.objectContaining({
-				currentHpDelta: 5,
-				maxHpDelta: 0,
-				temporaryHpDelta: 5,
-			}),
+			expect.any(Function),
 		);
 	});
 
 	it("throws when the character health row cannot be found", async () => {
 		const repository = fakeRepository();
-		repository.findCharacterHealth.mockResolvedValue(null);
+		repository.mutateCharacterHealth.mockResolvedValue(null);
 
 		await expect(
 			createCharacterHealthService(repository).updateCharacterHealth("user-1", "character-1", {
@@ -163,12 +152,10 @@ describe("toHealthChange", () => {
 
 function fakeRepository() {
 	return {
-		findCharacterHealth: vi.fn(),
-		saveCharacterHealth: vi.fn(),
+		mutateCharacterHealth: vi.fn(),
 		listRecentHealthChanges: vi.fn(),
 	} as unknown as CharacterHealthRepository & {
-		findCharacterHealth: ReturnType<typeof vi.fn>;
-		saveCharacterHealth: ReturnType<typeof vi.fn>;
+		mutateCharacterHealth: ReturnType<typeof vi.fn>;
 		listRecentHealthChanges: ReturnType<typeof vi.fn>;
 	};
 }

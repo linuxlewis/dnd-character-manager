@@ -64,13 +64,14 @@ export function CharacterHealthPanel({
 		setTemporaryDraft(health.temporaryHp);
 	}
 
-	function saveHealth(patch: Partial<CharacterHealth>) {
+	function saveHealth(patch: Partial<CharacterHealth>, currentHpDelta = 0) {
 		updateMutation.mutate({
 			params: { characterId },
 			body: {
 				currentHp: patch.currentHp ?? health.currentHp,
 				maxHp: patch.maxHp ?? health.maxHp,
 				temporaryHp: patch.temporaryHp ?? health.temporaryHp,
+				currentHpDelta,
 			},
 		});
 	}
@@ -79,7 +80,7 @@ export function CharacterHealthPanel({
 		const amount = toWholeNumber(amountDraft);
 		if (!amount || amount < 1) return;
 		const delta = direction === "heal" ? amount : -amount;
-		saveHealth({ currentHp: clamp(health.currentHp + delta, 0, health.effectiveMaxHp) });
+		saveHealth({ currentHp: clamp(health.currentHp + delta, 0, health.effectiveMaxHp) }, delta);
 	}
 
 	function saveEditChange() {

@@ -67,8 +67,11 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 		.locator(".ability-score-list")
 		.evaluate((element) => getComputedStyle(element).gridTemplateColumns);
 	expect(narrowScoreColumns.split(" ")).toHaveLength(2);
+	await expect(page.locator(".ability-reference-label")).toHaveCount(6);
+	await expectAbilityLabelsToFit(page);
 	await expect(page.locator(".character-section-navigation-affordance")).toBeHidden();
 	await expectNoPageOverflow(page);
+	await expectAbilityLabelsToFit(page);
 
 	const navMetrics = await page
 		.locator(".character-section-navigation-scroll")
@@ -95,6 +98,7 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 		element.style.fontSize = "125%";
 	});
 	await expectNoPageOverflow(page);
+	await expectAbilityLabelsToFit(page);
 	const enlargedOverflow = await page
 		.locator(".character-section-navigation-scroll")
 		.evaluate((element) => ({
@@ -145,6 +149,40 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 	expect(contrast.ratio).toBeGreaterThanOrEqual(4.5);
 });
 
+test("reserves non-overlapping space for a genuine narrow navigation cue", async ({ page }) => {
+	await page.setViewportSize({ width: 256, height: 900 });
+	await page.goto("/");
+	await createCharacter(page, "Narrow Navigation", "Fighter", 5);
+	await page.locator("html").evaluate((element) => {
+		element.style.fontSize = "125%";
+	});
+
+	const navigationScroll = page.locator(".character-section-navigation-scroll");
+	const affordance = page.locator(".character-section-navigation-affordance");
+	await expect
+		.poll(() => navigationScroll.evaluate((element) => element.scrollWidth > element.clientWidth))
+		.toBe(true);
+	await expect(affordance).toBeVisible();
+	const geometry = await page.evaluate(() => {
+		const scroll = document
+			.querySelector(".character-section-navigation-scroll")
+			?.getBoundingClientRect();
+		const cue = document
+			.querySelector(".character-section-navigation-affordance")
+			?.getBoundingClientRect();
+		return { scrollRight: scroll?.right ?? 0, cueLeft: cue?.left ?? 0 };
+	});
+	expect(geometry.cueLeft).toBeGreaterThanOrEqual(geometry.scrollRight - 1);
+	await expectNoPageOverflow(page);
+
+	await navigationScroll.evaluate((element) => {
+		element.scrollLeft = element.scrollWidth;
+		element.dispatchEvent(new Event("scroll"));
+	});
+	await expect(affordance).toBeHidden();
+	await expectNoPageOverflow(page);
+});
+
 async function createCharacter(page: Page, name: string, className: string, level: number) {
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill(name);
@@ -167,4 +205,24 @@ async function expectNoPageOverflow(page: Page) {
 			),
 		)
 		.toBe(true);
+}
+
+async function expectAbilityLabelsToFit(page: Page) {
+	const metrics = await page.locator(".ability-reference-label").evaluateAll((labels) =>
+		labels.map((label) => {
+			const row = label.parentElement;
+			return {
+				text: label.textContent,
+				labelWidth: label.getBoundingClientRect().width,
+				labelScrollWidth: label.scrollWidth,
+				rowWidth: row?.getBoundingClientRect().width ?? 0,
+				rowScrollWidth: row?.scrollWidth ?? 0,
+			};
+		}),
+	);
+	for (const metric of metrics) {
+		expect(metric.text).toBeTruthy();
+		expect(metric.labelScrollWidth).toBeLessThanOrEqual(metric.labelWidth + 1);
+		expect(metric.rowScrollWidth).toBeLessThanOrEqual(metric.rowWidth + 1);
+	}
 }

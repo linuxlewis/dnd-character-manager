@@ -161,7 +161,9 @@ function CharacterAttributesContent({
 								key={ability.key}
 								wrap="nowrap"
 							>
-								<Text>{ability.label}</Text>
+								<Text className="ability-reference-label" size="sm">
+									{ability.label}
+								</Text>
 								<Group className="numeric" gap="md" wrap="nowrap">
 									<Text className="attributes-metadata">{attributes.scores[ability.key]}</Text>
 									<Text fw={700}>{formatSignedModifier(attributes.modifiers[ability.key])}</Text>

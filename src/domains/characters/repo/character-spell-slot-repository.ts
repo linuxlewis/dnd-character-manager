@@ -29,6 +29,11 @@ export interface NewSpellSlotChange {
 	usedDelta: number;
 }
 
+export interface SpellSlotMutation {
+	slots: CharacterSpellSlot[];
+	changes: NewSpellSlotChange[];
+}
+
 export interface CharacterSpellSlotRepository {
 	findCharacterSpellSlotContext(
 		userId: string,
@@ -38,11 +43,10 @@ export interface CharacterSpellSlotRepository {
 		userId: string,
 		characterId: string,
 	): Promise<CharacterSpellSlot[] | null>;
-	saveCharacterSpellSlots(
+	mutateCharacterSpellSlots(
 		userId: string,
 		characterId: string,
-		slots: CharacterSpellSlot[],
-		changes: NewSpellSlotChange[],
+		mutation: (previous: CharacterSpellSlot[]) => SpellSlotMutation,
 	): Promise<CharacterSpellSlotsResponse | null>;
 	listRecentSpellSlotChanges(characterId: string): Promise<SpellSlotChangeResponse[]>;
 }
@@ -74,15 +78,24 @@ export function createCharacterSpellSlotRepository(): CharacterSpellSlotReposito
 			return mergeWithEmptySlots(rows.map(toSpellSlotState));
 		},
 
-		async saveCharacterSpellSlots(userId, characterId, slots, changes) {
+		async mutateCharacterSpellSlots(userId, characterId, mutation) {
 			return getDb().transaction(async (tx) => {
 				const [owned] = await tx
 					.select({ id: charactersTable.id })
 					.from(charactersTable)
 					.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
-					.limit(1);
+					.limit(1)
+					.for("update");
 
 				if (!owned) return null;
+
+				const rows = await tx
+					.select(spellSlotColumns())
+					.from(characterSpellSlotsTable)
+					.where(eq(characterSpellSlotsTable.characterId, characterId))
+					.for("update");
+				const previous = mergeWithEmptySlots(rows.map(toSpellSlotState));
+				const { slots, changes } = mutation(previous);
 
 				await tx
 					.delete(characterSpellSlotsTable)

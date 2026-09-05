@@ -49,7 +49,11 @@ export function CharacterSectionNavigation({
 		<Box
 			component="nav"
 			aria-label="Character sections"
-			className="character-section-navigation"
+			className={
+				canScrollRight
+					? "character-section-navigation has-overflow"
+					: "character-section-navigation"
+			}
 			py="xs"
 		>
 			<Box className="character-section-navigation-scroll" ref={setScrollNode}>

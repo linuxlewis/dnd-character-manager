@@ -58,21 +58,20 @@ describe("applySpellSlotChange", () => {
 describe("createCharacterSpellSlotService", () => {
 	it("saves manually configured spell slot totals with history", async () => {
 		const repository = fakeRepository();
-		repository.findCharacterSpellSlots.mockResolvedValue(makeSlots());
-		repository.saveCharacterSpellSlots.mockImplementation(
-			async (
-				_userId: string,
-				_characterId: string,
-				slots: CharacterSpellSlot[],
-				events: NewSpellSlotChange[],
-			) => ({
-				spellSlots: slots,
-				recentSpellSlotChanges: events.map((event, index) => ({
-					id: `00000000-0000-4000-8000-00000000000${index}`,
-					...event,
-					createdAt: "2026-07-01T12:00:00.000Z",
-				})),
-			}),
+		repository.mutateCharacterSpellSlots.mockImplementation(
+			async (_userId, _characterId, mutation) => {
+				const update = mutation(makeSlots());
+				return {
+					spellSlots: update.slots,
+					recentSpellSlotChanges: update.changes.map(
+						(event: NewSpellSlotChange, index: number) => ({
+							id: `00000000-0000-4000-8000-00000000000${index}`,
+							...event,
+							createdAt: "2026-07-01T12:00:00.000Z",
+						}),
+					),
+				};
+			},
 		);
 
 		const result = await createCharacterSpellSlotService(repository).updateCharacterSpellSlots(
@@ -97,21 +96,20 @@ describe("createCharacterSpellSlotService", () => {
 		const repository = fakeRepository();
 		const defaultsClient = fakeDefaultsClient();
 		repository.findCharacterSpellSlotContext.mockResolvedValue({ className: "Wizard", level: 7 });
-		repository.findCharacterSpellSlots.mockResolvedValue(makeSlots());
-		repository.saveCharacterSpellSlots.mockImplementation(
-			async (
-				_userId: string,
-				_characterId: string,
-				slots: CharacterSpellSlot[],
-				events: NewSpellSlotChange[],
-			) => ({
-				spellSlots: slots,
-				recentSpellSlotChanges: events.map((event, index) => ({
-					id: `00000000-0000-4000-8000-00000000001${index}`,
-					...event,
-					createdAt: "2026-07-01T12:00:00.000Z",
-				})),
-			}),
+		repository.mutateCharacterSpellSlots.mockImplementation(
+			async (_userId, _characterId, mutation) => {
+				const update = mutation(makeSlots());
+				return {
+					spellSlots: update.slots,
+					recentSpellSlotChanges: update.changes.map(
+						(event: NewSpellSlotChange, index: number) => ({
+							id: `00000000-0000-4000-8000-00000000001${index}`,
+							...event,
+							createdAt: "2026-07-01T12:00:00.000Z",
+						}),
+					),
+				};
+			},
 		);
 		defaultsClient.findDefaultSpellSlots.mockResolvedValue([
 			{ level: 1, total: 4 },
@@ -130,17 +128,16 @@ describe("createCharacterSpellSlotService", () => {
 			{ level: 3, total: 0, used: 0, remaining: 0 },
 		]);
 		expect(defaultsClient.findDefaultSpellSlots).toHaveBeenCalledWith("Wizard", 7);
-		expect(repository.saveCharacterSpellSlots).toHaveBeenCalledWith(
+		expect(repository.mutateCharacterSpellSlots).toHaveBeenCalledWith(
 			"user-1",
 			"character-1",
-			expect.any(Array),
-			expect.arrayContaining([expect.objectContaining({ action: "defaults-applied", level: 1 })]),
+			expect.any(Function),
 		);
 	});
 
 	it("throws when the character is not owned by the current user", async () => {
 		const repository = fakeRepository();
-		repository.findCharacterSpellSlots.mockResolvedValue(null);
+		repository.mutateCharacterSpellSlots.mockResolvedValue(null);
 
 		await expect(
 			createCharacterSpellSlotService(repository).updateCharacterSpellSlots(
@@ -171,12 +168,12 @@ function fakeRepository() {
 		findCharacterSpellSlotContext: vi.fn(),
 		findCharacterSpellSlots: vi.fn(),
 		listRecentSpellSlotChanges: vi.fn(),
-		saveCharacterSpellSlots: vi.fn(),
+		mutateCharacterSpellSlots: vi.fn(),
 	} as unknown as CharacterSpellSlotRepository & {
 		findCharacterSpellSlotContext: ReturnType<typeof vi.fn>;
 		findCharacterSpellSlots: ReturnType<typeof vi.fn>;
 		listRecentSpellSlotChanges: ReturnType<typeof vi.fn>;
-		saveCharacterSpellSlots: ReturnType<typeof vi.fn>;
+		mutateCharacterSpellSlots: ReturnType<typeof vi.fn>;
 	};
 }
 
