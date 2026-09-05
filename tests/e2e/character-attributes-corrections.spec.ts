@@ -67,7 +67,9 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 		.locator(".ability-score-list")
 		.evaluate((element) => getComputedStyle(element).gridTemplateColumns);
 	expect(narrowScoreColumns.split(" ")).toHaveLength(2);
+	await expect(page.locator(".ability-reference-label")).toHaveCount(6);
 	await expectNoPageOverflow(page);
+	await expectAbilityLabelsToFit(page);
 
 	const links = page.locator(".character-section-link");
 	await expect(links).toHaveCount(3);
@@ -86,6 +88,7 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 		element.style.fontSize = "125%";
 	});
 	await expectNoPageOverflow(page);
+	await expectAbilityLabelsToFit(page);
 
 	const contrast = await page
 		.locator(".attributes-metadata")
@@ -143,4 +146,24 @@ async function expectNoPageOverflow(page: Page) {
 			),
 		)
 		.toBe(true);
+}
+
+async function expectAbilityLabelsToFit(page: Page) {
+	const metrics = await page.locator(".ability-reference-label").evaluateAll((labels) =>
+		labels.map((label) => {
+			const row = label.parentElement;
+			return {
+				text: label.textContent,
+				labelWidth: label.getBoundingClientRect().width,
+				labelScrollWidth: label.scrollWidth,
+				rowWidth: row?.getBoundingClientRect().width ?? 0,
+				rowScrollWidth: row?.scrollWidth ?? 0,
+			};
+		}),
+	);
+	for (const metric of metrics) {
+		expect(metric.text).toBeTruthy();
+		expect(metric.labelScrollWidth).toBeLessThanOrEqual(metric.labelWidth + 1);
+		expect(metric.rowScrollWidth).toBeLessThanOrEqual(metric.rowWidth + 1);
+	}
 }
