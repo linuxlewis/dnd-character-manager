@@ -103,7 +103,7 @@ export function CharacterAttributesEditor({
 	return (
 		<Modal
 			centered
-			closeButtonProps={{ "aria-label": "Close edit attributes dialog" }}
+			closeButtonProps={{ "aria-label": "Close attributes editor" }}
 			fullScreen={isNarrowViewport()}
 			onClose={closeEditor}
 			opened={opened}
