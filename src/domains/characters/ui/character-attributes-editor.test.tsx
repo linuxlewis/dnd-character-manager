@@ -68,7 +68,7 @@ describe("CharacterAttributesEditor", () => {
 			</MantineProvider>,
 		);
 
-		expect(html).toContain('aria-label="Close edit attributes dialog"');
+		expect(html).toContain('aria-label="Close attributes editor"');
 		expect(html).toMatch(/<h2[^>]*>Edit attributes<\/h2>/);
 		expect(html).toMatch(/<h3[^>]*>Ability scores &amp; saves<\/h3>/);
 		expect(html).toMatch(/<h3[^>]*>Skill proficiencies<\/h3>/);
