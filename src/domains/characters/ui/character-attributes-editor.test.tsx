@@ -50,4 +50,28 @@ describe("CharacterAttributesEditor", () => {
 		expect(html).toContain('value="None"');
 		expect(html).toContain("Preview");
 	});
+
+	it("names the modal close control and keeps subsection headings below the modal title", () => {
+		const queryClient = new QueryClient();
+		const html = renderToString(
+			<MantineProvider>
+				<QueryClientProvider client={queryClient}>
+					<CharacterAttributesEditor
+						attributes={attributes}
+						characterId="00000000-0000-4000-8000-000000000001"
+						characterLevel={3}
+						onClose={vi.fn()}
+						onSaved={vi.fn()}
+						opened
+					/>
+				</QueryClientProvider>
+			</MantineProvider>,
+		);
+
+		expect(html).toContain('aria-label="Close edit attributes dialog"');
+		expect(html).toMatch(/<h2[^>]*>Edit attributes<\/h2>/);
+		expect(html).toMatch(/<h3[^>]*>Ability scores &amp; saves<\/h3>/);
+		expect(html).toMatch(/<h3[^>]*>Skill proficiencies<\/h3>/);
+		expect(html).not.toMatch(/<h4[^>]*>(Ability scores &amp; saves|Skill proficiencies)<\/h4>/);
+	});
 });
