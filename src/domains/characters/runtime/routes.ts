@@ -2,11 +2,13 @@ import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
+	type CharacterAttributesService,
 	type CharacterHealthService,
 	CharacterNotFoundError,
 	type CharacterService,
 	type CharacterSpellService,
 	type CharacterSpellSlotService,
+	createCharacterAttributesService,
 	createCharacterHealthService,
 	createCharacterService,
 	createCharacterSpellService,
@@ -23,6 +25,7 @@ import {
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
 import { parseBody, parseParams, sendSpellSlotError } from "./route-helpers.js";
+import { registerCharacterAttributesRoutes } from "./routes.attributes.js";
 import { registerCharacterSpellRoutes } from "./routes.spells.js";
 
 const defaultCharacterService = createCharacterService();
@@ -34,6 +37,7 @@ export interface RegisterCharacterRoutesOptions {
 	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
 	characterService?: CharacterService;
 	characterHealthService?: CharacterHealthService;
+	characterAttributesService?: CharacterAttributesService;
 	characterSpellService?: CharacterSpellService;
 	characterSpellSlotService?: CharacterSpellSlotService;
 }
@@ -44,6 +48,8 @@ export async function registerCharacterRoutes(
 ) {
 	const characterService = options.characterService ?? defaultCharacterService;
 	const characterHealthService = options.characterHealthService ?? defaultCharacterHealthService;
+	const characterAttributesService =
+		options.characterAttributesService ?? createCharacterAttributesService({ characterService });
 	const characterSpellService = options.characterSpellService ?? defaultCharacterSpellService;
 	const characterSpellSlotService =
 		options.characterSpellSlotService ?? defaultCharacterSpellSlotService;
@@ -173,6 +179,8 @@ export async function registerCharacterRoutes(
 			throw error;
 		}
 	});
+
+	await registerCharacterAttributesRoutes(app, { characterAttributesService, getCurrentUser });
 
 	app.get("/api/characters/:characterId/spell-slots", async (request, reply) => {
 		const params = parseParams(request, reply);

@@ -25,6 +25,7 @@ describe("buildServer", () => {
 					"/api/characters": expect.any(Object),
 					"/api/characters/{characterId}": expect.any(Object),
 					"/api/characters/{characterId}/health": expect.any(Object),
+					"/api/characters/{characterId}/attributes": expect.any(Object),
 				},
 			});
 		} finally {

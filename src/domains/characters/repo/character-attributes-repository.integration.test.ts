@@ -87,9 +87,12 @@ describe("character attributes persistence", () => {
 		const repository = createCharacterAttributesRepository();
 
 		await expect(repository.findCharacterAttributes(userId, characterId)).resolves.toEqual({
-			scores: defaultScores(),
-			savingThrowProficiencies: ABILITY_KEYS.map((key) => ({ key, rank: "none" })),
-			skillProficiencies: SKILL_KEYS.map((key) => ({ key, rank: "none" })),
+			level: 1,
+			state: {
+				scores: defaultScores(),
+				savingThrowProficiencies: ABILITY_KEYS.map((key) => ({ key, rank: "none" })),
+				skillProficiencies: SKILL_KEYS.map((key) => ({ key, rank: "none" })),
+			},
 		});
 		expect(await countRows(characterAttributesTable, characterId)).toBe(1);
 		expect(await countRows(characterProficienciesTable, characterId)).toBe(0);
@@ -118,9 +121,12 @@ describe("character attributes persistence", () => {
 		await expect(
 			repository.replaceCharacterAttributes(userId, characterId, input),
 		).resolves.toEqual({
-			scores: input.scores,
-			savingThrowProficiencies: input.savingThrowProficiencies,
-			skillProficiencies: input.skillProficiencies,
+			level: 1,
+			state: {
+				scores: input.scores,
+				savingThrowProficiencies: input.savingThrowProficiencies,
+				skillProficiencies: input.skillProficiencies,
+			},
 		});
 		const rows = await getDb()
 			.select({
@@ -151,7 +157,7 @@ describe("character attributes persistence", () => {
 			}),
 		).rejects.toThrow();
 		await expect(repository.findCharacterAttributes(userId, characterId)).resolves.toMatchObject({
-			scores: defaultScores(),
+			state: { scores: defaultScores() },
 		});
 	});
 
@@ -201,8 +207,9 @@ describe("character attributes persistence", () => {
 			repository.replaceCharacterAttributes(userId, characterId, second),
 		]);
 
-		const finalState = await repository.findCharacterAttributes(userId, characterId);
-		expect(finalState).toBeDefined();
+		const finalSnapshot = await repository.findCharacterAttributes(userId, characterId);
+		expect(finalSnapshot).toBeDefined();
+		const finalState = finalSnapshot?.state;
 		const matchesFirst = finalState?.scores.strength === 18;
 		expect(finalState?.scores.strength).toBe(matchesFirst ? 18 : 8);
 		expect(finalState?.skillProficiencies.find((entry) => entry.key === "athletics")?.rank).toBe(
