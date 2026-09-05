@@ -29,6 +29,38 @@ body {
 
 .character-section-navigation {
 	border-bottom: 1px solid var(--mantine-color-dark-5);
+	position: relative;
+}
+
+.character-section-navigation-scroll {
+	overflow-x: auto;
+	overflow-y: hidden;
+	overscroll-behavior-inline: contain;
+	scrollbar-width: thin;
+}
+
+.character-section-navigation-track {
+	min-width: max-content;
+	padding-inline-end: 2.5rem;
+}
+
+.character-section-navigation-affordance {
+	align-items: center;
+	background: linear-gradient(90deg, transparent, var(--mantine-color-dark-7) 48%);
+	color: var(--mantine-color-candle-4);
+	display: flex;
+	font-size: var(--mantine-font-size-lg);
+	inset-block: 0;
+	justify-content: flex-end;
+	padding-inline-end: var(--mantine-spacing-xs);
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	width: 2.5rem;
+}
+
+.character-section-navigation-affordance::after {
+	content: "→";
 }
 
 .character-section-link {
@@ -65,9 +97,46 @@ body {
 	display: none;
 }
 
+.attributes-ledger {
+	display: grid;
+	gap: var(--mantine-spacing-xl);
+	grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr);
+}
+
+.attributes-ledger-sidebar,
+.attributes-ledger-rolls {
+	min-width: 0;
+}
+
+.attributes-ledger-rolls {
+	border-inline-start: 1px solid var(--mantine-color-dark-5);
+	padding-inline-start: var(--mantine-spacing-xl);
+}
+
+.ability-reference-row {
+	border-inline-start: 3px solid transparent;
+	min-height: 2rem;
+	padding-block: 0.125rem;
+	padding-inline: var(--mantine-spacing-xs);
+}
+
+.ability-reference-row.is-source {
+	background: var(--mantine-color-dark-7);
+	border-inline-start-color: var(--mantine-color-bloodstone-5);
+}
+
+.roll-reference-control {
+	min-width: 0;
+}
+
 @media (max-width: 47.99em) {
+	.character-section-navigation-affordance {
+		width: 2rem;
+	}
+
 	.character-section-link {
-		flex: 1 1 0;
+		flex: 0 0 auto;
+		min-width: 5.5rem;
 		padding: 0 var(--mantine-spacing-xs);
 	}
 
@@ -82,6 +151,18 @@ body {
 
 	.character-section-compact-label {
 		display: inline;
+	}
+
+	.attributes-ledger {
+		gap: var(--mantine-spacing-lg);
+		grid-template-columns: 1fr;
+	}
+
+	.attributes-ledger-rolls {
+		border-inline-start: 0;
+		border-top: 1px solid var(--mantine-color-dark-5);
+		padding-inline-start: 0;
+		padding-top: var(--mantine-spacing-lg);
 	}
 }
 

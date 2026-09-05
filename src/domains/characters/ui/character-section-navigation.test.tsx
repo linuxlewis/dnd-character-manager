@@ -21,5 +21,7 @@ describe("CharacterSectionNavigation", () => {
 		expect(html).toContain('aria-current="page"');
 		expect(html).toContain("Attributes &amp; Rolls");
 		expect(html).toContain("Spells &amp; Abilities");
+		expect(html).toContain("character-section-navigation-scroll");
+		expect(html).toContain("character-section-navigation-affordance");
 	});
 });

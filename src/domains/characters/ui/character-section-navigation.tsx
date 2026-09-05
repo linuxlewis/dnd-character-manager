@@ -25,32 +25,35 @@ export function CharacterSectionNavigation({
 			className="character-section-navigation"
 			py="xs"
 		>
-			<Group gap={0} wrap="nowrap">
-				{sections.map((section) => {
-					const active = section.key === activeSection;
-					return (
-						<Anchor
-							aria-current={active ? "page" : undefined}
-							aria-label={section.label}
-							className={active ? "character-section-link active" : "character-section-link"}
-							data-active={active || undefined}
-							href={characterSectionPath(characterId, section.key)}
-							key={section.key}
-							onClick={(event) => {
-								if (!shouldHandleCharacterLink(event)) return;
-								event.preventDefault();
-								onNavigate({ screen: "detail", id: characterId, section: section.key });
-							}}
-							underline="never"
-						>
-							<span className="character-section-full-label">{section.label}</span>
-							<span aria-hidden="true" className="character-section-compact-label">
-								{section.compactLabel}
-							</span>
-						</Anchor>
-					);
-				})}
-			</Group>
+			<Box className="character-section-navigation-scroll">
+				<Group className="character-section-navigation-track" gap={0} wrap="nowrap">
+					{sections.map((section) => {
+						const active = section.key === activeSection;
+						return (
+							<Anchor
+								aria-current={active ? "page" : undefined}
+								aria-label={section.label}
+								className={active ? "character-section-link active" : "character-section-link"}
+								data-active={active || undefined}
+								href={characterSectionPath(characterId, section.key)}
+								key={section.key}
+								onClick={(event) => {
+									if (!shouldHandleCharacterLink(event)) return;
+									event.preventDefault();
+									onNavigate({ screen: "detail", id: characterId, section: section.key });
+								}}
+								underline="never"
+							>
+								<span className="character-section-full-label">{section.label}</span>
+								<span aria-hidden="true" className="character-section-compact-label">
+									{section.compactLabel}
+								</span>
+							</Anchor>
+						);
+					})}
+				</Group>
+			</Box>
+			<Box aria-hidden="true" className="character-section-navigation-affordance" />
 		</Box>
 	);
 }

@@ -31,9 +31,11 @@ interface SpellSearchState {
 export function CharacterSpellSlotsPanel({
 	characterId,
 	level,
+	sectionHeadingRef,
 }: {
 	characterId: string;
 	level: number;
+	sectionHeadingRef?: (node: HTMLHeadingElement | null) => void;
 }) {
 	const spellSlotsQuery = useQuery(apiQueries.getCharacterSpellSlots({ characterId }));
 	const characterSpellsQuery = useQuery(apiQueries.listCharacterSpells({ characterId }));
@@ -70,17 +72,14 @@ export function CharacterSpellSlotsPanel({
 		}),
 		enabled: selectedSpellId !== null,
 	});
-
 	function updateCachedSpellSlots(response: CharacterSpellSlotsResponse) {
 		setDraftTotals({});
 		setIsEditing(false);
 		queryClient.setQueryData(apiQueryKeys.getCharacterSpellSlots({ characterId }), response);
 	}
-
 	function updateCachedCharacterSpells(response: CharacterSpellsResponse) {
 		queryClient.setQueryData(apiQueryKeys.listCharacterSpells({ characterId }), response);
 	}
-
 	const updateMutation = useMutation({
 		...apiMutations.updateCharacterSpellSlots(),
 		onSuccess: updateCachedSpellSlots,
@@ -125,7 +124,6 @@ export function CharacterSpellSlotsPanel({
 			removeSpellMutation.error ||
 			saveSpellMutation.error,
 	);
-
 	function setDraftTotal(slotLevel: number, value: NumberDraft) {
 		setDraftTotals((current) => ({ ...current, [slotLevel]: value }));
 	}
@@ -196,7 +194,13 @@ export function CharacterSpellSlotsPanel({
 			<Stack gap="xs">
 				<Group justify="space-between" align="flex-start" gap="xs" wrap="wrap">
 					<Stack gap={0} style={{ flex: "1 1 12rem" }}>
-						<Title order={3} size="h5">
+						<Title
+							id="character-section-spells-heading"
+							order={3}
+							ref={sectionHeadingRef}
+							tabIndex={-1}
+							size="h5"
+						>
 							Spell slots
 						</Title>
 						<Text c="dimmed" size="sm">

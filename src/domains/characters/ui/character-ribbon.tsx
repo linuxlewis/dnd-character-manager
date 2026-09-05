@@ -16,7 +16,7 @@ export function CharacterRibbon({
 	onNavigate: NavigateToCharacterRoute;
 }) {
 	return (
-		<Stack gap="md" pb="lg">
+		<Stack gap="md" pb={{ base: "lg", md: "sm" }}>
 			<BackToListLink onNavigate={onNavigate} />
 			<Group align="flex-start" justify="space-between" gap="sm" wrap="wrap">
 				<Stack gap="xs">

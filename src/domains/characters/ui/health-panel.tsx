@@ -90,69 +90,76 @@ export function CharacterHealthPanel({
 	}
 
 	return (
-		<Stack gap="md">
-			<Stack gap="xs">
-				<Group justify="space-between">
-					<Title order={3} size="h5">
-						Health
-					</Title>
-					<Button
-						aria-expanded={historyOpen}
-						onClick={() => setHistoryOpen((opened) => !opened)}
-						size="xs"
-						variant="subtle"
-					>
-						History ({recentHealthChanges.length})
-					</Button>
-				</Group>
-				<Group align="center" gap="xs" wrap="wrap">
-					<Text c="dimmed" size="sm">
-						{health.currentHp} / {health.effectiveMaxHp} HP ({formatTemporaryHp(health.temporaryHp)}
-						)
-					</Text>
-					<Button onClick={openEditDialog} size="compact-xs" variant="subtle">
-						Edit
-					</Button>
-				</Group>
-				<Group align="center" gap="xs" wrap="wrap">
-					<Progress
-						aria-label={`Health: ${health.currentHp} of ${health.effectiveMaxHp} HP`}
-						color={getHealthColor(health)}
-						radius="sm"
-						size="lg"
-						style={{ flex: "1 1 100%" }}
-						value={healthPercent}
-					/>
-				</Group>
-				<Group align="center" gap="xs" grow wrap="nowrap">
-					<Button color="green" onClick={() => openAmountDialog("heal")} size="xs">
-						Heal
-					</Button>
-					<Button color="red" onClick={() => openAmountDialog("damage")} size="xs">
-						Damage
-					</Button>
-				</Group>
-			</Stack>
-
-			{historyOpen && (
+		<>
+			<Stack gap="md">
 				<Stack gap="xs">
-					{recentHealthChanges.length === 0 ? (
+					<Group justify="space-between">
+						<Title order={3} size="h5">
+							Health
+						</Title>
+						<Button
+							aria-expanded={historyOpen}
+							onClick={() => setHistoryOpen((opened) => !opened)}
+							size="xs"
+							variant="subtle"
+						>
+							History ({recentHealthChanges.length})
+						</Button>
+					</Group>
+					<Group align="center" gap="xs" wrap="wrap">
 						<Text c="dimmed" size="sm">
-							No health changes yet.
+							{health.currentHp} / {health.effectiveMaxHp} HP (
+							{formatTemporaryHp(health.temporaryHp)})
 						</Text>
-					) : (
-						recentHealthChanges.map((change) => (
-							<Group key={change.id} justify="space-between">
-								<Text size="sm">{formatHealthChange(change)}</Text>
-								<Text c="dimmed" size="xs">
-									{new Date(change.createdAt).toLocaleString()}
-								</Text>
-							</Group>
-						))
-					)}
+						<Button onClick={openEditDialog} size="compact-xs" variant="subtle">
+							Edit
+						</Button>
+					</Group>
+					<Group align="center" gap="xs" wrap="wrap">
+						<Progress
+							aria-label={`Health: ${health.currentHp} of ${health.effectiveMaxHp} HP`}
+							color={getHealthColor(health)}
+							radius="sm"
+							size="lg"
+							style={{ flex: "1 1 100%" }}
+							value={healthPercent}
+						/>
+					</Group>
+					<Group align="center" gap="xs" grow wrap="nowrap">
+						<Button color="green" onClick={() => openAmountDialog("heal")} size="xs">
+							Heal
+						</Button>
+						<Button color="red" onClick={() => openAmountDialog("damage")} size="xs">
+							Damage
+						</Button>
+					</Group>
 				</Stack>
-			)}
 
+				{historyOpen && (
+					<Stack gap="xs">
+						{recentHealthChanges.length === 0 ? (
+							<Text c="dimmed" size="sm">
+								No health changes yet.
+							</Text>
+						) : (
+							recentHealthChanges.map((change) => (
+								<Group key={change.id} justify="space-between">
+									<Text size="sm">{formatHealthChange(change)}</Text>
+									<Text c="dimmed" size="xs">
+										{new Date(change.createdAt).toLocaleString()}
+									</Text>
+								</Group>
+							))
+						)}
+					</Stack>
+				)}
+
+				{updateMutation.error && (
+					<Alert color="red" title="Health update failed" variant="light">
+						Try the change again.
+					</Alert>
+				)}
+			</Stack>
 			<HealthAmountModal
 				amountDraft={amountDraft}
 				color="green"
@@ -183,13 +190,7 @@ export function CharacterHealthPanel({
 				pending={updateMutation.isPending}
 				temporaryDraft={temporaryDraft}
 			/>
-
-			{updateMutation.error && (
-				<Alert color="red" title="Health update failed" variant="light">
-					Try the change again.
-				</Alert>
-			)}
-		</Stack>
+		</>
 	);
 }
 

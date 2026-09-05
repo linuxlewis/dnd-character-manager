@@ -20,6 +20,16 @@ describe("parseCharacterRoute", () => {
 			id: "abc",
 			section: "spells",
 		});
+		expect(parseCharacterRoute("/characters/abc/spells/")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "spells",
+		});
+		expect(parseCharacterRoute("/characters/abc/inventory/")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "inventory",
+		});
 		expect(parseCharacterRoute("/characters/abc/unknown")).toEqual({
 			screen: "detail",
 			id: "abc",

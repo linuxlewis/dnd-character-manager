@@ -58,7 +58,8 @@ export function useCharacterPathname(initialPathname?: string) {
 }
 
 function parseCharacterSection(value: string | undefined): CharacterSection {
-	if (value === "spells" || value === "inventory") return value;
+	const normalizedValue = value?.replace(/\/+$/, "");
+	if (normalizedValue === "spells" || normalizedValue === "inventory") return normalizedValue;
 	return "attributes";
 }
 

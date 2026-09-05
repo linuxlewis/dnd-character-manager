@@ -72,6 +72,8 @@ describe("CharacterDetail", () => {
 		expect(html).toContain("Health");
 		expect(html.indexOf("Experience")).toBeLessThan(html.indexOf("Health"));
 		expect(html).toContain('aria-current="page"');
+		expect(html).toContain('aria-labelledby="character-section-attributes-heading"');
+		expect(html).toContain('id="character-section-attributes-heading"');
 		expect(html).toContain("Strength");
 		expect(html).toContain("Roll reference");
 		expect(html).not.toContain("Spell slots");

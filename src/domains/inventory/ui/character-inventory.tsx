@@ -23,6 +23,7 @@ import {
 } from "../../../generated/api-client.generated.js";
 import type { InventoryItem } from "../types/index.js";
 import { invalidateCharacterHistory } from "./activity-cache.js";
+import { CharacterInventoryHeading } from "./character-inventory-heading.js";
 import { characterItemsQueryPrefix, reconcileItem } from "./inventory-cache.js";
 import { InventoryCountsAlert } from "./inventory-counts-alert.js";
 import { getInventoryErrorMessage, toInventoryError } from "./inventory-errors.js";
@@ -30,13 +31,14 @@ import { type InventoryFilter, InventoryFilterBar } from "./inventory-filter-bar
 import { ItemCard } from "./item-card.js";
 import { ItemDetailDrawer } from "./item-detail-drawer.js";
 import { ItemForm } from "./item-form.js";
-
 export function CharacterInventory({
 	characterId,
 	embedded = false,
+	sectionHeadingRef,
 }: {
 	characterId: string;
 	embedded?: boolean;
+	sectionHeadingRef?: (node: HTMLHeadingElement | null) => void;
 }) {
 	const queryClient = useQueryClient();
 	const [searchInput, setSearchInput] = useState("");
@@ -80,7 +82,6 @@ export function CharacterInventory({
 	const items = inventoryQuery.data?.items ?? [];
 	const countItems = countsQuery.error ? null : (countsQuery.data?.items ?? null);
 	const totalCount = countsQuery.error ? null : (countsQuery.data?.total ?? null);
-
 	const createMutation = useMutation({
 		...apiMutations.createCharacterItem(),
 		onError: (error) => setMutationError(toInventoryError(error)),
@@ -188,9 +189,10 @@ export function CharacterInventory({
 				<Group align="flex-start" justify="space-between" wrap="wrap">
 					<Stack gap={2}>
 						<Group gap="xs">
-							<Text fw={700} size="lg">
-								Personal inventory
-							</Text>
+							<CharacterInventoryHeading
+								embedded={embedded}
+								sectionHeadingRef={sectionHeadingRef}
+							/>
 							<Badge color="candle" variant="light">
 								{totalCount === null ? "Item count unavailable" : `${totalCount} items`}
 							</Badge>
@@ -214,7 +216,6 @@ export function CharacterInventory({
 					</Text>
 				</Group>
 				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
-
 				<InventoryFilterBar
 					activeType={activeType}
 					countItems={countItems}
@@ -261,7 +262,6 @@ export function CharacterInventory({
 						))}
 					</SimpleGrid>
 				)}
-
 				{mutationError && !formOpen && (
 					<Alert color="red" title="Inventory action failed" variant="light">
 						{mutationError.message}

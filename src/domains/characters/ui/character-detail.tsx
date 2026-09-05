@@ -1,5 +1,6 @@
 import { Alert, Anchor, Paper, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import {
 	CharacterActivity,
@@ -24,7 +25,14 @@ interface CharacterDetailProps {
 }
 
 export function CharacterDetail({ id, onNavigate, section = "attributes" }: CharacterDetailProps) {
+	const lastFocusedSection = useRef<CharacterSection>(section);
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
+
+	function focusActiveSectionHeading(node: HTMLHeadingElement | null) {
+		if (!node || lastFocusedSection.current === section) return;
+		lastFocusedSection.current = section;
+		node.focus({ preventScroll: true });
+	}
 
 	if (characterQuery.isLoading) {
 		return <LoadingCharacter />;
@@ -46,12 +54,23 @@ export function CharacterDetail({ id, onNavigate, section = "attributes" }: Char
 					activeSection={section}
 					onNavigate={onNavigate}
 				/>
-				<section aria-labelledby="character-section-heading">
+				<section
+					aria-labelledby={`character-section-${section}-heading`}
+					id={`character-section-${section}`}
+				>
 					{section === "attributes" && (
-						<CharacterAttributesPanel characterId={id} characterLevel={character.level} />
+						<CharacterAttributesPanel
+							characterId={id}
+							characterLevel={character.level}
+							sectionHeadingRef={focusActiveSectionHeading}
+						/>
 					)}
 					{section === "spells" && (
-						<CharacterSpellSlotsPanel characterId={id} level={character.level} />
+						<CharacterSpellSlotsPanel
+							characterId={id}
+							level={character.level}
+							sectionHeadingRef={focusActiveSectionHeading}
+						/>
 					)}
 					{section === "inventory" && (
 						<Stack gap="md">
@@ -60,7 +79,11 @@ export function CharacterDetail({ id, onNavigate, section = "attributes" }: Char
 								characterId={id}
 								characterName={character.name}
 							/>
-							<CharacterInventory characterId={id} embedded />
+							<CharacterInventory
+								characterId={id}
+								embedded
+								sectionHeadingRef={focusActiveSectionHeading}
+							/>
 						</Stack>
 					)}
 				</section>

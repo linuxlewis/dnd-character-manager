@@ -96,6 +96,7 @@ export function CharacterAttributesEditor({
 			return;
 		}
 
+		updateMutation.reset();
 		updateMutation.mutate({ params: { characterId }, body: request }, { onSuccess: onSaved });
 	}
 
@@ -170,7 +171,7 @@ function AbilityEditor({ form }: { form: ReturnType<typeof useForm<AttributeDraf
 							/>
 							<Checkbox
 								checked={savingThrow?.rank === "proficient"}
-								label="Save proficient"
+								label={`${ability.label} save proficient`}
 								onChange={(event) =>
 									form.setFieldValue(
 										`savingThrowProficiencies.${index}.rank`,
