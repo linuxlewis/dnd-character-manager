@@ -1,6 +1,6 @@
 # MVP Plan
 
-Last verified: 2026-08-29
+Last verified: 2026-09-01
 
 This document captures the current product direction before the first D&D domain is implemented.
 Keep it short, concrete, and updated when scope changes.
@@ -29,6 +29,8 @@ milestones remain a roadmap after those character workflows are complete.
 
 - [Character creation MVP product spec](./character-creation-mvp-spec.md)
 - [Character health MVP product spec](./character-health-mvp-spec.md)
+- [Character attributes, proficiencies, and roll reference product spec](./character-attributes-rolls-spec.md)
+- [Character detail navigation and layout design spec](./character-detail-navigation-design-spec.md)
 - [D&D 5e catalogue source strategy](./superpowers/specs/2026-07-12-dnd5e-catalogue-source-strategy-design.md)
 - [Character and party inventory product spec](./party-inventory-merge-spec.md)
 - [Character and party inventory execution plan](./party-inventory-merge-plan.md)
