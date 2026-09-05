@@ -1,5 +1,6 @@
 import { Alert, Button, Group, Progress, Stack, Text, Title } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { HeartPulse, Swords } from "lucide-react";
 import { useState } from "react";
 import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
@@ -127,10 +128,22 @@ export function CharacterHealthPanel({
 						/>
 					</Group>
 					<Group align="center" gap="xs" grow wrap="nowrap">
-						<Button color="green" onClick={() => openAmountDialog("heal")} size="xs">
+						<Button
+							autoContrast
+							color="green"
+							leftSection={<HeartPulse aria-hidden="true" size={14} strokeWidth={2} />}
+							onClick={() => openAmountDialog("heal")}
+							size="xs"
+						>
 							Heal
 						</Button>
-						<Button color="red" onClick={() => openAmountDialog("damage")} size="xs">
+						<Button
+							autoContrast
+							color="red.4"
+							leftSection={<Swords aria-hidden="true" size={14} strokeWidth={2} />}
+							onClick={() => openAmountDialog("damage")}
+							size="xs"
+						>
 							Damage
 						</Button>
 					</Group>
