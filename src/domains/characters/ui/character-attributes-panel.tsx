@@ -57,7 +57,7 @@ export function CharacterAttributesPanel({
 					>
 						Attributes &amp; Rolls
 					</Title>
-					<Text c="dimmed" size="sm">
+					<Text className="attributes-metadata" size="sm">
 						A quick reference for ability checks, saves, and skills.
 					</Text>
 				</Stack>
@@ -147,7 +147,7 @@ function CharacterAttributesContent({
 					<Text fw={700} size="sm" tt="uppercase">
 						Ability scores
 					</Text>
-					<Stack gap="xs">
+					<Stack className="ability-score-list" gap="xs">
 						{CHARACTER_ABILITIES.map((ability) => (
 							<Group
 								className={
@@ -163,7 +163,7 @@ function CharacterAttributesContent({
 							>
 								<Text>{ability.label}</Text>
 								<Group className="numeric" gap="md" wrap="nowrap">
-									<Text c="dimmed">{attributes.scores[ability.key]}</Text>
+									<Text className="attributes-metadata">{attributes.scores[ability.key]}</Text>
 									<Text fw={700}>{formatSignedModifier(attributes.modifiers[ability.key])}</Text>
 								</Group>
 							</Group>
@@ -189,7 +189,7 @@ function CharacterAttributesContent({
 						<Text fw={700} size="sm" tt="uppercase">
 							Reference notes
 						</Text>
-						<Text c="dimmed" size="sm">
+						<Text className="attributes-metadata" size="sm">
 							Totals use this character&apos;s current level, saved scores, and proficiency
 							selections.
 						</Text>
@@ -202,7 +202,7 @@ function CharacterAttributesContent({
 							<Text fw={700} size="lg">
 								Roll reference
 							</Text>
-							<Text c="dimmed" size="sm">
+							<Text className="attributes-metadata" size="sm">
 								Expand a row to see every saved contribution.
 							</Text>
 						</Stack>
@@ -216,7 +216,7 @@ function CharacterAttributesContent({
 					</Group>
 					<RollFilterButtons activeFilter={filter} onChange={setFilter} />
 					{visibleRolls.length === 0 ? (
-						<Text c="dimmed" py="md">
+						<Text className="attributes-metadata" py="md">
 							No rolls match this search.
 						</Text>
 					) : (
@@ -248,7 +248,7 @@ function DerivedReference({
 }) {
 	return (
 		<Group justify="space-between" wrap="nowrap">
-			<Text c="dimmed" size="sm">
+			<Text className="attributes-metadata" size="sm">
 				{label}
 			</Text>
 			<Text className="numeric" fw={700}>
