@@ -61,13 +61,10 @@ export function CharacterInventory({
 		retry: false,
 	});
 	const countQueryOptions = apiQueries.listCharacterItems({ characterId }, countFilter);
+	type CountsQueryKey = typeof countQueryOptions.queryKey;
 	const countsQuery = useQuery({
-		...countQueryOptions,
-		// Keep the list and count observers separate while reusing the generated request.
-		queryKey: [
-			...countQueryOptions.queryKey,
-			"counts",
-		] as unknown as typeof countQueryOptions.queryKey,
+		...countQueryOptions, // Keep the list and count observers separate while reusing the generated request.
+		queryKey: [...countQueryOptions.queryKey, "counts"] as unknown as CountsQueryKey,
 		retry: false,
 	});
 	const detailQuery = useQuery({

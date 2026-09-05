@@ -84,10 +84,7 @@ export function CharacterDetail({ id, onNavigate, section = "attributes" }: Char
 								Inventory
 							</Title>
 							<CharacterTreasuryPanel characterId={id} embedded />
-							<CharacterActivity
-								characterId={id}
-								characterName={character.name}
-							/>
+							<CharacterActivity characterId={id} characterName={character.name} />
 							<CharacterInventory characterId={id} embedded />
 						</Stack>
 					)}
