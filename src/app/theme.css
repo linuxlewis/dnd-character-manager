@@ -29,6 +29,7 @@ body {
 
 .character-section-navigation {
 	border-bottom: 1px solid var(--mantine-color-dark-5);
+	min-width: 0;
 	position: relative;
 }
 
@@ -216,6 +217,8 @@ body {
 	}
 
 	.ability-reference-label {
+		white-space: normal;
+		overflow-wrap: anywhere;
 		width: 100%;
 	}
 
