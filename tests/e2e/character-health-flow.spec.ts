@@ -228,3 +228,150 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: /Spell history/ }).click();
 	await expect(page.getByText("Restored 1st-level slot")).toBeVisible();
 });
+
+test("keeps spell query recovery separate from repeatable spell actions", async ({ page }) => {
+	let spellSlotsGetFailures = 1;
+	let spellsGetFailures = 1;
+	let searchFailures = 1;
+	let detailFailures = 1;
+	let saveFailures = 1;
+	let removeFailures = 1;
+	let slotUpdateFailures = 1;
+	await mockCharacterSpellApi(page);
+	await page.route("**/api/characters/*/spell-slots**", async (route) => {
+		const request = route.request();
+		const pathname = new URL(request.url()).pathname;
+		if (
+			request.method() === "GET" &&
+			pathname.endsWith("/spell-slots") &&
+			spellSlotsGetFailures > 0
+		) {
+			spellSlotsGetFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell slots are temporarily unavailable." }),
+			});
+			return;
+		}
+		if (request.method() === "PUT" && pathname.endsWith("/spell-slots") && slotUpdateFailures > 0) {
+			slotUpdateFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell slot save failed." }),
+			});
+			return;
+		}
+		await route.continue();
+	});
+	await page.route("**/api/characters/*/spells**", async (route) => {
+		const request = route.request();
+		const pathname = new URL(request.url()).pathname;
+		if (request.method() === "GET" && pathname.endsWith("/spells") && spellsGetFailures > 0) {
+			spellsGetFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Saved spells are temporarily unavailable." }),
+			});
+			return;
+		}
+		if (request.method() === "POST" && pathname.endsWith("/spells/search") && searchFailures > 0) {
+			searchFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell search failed." }),
+			});
+			return;
+		}
+		if (request.method() === "GET" && pathname.match(/\/spells\/[^/]+$/) && detailFailures > 0) {
+			detailFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell details failed." }),
+			});
+			return;
+		}
+		if (request.method() === "POST" && pathname.endsWith("/spells") && saveFailures > 0) {
+			saveFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell save failed." }),
+			});
+			return;
+		}
+		if (request.method() === "DELETE" && pathname.match(/\/spells\/[^/]+$/) && removeFailures > 0) {
+			removeFailures -= 1;
+			await route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ error: "Spell removal failed." }),
+			});
+			return;
+		}
+		await route.continue();
+	});
+
+	await page.goto("/characters/new/");
+	await page.getByLabel("Name").fill("Spell Recovery");
+	await page.getByRole("combobox", { name: "Class" }).click();
+	await page.getByRole("option", { name: "Wizard" }).click();
+	await page.getByLabel("Level").fill("7");
+	await page.getByRole("button", { name: "Create character" }).click();
+	await openSpellsAndAbilitiesTab(page);
+
+	await expect(page.getByText("Spell slots unavailable")).toBeVisible();
+	await expect(page.getByText("Spells unavailable")).toBeVisible();
+	await page.getByRole("button", { name: "Retry spell slots" }).click();
+	await expect(page.getByText("Spell slots unavailable")).toBeHidden();
+	await expect(page.getByText("Spells unavailable")).toBeVisible();
+	await page.getByRole("button", { name: "Retry spells" }).click();
+	await expect(page.getByText("Spells unavailable")).toBeHidden();
+
+	await page.getByRole("button", { name: "Edit spells" }).click();
+	await page.getByLabel("1st-level slot total").fill("2");
+	await page.getByRole("button", { name: "Apply changes" }).click();
+	await expect(page.getByText("Spell slot action failed")).toBeVisible();
+	await expect(page.getByText("Spell slots unavailable")).toBeHidden();
+	await page.getByRole("button", { name: "Apply changes" }).click();
+	await expect(page.getByText("Spell slot action failed")).toBeHidden();
+
+	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
+	await page.getByLabel("Search cantrips and features").fill("light");
+	await expect(page.getByText("Spell search unavailable")).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
+	await expect(page.getByText("Spells unavailable")).toBeHidden();
+	await page.getByRole("button", { name: "Retry search" }).click();
+	await expect(page.getByRole("button", { name: /^Light\b/ })).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
+	await page.getByRole("button", { name: /^Light\b/ }).click();
+	await expect(page.getByText("Spell could not be saved")).toBeVisible();
+	await expect(page.getByText("Spells unavailable")).toBeHidden();
+	await page.getByRole("button", { name: /^Light\b/ }).click();
+	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden({
+		timeout: spellApiTimeoutMs,
+	});
+
+	await page.getByRole("button", { name: "View Light details" }).click();
+	await expect(page.getByText("Spell details unavailable")).toBeVisible();
+	await expect(page.getByText("Spells unavailable")).toBeHidden();
+	await page.getByRole("button", { name: "Retry spell details" }).click();
+	await expect(page.getByText("Spell cantrip")).toBeVisible({
+		timeout: spellApiTimeoutMs,
+	});
+	await page.keyboard.press("Escape");
+
+	await page.getByRole("button", { name: "Edit spells" }).click();
+	await page.getByRole("button", { name: "Remove Light" }).click();
+	await page.getByRole("button", { name: "Remove spell" }).click();
+	await expect(page.getByText("Spell could not be removed")).toBeVisible();
+	await expect(page.getByText("Spells unavailable")).toBeHidden();
+	await page.getByRole("button", { name: "Remove spell" }).click();
+	await expect(page.getByRole("button", { name: "View Light details" })).toBeHidden();
+});

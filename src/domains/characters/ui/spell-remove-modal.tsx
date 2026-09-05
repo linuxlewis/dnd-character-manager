@@ -1,7 +1,8 @@
-import { Button, Group, Modal, Stack, Text } from "@mantine/core";
+import { Alert, Button, Group, Modal, Stack, Text } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 
 interface SpellRemoveModalProps {
+	error?: Error | null;
 	onClose: () => void;
 	onConfirm: () => void;
 	pending: boolean;
@@ -10,6 +11,7 @@ interface SpellRemoveModalProps {
 }
 
 export function SpellRemoveModal({
+	error = null,
 	onClose,
 	onConfirm,
 	pending,
@@ -25,6 +27,11 @@ export function SpellRemoveModal({
 			withinPortal={withinPortal}
 		>
 			<Stack gap="md">
+				{error && (
+					<Alert color="red" title="Spell could not be removed" variant="light">
+						{error.message} Confirm again to repeat the removal.
+					</Alert>
+				)}
 				<Text size="sm">This removes the spell from this character&apos;s spell list.</Text>
 				<Group justify="flex-end" gap="xs">
 					<Button color="gray" disabled={pending} onClick={onClose} variant="default">

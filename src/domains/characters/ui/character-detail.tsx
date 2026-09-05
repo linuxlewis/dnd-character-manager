@@ -1,4 +1,4 @@
-import { Alert, Anchor, Paper, Stack, Text } from "@mantine/core";
+import { Alert, Anchor, Paper, Stack, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
@@ -74,16 +74,21 @@ export function CharacterDetail({ id, onNavigate, section = "attributes" }: Char
 					)}
 					{section === "inventory" && (
 						<Stack gap="md">
-							<CharacterTreasuryPanel characterId={id} />
+							<Title
+								id="character-section-inventory-heading"
+								order={3}
+								ref={focusActiveSectionHeading}
+								tabIndex={-1}
+								size="h4"
+							>
+								Inventory
+							</Title>
+							<CharacterTreasuryPanel characterId={id} embedded />
 							<CharacterActivity
 								characterId={id}
 								characterName={character.name}
 							/>
-							<CharacterInventory
-								characterId={id}
-								embedded
-								sectionHeadingRef={focusActiveSectionHeading}
-							/>
+							<CharacterInventory characterId={id} embedded />
 						</Stack>
 					)}
 				</section>

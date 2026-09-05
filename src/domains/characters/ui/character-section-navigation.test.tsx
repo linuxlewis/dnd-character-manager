@@ -25,7 +25,7 @@ describe("CharacterSectionNavigation", () => {
 		expect(html).toContain("Attributes &amp; Rolls");
 		expect(html).toContain("Spells &amp; Abilities");
 		expect(html).toContain("character-section-navigation-scroll");
-		expect(html).not.toContain("character-section-navigation-affordance");
+		expect(html).toContain("character-section-navigation-affordance is-hidden");
 	});
 
 	it("only reports a right cue while content remains beyond the viewport", () => {
@@ -38,5 +38,11 @@ describe("CharacterSectionNavigation", () => {
 		expect(
 			canScrollRightFromMetrics({ clientWidth: 300, scrollLeft: 199.5, scrollWidth: 500 }),
 		).toBe(false);
+	});
+
+	it("does not treat cue space as scrollable navigation content", () => {
+		expect(canScrollRightFromMetrics({ clientWidth: 300, scrollLeft: 0, scrollWidth: 300 })).toBe(
+			false,
+		);
 	});
 });

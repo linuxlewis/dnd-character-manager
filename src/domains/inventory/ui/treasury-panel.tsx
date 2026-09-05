@@ -28,6 +28,7 @@ export interface TreasuryOperationState {
 }
 
 export interface TreasuryPanelProps {
+	headingOrder?: 3 | 4;
 	scopeLabel: string;
 	query: TreasuryQueryState;
 	indeterminateOutcome: {
@@ -57,6 +58,7 @@ export interface TreasuryPanelProps {
 type ActiveDialog = "add" | "spend" | null;
 
 export function TreasuryPanel({
+	headingOrder = 3,
 	scopeLabel,
 	query,
 	indeterminateOutcome,
@@ -119,6 +121,7 @@ export function TreasuryPanel({
 					onAddFunds={() => openDialog("add")}
 					onSpendFunds={() => openDialog("spend")}
 					scopeLabel={scopeLabel}
+					headingOrder={headingOrder}
 					treasury={treasury}
 				/>
 			)}

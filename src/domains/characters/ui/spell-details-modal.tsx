@@ -1,18 +1,22 @@
-import { Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
+import { Alert, Button, Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
 import type { CharacterSpellDetails } from "../types/index.js";
 import { formatSpellLevel } from "./spell-slot-format.js";
 
 export function SpellDetailsModal({
 	details,
 	onClose,
+	onRetry = () => undefined,
 	opened,
 	pending,
+	error = null,
 	withinPortal = true,
 }: {
 	details: CharacterSpellDetails | null;
 	onClose: () => void;
+	onRetry?: () => void;
 	opened: boolean;
 	pending: boolean;
+	error?: Error | null;
 	withinPortal?: boolean;
 }) {
 	return (
@@ -28,6 +32,13 @@ export function SpellDetailsModal({
 				<Text c="dimmed" size="sm">
 					Loading details...
 				</Text>
+			) : error ? (
+				<Alert color="red" title="Spell details unavailable" variant="light">
+					{error.message}
+					<Button mt="sm" onClick={onRetry} size="sm" variant="light">
+						Retry spell details
+					</Button>
+				</Alert>
 			) : details ? (
 				<Stack gap="md">
 					<Text c="dimmed" size="sm">

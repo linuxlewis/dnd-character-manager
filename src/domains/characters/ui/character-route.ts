@@ -12,7 +12,9 @@ export const createCharacterRoute: CharacterRoute = { screen: "create" };
 
 export function parseCharacterRoute(pathname: string): CharacterRoute {
 	if (pathname === "/" || pathname === "/characters") return characterListRoute;
-	if (pathname === "/characters/new") return createCharacterRoute;
+	if (pathname === "/characters/new" || pathname === "/characters/new/") {
+		return createCharacterRoute;
+	}
 
 	const detailMatch = pathname.match(/^\/characters\/([^/]+)(?:\/(.*))?\/?$/);
 	if (detailMatch?.[1]) {

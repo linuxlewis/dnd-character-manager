@@ -78,4 +78,31 @@ describe("SpellSearchModal", () => {
 		expect(readableHtml).toContain("Light");
 		expect(readableHtml).toContain("Cantrip");
 	});
+
+	it("labels search and save failures with their own recovery", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellSearchModal
+					actionError={new Error("Spell save failed.")}
+					error={new Error("Spell search failed.")}
+					onChangeQuery={vi.fn()}
+					onClose={vi.fn()}
+					onRetrySearch={vi.fn()}
+					onSaveSpell={vi.fn()}
+					opened
+					pending={false}
+					query="missile"
+					results={[]}
+					searched
+					slotLevel={3}
+					withinPortal={false}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Spell could not be saved");
+		expect(readableHtml).toContain("Spell search unavailable");
+		expect(readableHtml).toContain("Retry search");
+	});
 });

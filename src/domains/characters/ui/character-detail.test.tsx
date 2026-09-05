@@ -82,5 +82,34 @@ describe("CharacterDetail", () => {
 		expect(html).toContain("Edit character");
 		expect(html).not.toContain("Edit name");
 		expect(html).not.toContain("Edit level");
+
+		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
+			treasury: {
+				characterId,
+				balances: { cp: 1, sp: 2, gp: 3, pp: 4 },
+				totalValue: { copper: 43_21, gp: 43.21 },
+			},
+		});
+		queryClient.setQueryData(
+			apiQueryKeys.listCharacterItems({ characterId }, { search: undefined, type: undefined }),
+			{ items: [], total: 0 },
+		);
+		queryClient.setQueryData(
+			[...apiQueryKeys.listCharacterItems({ characterId }, { search: undefined }), "counts"],
+			{ items: [], total: 0 },
+		);
+		const inventoryHtml = renderToString(
+			<MantineProvider>
+				<QueryClientProvider client={queryClient}>
+					<CharacterDetail id={characterId} onNavigate={vi.fn()} section="inventory" />
+				</QueryClientProvider>
+			</MantineProvider>,
+		);
+
+		expect(inventoryHtml).toContain('aria-labelledby="character-section-inventory-heading"');
+		expect(inventoryHtml).toContain('id="character-section-inventory-heading"');
+		expect(inventoryHtml).toContain(">Inventory</h3>");
+		expect(inventoryHtml).toContain("Treasury");
+		expect(inventoryHtml).toContain("Personal inventory");
 	});
 });

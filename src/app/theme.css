@@ -29,7 +29,8 @@ body {
 
 .character-section-navigation {
 	border-bottom: 1px solid var(--mantine-color-dark-5);
-	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 2.5rem;
 }
 
 .character-section-navigation-scroll {
@@ -43,10 +44,6 @@ body {
 	min-width: max-content;
 }
 
-.character-section-navigation-track.has-overflow {
-	padding-inline-end: 2.5rem;
-}
-
 .character-section-navigation-affordance {
 	align-items: center;
 	background: linear-gradient(90deg, transparent, var(--mantine-color-dark-7) 48%);
@@ -57,9 +54,12 @@ body {
 	justify-content: flex-end;
 	padding-inline-end: var(--mantine-spacing-xs);
 	pointer-events: none;
-	position: absolute;
-	right: 0;
-	width: 2.5rem;
+	visibility: visible;
+}
+
+.character-section-navigation-affordance.is-hidden {
+	background: transparent;
+	visibility: hidden;
 }
 
 .character-section-navigation-affordance::after {
@@ -133,8 +133,12 @@ body {
 }
 
 @media (max-width: 47.99em) {
+	.character-section-navigation {
+		grid-template-columns: minmax(0, 1fr) 2rem;
+	}
+
 	.character-section-navigation-affordance {
-		width: 2rem;
+		padding-inline-end: 0;
 	}
 
 	.character-section-link {

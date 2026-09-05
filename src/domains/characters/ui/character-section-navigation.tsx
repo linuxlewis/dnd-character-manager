@@ -88,9 +88,14 @@ export function CharacterSectionNavigation({
 					})}
 				</Group>
 			</Box>
-			{canScrollRight && (
-				<Box aria-hidden="true" className="character-section-navigation-affordance" />
-			)}
+			<Box
+				aria-hidden="true"
+				className={
+					canScrollRight
+						? "character-section-navigation-affordance"
+						: "character-section-navigation-affordance is-hidden"
+				}
+			/>
 		</Box>
 	);
 }

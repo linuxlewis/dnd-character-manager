@@ -7,6 +7,7 @@ import {
 import type { TreasuryData } from "./treasury-types.js";
 
 export interface TreasuryDisplayProps {
+	headingOrder?: 3 | 4;
 	scopeLabel?: string;
 	treasury: TreasuryData;
 	actionsDisabled?: boolean;
@@ -15,6 +16,7 @@ export interface TreasuryDisplayProps {
 }
 
 export function TreasuryDisplay({
+	headingOrder = 3,
 	scopeLabel,
 	treasury,
 	actionsDisabled = false,
@@ -25,7 +27,7 @@ export function TreasuryDisplay({
 		<Stack gap="md">
 			<Group align="flex-start" justify="space-between" gap="sm" wrap="wrap">
 				<Group gap="xs">
-					<Title order={3} size="h5">
+					<Title order={headingOrder} size="h5">
 						Treasury
 					</Title>
 					{scopeLabel && scopeLabel !== "Personal Treasury" && (
