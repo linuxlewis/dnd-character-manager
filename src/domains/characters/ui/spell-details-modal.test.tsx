@@ -37,4 +37,24 @@ describe("SpellDetailsModal", () => {
 		expect(readableHtml).toContain("Range");
 		expect(readableHtml).toContain("120 feet");
 	});
+
+	it("renders a detail-specific retry", () => {
+		const html = renderToString(
+			<MantineProvider>
+				<SpellDetailsModal
+					details={null}
+					error={new Error("Details failed.")}
+					onClose={vi.fn()}
+					onRetry={vi.fn()}
+					opened
+					pending={false}
+					withinPortal={false}
+				/>
+			</MantineProvider>,
+		);
+
+		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Spell details unavailable");
+		expect(readableHtml).toContain("Retry spell details");
+	});
 });

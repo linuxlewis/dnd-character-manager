@@ -80,7 +80,9 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		"aria-pressed",
 		"false",
 	);
-	await expect(page.getByRole("tab")).toHaveCount(2);
+	await expect(
+		page.getByRole("link", { name: /^(Attributes & Rolls|Spells & Abilities|Inventory)$/ }),
+	).toHaveCount(3);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)

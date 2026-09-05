@@ -33,6 +33,8 @@ describe("CharacterHealthPanel", () => {
 		expect(readableHtml).toContain("15 / 25 HP (Temp HP +5)");
 		expect(readableHtml).toContain("Heal");
 		expect(readableHtml).toContain("Damage");
+		expect(html).toContain("--button-color:var(--mantine-color-black)");
+		expect(html.match(/aria-hidden="true"/g)).toHaveLength(2);
 		expect(readableHtml).toContain("History (1)");
 		expect(readableHtml).not.toContain("HP +5, Temp HP +5");
 	});

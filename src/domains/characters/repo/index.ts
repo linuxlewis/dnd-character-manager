@@ -9,6 +9,7 @@ export {
 } from "./character-attributes-repository.js";
 export type {
 	CharacterHealthRepository,
+	HealthMutation,
 	NewHealthChange,
 } from "./character-health-repository.js";
 export { createCharacterHealthRepository } from "./character-health-repository.js";
@@ -26,6 +27,7 @@ export type {
 	CharacterSpellSlotContext,
 	CharacterSpellSlotRepository,
 	NewSpellSlotChange,
+	SpellSlotMutation,
 } from "./character-spell-slot-repository.js";
 export { createCharacterSpellSlotRepository } from "./character-spell-slot-repository.js";
 export type { DndApiSpellClient } from "./dnd-api-spell-client.js";

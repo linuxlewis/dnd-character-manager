@@ -164,5 +164,5 @@ async function externalAdd(page: Page, characterId: string, amount: number) {
 }
 
 function characterIdFromPage(page: Page) {
-	return new URL(page.url()).pathname.split("/").at(-1) ?? "";
+	return new URL(page.url()).pathname.match(/^\/characters\/([^/]+)/)?.[1] ?? "";
 }

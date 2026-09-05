@@ -1,5 +1,6 @@
 import { Alert, Button, Group, Progress, Stack, Text, Title } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { HeartPulse, Swords } from "lucide-react";
 import { useState } from "react";
 import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
@@ -64,13 +65,14 @@ export function CharacterHealthPanel({
 		setTemporaryDraft(health.temporaryHp);
 	}
 
-	function saveHealth(patch: Partial<CharacterHealth>) {
+	function saveHealth(patch: Partial<CharacterHealth>, currentHpDelta = 0) {
 		updateMutation.mutate({
 			params: { characterId },
 			body: {
 				currentHp: patch.currentHp ?? health.currentHp,
 				maxHp: patch.maxHp ?? health.maxHp,
 				temporaryHp: patch.temporaryHp ?? health.temporaryHp,
+				currentHpDelta,
 			},
 		});
 	}
@@ -79,7 +81,7 @@ export function CharacterHealthPanel({
 		const amount = toWholeNumber(amountDraft);
 		if (!amount || amount < 1) return;
 		const delta = direction === "heal" ? amount : -amount;
-		saveHealth({ currentHp: clamp(health.currentHp + delta, 0, health.effectiveMaxHp) });
+		saveHealth({ currentHp: clamp(health.currentHp + delta, 0, health.effectiveMaxHp) }, delta);
 	}
 
 	function saveEditChange() {
@@ -90,66 +92,88 @@ export function CharacterHealthPanel({
 	}
 
 	return (
-		<Stack gap="md">
-			<Stack gap="xs">
-				<Group justify="space-between">
-					<Title order={3} size="h5">
-						Health
-					</Title>
-					<Button
-						aria-expanded={historyOpen}
-						onClick={() => setHistoryOpen((opened) => !opened)}
-						size="xs"
-						variant="subtle"
-					>
-						History ({recentHealthChanges.length})
-					</Button>
-				</Group>
-				<Group align="center" gap="xs" wrap="wrap">
-					<Text c="dimmed" size="sm">
-						{health.currentHp} / {health.effectiveMaxHp} HP ({formatTemporaryHp(health.temporaryHp)}
-						)
-					</Text>
-					<Button onClick={openEditDialog} size="compact-xs" variant="subtle">
-						Edit
-					</Button>
-				</Group>
-				<Group align="center" gap="xs" wrap="wrap">
-					<Progress
-						color={getHealthColor(health)}
-						radius="sm"
-						size="lg"
-						style={{ flex: 1, minWidth: 180 }}
-						value={healthPercent}
-					/>
-					<Button color="green" onClick={() => openAmountDialog("heal")} size="xs">
-						Heal
-					</Button>
-					<Button color="red" onClick={() => openAmountDialog("damage")} size="xs">
-						Damage
-					</Button>
-				</Group>
-			</Stack>
-
-			{historyOpen && (
+		<>
+			<Stack gap="md">
 				<Stack gap="xs">
-					{recentHealthChanges.length === 0 ? (
+					<Group justify="space-between">
+						<Title order={3} size="h5">
+							Health
+						</Title>
+						<Button
+							aria-expanded={historyOpen}
+							onClick={() => setHistoryOpen((opened) => !opened)}
+							size="xs"
+							variant="subtle"
+						>
+							History ({recentHealthChanges.length})
+						</Button>
+					</Group>
+					<Group align="center" gap="xs" wrap="wrap">
 						<Text c="dimmed" size="sm">
-							No health changes yet.
+							{health.currentHp} / {health.effectiveMaxHp} HP (
+							{formatTemporaryHp(health.temporaryHp)})
 						</Text>
-					) : (
-						recentHealthChanges.map((change) => (
-							<Group key={change.id} justify="space-between">
-								<Text size="sm">{formatHealthChange(change)}</Text>
-								<Text c="dimmed" size="xs">
-									{new Date(change.createdAt).toLocaleString()}
-								</Text>
-							</Group>
-						))
-					)}
+						<Button onClick={openEditDialog} size="compact-xs" variant="subtle">
+							Edit
+						</Button>
+					</Group>
+					<Group align="center" gap="xs" wrap="wrap">
+						<Progress
+							aria-label={`Health: ${health.currentHp} of ${health.effectiveMaxHp} HP`}
+							color={getHealthColor(health)}
+							radius="sm"
+							size="lg"
+							style={{ flex: "1 1 100%" }}
+							value={healthPercent}
+						/>
+					</Group>
+					<Group align="center" gap="xs" grow wrap="nowrap">
+						<Button
+							autoContrast
+							color="green"
+							leftSection={<HeartPulse aria-hidden="true" size={14} strokeWidth={2} />}
+							onClick={() => openAmountDialog("heal")}
+							size="xs"
+						>
+							Heal
+						</Button>
+						<Button
+							autoContrast
+							color="red.4"
+							leftSection={<Swords aria-hidden="true" size={14} strokeWidth={2} />}
+							onClick={() => openAmountDialog("damage")}
+							size="xs"
+						>
+							Damage
+						</Button>
+					</Group>
 				</Stack>
-			)}
 
+				{historyOpen && (
+					<Stack gap="xs">
+						{recentHealthChanges.length === 0 ? (
+							<Text c="dimmed" size="sm">
+								No health changes yet.
+							</Text>
+						) : (
+							recentHealthChanges.map((change) => (
+								<Group key={change.id} justify="space-between">
+									<Text size="sm">{formatHealthChange(change)}</Text>
+									<Text c="dimmed" size="xs">
+										{new Date(change.createdAt).toLocaleString()}
+									</Text>
+								</Group>
+							))
+						)}
+					</Stack>
+				)}
+
+				{updateMutation.error && (
+					<Alert color="red" title="Health update failed" variant="light">
+						Try the change again.
+					</Alert>
+				)}
+			</Stack>
 			<HealthAmountModal
 				amountDraft={amountDraft}
 				color="green"
@@ -180,13 +204,7 @@ export function CharacterHealthPanel({
 				pending={updateMutation.isPending}
 				temporaryDraft={temporaryDraft}
 			/>
-
-			{updateMutation.error && (
-				<Alert color="red" title="Health update failed" variant="light">
-					Try the change again.
-				</Alert>
-			)}
-		</Stack>
+		</>
 	);
 }
 

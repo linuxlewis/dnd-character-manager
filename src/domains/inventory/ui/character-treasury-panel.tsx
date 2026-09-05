@@ -24,9 +24,11 @@ const INDETERMINATE_OUTCOME_MESSAGE =
 
 export function CharacterTreasuryPanel({
 	characterId,
+	embedded = false,
 	scopeLabel = "Personal Treasury",
 }: {
 	characterId: string;
+	embedded?: boolean;
 	scopeLabel?: string;
 }) {
 	const queryClient = useQueryClient();
@@ -174,7 +176,9 @@ export function CharacterTreasuryPanel({
 				data: query.data ? toTreasuryData(query.data) : undefined,
 				error: query.error,
 				isLoading: query.isLoading,
+				onRetry: () => void query.refetch(),
 			}}
+			headingOrder={embedded ? 4 : 3}
 			scopeLabel={scopeLabel}
 			spend={{
 				mutationError: spendConflictError ? null : spendMutation.error,

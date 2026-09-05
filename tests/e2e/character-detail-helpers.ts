@@ -1,15 +1,15 @@
 import { expect, type Page } from "@playwright/test";
 
 export async function openInventoryTab(page: Page) {
-	const inventoryTab = page.getByRole("tab", { name: "Inventory", exact: true });
-	await expect(inventoryTab).toBeVisible();
-	await inventoryTab.click();
-	await expect(inventoryTab).toHaveAttribute("aria-selected", "true");
+	const inventoryLink = page.getByRole("link", { name: "Inventory", exact: true });
+	await expect(inventoryLink).toBeVisible();
+	await inventoryLink.click();
+	await expect(inventoryLink).toHaveAttribute("aria-current", "page");
 }
 
 export async function openSpellsAndAbilitiesTab(page: Page) {
-	const spellsTab = page.getByRole("tab", { name: "Spells & Abilities", exact: true });
-	await expect(spellsTab).toBeVisible();
-	await spellsTab.click();
-	await expect(spellsTab).toHaveAttribute("aria-selected", "true");
+	const spellsLink = page.getByRole("link", { name: "Spells & Abilities", exact: true });
+	await expect(spellsLink).toBeVisible();
+	await spellsLink.click();
+	await expect(spellsLink).toHaveAttribute("aria-current", "page");
 }

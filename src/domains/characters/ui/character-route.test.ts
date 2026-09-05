@@ -10,7 +10,32 @@ describe("parseCharacterRoute", () => {
 		expect(parseCharacterRoute("/")).toEqual({ screen: "list" });
 		expect(parseCharacterRoute("/characters")).toEqual({ screen: "list" });
 		expect(parseCharacterRoute("/characters/new")).toEqual({ screen: "create" });
-		expect(parseCharacterRoute("/characters/abc")).toEqual({ screen: "detail", id: "abc" });
+		expect(parseCharacterRoute("/characters/new/")).toEqual({ screen: "create" });
+		expect(parseCharacterRoute("/characters/abc")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "attributes",
+		});
+		expect(parseCharacterRoute("/characters/abc/spells")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "spells",
+		});
+		expect(parseCharacterRoute("/characters/abc/spells/")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "spells",
+		});
+		expect(parseCharacterRoute("/characters/abc/inventory/")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "inventory",
+		});
+		expect(parseCharacterRoute("/characters/abc/unknown")).toEqual({
+			screen: "detail",
+			id: "abc",
+			section: "attributes",
+		});
 	});
 
 	it("falls back to the list for unknown routes", () => {
@@ -27,6 +52,12 @@ describe("characterRoutePath", () => {
 		expect(characterRoutePath({ screen: "list" })).toBe("/characters");
 		expect(characterRoutePath({ screen: "create" })).toBe("/characters/new");
 		expect(characterRoutePath({ screen: "detail", id: "a b" })).toBe("/characters/a%20b");
+		expect(characterRoutePath({ screen: "detail", id: "abc", section: "spells" })).toBe(
+			"/characters/abc/spells",
+		);
+		expect(characterRoutePath({ screen: "detail", id: "abc", section: "inventory" })).toBe(
+			"/characters/abc/inventory",
+		);
 	});
 });
 

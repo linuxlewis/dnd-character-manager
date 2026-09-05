@@ -1,27 +1,34 @@
 import { CharacterDetail } from "./character-detail.js";
 import { CharacterList } from "./character-list.js";
 import type { CharacterRoute } from "./character-route.js";
-import { characterRoutePath, parseCharacterRoute } from "./character-route.js";
+import {
+	characterRoutePath,
+	parseCharacterRoute,
+	useCharacterPathname,
+} from "./character-route.js";
 import { CreateCharacterForm } from "./create-character-form.js";
 
 export type NavigateToCharacterRoute = (route: CharacterRoute) => void;
 
-export function CharacterWorkspace() {
-	const route = getCurrentCharacterRoute();
+export function CharacterWorkspace({ pathname }: { pathname?: string } = {}) {
+	const currentPathname = useCharacterPathname(pathname);
+	const route = parseCharacterRoute(currentPathname);
 
 	function navigate(route: CharacterRoute) {
 		if (typeof window === "undefined") return;
-		window.location.assign(characterRoutePath(route));
+		window.history.pushState({}, "", characterRoutePath(route));
+		window.dispatchEvent(new Event("popstate"));
 	}
 
 	if (route.screen === "create") return <CreateCharacterForm onNavigate={navigate} />;
 	if (route.screen === "detail") {
-		return <CharacterDetail id={route.id} onNavigate={navigate} />;
+		return (
+			<CharacterDetail
+				id={route.id}
+				onNavigate={navigate}
+				section={route.section ?? "attributes"}
+			/>
+		);
 	}
 	return <CharacterList onNavigate={navigate} />;
-}
-
-function getCurrentCharacterRoute() {
-	if (typeof window === "undefined") return parseCharacterRoute("/");
-	return parseCharacterRoute(window.location.pathname);
 }

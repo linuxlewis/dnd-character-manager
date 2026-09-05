@@ -16,6 +16,7 @@ export interface TreasuryQueryState {
 	data?: TreasuryData;
 	isLoading: boolean;
 	error: Error | null;
+	onRetry: () => void;
 }
 
 export interface TreasuryOperationState {
@@ -27,6 +28,7 @@ export interface TreasuryOperationState {
 }
 
 export interface TreasuryPanelProps {
+	headingOrder?: 3 | 4;
 	scopeLabel: string;
 	query: TreasuryQueryState;
 	indeterminateOutcome: {
@@ -56,6 +58,7 @@ export interface TreasuryPanelProps {
 type ActiveDialog = "add" | "spend" | null;
 
 export function TreasuryPanel({
+	headingOrder = 3,
 	scopeLabel,
 	query,
 	indeterminateOutcome,
@@ -96,7 +99,10 @@ export function TreasuryPanel({
 			)}
 			{query.error && (
 				<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
-					{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
+					{getTreasuryErrorMessage(query.error, "Try loading the treasury again.")}
+					<Button mt="sm" onClick={query.onRetry} size="sm" variant="light">
+						Retry treasury
+					</Button>
 				</Alert>
 			)}
 			{indeterminateOutcome && (
@@ -115,6 +121,7 @@ export function TreasuryPanel({
 					onAddFunds={() => openDialog("add")}
 					onSpendFunds={() => openDialog("spend")}
 					scopeLabel={scopeLabel}
+					headingOrder={headingOrder}
 					treasury={treasury}
 				/>
 			)}

@@ -5,7 +5,7 @@ import type {
 	HealthChangeResponse,
 	UpdateCharacterHealthResponse,
 } from "../types/index.js";
-import { CharacterHealthSchema } from "../types/index.js";
+import { CharacterHealthSchema, UpdateCharacterHealthResponseSchema } from "../types/index.js";
 import { toCharacterHealth, toHealthChange } from "./character-mappers.js";
 import {
 	characterHealthEventsTable,
@@ -21,13 +21,17 @@ export interface NewHealthChange {
 	temporaryHpDelta: number;
 }
 
+export interface HealthMutation {
+	health: CharacterHealth;
+	change: NewHealthChange | null;
+}
+
 export interface CharacterHealthRepository {
 	findCharacterHealth(userId: string, characterId: string): Promise<CharacterHealth | null>;
-	saveCharacterHealth(
+	mutateCharacterHealth(
 		userId: string,
 		characterId: string,
-		health: CharacterHealth,
-		change: NewHealthChange | null,
+		mutation: (previous: CharacterHealth) => HealthMutation,
 	): Promise<UpdateCharacterHealthResponse | null>;
 	listRecentHealthChanges(characterId: string): Promise<HealthChangeResponse[]>;
 }
@@ -49,15 +53,29 @@ export function createCharacterHealthRepository(): CharacterHealthRepository {
 			return row ? toCharacterHealth(row) : null;
 		},
 
-		async saveCharacterHealth(userId, characterId, health, change) {
+		async mutateCharacterHealth(userId, characterId, mutation) {
 			return getDb().transaction(async (tx) => {
 				const [owned] = await tx
 					.select({ id: charactersTable.id })
 					.from(charactersTable)
 					.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
-					.limit(1);
+					.limit(1)
+					.for("update");
 
 				if (!owned) return null;
+				const [row] = await tx
+					.select({
+						currentHp: characterHealthTable.currentHp,
+						maxHp: characterHealthTable.maxHp,
+						temporaryHp: characterHealthTable.temporaryHp,
+					})
+					.from(characterHealthTable)
+					.where(eq(characterHealthTable.characterId, characterId))
+					.limit(1)
+					.for("update");
+				if (!row) return null;
+				const previous = toCharacterHealth(row);
+				const { health, change } = mutation(previous);
 
 				await tx
 					.update(characterHealthTable)
@@ -91,10 +109,10 @@ export function createCharacterHealthRepository(): CharacterHealthRepository {
 					.orderBy(desc(characterHealthEventsTable.createdAt))
 					.limit(5);
 
-				return {
+				return UpdateCharacterHealthResponseSchema.parse({
 					health: CharacterHealthSchema.parse(health),
 					recentHealthChanges: rows.map(toHealthChange),
-				};
+				});
 			});
 		},
 

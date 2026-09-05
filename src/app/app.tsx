@@ -38,8 +38,8 @@ interface AppProps {
 	pathname?: string;
 }
 
-export function App({ pathname = getCurrentPathname() }: AppProps) {
-	const route = parseAppRoute(pathname);
+export function App({ pathname }: AppProps) {
+	const route = parseAppRoute(pathname ?? getCurrentPathname());
 
 	if (route.screen === "privacy") {
 		return (
@@ -53,12 +53,12 @@ export function App({ pathname = getCurrentPathname() }: AppProps) {
 
 	return (
 		<CurrentUserProvider>
-			<CharacterApplication />
+			<CharacterApplication pathname={pathname} />
 		</CurrentUserProvider>
 	);
 }
 
-function CharacterApplication() {
+function CharacterApplication({ pathname }: { pathname?: string }) {
 	const { currentUser, error, isLoading } = useCurrentUser();
 
 	return (
@@ -75,7 +75,7 @@ function CharacterApplication() {
 				</Paper>
 			) : (
 				<Stack gap="md">
-					<CharacterWorkspace />
+					<CharacterWorkspace pathname={pathname} />
 				</Stack>
 			)}
 		</AppLayout>
@@ -109,7 +109,7 @@ function SiteHeader({
 
 	return (
 		<Stack gap="xs">
-			<Group justify="space-between" gap="sm" align="center" wrap="nowrap">
+			<Group justify="space-between" gap="sm" align="center" wrap="wrap">
 				<Anchor href="/" c="inherit" underline="never">
 					<Title order={1} size="h2">
 						D&amp;D Character Manager

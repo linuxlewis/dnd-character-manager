@@ -59,6 +59,7 @@ describe("CharacterSpellSlotsPanel", () => {
 		);
 
 		const readableHtml = html.replaceAll("<!-- -->", "");
+		expect(readableHtml).toContain("Spells &amp; Abilities");
 		expect(readableHtml).toContain("Spell slots");
 		expect(readableHtml).toContain("Default profile: tier 7");
 		expect(readableHtml).toContain("Cantrips &amp; features");

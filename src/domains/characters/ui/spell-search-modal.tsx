@@ -1,4 +1,4 @@
-import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { Alert, Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
 import type { SearchCharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
@@ -7,7 +7,10 @@ export type SpellSearchResult = SearchCharacterSpellsResponse["spells"][number];
 export function SpellSearchModal({
 	onChangeQuery,
 	onClose,
+	onRetrySearch = () => undefined,
 	onSaveSpell,
+	actionError,
+	error = null,
 	opened,
 	pending,
 	query,
@@ -18,7 +21,10 @@ export function SpellSearchModal({
 }: {
 	onChangeQuery: (query: string) => void;
 	onClose: () => void;
+	onRetrySearch?: () => void;
 	onSaveSpell: (spell: SpellSearchResult) => void;
+	actionError?: Error | null;
+	error?: Error | null;
 	opened: boolean;
 	pending: boolean;
 	query: string;
@@ -40,6 +46,11 @@ export function SpellSearchModal({
 			withinPortal={withinPortal}
 		>
 			<Stack gap="md">
+				{actionError && (
+					<Alert color="red" title="Spell could not be saved" variant="light">
+						{actionError.message} Choose the spell again to repeat the save.
+					</Alert>
+				)}
 				<TextInput
 					data-autofocus
 					label={slotLevel === 0 ? "Search cantrips and features" : "Search spells"}
@@ -54,6 +65,13 @@ export function SpellSearchModal({
 						<Text c="dimmed" size="sm">
 							Searching...
 						</Text>
+					) : error ? (
+						<Alert color="red" title="Spell search unavailable" variant="light">
+							{error.message}
+							<Button mt="sm" onClick={onRetrySearch} size="sm" variant="light">
+								Retry search
+							</Button>
+						</Alert>
 					) : searched && results.length === 0 ? (
 						<Text c="dimmed" size="sm">
 							No spells found.

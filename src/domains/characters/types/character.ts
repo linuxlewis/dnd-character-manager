@@ -150,6 +150,7 @@ export const UpdateCharacterHealthRequestSchema = z.object({
 	currentHp: HitPointsSchema,
 	maxHp: MaxHitPointsSchema,
 	temporaryHp: HitPointsSchema,
+	currentHpDelta: z.number().int().min(-9999).max(9999).optional(),
 });
 export type UpdateCharacterHealthRequest = z.infer<typeof UpdateCharacterHealthRequestSchema>;
 
