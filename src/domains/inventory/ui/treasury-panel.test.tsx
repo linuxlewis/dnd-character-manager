@@ -20,7 +20,8 @@ describe("TreasuryPanel", () => {
 
 		expect(toReadableText(loadingHtml)).toContain("Loading personal treasury...");
 		expect(toReadableText(errorHtml)).toContain("Personal Treasury unavailable");
-		expect(toReadableText(errorHtml)).toContain("Refresh the page to try again.");
+		expect(toReadableText(errorHtml)).toContain("Try loading the treasury again.");
+		expect(toReadableText(errorHtml)).toContain("Retry treasury");
 	});
 
 	it("renders a loaded treasury without the personal scope badge", () => {
@@ -82,7 +83,7 @@ function renderPanel(
 			<TreasuryPanel
 				add={addOperationState()}
 				indeterminateOutcome={indeterminateOutcome}
-				query={query}
+				query={{ ...query, onRetry: vi.fn() }}
 				scopeLabel="Personal Treasury"
 				spend={spendOperationState()}
 			/>

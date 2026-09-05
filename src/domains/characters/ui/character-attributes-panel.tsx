@@ -61,15 +61,17 @@ export function CharacterAttributesPanel({
 						A quick reference for ability checks, saves, and skills.
 					</Text>
 				</Stack>
-				<Button
-					onClick={() => {
-						setEditorVersion((version) => version + 1);
-						setEditorOpen(true);
-					}}
-					variant="light"
-				>
-					Edit attributes
-				</Button>
+				{attributesQuery.data && (
+					<Button
+						onClick={() => {
+							setEditorVersion((version) => version + 1);
+							setEditorOpen(true);
+						}}
+						variant="light"
+					>
+						Edit attributes
+					</Button>
+				)}
 			</Group>
 
 			{attributesQuery.isLoading && (
@@ -172,7 +174,10 @@ function CharacterAttributesContent({
 						<Text fw={700} size="sm" tt="uppercase">
 							Derived references
 						</Text>
-						<DerivedReference label="Proficiency bonus" value={attributes.proficiencyBonus} />
+						<DerivedReference
+							label={`Proficiency bonus from level ${characterLevel}`}
+							value={attributes.proficiencyBonus}
+						/>
 						<DerivedReference label="Initiative" value={getRollTotal(attributes, "initiative")} />
 						<DerivedReference
 							label="Passive Perception"
@@ -185,7 +190,7 @@ function CharacterAttributesContent({
 							Reference notes
 						</Text>
 						<Text c="dimmed" size="sm">
-							Totals are calculated from this character&apos;s saved scores and proficiency
+							Totals use this character&apos;s current level, saved scores, and proficiency
 							selections.
 						</Text>
 					</Stack>
