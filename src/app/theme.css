@@ -107,7 +107,7 @@ body {
 		padding-inline: 0.125rem;
 	}
 
-	.ability-reference-label {
+	.ability-reference-row > :first-child.ability-reference-label {
 		white-space: normal;
 		overflow-wrap: anywhere;
 		width: 100%;
