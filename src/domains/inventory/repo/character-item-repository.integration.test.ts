@@ -146,6 +146,34 @@ describe("character item persistence", () => {
 		expect(entries.filter((entry) => entry.action === "item_added")).toHaveLength(1);
 		expect(entries.filter((entry) => entry.action === "item_removed")).toHaveLength(1);
 	});
+
+	it("does not update or write history when submitted fields have not changed", async () => {
+		const { characterId, scopeId, userId: actorUserId } = await createScope();
+		const repository = createCharacterItemRepository();
+		const created = await repository.createItemForCharacterWithHistory(
+			characterId,
+			{
+				name: "Unchanged Item",
+				type: "misc",
+				category: "Gear",
+				properties: { nested: { source: "test" } },
+			},
+			actorUserId,
+		);
+
+		const unchanged = await repository.updateItemWithHistory(
+			scopeId,
+			created.id,
+			{
+				name: created.name,
+				properties: { nested: { source: "test" } },
+			},
+			actorUserId,
+		);
+
+		expect(unchanged).toEqual(created);
+		expect(await historyCount(scopeId)).toBe(1);
+	});
 });
 
 async function createScope() {

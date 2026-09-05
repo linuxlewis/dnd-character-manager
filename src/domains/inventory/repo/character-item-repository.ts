@@ -16,6 +16,7 @@ import {
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
 import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 import {
+	type InventoryItemUpdateInput,
 	parseInventoryItemUpdate,
 	toInventoryItem,
 	toInventoryItemInsert,
@@ -124,6 +125,7 @@ export function createCharacterItemRepository(
 				const current = toInventoryItem(currentRow);
 				const parsedUpdate = parseInventoryItemUpdate(input);
 				InventoryItemSchema.parse({ ...current, ...parsedUpdate });
+				if (!hasPersistedItemChanges(current, parsedUpdate)) return current;
 				const [updatedRow] = await tx
 					.update(inventoryItemsTable)
 					.set({ ...parsedUpdate, updatedAt: new Date() })
@@ -234,6 +236,38 @@ async function appendItemHistory(
 
 function parseActorUserId(value: unknown): InventoryHistoryActorUserId | null {
 	return InventoryHistoryActorUserIdSchema.nullable().optional().default(null).parse(value);
+}
+
+function hasPersistedItemChanges(current: InventoryItem, update: InventoryItemUpdateInput) {
+	return Object.entries(update).some(([field, value]) => {
+		const currentValue = current[field as keyof InventoryItem];
+		return !areInventoryValuesEqual(currentValue, value);
+	});
+}
+
+function areInventoryValuesEqual(left: unknown, right: unknown): boolean {
+	if (Object.is(left, right)) return true;
+	if (Array.isArray(left) || Array.isArray(right)) {
+		return (
+			Array.isArray(left) &&
+			Array.isArray(right) &&
+			left.length === right.length &&
+			left.every((value, index) => areInventoryValuesEqual(value, right[index]))
+		);
+	}
+	if (left === null || right === null || typeof left !== "object" || typeof right !== "object") {
+		return false;
+	}
+
+	const leftEntries = Object.entries(left);
+	const rightRecord = right as Record<string, unknown>;
+	return (
+		leftEntries.length === Object.keys(rightRecord).length &&
+		leftEntries.every(
+			([key, value]) =>
+				Object.hasOwn(rightRecord, key) && areInventoryValuesEqual(value, rightRecord[key]),
+		)
+	);
 }
 
 function itemColumns() {
