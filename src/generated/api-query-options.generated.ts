@@ -2,7 +2,10 @@
 
 import { queryOptions } from "@tanstack/react-query";
 import type { CatalogueItemSearchQuery } from "../domains/catalogue/types/index.js";
-import type { ListCharacterItemsRequest } from "../domains/inventory/types/index.js";
+import type {
+	ListCharacterHistoryRequest,
+	ListCharacterItemsRequest,
+} from "../domains/inventory/types/index.js";
 import { type ApiClient, type ApiRequestOptions, apiClient } from "./api-client-core.generated.js";
 import { apiQueryKeys } from "./api-query-keys.generated.js";
 
@@ -70,6 +73,16 @@ export function createApiQueryOptions(client: ApiClient = apiClient) {
 			queryOptions({
 				queryKey: apiQueryKeys.getCharacterItemDetails(params),
 				queryFn: () => client.getCharacterItemDetails(params, options),
+			}),
+
+		listCharacterHistory: (
+			params: { characterId: string },
+			query: ListCharacterHistoryRequest,
+			options: ApiRequestOptions = {},
+		) =>
+			queryOptions({
+				queryKey: apiQueryKeys.listCharacterHistory(params, query),
+				queryFn: () => client.listCharacterHistory(params, query, options),
 			}),
 
 		searchCatalogueItems: (query: CatalogueItemSearchQuery, options: ApiRequestOptions = {}) =>

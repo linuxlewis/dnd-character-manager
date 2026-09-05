@@ -42,6 +42,7 @@ describe("CharacterItemService", () => {
 		expect(fakes.repository.createItemForCharacterWithHistory).toHaveBeenCalledWith(
 			characterId,
 			expect.objectContaining({ name: "Rope", quantity: 2, type: "misc" }),
+			userId,
 		);
 	});
 	it("lists only the authorized scope and forwards all A5 filters", async () => {
@@ -129,6 +130,7 @@ describe("CharacterItemService", () => {
 				catalogueRulesVersion: "2024",
 				estimatedValue: 15,
 			}),
+			userId,
 		);
 	});
 	it("maps missing and unavailable catalogue references explicitly", async () => {

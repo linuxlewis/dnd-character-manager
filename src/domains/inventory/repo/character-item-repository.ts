@@ -1,8 +1,14 @@
 import { getDb } from "@providers/database/index.js";
 import { and, eq } from "drizzle-orm";
-import type { InventoryCharacterId, InventoryItem, InventoryScopeId } from "../types/index.js";
+import type {
+	InventoryCharacterId,
+	InventoryHistoryActorUserId,
+	InventoryItem,
+	InventoryScopeId,
+} from "../types/index.js";
 import {
 	InventoryCharacterIdSchema,
+	InventoryHistoryActorUserIdSchema,
 	InventoryItemIdSchema,
 	InventoryItemSchema,
 	InventoryScopeIdSchema,
@@ -10,6 +16,7 @@ import {
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
 import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 import {
+	type InventoryItemUpdateInput,
 	parseInventoryItemUpdate,
 	toInventoryItem,
 	toInventoryItemInsert,
@@ -28,23 +35,31 @@ export type InventoryItemHistoryWriter = (
 	action: ItemHistoryAction,
 	item: InventoryItem,
 	before?: InventoryItem,
+	actorUserId?: InventoryHistoryActorUserId | null,
 ) => Promise<void>;
 
 export interface CharacterItemRepository extends InventoryItemRepository {
 	createItemForCharacterWithHistory(
 		characterId: InventoryCharacterId,
 		input: unknown,
+		actorUserId?: string | null,
 	): Promise<InventoryItem>;
 	updateItemWithHistory(
 		scopeId: InventoryScopeId,
 		itemId: string,
 		input: unknown,
+		actorUserId?: string | null,
 	): Promise<InventoryItem | null>;
-	deleteItemWithHistory(scopeId: InventoryScopeId, itemId: string): Promise<InventoryItem | null>;
+	deleteItemWithHistory(
+		scopeId: InventoryScopeId,
+		itemId: string,
+		actorUserId?: string | null,
+	): Promise<InventoryItem | null>;
 	setEquippedWithHistory(
 		scopeId: InventoryScopeId,
 		itemId: string,
 		isEquipped: boolean,
+		actorUserId?: string | null,
 	): Promise<InventoryItem | null>;
 }
 
@@ -62,8 +77,9 @@ export function createCharacterItemRepository(
 	return {
 		...itemRepository,
 
-		async createItemForCharacterWithHistory(characterId, input) {
+		async createItemForCharacterWithHistory(characterId, input, actorUserId) {
 			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
+			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
 				await tx
 					.insert(inventoryScopesTable)
@@ -83,14 +99,15 @@ export function createCharacterItemRepository(
 					.returning(itemColumns());
 				if (!row) throw new Error("Inventory item could not be created.");
 				const item = toInventoryItem(row);
-				await historyWriter(tx, scope.id, "item_added", item);
+				await historyWriter(tx, scope.id, "item_added", item, undefined, parsedActorUserId);
 				return item;
 			});
 		},
 
-		async updateItemWithHistory(scopeId, itemId, input) {
+		async updateItemWithHistory(scopeId, itemId, input, actorUserId) {
 			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
+			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
 				const [currentRow] = await tx
 					.select(itemColumns())
@@ -108,6 +125,7 @@ export function createCharacterItemRepository(
 				const current = toInventoryItem(currentRow);
 				const parsedUpdate = parseInventoryItemUpdate(input);
 				InventoryItemSchema.parse({ ...current, ...parsedUpdate });
+				if (!hasPersistedItemChanges(current, parsedUpdate)) return current;
 				const [updatedRow] = await tx
 					.update(inventoryItemsTable)
 					.set({ ...parsedUpdate, updatedAt: new Date() })
@@ -121,14 +139,15 @@ export function createCharacterItemRepository(
 				if (!updatedRow) return null;
 
 				const item = toInventoryItem(updatedRow);
-				await historyWriter(tx, parsedScopeId, "item_updated", item, current);
+				await historyWriter(tx, parsedScopeId, "item_updated", item, current, parsedActorUserId);
 				return item;
 			});
 		},
 
-		async deleteItemWithHistory(scopeId, itemId) {
+		async deleteItemWithHistory(scopeId, itemId, actorUserId) {
 			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
+			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
 				const [row] = await tx
 					.delete(inventoryItemsTable)
@@ -142,14 +161,15 @@ export function createCharacterItemRepository(
 				if (!row) return null;
 
 				const item = toInventoryItem(row);
-				await historyWriter(tx, parsedScopeId, "item_removed", item);
+				await historyWriter(tx, parsedScopeId, "item_removed", item, undefined, parsedActorUserId);
 				return item;
 			});
 		},
 
-		async setEquippedWithHistory(scopeId, itemId, isEquipped) {
+		async setEquippedWithHistory(scopeId, itemId, isEquipped, actorUserId) {
 			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
+			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
 				const [currentRow] = await tx
 					.select(itemColumns())
@@ -180,7 +200,7 @@ export function createCharacterItemRepository(
 				if (!updatedRow) return null;
 
 				const item = toInventoryItem(updatedRow);
-				await historyWriter(tx, parsedScopeId, "item_updated", item, current);
+				await historyWriter(tx, parsedScopeId, "item_updated", item, current, parsedActorUserId);
 				return item;
 			});
 		},
@@ -193,6 +213,7 @@ async function appendItemHistory(
 	action: ItemHistoryAction,
 	item: InventoryItem,
 	before?: InventoryItem,
+	actorUserId?: InventoryHistoryActorUserId | null,
 ) {
 	const details = before
 		? { before, after: item, item: null }
@@ -205,11 +226,48 @@ async function appendItemHistory(
 				entityType: "item",
 				entityId: item.id,
 				entityName: item.name,
+				actorUserId,
 				details,
 			}),
 		)
 		.returning({ id: inventoryHistoryEntriesTable.id });
 	if (!row) throw new Error("Inventory item history could not be created.");
+}
+
+function parseActorUserId(value: unknown): InventoryHistoryActorUserId | null {
+	return InventoryHistoryActorUserIdSchema.nullable().optional().default(null).parse(value);
+}
+
+function hasPersistedItemChanges(current: InventoryItem, update: InventoryItemUpdateInput) {
+	return Object.entries(update).some(([field, value]) => {
+		const currentValue = current[field as keyof InventoryItem];
+		return !areInventoryValuesEqual(currentValue, value);
+	});
+}
+
+function areInventoryValuesEqual(left: unknown, right: unknown): boolean {
+	if (Object.is(left, right)) return true;
+	if (Array.isArray(left) || Array.isArray(right)) {
+		return (
+			Array.isArray(left) &&
+			Array.isArray(right) &&
+			left.length === right.length &&
+			left.every((value, index) => areInventoryValuesEqual(value, right[index]))
+		);
+	}
+	if (left === null || right === null || typeof left !== "object" || typeof right !== "object") {
+		return false;
+	}
+
+	const leftEntries = Object.entries(left);
+	const rightRecord = right as Record<string, unknown>;
+	return (
+		leftEntries.length === Object.keys(rightRecord).length &&
+		leftEntries.every(
+			([key, value]) =>
+				Object.hasOwn(rightRecord, key) && areInventoryValuesEqual(value, rightRecord[key]),
+		)
+	);
 }
 
 function itemColumns() {

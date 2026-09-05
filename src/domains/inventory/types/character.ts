@@ -7,6 +7,7 @@ import {
 	CurrencyConversionRequestSchema,
 	CurrencyConversionResponseSchema,
 	CurrencyMutationResponseSchema,
+	CurrencyNoteSchema,
 	CurrencyPreviewSchema,
 	CurrencySpendRequestSchema,
 	CurrencySpendResponseSchema,
@@ -47,8 +48,9 @@ export type AddCharacterTreasuryPreviewRequest = z.infer<
 
 export const AddCharacterTreasuryRequestSchema = CurrencyAddRequestSchema.extend({
 	expectedPrevious: CurrencyBalanceSchema,
+	note: CurrencyNoteSchema.optional(),
 }).strict();
-export type AddCharacterTreasuryRequest = z.infer<typeof AddCharacterTreasuryRequestSchema>;
+export type AddCharacterTreasuryRequest = z.input<typeof AddCharacterTreasuryRequestSchema>;
 
 export const SpendCharacterTreasuryPreviewRequestSchema = CurrencySpendRequestSchema;
 export type SpendCharacterTreasuryPreviewRequest = z.infer<
@@ -57,11 +59,14 @@ export type SpendCharacterTreasuryPreviewRequest = z.infer<
 
 export const SpendCharacterTreasuryRequestSchema = CurrencySpendRequestSchema.extend({
 	expectedPrevious: CurrencyBalanceSchema,
+	note: CurrencyNoteSchema.optional(),
 }).strict();
-export type SpendCharacterTreasuryRequest = z.infer<typeof SpendCharacterTreasuryRequestSchema>;
+export type SpendCharacterTreasuryRequest = z.input<typeof SpendCharacterTreasuryRequestSchema>;
 
-export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema;
-export type ConvertCharacterTreasuryRequest = z.infer<typeof ConvertCharacterTreasuryRequestSchema>;
+export const ConvertCharacterTreasuryRequestSchema = CurrencyConversionRequestSchema.extend({
+	note: CurrencyNoteSchema.optional(),
+}).strict();
+export type ConvertCharacterTreasuryRequest = z.input<typeof ConvertCharacterTreasuryRequestSchema>;
 
 export const CharacterTreasuryMutationResponseSchema = z
 	.object({

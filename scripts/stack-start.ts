@@ -2,8 +2,10 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
 import {
+	assertNoExternalDatabaseUrl,
 	computePortSeeds,
 	findFreePort,
+	getOwnedDatabaseUrl,
 	getStackPaths,
 	isProcessAlive,
 	readMetadata,
@@ -13,6 +15,8 @@ import {
 	waitForHttp,
 	writeMetadata,
 } from "./stack-shared.js";
+
+assertNoExternalDatabaseUrl();
 
 const existing = readMetadata();
 if (existing && isProcessAlive(existing.pids.api) && isProcessAlive(existing.pids.web)) {
@@ -40,9 +44,9 @@ const ports = {
 
 mkdirSync(paths.logDir, { recursive: true });
 
-const databaseUrl = `postgres://app:localdev@127.0.0.1:${ports.postgres}/app`;
+const databaseUrl = getOwnedDatabaseUrl({ ports });
 
-console.log(`starting stack database for ${paths.projectName}`);
+console.log(`starting owned stack database for ${paths.projectName}`);
 runCommand("docker", ["compose", "-p", paths.projectName, "up", "-d", "db"], {
 	POSTGRES_PORT: String(ports.postgres),
 });
@@ -64,7 +68,6 @@ const metadata: StackMetadata = {
 		api: `http://${host}:${ports.api}`,
 		web: `http://${host}:${ports.web}`,
 	},
-	databaseUrl,
 	pids: {},
 	logs: {
 		api: join(paths.logDir, "api.log"),

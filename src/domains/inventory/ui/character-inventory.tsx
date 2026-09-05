@@ -21,6 +21,7 @@ import {
 	type UpdateCharacterItemRequest,
 } from "../../../generated/api-client.generated.js";
 import type { InventoryItem } from "../types/index.js";
+import { invalidateCharacterHistory } from "./activity-cache.js";
 import { characterItemsQueryPrefix, reconcileItem } from "./inventory-cache.js";
 import { InventoryCountsAlert } from "./inventory-counts-alert.js";
 import { getInventoryErrorMessage, toInventoryError } from "./inventory-errors.js";
@@ -123,6 +124,7 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 			}
 			setSelectedItem(null);
 			void queryClient.invalidateQueries({ queryKey: characterItemsQueryPrefix(characterId) });
+			void invalidateCharacterHistory(queryClient, characterId).catch(() => undefined);
 		},
 	});
 	const mutationsPending =

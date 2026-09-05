@@ -6,6 +6,7 @@ import type {
 	TreasuryConflictResponse,
 } from "../../../generated/api-client.generated.js";
 import { ApiClientError, apiQueryKeys } from "../../../generated/api-client.generated.js";
+import { invalidateCharacterHistory } from "./activity-cache.js";
 import type {
 	TreasuryAddPreview,
 	TreasuryAddRequest,
@@ -13,7 +14,7 @@ import type {
 	TreasurySpendPreview,
 	TreasurySpendRequest,
 } from "./treasury-types.js";
-import { treasuryBalancesEqual } from "./treasury-types.js";
+import { normalizeTreasuryNote, treasuryBalancesEqual } from "./treasury-types.js";
 
 export type TreasuryReconciliationState = { pending: boolean; error: Error | null };
 
@@ -33,14 +34,22 @@ export function toAddCharacterTreasuryRequest(
 	request: TreasuryAddRequest,
 	preview: TreasuryAddPreview,
 ): AddCharacterTreasuryRequest {
-	return { delta: request.delta, expectedPrevious: preview.previous };
+	return {
+		delta: request.delta,
+		expectedPrevious: preview.previous,
+		...(request.note === undefined ? {} : { note: normalizeTreasuryNote(request.note) }),
+	};
 }
 
 export function toSpendCharacterTreasuryRequest(
 	request: TreasurySpendRequest,
 	preview: TreasurySpendPreview,
 ): SpendCharacterTreasuryRequest {
-	return { amount: request.amount, expectedPrevious: preview.previous };
+	return {
+		amount: request.amount,
+		expectedPrevious: preview.previous,
+		...(request.note === undefined ? {} : { note: normalizeTreasuryNote(request.note) }),
+	};
 }
 
 export function toTreasuryConflictError(error: unknown) {
@@ -81,6 +90,9 @@ export async function reconcileAndRelease(
 		setState({ error: null, pending: false });
 		if (!confirmation) return;
 		const outcome = classifyTreasuryConfirmationOutcome(confirmation, response.treasury.balances);
+		if (outcome === "applied") {
+			void invalidateCharacterHistory(queryClient, characterId).catch(() => undefined);
+		}
 		if (outcome === "applied") confirmation.onApplied();
 		if (outcome === "indeterminate") confirmation.onIndeterminate();
 	} catch (error) {

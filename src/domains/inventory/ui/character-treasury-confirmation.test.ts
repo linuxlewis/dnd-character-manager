@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { ApiClientError, apiQueryKeys } from "../../../generated/api-client.generated.js";
+import { characterHistoryQueryPrefix } from "./activity-cache.js";
 import {
 	classifyTreasuryConfirmationOutcome,
 	reconcileAndRelease,
@@ -82,6 +83,7 @@ describe("character treasury confirmation adapter", () => {
 	it("reports an indeterminate outcome after a lost response and changed balance", async () => {
 		const characterId = "00000000-0000-4000-8000-000000000001";
 		const queryClient = new QueryClient();
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
 		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
 			treasury: {
 				...zeroTreasury(characterId).treasury,
@@ -105,6 +107,48 @@ describe("character treasury confirmation adapter", () => {
 
 		expect(onApplied).not.toHaveBeenCalled();
 		expect(onIndeterminate).toHaveBeenCalledOnce();
+		expect(confirmationRef.current).toBeNull();
+		expect(invalidateQueries).not.toHaveBeenCalledWith({
+			queryKey: characterHistoryQueryPrefix(characterId),
+		});
+	});
+
+	it("invalidates character history after treasury reconciliation confirms an applied change", async () => {
+		const characterId = "00000000-0000-4000-8000-000000000001";
+		const queryClient = new QueryClient();
+		const historyKey = apiQueryKeys.listCharacterHistory({ characterId }, { limit: 20, offset: 0 });
+		const existingHistory = {
+			entries: [{ id: "existing-history-entry" }],
+			total: 1,
+			limit: 20,
+			offset: 0,
+			hasMore: false,
+		};
+		queryClient.setQueryData(historyKey, existingHistory);
+		queryClient.setQueryData(apiQueryKeys.getCharacterTreasury({ characterId }), {
+			treasury: {
+				characterId,
+				balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				totalValue: { copper: 200, gp: 2 },
+			},
+		});
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
+		const confirmationRef = {
+			current: {
+				conflict: false,
+				expectedNext: { cp: 0, sp: 0, gp: 2, pp: 0 },
+				mutationSucceeded: true,
+				onApplied: vi.fn(),
+				onIndeterminate: vi.fn(),
+			},
+		};
+
+		await reconcileAndRelease(queryClient, characterId, vi.fn(), confirmationRef);
+
+		expect(invalidateQueries).toHaveBeenCalledWith({
+			queryKey: characterHistoryQueryPrefix(characterId),
+		});
+		expect(queryClient.getQueryData(historyKey)).toEqual(existingHistory);
 		expect(confirmationRef.current).toBeNull();
 	});
 
@@ -142,6 +186,47 @@ describe("character treasury confirmation adapter", () => {
 		).toEqual({
 			amount: { denomination: "gp", amount: 1 },
 			expectedPrevious: previous,
+		});
+	});
+
+	it("carries trimmed notes into final mutation bodies without changing preview amounts", () => {
+		const previous = { cp: 0, sp: 0, gp: 0, pp: 0 };
+		const addPreview = {
+			operation: "add" as const,
+			previous,
+			next: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			totalValue: { copper: 200, gp: 2 },
+			canApply: true,
+		};
+		const spendPreview = {
+			operation: "spend" as const,
+			previous,
+			next: { cp: 0, sp: 0, gp: 0, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: -2, pp: 0 },
+			totalValue: { copper: 0, gp: 0 },
+			canApply: true,
+		};
+
+		expect(
+			toAddCharacterTreasuryRequest(
+				{ delta: { cp: 0, sp: 0, gp: 2, pp: 0 }, note: "  Guild reward  " },
+				addPreview,
+			),
+		).toEqual({
+			delta: { cp: 0, sp: 0, gp: 2, pp: 0 },
+			expectedPrevious: previous,
+			note: "Guild reward",
+		});
+		expect(
+			toSpendCharacterTreasuryRequest(
+				{ amount: { denomination: "gp", amount: 2 }, note: " \t" },
+				spendPreview,
+			),
+		).toEqual({
+			amount: { denomination: "gp", amount: 2 },
+			expectedPrevious: previous,
+			note: null,
 		});
 	});
 

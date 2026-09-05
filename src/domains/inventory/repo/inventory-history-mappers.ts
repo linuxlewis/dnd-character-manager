@@ -2,11 +2,12 @@ import { z } from "zod";
 import type { InventoryHistoryEntry } from "../types/index.js";
 import {
 	InventoryHistoryActionSchema,
+	InventoryHistoryActorUserIdSchema,
 	InventoryHistoryEntityTypeSchema,
-	InventoryHistoryEntryInputSchema,
 	InventoryHistoryEntrySchema,
 	InventoryScopeIdSchema,
-	JsonObjectSchema,
+	parseInventoryHistoryDetails,
+	parseInventoryHistoryEntryInput,
 } from "../types/index.js";
 
 const DatabaseDateSchema = z.union([z.date(), z.iso.datetime()]);
@@ -19,6 +20,7 @@ const InventoryHistoryDatabaseRowSchema = z
 		entityType: InventoryHistoryEntityTypeSchema,
 		entityId: z.string().uuid().nullable(),
 		entityName: z.string().min(1).max(120).nullable(),
+		actorUserId: InventoryHistoryActorUserIdSchema.nullable().optional().default(null),
 		details: z.unknown(),
 		createdAt: DatabaseDateSchema,
 	})
@@ -29,20 +31,21 @@ export function toInventoryHistoryEntry(row: unknown): InventoryHistoryEntry {
 	return InventoryHistoryEntrySchema.parse({
 		...parsed,
 		createdAt: toIsoString(parsed.createdAt),
-		details: JsonObjectSchema.parse(parsed.details),
+		details: parseInventoryHistoryDetails(parsed.action, parsed.entityType, parsed.details),
 	});
 }
 
 export function toInventoryHistoryInsert(scopeId: unknown, input: unknown) {
 	const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
-	const parsed = InventoryHistoryEntryInputSchema.parse(input);
+	const parsed = parseInventoryHistoryEntryInput(input);
 	return {
 		inventoryScopeId: parsedScopeId,
 		action: parsed.action,
 		entityType: parsed.entityType,
 		entityId: parsed.entityId,
 		entityName: parsed.entityName,
-		details: JsonObjectSchema.parse(parsed.details),
+		actorUserId: parsed.actorUserId,
+		details: parsed.details,
 	};
 }
 

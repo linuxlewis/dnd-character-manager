@@ -1,7 +1,11 @@
 import { Alert, Badge, Button, Group, Paper, Stack, Tabs, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
-import { CharacterInventory, CharacterTreasuryPanel } from "../../inventory/ui/index.js";
+import {
+	CharacterActivity,
+	CharacterInventory,
+	CharacterTreasuryPanel,
+} from "../../inventory/ui/index.js";
 import { CharacterEditor } from "./character-editor.js";
 import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
@@ -82,6 +86,10 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 							<Tabs.Panel value="inventory" pt="md">
 								<Stack gap="md">
 									<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
+									<CharacterActivity
+										characterId={characterQuery.data.character.id}
+										characterName={characterQuery.data.character.name}
+									/>
 									<CharacterInventory characterId={characterQuery.data.character.id} />
 								</Stack>
 							</Tabs.Panel>

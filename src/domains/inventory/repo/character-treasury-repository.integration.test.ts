@@ -100,12 +100,8 @@ describe("character treasury persistence", () => {
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toEqual(
 			zeroTreasury(characterId),
 		);
-		await expect(
-			countRows(inventoryScopesTable, characterId, inventoryScopesTable.characterId),
-		).resolves.toBe(0);
-		await expect(
-			countRows(inventoryTreasuriesTable, characterId, inventoryTreasuriesTable.inventoryScopeId),
-		).resolves.toBe(0);
+		await expect(countRows(inventoryScopesTable, characterId)).resolves.toBe(0);
+		await expect(countTreasuryRowsForCharacter(characterId)).resolves.toBe(0);
 	});
 
 	it("reads zero for an existing scope without creating a treasury", async () => {
@@ -115,8 +111,7 @@ describe("character treasury persistence", () => {
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toEqual(
 			zeroTreasury(characterId),
 		);
-		const [rows] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
-		expect(Number(rows?.count ?? 0)).toBe(0);
+		expect(await countTreasuryRowsForCharacter(characterId)).toBe(0);
 	});
 
 	it("returns the strict public shape from persisted rows and validates IDs at the boundary", async () => {
@@ -163,11 +158,8 @@ describe("character treasury persistence", () => {
 			balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
 			totalValue: { copper: 200, gp: 2 },
 		});
-		expect(
-			await countRows(inventoryScopesTable, characterId, inventoryScopesTable.characterId),
-		).toBe(1);
-		const [treasuryCount] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
-		expect(Number(treasuryCount?.count ?? 0)).toBe(1);
+		expect(await countRows(inventoryScopesTable, characterId)).toBe(1);
+		expect(await countTreasuryRowsForCharacter(characterId)).toBe(1);
 		const replay = vi.fn((current: CurrencyBalance) => ({ ...current, gp: current.gp + 2 }));
 		await expect(
 			repository.mutateCharacterTreasury(characterId, replay, {
@@ -188,9 +180,7 @@ describe("character treasury persistence", () => {
 				pp: 0,
 			})),
 		).rejects.toBeDefined();
-		expect(
-			await countRows(inventoryScopesTable, invalid.characterId, inventoryScopesTable.characterId),
-		).toBe(0);
+		expect(await countRows(inventoryScopesTable, invalid.characterId)).toBe(0);
 	});
 
 	it("serializes concurrent first mutations without lost updates", async () => {
@@ -208,11 +198,8 @@ describe("character treasury persistence", () => {
 			balances: { cp: 12, sp: 0, gp: 0, pp: 0 },
 			totalValue: { copper: 12, gp: 0.12 },
 		});
-		expect(
-			await countRows(inventoryScopesTable, characterId, inventoryScopesTable.characterId),
-		).toBe(1);
-		const [treasuryCount] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
-		expect(Number(treasuryCount?.count ?? 0)).toBe(1);
+		expect(await countRows(inventoryScopesTable, characterId)).toBe(1);
+		expect(await countTreasuryRowsForCharacter(characterId)).toBe(1);
 	});
 	it("serializes concurrent confirmations", () =>
 		createCharacter().then(({ characterId }) => testConcurrentPrecondition(characterId)));
@@ -247,11 +234,8 @@ describe("character treasury persistence", () => {
 		await repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 1 }));
 
 		await getDb().execute(sql`DELETE FROM characters WHERE id = ${characterId}`);
-		expect(
-			await countRows(inventoryScopesTable, characterId, inventoryScopesTable.characterId),
-		).toBe(0);
-		const [treasuryCount] = await getDb().select({ count: count() }).from(inventoryTreasuriesTable);
-		expect(Number(treasuryCount?.count ?? 0)).toBe(0);
+		expect(await countRows(inventoryScopesTable, characterId)).toBe(0);
+		expect(await countTreasuryRowsForCharacter(characterId)).toBe(0);
 	});
 });
 
@@ -272,17 +256,26 @@ async function createCharacter() {
 		INSERT INTO characters (id, user_id, name, class, level)
 		VALUES (${characterId}, ${userId}, 'Inventory Test Character', 'Fighter', 1)
 	`);
-	return { characterId };
+	return { characterId, userId };
 }
 
-async function countRows(
-	table: typeof inventoryScopesTable | typeof inventoryTreasuriesTable,
-	id: string,
-	column:
-		| typeof inventoryScopesTable.characterId
-		| typeof inventoryTreasuriesTable.inventoryScopeId,
-) {
-	const [row] = await getDb().select({ count: count() }).from(table).where(eq(column, id));
+async function countRows(table: typeof inventoryScopesTable, characterId: string) {
+	const [row] = await getDb()
+		.select({ count: count() })
+		.from(table)
+		.where(eq(table.characterId, characterId));
+	return Number(row?.count ?? 0);
+}
+
+async function countTreasuryRowsForCharacter(characterId: string) {
+	const [row] = await getDb()
+		.select({ count: count() })
+		.from(inventoryTreasuriesTable)
+		.innerJoin(
+			inventoryScopesTable,
+			eq(inventoryScopesTable.id, inventoryTreasuriesTable.inventoryScopeId),
+		)
+		.where(eq(inventoryScopesTable.characterId, characterId));
 	return Number(row?.count ?? 0);
 }
 

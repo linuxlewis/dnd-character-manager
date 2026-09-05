@@ -36,6 +36,8 @@ export type {
 	ConvertCharacterTreasuryRequest,
 	ConvertCharacterTreasuryResponse,
 	CreateCharacterItemRequest,
+	ListCharacterHistoryRequest,
+	ListCharacterHistoryResponse,
 	ListCharacterItemsRequest,
 	ListCharacterItemsResponse,
 	SpendCharacterTreasuryPreviewRequest,

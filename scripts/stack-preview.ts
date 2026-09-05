@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
 import {
+	assertNoExternalDatabaseUrl,
 	computePortSeeds,
 	findFreePort,
 	getStackPaths,
@@ -13,6 +14,8 @@ import {
 	waitForHttp,
 	writeMetadata,
 } from "./stack-shared.js";
+
+assertNoExternalDatabaseUrl();
 
 const existing = readMetadata();
 if (existing && isProcessAlive(existing.pids.api) && isProcessAlive(existing.pids.web)) {
@@ -66,7 +69,6 @@ const metadata: StackMetadata = {
 		api: `http://127.0.0.1:${ports.api}`,
 		web: `http://127.0.0.1:${ports.web}`,
 	},
-	databaseUrl,
 	pids: {},
 	logs: {
 		api: join(paths.logDir, "api.log"),

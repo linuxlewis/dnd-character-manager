@@ -9,6 +9,9 @@ describe("TreasurySpendModal", () => {
 			cp: "Spend at least one coin.",
 		});
 		expect(validateSpendFunds({ cp: 1, sp: "", gp: 2, pp: "" })).toEqual({});
+		expect(
+			validateSpendFunds({ cp: 1, sp: "", gp: 2, pp: "", note: "n".repeat(501) }),
+		).toMatchObject({ note: "Keep the note to 500 characters or fewer." });
 	});
 
 	it("renders four inputs, available balances, and a live normalized preview", () => {
@@ -27,6 +30,7 @@ describe("TreasurySpendModal", () => {
 		);
 
 		const readableHtml = html.replaceAll("<!-- -->", "").replaceAll("&gt;", ">");
+		expect(readableHtml).toContain("Note (optional)");
 		expect(readableHtml).toContain("Platinum pieces (PP)");
 		expect(readableHtml).toContain("Gold pieces (GP)");
 		expect(readableHtml).toContain("Silver pieces (SP)");
@@ -153,7 +157,7 @@ describe("TreasurySpendModal", () => {
 			</MantineProvider>,
 		);
 
-		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(4);
+		expect(html.match(/<input[^>]*disabled=""/g)).toHaveLength(5);
 	});
 });
 

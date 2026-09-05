@@ -4111,6 +4111,17 @@
 										},
 										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["delta", "expectedPrevious"],
@@ -4484,6 +4495,17 @@
 										},
 										"required": ["cp", "sp", "gp", "pp"],
 										"additionalProperties": false
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["amount", "expectedPrevious"],
@@ -4929,6 +4951,17 @@
 										"type": "integer",
 										"minimum": 1,
 										"maximum": 2147483647
+									},
+									"note": {
+										"anyOf": [
+											{
+												"type": "string",
+												"maxLength": 500
+											},
+											{
+												"type": "null"
+											}
+										]
 									}
 								},
 								"required": ["from", "to", "amount"],
@@ -8622,6 +8655,1209 @@
 					},
 					"500": {
 						"description": "Character item persistence failure",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/characters/{characterId}/history": {
+			"get": {
+				"operationId": "listCharacterHistory",
+				"summary": "List character inventory history",
+				"tags": ["characters", "history"],
+				"parameters": [
+					{
+						"name": "characterId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991
+						}
+					},
+					{
+						"name": "action",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": ["item_added", "item_updated", "item_removed", "currency_updated"]
+						}
+					},
+					{
+						"name": "entityType",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": ["item", "currency"]
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Character inventory history",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"entries": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid",
+														"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+													},
+													"action": {
+														"type": "string",
+														"enum": [
+															"item_added",
+															"item_updated",
+															"item_removed",
+															"currency_updated"
+														]
+													},
+													"entityType": {
+														"type": "string",
+														"enum": ["item", "currency"]
+													},
+													"entityId": {
+														"anyOf": [
+															{
+																"type": "string",
+																"format": "uuid",
+																"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"entityName": {
+														"anyOf": [
+															{
+																"type": "string",
+																"minLength": 1,
+																"maxLength": 120
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"actorUserId": {
+														"anyOf": [
+															{
+																"type": "string",
+																"format": "uuid",
+																"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"details": {
+														"anyOf": [
+															{
+																"anyOf": [
+																	{
+																		"type": "object",
+																		"properties": {
+																			"version": {
+																				"type": "number",
+																				"const": 1
+																			},
+																			"item": {
+																				"type": "object",
+																				"properties": {
+																					"id": {
+																						"type": "string",
+																						"format": "uuid",
+																						"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+																					},
+																					"name": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"type": {
+																						"type": "string",
+																						"enum": [
+																							"equipment",
+																							"potion",
+																							"scroll",
+																							"consumable",
+																							"misc"
+																						]
+																					},
+																					"category": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"rarity": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"enum": [
+																									"common",
+																									"uncommon",
+																									"rare",
+																									"very_rare",
+																									"legendary",
+																									"artifact"
+																								]
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"quantity": {
+																						"type": "integer",
+																						"minimum": 1,
+																						"maximum": 2147483647
+																					},
+																					"weight": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"estimatedValue": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"isEquipped": {
+																						"type": "boolean"
+																					},
+																					"notes": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500,
+																								"pattern": "\\S"
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					}
+																				},
+																				"required": [
+																					"id",
+																					"name",
+																					"type",
+																					"category",
+																					"rarity",
+																					"quantity",
+																					"weight",
+																					"estimatedValue",
+																					"isEquipped"
+																				],
+																				"additionalProperties": false
+																			}
+																		},
+																		"required": ["version", "item"],
+																		"additionalProperties": false
+																	},
+																	{
+																		"type": "object",
+																		"properties": {
+																			"version": {
+																				"type": "number",
+																				"const": 1
+																			},
+																			"before": {
+																				"type": "object",
+																				"properties": {
+																					"id": {
+																						"type": "string",
+																						"format": "uuid",
+																						"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+																					},
+																					"name": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"type": {
+																						"type": "string",
+																						"enum": [
+																							"equipment",
+																							"potion",
+																							"scroll",
+																							"consumable",
+																							"misc"
+																						]
+																					},
+																					"category": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"rarity": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"enum": [
+																									"common",
+																									"uncommon",
+																									"rare",
+																									"very_rare",
+																									"legendary",
+																									"artifact"
+																								]
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"quantity": {
+																						"type": "integer",
+																						"minimum": 1,
+																						"maximum": 2147483647
+																					},
+																					"weight": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"estimatedValue": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"isEquipped": {
+																						"type": "boolean"
+																					},
+																					"notes": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500,
+																								"pattern": "\\S"
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					}
+																				},
+																				"required": [
+																					"id",
+																					"name",
+																					"type",
+																					"category",
+																					"rarity",
+																					"quantity",
+																					"weight",
+																					"estimatedValue",
+																					"isEquipped"
+																				],
+																				"additionalProperties": false
+																			},
+																			"after": {
+																				"type": "object",
+																				"properties": {
+																					"id": {
+																						"type": "string",
+																						"format": "uuid",
+																						"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+																					},
+																					"name": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"type": {
+																						"type": "string",
+																						"enum": [
+																							"equipment",
+																							"potion",
+																							"scroll",
+																							"consumable",
+																							"misc"
+																						]
+																					},
+																					"category": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"rarity": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"enum": [
+																									"common",
+																									"uncommon",
+																									"rare",
+																									"very_rare",
+																									"legendary",
+																									"artifact"
+																								]
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"quantity": {
+																						"type": "integer",
+																						"minimum": 1,
+																						"maximum": 2147483647
+																					},
+																					"weight": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"estimatedValue": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"isEquipped": {
+																						"type": "boolean"
+																					},
+																					"notes": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500,
+																								"pattern": "\\S"
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					}
+																				},
+																				"required": [
+																					"id",
+																					"name",
+																					"type",
+																					"category",
+																					"rarity",
+																					"quantity",
+																					"weight",
+																					"estimatedValue",
+																					"isEquipped"
+																				],
+																				"additionalProperties": false
+																			},
+																			"changedFields": {
+																				"maxItems": 32,
+																				"type": "array",
+																				"items": {
+																					"type": "string",
+																					"minLength": 1,
+																					"maxLength": 80
+																				}
+																			}
+																		},
+																		"required": ["version", "before", "after", "changedFields"],
+																		"additionalProperties": false
+																	},
+																	{
+																		"type": "object",
+																		"properties": {
+																			"version": {
+																				"type": "number",
+																				"const": 1
+																			},
+																			"item": {
+																				"type": "object",
+																				"properties": {
+																					"id": {
+																						"type": "string",
+																						"format": "uuid",
+																						"pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+																					},
+																					"name": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"type": {
+																						"type": "string",
+																						"enum": [
+																							"equipment",
+																							"potion",
+																							"scroll",
+																							"consumable",
+																							"misc"
+																						]
+																					},
+																					"category": {
+																						"type": "string",
+																						"minLength": 1,
+																						"maxLength": 120,
+																						"pattern": "\\S"
+																					},
+																					"rarity": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"enum": [
+																									"common",
+																									"uncommon",
+																									"rare",
+																									"very_rare",
+																									"legendary",
+																									"artifact"
+																								]
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"quantity": {
+																						"type": "integer",
+																						"minimum": 1,
+																						"maximum": 2147483647
+																					},
+																					"weight": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"estimatedValue": {
+																						"anyOf": [
+																							{
+																								"type": "number",
+																								"minimum": 0,
+																								"maximum": 3.4028234663852886e38
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"isEquipped": {
+																						"type": "boolean"
+																					},
+																					"notes": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500,
+																								"pattern": "\\S"
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					}
+																				},
+																				"required": [
+																					"id",
+																					"name",
+																					"type",
+																					"category",
+																					"rarity",
+																					"quantity",
+																					"weight",
+																					"estimatedValue",
+																					"isEquipped"
+																				],
+																				"additionalProperties": false
+																			}
+																		},
+																		"required": ["version", "item"],
+																		"additionalProperties": false
+																	},
+																	{
+																		"anyOf": [
+																			{
+																				"type": "object",
+																				"properties": {
+																					"version": {
+																						"type": "number",
+																						"const": 1
+																					},
+																					"previous": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"next": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"delta": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"note": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"operation": {
+																						"type": "string",
+																						"const": "add"
+																					},
+																					"requested": {
+																						"type": "object",
+																						"properties": {
+																							"delta": {
+																								"type": "object",
+																								"properties": {
+																									"cp": {
+																										"type": "integer",
+																										"minimum": -2147483648,
+																										"maximum": 2147483647
+																									},
+																									"sp": {
+																										"type": "integer",
+																										"minimum": -2147483648,
+																										"maximum": 2147483647
+																									},
+																									"gp": {
+																										"type": "integer",
+																										"minimum": -2147483648,
+																										"maximum": 2147483647
+																									},
+																									"pp": {
+																										"type": "integer",
+																										"minimum": -2147483648,
+																										"maximum": 2147483647
+																									}
+																								},
+																								"required": ["cp", "sp", "gp", "pp"],
+																								"additionalProperties": false
+																							}
+																						},
+																						"required": ["delta"],
+																						"additionalProperties": false
+																					}
+																				},
+																				"required": [
+																					"version",
+																					"previous",
+																					"next",
+																					"delta",
+																					"note",
+																					"operation",
+																					"requested"
+																				],
+																				"additionalProperties": false
+																			},
+																			{
+																				"type": "object",
+																				"properties": {
+																					"version": {
+																						"type": "number",
+																						"const": 1
+																					},
+																					"previous": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"next": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"delta": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"note": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"operation": {
+																						"type": "string",
+																						"const": "spend"
+																					},
+																					"requested": {
+																						"type": "object",
+																						"properties": {
+																							"amount": {
+																								"type": "object",
+																								"properties": {
+																									"denomination": {
+																										"type": "string",
+																										"enum": ["cp", "sp", "gp", "pp"]
+																									},
+																									"amount": {
+																										"type": "integer",
+																										"minimum": 1,
+																										"maximum": 2147483647
+																									}
+																								},
+																								"required": ["denomination", "amount"],
+																								"additionalProperties": false
+																							}
+																						},
+																						"required": ["amount"],
+																						"additionalProperties": false
+																					}
+																				},
+																				"required": [
+																					"version",
+																					"previous",
+																					"next",
+																					"delta",
+																					"note",
+																					"operation",
+																					"requested"
+																				],
+																				"additionalProperties": false
+																			},
+																			{
+																				"type": "object",
+																				"properties": {
+																					"version": {
+																						"type": "number",
+																						"const": 1
+																					},
+																					"previous": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"next": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": 0,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"delta": {
+																						"type": "object",
+																						"properties": {
+																							"cp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"sp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"gp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							},
+																							"pp": {
+																								"type": "integer",
+																								"minimum": -2147483648,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["cp", "sp", "gp", "pp"],
+																						"additionalProperties": false
+																					},
+																					"note": {
+																						"anyOf": [
+																							{
+																								"type": "string",
+																								"maxLength": 500
+																							},
+																							{
+																								"type": "null"
+																							}
+																						]
+																					},
+																					"operation": {
+																						"type": "string",
+																						"const": "convert"
+																					},
+																					"requested": {
+																						"type": "object",
+																						"properties": {
+																							"from": {
+																								"type": "string",
+																								"enum": ["cp", "sp", "gp", "pp"]
+																							},
+																							"to": {
+																								"type": "string",
+																								"enum": ["cp", "sp", "gp", "pp"]
+																							},
+																							"amount": {
+																								"type": "integer",
+																								"minimum": 1,
+																								"maximum": 2147483647
+																							}
+																						},
+																						"required": ["from", "to", "amount"],
+																						"additionalProperties": false
+																					}
+																				},
+																				"required": [
+																					"version",
+																					"previous",
+																					"next",
+																					"delta",
+																					"note",
+																					"operation",
+																					"requested"
+																				],
+																				"additionalProperties": false
+																			}
+																		]
+																	}
+																]
+															},
+															{
+																"type": "object",
+																"properties": {
+																	"changes": {
+																		"type": "object",
+																		"properties": {
+																			"old": {
+																				"type": "object",
+																				"properties": {
+																					"cp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"sp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"gp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"pp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					}
+																				},
+																				"required": ["cp", "sp", "gp", "pp"],
+																				"additionalProperties": false
+																			},
+																			"new": {
+																				"type": "object",
+																				"properties": {
+																					"cp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"sp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"gp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					},
+																					"pp": {
+																						"type": "integer",
+																						"minimum": 0,
+																						"maximum": 2147483647
+																					}
+																				},
+																				"required": ["cp", "sp", "gp", "pp"],
+																				"additionalProperties": false
+																			}
+																		},
+																		"required": ["old", "new"],
+																		"additionalProperties": false
+																	},
+																	"note": {
+																		"default": null,
+																		"anyOf": [
+																			{
+																				"type": "string",
+																				"maxLength": 500,
+																				"pattern": "\\S"
+																			},
+																			{
+																				"type": "null"
+																			}
+																		]
+																	}
+																},
+																"required": ["changes", "note"],
+																"additionalProperties": {}
+															}
+														]
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time",
+														"pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+													}
+												},
+												"required": [
+													"id",
+													"action",
+													"entityType",
+													"entityId",
+													"entityName",
+													"actorUserId",
+													"details",
+													"createdAt"
+												],
+												"additionalProperties": false
+											}
+										},
+										"total": {
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 9007199254740991
+										},
+										"limit": {
+											"type": "integer",
+											"minimum": 1,
+											"maximum": 100
+										},
+										"offset": {
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 9007199254740991
+										},
+										"hasMore": {
+											"type": "boolean"
+										}
+									},
+									"required": ["entries", "total", "limit", "offset", "hasMore"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid character history request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Character history persistence failure",
 						"content": {
 							"application/json": {
 								"schema": {

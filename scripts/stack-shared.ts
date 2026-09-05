@@ -20,7 +20,6 @@ export interface StackMetadata {
 		api: string;
 		web: string;
 	};
-	databaseUrl: string;
 	pids: {
 		api?: number;
 		web?: number;
@@ -51,16 +50,53 @@ export function getStackPaths(root = getRoot()) {
 	};
 }
 
-export function readMetadata(): StackMetadata | null {
-	const { metadataPath } = getStackPaths();
+export function readMetadata(root = getRoot()): StackMetadata | null {
+	const { metadataPath } = getStackPaths(root);
 	if (!existsSync(metadataPath)) return null;
-	return JSON.parse(readFileSync(metadataPath, "utf-8")) as StackMetadata;
+	const parsed = JSON.parse(readFileSync(metadataPath, "utf-8")) as Record<string, unknown>;
+	if (Object.hasOwn(parsed, "databaseUrl")) {
+		const { databaseUrl: _databaseUrl, ...redacted } = parsed;
+		writeMetadata(redacted as unknown as StackMetadata);
+		return redacted as unknown as StackMetadata;
+	}
+	return parsed as unknown as StackMetadata;
 }
 
 export function writeMetadata(metadata: StackMetadata) {
 	mkdirSync(metadata.dir, { recursive: true });
 	mkdirSync(join(metadata.dir, "logs"), { recursive: true });
-	writeFileSync(join(metadata.dir, "metadata.json"), `${JSON.stringify(metadata, null, 2)}\n`);
+	const persistedMetadata = {
+		mode: metadata.mode,
+		worktreeName: metadata.worktreeName,
+		projectName: metadata.projectName,
+		root: metadata.root,
+		dir: metadata.dir,
+		ports: metadata.ports,
+		urls: metadata.urls,
+		pids: metadata.pids,
+		logs: metadata.logs,
+		startedAt: metadata.startedAt,
+	};
+	writeFileSync(
+		join(metadata.dir, "metadata.json"),
+		`${JSON.stringify(persistedMetadata, null, 2)}\n`,
+	);
+}
+
+export function getOwnedDatabaseUrl(metadata: { ports: Pick<StackMetadata["ports"], "postgres"> }) {
+	const port = metadata.ports.postgres;
+	if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+		throw new Error("Owned stack metadata must contain a valid Postgres port.");
+	}
+	return `postgres://app:localdev@127.0.0.1:${port}/app`;
+}
+
+export function assertNoExternalDatabaseUrl(env: NodeJS.ProcessEnv = process.env) {
+	if (env.DATABASE_URL) {
+		throw new Error(
+			"This local stack command owns its ephemeral Postgres database and does not accept DATABASE_URL. Unset DATABASE_URL and rerun the command.",
+		);
+	}
 }
 
 export async function findFreePort(start: number) {
@@ -91,9 +127,13 @@ export function computePortSeeds(hash: string) {
 }
 
 export function runCommand(command: string, args: string[], env: NodeJS.ProcessEnv = {}) {
+	const commandEnv = { ...process.env, ...env };
+	for (const [key, value] of Object.entries(commandEnv)) {
+		if (value === undefined) delete commandEnv[key];
+	}
 	const result = spawnSync(command, args, {
 		cwd: getRoot(),
-		env: { ...process.env, ...env },
+		env: commandEnv,
 		stdio: "inherit",
 	});
 	if (result.status !== 0) {
@@ -101,6 +141,35 @@ export function runCommand(command: string, args: string[], env: NodeJS.ProcessE
 			`${command} ${args.join(" ")} failed with exit code ${result.status ?? "unknown"}.`,
 		);
 	}
+}
+
+export function runCommandAsync(command: string, args: string[], env: NodeJS.ProcessEnv = {}) {
+	const commandEnv = { ...process.env, ...env };
+	for (const [key, value] of Object.entries(commandEnv)) {
+		if (value === undefined) delete commandEnv[key];
+	}
+
+	return new Promise<void>((resolve, reject) => {
+		const child = spawn(command, args, {
+			cwd: getRoot(),
+			env: commandEnv,
+			stdio: "inherit",
+		});
+		child.once("error", reject);
+		child.once("close", (code, signal) => {
+			if (code === 0) {
+				resolve();
+				return;
+			}
+			reject(
+				new Error(
+					`${command} ${args.join(" ")} failed with ${
+						code === null ? `signal ${signal ?? "unknown"}` : `exit code ${code}`
+					}.`,
+				),
+			);
+		});
+	});
 }
 
 export async function spawnLogged(

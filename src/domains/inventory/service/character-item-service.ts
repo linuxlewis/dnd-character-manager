@@ -88,7 +88,7 @@ export function createCharacterItemService(
 			await authorizeCharacter(userId, characterId, characterService);
 			const createInput = await withCatalogueSnapshot(request, catalogueClient);
 			const item = await repositoryCall("create", () =>
-				repository.createItemForCharacterWithHistory(characterId, createInput),
+				repository.createItemForCharacterWithHistory(characterId, createInput, userId),
 			);
 			return CharacterItemResponseSchema.parse({ item });
 		},
@@ -110,7 +110,7 @@ export function createCharacterItemService(
 			await findItem(repository, scopeId, itemId);
 			const updateInput = await withOptionalCatalogueSnapshot(request, catalogueClient);
 			const item = await repositoryCall("update", () =>
-				repository.updateItemWithHistory(scopeId, itemId, updateInput),
+				repository.updateItemWithHistory(scopeId, itemId, updateInput, userId),
 			);
 			if (!item) throw new CharacterItemNotFoundError();
 			return CharacterItemResponseSchema.parse({ item });
@@ -118,7 +118,7 @@ export function createCharacterItemService(
 		async deleteCharacterItem(userId, characterId, itemId) {
 			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
 			const item = await repositoryCall("delete", () =>
-				repository.deleteItemWithHistory(scopeId, itemId),
+				repository.deleteItemWithHistory(scopeId, itemId, userId),
 			);
 			if (!item) throw new CharacterItemNotFoundError();
 		},
@@ -131,6 +131,7 @@ export function createCharacterItemService(
 				characterService,
 				scopeRepository,
 				repository,
+				userId,
 			);
 		},
 
@@ -143,6 +144,7 @@ export function createCharacterItemService(
 				characterService,
 				scopeRepository,
 				repository,
+				userId,
 			);
 		},
 	};
@@ -198,10 +200,11 @@ async function setEquipped(
 	characterService: Pick<CharacterService, "getCharacter">,
 	scopeRepository: CharacterInventoryScopeRepository,
 	repository: CharacterItemRepository,
+	actorUserId: string,
 ) {
 	const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
 	const item = await repositoryCall("equip", () =>
-		repository.setEquippedWithHistory(scopeId, itemId, isEquipped),
+		repository.setEquippedWithHistory(scopeId, itemId, isEquipped, actorUserId),
 	);
 	if (!item) throw new CharacterItemNotFoundError();
 	return CharacterItemResponseSchema.parse({ item });

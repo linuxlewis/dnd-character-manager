@@ -9,10 +9,10 @@ import type {
 	InventoryScopeId,
 } from "../types/index.js";
 import {
-	InventoryHistoryEntryInputSchema,
 	InventoryHistoryPageRequestSchema,
 	InventoryHistoryPageSchema,
 	InventoryScopeIdSchema,
+	parseInventoryHistoryEntryInput,
 } from "../types/index.js";
 import { toInventoryHistoryEntry, toInventoryHistoryInsert } from "./inventory-history-mappers.js";
 import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
@@ -33,7 +33,7 @@ export interface InventoryHistoryRepository {
 export function createInventoryHistoryRepository(): InventoryHistoryRepository {
 	return {
 		async appendHistoryEntry(scopeId, input) {
-			const parsedInput = InventoryHistoryEntryInputSchema.parse(input);
+			const parsedInput = parseInventoryHistoryEntryInput(input);
 			const [row] = await getDb()
 				.insert(inventoryHistoryEntriesTable)
 				.values(toInventoryHistoryInsert(scopeId, parsedInput))
@@ -45,7 +45,11 @@ export function createInventoryHistoryRepository(): InventoryHistoryRepository {
 		async listHistoryEntries(scopeId, request = {}) {
 			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
 			const page = InventoryHistoryPageRequestSchema.parse(request);
-			const where = and(eq(inventoryHistoryEntriesTable.inventoryScopeId, parsedScopeId));
+			const conditions = [eq(inventoryHistoryEntriesTable.inventoryScopeId, parsedScopeId)];
+			if (page.action) conditions.push(eq(inventoryHistoryEntriesTable.action, page.action));
+			if (page.entityType)
+				conditions.push(eq(inventoryHistoryEntriesTable.entityType, page.entityType));
+			const where = and(...conditions);
 			const [rows, totalRows] = await Promise.all([
 				getDb()
 					.select(historyColumns())
@@ -79,6 +83,7 @@ function historyColumns() {
 		entityType: inventoryHistoryEntriesTable.entityType,
 		entityId: inventoryHistoryEntriesTable.entityId,
 		entityName: inventoryHistoryEntriesTable.entityName,
+		actorUserId: inventoryHistoryEntriesTable.actorUserId,
 		details: inventoryHistoryEntriesTable.details,
 		createdAt: inventoryHistoryEntriesTable.createdAt,
 	};

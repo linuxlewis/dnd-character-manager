@@ -5,11 +5,18 @@ import {
 } from "../src/domains/catalogue/service/index.js";
 import { closeDb } from "../src/providers/database/index.js";
 import { createLogger } from "../src/providers/telemetry/index.js";
-import { readMetadata } from "./stack-shared.js";
+import { getOwnedDatabaseUrl, readMetadata } from "./stack-shared.js";
 
 const metadata = readMetadata();
-if (metadata && !process.env.DATABASE_URL) {
-	process.env.DATABASE_URL = metadata.databaseUrl;
+
+if (metadata) {
+	const ownedDatabaseUrl = getOwnedDatabaseUrl(metadata);
+	if (process.env.DATABASE_URL && process.env.DATABASE_URL !== ownedDatabaseUrl) {
+		throw new Error(
+			"This worktree has an owned local stack; pnpm seed will not use an external DATABASE_URL.",
+		);
+	}
+	process.env.DATABASE_URL = ownedDatabaseUrl;
 }
 
 if (!process.env.DATABASE_URL) {

@@ -1,6 +1,7 @@
 import type { CharacterService } from "../../characters/service/index.js";
 import { createCharacterService } from "../../characters/service/index.js";
 import {
+	type CharacterTreasuryHistoryInput,
 	CharacterTreasuryPreconditionError,
 	type CharacterTreasuryRepository,
 	createCharacterTreasuryRepository,
@@ -101,6 +102,12 @@ export function createCharacterTreasuryService(
 					return nextPlan.next;
 				},
 				request.expectedPrevious,
+				{
+					operation: "add",
+					requested: { delta: request.delta },
+					note: request.note ?? null,
+					actorUserId: userId,
+				},
 			);
 			if (!plan) throw new TreasuryOverflowError("Treasury mutation did not produce a plan.");
 			return AddCharacterTreasuryResponseSchema.parse({
@@ -122,6 +129,12 @@ export function createCharacterTreasuryService(
 					return nextPlan.next;
 				},
 				request.expectedPrevious,
+				{
+					operation: "spend",
+					requested: { amount: request.amount },
+					note: request.note ?? null,
+					actorUserId: userId,
+				},
 			);
 			if (!plan) throw new TreasuryOverflowError("Treasury mutation did not produce a plan.");
 			return SpendCharacterTreasuryResponseSchema.parse({
@@ -139,11 +152,26 @@ export function createCharacterTreasuryService(
 			const request = ConvertCharacterTreasuryRequestSchema.parse(input);
 			await characterService.getCharacter(userId, characterId);
 			let plan: ReturnType<typeof planConversion> | undefined;
-			const treasury = await repository.mutateCharacterTreasury(characterId, (current) => {
-				const nextPlan = planConversion(current, request);
-				plan = nextPlan;
-				return nextPlan.next;
-			});
+			const treasury = await mutateWithPreviewPrecondition(
+				repository,
+				characterId,
+				(current) => {
+					const nextPlan = planConversion(current, {
+						from: request.from,
+						to: request.to,
+						amount: request.amount,
+					});
+					plan = nextPlan;
+					return nextPlan.next;
+				},
+				undefined,
+				{
+					operation: "convert",
+					requested: { from: request.from, to: request.to, amount: request.amount },
+					note: request.note ?? null,
+					actorUserId: userId,
+				},
+			);
 			if (!plan) throw new TreasuryOverflowError("Treasury mutation did not produce a plan.");
 			return ConvertCharacterTreasuryResponseSchema.parse({
 				treasury,
@@ -197,10 +225,14 @@ async function mutateWithPreviewPrecondition(
 	repository: CharacterTreasuryRepository,
 	characterId: string,
 	mutation: (current: CurrencyBalance) => CurrencyBalance,
-	expectedPrevious: CurrencyBalance,
+	expectedPrevious?: CurrencyBalance,
+	history?: CharacterTreasuryHistoryInput,
 ) {
 	try {
-		return await repository.mutateCharacterTreasury(characterId, mutation, { expectedPrevious });
+		return await repository.mutateCharacterTreasury(characterId, mutation, {
+			...(expectedPrevious === undefined ? {} : { expectedPrevious }),
+			...(history === undefined ? {} : { history }),
+		});
 	} catch (error) {
 		if (!(error instanceof CharacterTreasuryPreconditionError)) throw error;
 		throw new TreasuryConflictError({
