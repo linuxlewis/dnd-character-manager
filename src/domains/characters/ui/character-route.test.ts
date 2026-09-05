@@ -10,6 +10,7 @@ describe("parseCharacterRoute", () => {
 		expect(parseCharacterRoute("/")).toEqual({ screen: "list" });
 		expect(parseCharacterRoute("/characters")).toEqual({ screen: "list" });
 		expect(parseCharacterRoute("/characters/new")).toEqual({ screen: "create" });
+		expect(parseCharacterRoute("/characters/new/")).toEqual({ screen: "create" });
 		expect(parseCharacterRoute("/characters/abc")).toEqual({
 			screen: "detail",
 			id: "abc",
