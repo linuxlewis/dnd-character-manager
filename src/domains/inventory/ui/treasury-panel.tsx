@@ -16,6 +16,7 @@ export interface TreasuryQueryState {
 	data?: TreasuryData;
 	isLoading: boolean;
 	error: Error | null;
+	onRetry: () => void;
 }
 
 export interface TreasuryOperationState {
@@ -96,7 +97,10 @@ export function TreasuryPanel({
 			)}
 			{query.error && (
 				<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
-					{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
+					{getTreasuryErrorMessage(query.error, "Try loading the treasury again.")}
+					<Button mt="sm" onClick={query.onRetry} size="sm" variant="light">
+						Retry treasury
+					</Button>
 				</Alert>
 			)}
 			{indeterminateOutcome && (

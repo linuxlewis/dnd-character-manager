@@ -31,7 +31,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page).toHaveURL(/\/characters\/[0-9a-f-]{36}$/);
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
-	await expect(page.getByText("Level 7")).toBeVisible();
+	await expect(page.getByText("Level 7", { exact: true })).toBeVisible();
 	await expect(page.getByText("0 XP", { exact: true })).toBeVisible();
 	await expect(page.getByText("34,000 XP to level 8")).toBeVisible();
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
@@ -42,23 +42,23 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await page.getByLabel("Experience points").fill("27000");
 	await page.getByRole("button", { name: "Save character" }).click();
 	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
-	await expect(page.getByText("Level 8")).toBeVisible();
+	await expect(page.getByText("Level 8", { exact: true })).toBeVisible();
 	await expect(page.getByText("27,000 XP")).toBeVisible();
 	await expect(page.getByText("21,000 XP to level 9")).toBeVisible();
 
 	await page.getByText("Back to characters").click();
 	await expect(page).toHaveURL(/\/characters$/);
 	await expect(page.getByRole("link", { name: "Lyria Starfall" })).toBeVisible();
-	await expect(page.getByText("Level 8")).toBeVisible();
+	await expect(page.getByText("Level 8", { exact: true })).toBeVisible();
 
 	await page.reload();
 	await expect(page.getByRole("link", { name: "Lyria Starfall" })).toBeVisible();
-	await expect(page.getByText("Level 8")).toBeVisible();
+	await expect(page.getByText("Level 8", { exact: true })).toBeVisible();
 
 	await page.getByRole("link", { name: "Lyria Starfall" }).click();
 	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
-	await expect(page.getByText("Level 8")).toBeVisible();
+	await expect(page.getByText("Level 8", { exact: true })).toBeVisible();
 	await expect(page.getByText("27,000 XP")).toBeVisible();
 
 	await page.goBack();
@@ -68,7 +68,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await page.goForward();
 	await expect(page).toHaveURL(/\/characters\/[0-9a-f-]{36}$/);
 	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
-	await expect(page.getByText("Level 8")).toBeVisible();
+	await expect(page.getByText("Level 8", { exact: true })).toBeVisible();
 	await expect(page.getByText("21,000 XP to level 9")).toBeVisible();
 });
 

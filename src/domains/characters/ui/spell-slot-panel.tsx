@@ -127,7 +127,6 @@ export function CharacterSpellSlotsPanel({
 	function setDraftTotal(slotLevel: number, value: NumberDraft) {
 		setDraftTotals((current) => ({ ...current, [slotLevel]: value }));
 	}
-
 	function saveConfiguration() {
 		if (spellSlots.length === 0) return;
 		updateMutation.mutate({
@@ -224,7 +223,6 @@ export function CharacterSpellSlotsPanel({
 					</Group>
 				</Group>
 			</Stack>
-
 			{spellSlotsQuery.isLoading && <Text c="dimmed">Loading spell slots...</Text>}
 
 			<SpellSlotHistory
@@ -263,6 +261,8 @@ export function CharacterSpellSlotsPanel({
 			/>
 
 			<SpellSlotPanelAlerts
+				onRetrySpellSlots={() => void spellSlotsQuery.refetch()}
+				onRetrySpells={() => void characterSpellsQuery.refetch()}
 				spellSlotsUnavailable={spellSlotsUnavailable}
 				spellsUnavailable={spellsUnavailable}
 			/>

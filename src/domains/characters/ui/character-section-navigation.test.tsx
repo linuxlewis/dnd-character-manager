@@ -1,7 +1,10 @@
 import { MantineProvider } from "@mantine/core";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { CharacterSectionNavigation } from "./character-section-navigation.js";
+import {
+	CharacterSectionNavigation,
+	canScrollRightFromMetrics,
+} from "./character-section-navigation.js";
 
 describe("CharacterSectionNavigation", () => {
 	it("renders real links for all destinations with accessible active state", () => {
@@ -22,6 +25,18 @@ describe("CharacterSectionNavigation", () => {
 		expect(html).toContain("Attributes &amp; Rolls");
 		expect(html).toContain("Spells &amp; Abilities");
 		expect(html).toContain("character-section-navigation-scroll");
-		expect(html).toContain("character-section-navigation-affordance");
+		expect(html).not.toContain("character-section-navigation-affordance");
+	});
+
+	it("only reports a right cue while content remains beyond the viewport", () => {
+		expect(canScrollRightFromMetrics({ clientWidth: 300, scrollLeft: 0, scrollWidth: 500 })).toBe(
+			true,
+		);
+		expect(canScrollRightFromMetrics({ clientWidth: 300, scrollLeft: 200, scrollWidth: 500 })).toBe(
+			false,
+		);
+		expect(
+			canScrollRightFromMetrics({ clientWidth: 300, scrollLeft: 199.5, scrollWidth: 500 }),
+		).toBe(false);
 	});
 });

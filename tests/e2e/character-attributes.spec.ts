@@ -27,7 +27,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 		await expect(page.getByTestId(`ability-row-${ability.toLowerCase()}`)).toContainText("10");
 		await expect(page.getByTestId(`ability-row-${ability.toLowerCase()}`)).toContainText("+0");
 	}
-	await expect(page.getByText("Proficiency bonus").locator("..")).toContainText("+2");
+	await expect(page.getByText(/Proficiency bonus from level 1/).locator("..")).toContainText("+2");
 
 	const activeSectionRequests: string[] = [];
 	page.on("request", (request) => {
@@ -102,8 +102,8 @@ test("completes the attributes reference journey and preserves ownership boundar
 	const characterEditor = page.getByRole("dialog", { name: "Edit character" });
 	await characterEditor.getByLabel("Character level").fill("5");
 	await characterEditor.getByRole("button", { name: "Save character" }).click();
-	await expect(page.getByText("Level 5")).toBeVisible();
-	await expect(page.getByText("Proficiency bonus").locator("..")).toContainText("+3");
+	await expect(page.getByText("Level 5", { exact: true })).toBeVisible();
+	await expect(page.getByText(/Proficiency bonus from level 5/).locator("..")).toContainText("+3");
 	await expectRoll(page, /Stealth, Dexterity, Expertise.*total \+9/);
 	await expectRoll(page, /Perception, Wisdom, Proficient.*total \+5/);
 	await expectRoll(page, /Wisdom save, Wisdom, Proficient.*total \+5/);
@@ -197,7 +197,21 @@ test("keeps section navigation safe at 320px with enlarged text", async ({ page 
 	});
 
 	await expect(page.locator(".character-section-navigation-scroll")).toBeVisible();
-	await expect(page.locator(".character-section-navigation-affordance")).toBeVisible();
+	const navigationScroll = page.locator(".character-section-navigation-scroll");
+	const affordance = page.locator(".character-section-navigation-affordance");
+	const hasNavigationOverflow = await navigationScroll.evaluate(
+		(element) => element.scrollWidth > element.clientWidth,
+	);
+	if (hasNavigationOverflow) {
+		await expect(affordance).toBeVisible();
+		await navigationScroll.evaluate((element) => {
+			element.scrollLeft = element.scrollWidth;
+			element.dispatchEvent(new Event("scroll"));
+		});
+		await expect(affordance).toBeHidden();
+	} else {
+		await expect(affordance).toBeHidden();
+	}
 	await expect
 		.poll(async () =>
 			page.evaluate(
@@ -219,6 +233,48 @@ async function createCharacter(page: Page, name: string, className: string, leve
 	await page.getByRole("button", { name: "Create character" }).click();
 	await expect(page.getByRole("heading", { name })).toBeVisible();
 }
+
+test("updates the attributes preview before saving a draft", async ({ page }) => {
+	let updateAttempts = 0;
+	page.on("request", (request) => {
+		if (request.method() === "PUT" && request.url().includes("/attributes")) updateAttempts += 1;
+	});
+
+	await page.goto("/");
+	await createCharacter(page, "Attributes Preview", "Fighter", 1);
+	await page.getByRole("button", { name: "Edit attributes" }).click();
+	const editor = page.getByRole("dialog", { name: "Edit attributes" });
+	await expect(
+		editor.getByText("Stealth +0 / Wisdom save +0 / Passive Perception 10"),
+	).toBeVisible();
+	await editor.getByRole("textbox", { name: "Dexterity" }).fill("16");
+	await editor.getByLabel("Stealth").click();
+	await page.getByRole("option", { name: "Expertise" }).click();
+	await expect(
+		editor.getByText("Stealth +7 / Wisdom save +0 / Passive Perception 10"),
+	).toBeVisible();
+	expect(updateAttempts).toBe(0);
+});
+
+test("keeps attributes editing hidden until the initial load recovers", async ({ page }) => {
+	let attributesAvailable = false;
+	await page.route("**/api/characters/*/attributes", async (route) => {
+		if (route.request().method() !== "GET" || attributesAvailable) return route.continue();
+		await route.fulfill({
+			status: 503,
+			contentType: "application/json",
+			body: JSON.stringify({ error: "Attributes are temporarily unavailable." }),
+		});
+	});
+
+	await page.goto("/");
+	await createCharacter(page, "Attributes Load Recovery", "Fighter", 1);
+	await expect(page.getByRole("button", { name: "Edit attributes" })).toHaveCount(0);
+	await expect(page.getByRole("button", { name: "Retry attributes" })).toBeVisible();
+	attributesAvailable = true;
+	await page.getByRole("button", { name: "Retry attributes" }).click();
+	await expect(page.getByRole("button", { name: "Edit attributes" })).toBeVisible();
+});
 
 async function expectRoll(page: Page, name: RegExp) {
 	await expect(page.getByRole("button", { name })).toBeVisible();

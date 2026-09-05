@@ -1,4 +1,5 @@
 import { Anchor, Box, Group } from "@mantine/core";
+import { useCallback, useState } from "react";
 import type { CharacterSection } from "./character-route.js";
 import { characterSectionPath, shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
@@ -18,6 +19,32 @@ export function CharacterSectionNavigation({
 	characterId: string;
 	onNavigate: NavigateToCharacterRoute;
 }) {
+	const [canScrollRight, setCanScrollRight] = useState(false);
+	const setScrollNode = useCallback((node: HTMLDivElement | null) => {
+		if (!node) return;
+
+		const updateScrollCue = () => {
+			setCanScrollRight(
+				canScrollRightFromMetrics({
+					clientWidth: node.clientWidth,
+					scrollLeft: node.scrollLeft,
+					scrollWidth: node.scrollWidth,
+				}),
+			);
+		};
+		updateScrollCue();
+		node.addEventListener("scroll", updateScrollCue, { passive: true });
+		const resizeObserver =
+			typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateScrollCue);
+		resizeObserver?.observe(node);
+		if (node.firstElementChild) resizeObserver?.observe(node.firstElementChild);
+
+		return () => {
+			node.removeEventListener("scroll", updateScrollCue);
+			resizeObserver?.disconnect();
+		};
+	}, []);
+
 	return (
 		<Box
 			component="nav"
@@ -25,8 +52,16 @@ export function CharacterSectionNavigation({
 			className="character-section-navigation"
 			py="xs"
 		>
-			<Box className="character-section-navigation-scroll">
-				<Group className="character-section-navigation-track" gap={0} wrap="nowrap">
+			<Box className="character-section-navigation-scroll" ref={setScrollNode}>
+				<Group
+					className={
+						canScrollRight
+							? "character-section-navigation-track has-overflow"
+							: "character-section-navigation-track"
+					}
+					gap={0}
+					wrap="nowrap"
+				>
 					{sections.map((section) => {
 						const active = section.key === activeSection;
 						return (
@@ -53,7 +88,21 @@ export function CharacterSectionNavigation({
 					})}
 				</Group>
 			</Box>
-			<Box aria-hidden="true" className="character-section-navigation-affordance" />
+			{canScrollRight && (
+				<Box aria-hidden="true" className="character-section-navigation-affordance" />
+			)}
 		</Box>
 	);
+}
+
+export function canScrollRightFromMetrics({
+	clientWidth,
+	scrollLeft,
+	scrollWidth,
+}: {
+	clientWidth: number;
+	scrollLeft: number;
+	scrollWidth: number;
+}) {
+	return scrollLeft + clientWidth < scrollWidth - 1;
 }

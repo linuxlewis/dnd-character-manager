@@ -114,13 +114,12 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: "Load Recovery" })).toBeVisible();
 	await expect(page.getByText("Personal Treasury unavailable")).toBeVisible();
+	await expect(page.getByRole("button", { name: "Retry treasury" })).toBeVisible();
+	treasuryAvailable = true;
+	await page.getByRole("button", { name: "Retry treasury" }).click();
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 	await openSpellsAndAbilitiesTab(page);
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
-
-	treasuryAvailable = true;
-	await page.reload();
-	await openInventoryTab(page);
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
 });
 
 test("uses a single mutation after a failed add response and keeps the recovery warning", async ({
