@@ -43,6 +43,8 @@ test("completes the attributes reference journey and preserves ownership boundar
 
 	activeSectionRequests.length = 0;
 	await page.getByRole("link", { name: "Spells & Abilities", exact: true }).click();
+	await expect(page.getByRole("region", { name: "Spells & Abilities" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Spells & Abilities" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.locator("#character-section-spells-heading")).toBeFocused();
 	expect(activeSectionRequests.some((url) => url.includes("/spell"))).toBe(true);
@@ -122,6 +124,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 	);
 
 	await page.getByRole("link", { name: "Inventory", exact: true }).click();
+	await expect(page.getByRole("region", { name: "Inventory" })).toBeVisible();
 	await expect(page.locator("#character-section-inventory-heading")).toBeFocused();
 
 	await expect(page.getByRole("link", { name: "Inventory", exact: true })).toHaveAttribute(
@@ -198,17 +201,37 @@ test("keeps section navigation safe at 320px with enlarged text", async ({ page 
 
 	await expect(page.locator(".character-section-navigation-scroll")).toBeVisible();
 	const navigationScroll = page.locator(".character-section-navigation-scroll");
+	const navigationTrack = page.locator(".character-section-navigation-track");
 	const affordance = page.locator(".character-section-navigation-affordance");
 	const hasNavigationOverflow = await navigationScroll.evaluate(
 		(element) => element.scrollWidth > element.clientWidth,
 	);
 	if (hasNavigationOverflow) {
 		await expect(affordance).toBeVisible();
+		const metrics = await navigationScroll.evaluate((element) => ({
+			clientWidth: element.clientWidth,
+			scrollWidth: element.scrollWidth,
+		}));
+		const trackWidth = await navigationTrack.evaluate(
+			(element) => element.getBoundingClientRect().width,
+		);
+		expect(Math.abs(metrics.scrollWidth - trackWidth)).toBeLessThan(2);
 		await navigationScroll.evaluate((element) => {
-			element.scrollLeft = element.scrollWidth;
+			element.scrollLeft = element.scrollWidth - element.clientWidth;
 			element.dispatchEvent(new Event("scroll"));
 		});
 		await expect(affordance).toBeHidden();
+		const finalItemGeometry = await page
+			.locator(".character-section-link")
+			.last()
+			.evaluate((element) => {
+				const item = element.getBoundingClientRect();
+				const viewport = element
+					.closest(".character-section-navigation-scroll")
+					?.getBoundingClientRect();
+				return { itemRight: item.right, viewportRight: viewport?.right ?? 0 };
+			});
+		expect(finalItemGeometry.itemRight).toBeLessThanOrEqual(finalItemGeometry.viewportRight + 1);
 	} else {
 		await expect(affordance).toBeHidden();
 	}
@@ -233,6 +256,13 @@ async function createCharacter(page: Page, name: string, className: string, leve
 	await page.getByRole("button", { name: "Create character" }).click();
 	await expect(page.getByRole("heading", { name })).toBeVisible();
 }
+
+test("renders the trailing-slash create route as the create form", async ({ page }) => {
+	await page.goto("/characters/new/");
+	await expect(page.getByRole("heading", { name: "Create character" })).toBeVisible();
+	await expect(page.getByLabel("Name")).toBeVisible();
+	await expect(page).toHaveURL(/\/characters\/new\/$/);
+});
 
 test("updates the attributes preview before saving a draft", async ({ page }) => {
 	let updateAttempts = 0;
