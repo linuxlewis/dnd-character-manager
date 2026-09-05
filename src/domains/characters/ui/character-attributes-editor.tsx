@@ -103,6 +103,7 @@ export function CharacterAttributesEditor({
 	return (
 		<Modal
 			centered
+			closeButtonProps={{ "aria-label": "Close edit attributes dialog" }}
 			fullScreen={isNarrowViewport()}
 			onClose={closeEditor}
 			opened={opened}
@@ -152,7 +153,7 @@ export function CharacterAttributesEditor({
 function AbilityEditor({ form }: { form: ReturnType<typeof useForm<AttributeDraft>> }) {
 	return (
 		<Stack gap="sm">
-			<Title order={4} size="h5">
+			<Title order={3} size="h5">
 				Ability scores &amp; saves
 			</Title>
 			{CHARACTER_ABILITIES.map((ability, index) => {
@@ -190,7 +191,7 @@ function AbilityEditor({ form }: { form: ReturnType<typeof useForm<AttributeDraf
 function SkillEditor({ form }: { form: ReturnType<typeof useForm<AttributeDraft>> }) {
 	return (
 		<Stack gap="sm">
-			<Title order={4} size="h5">
+			<Title order={3} size="h5">
 				Skill proficiencies
 			</Title>
 			{CHARACTER_SKILLS.map((skill, index) => (
