@@ -109,7 +109,7 @@ function SiteHeader({
 
 	return (
 		<Stack gap="xs">
-			<Group justify="space-between" gap="sm" align="center" wrap="nowrap">
+			<Group justify="space-between" gap="sm" align="center" wrap="wrap">
 				<Anchor href="/" c="inherit" underline="never">
 					<Title order={1} size="h2">
 						D&amp;D Character Manager
