@@ -1,10 +1,10 @@
 import {
 	Alert,
+	Box,
 	Button,
 	Divider,
 	Group,
 	Loader,
-	SimpleGrid,
 	Stack,
 	Text,
 	TextInput,
@@ -30,9 +30,11 @@ import { RollGroups } from "./character-roll-reference.js";
 export function CharacterAttributesPanel({
 	characterId,
 	characterLevel,
+	sectionHeadingRef,
 }: {
 	characterId: string;
 	characterLevel: number;
+	sectionHeadingRef?: (node: HTMLHeadingElement | null) => void;
 }) {
 	const queryClient = useQueryClient();
 	const [editorOpen, setEditorOpen] = useState(false);
@@ -46,7 +48,13 @@ export function CharacterAttributesPanel({
 		<Stack gap="lg" py="lg">
 			<Group align="flex-start" justify="space-between" gap="sm" wrap="wrap">
 				<Stack gap={2}>
-					<Title id="character-section-heading" order={3} size="h4">
+					<Title
+						id="character-section-attributes-heading"
+						order={3}
+						ref={sectionHeadingRef}
+						tabIndex={-1}
+						size="h4"
+					>
 						Attributes &amp; Rolls
 					</Title>
 					<Text c="dimmed" size="sm">
@@ -126,17 +134,31 @@ function CharacterAttributesContent({
 			rollMatchesSearch(roll.label, abilityLabels.get(roll.ability) ?? roll.ability, search)
 		);
 	});
+	const highlightedAbilities = new Set(
+		visibleRolls.filter((roll) => expanded.includes(roll.id)).map((roll) => roll.ability),
+	);
 
 	return (
 		<>
-			<SimpleGrid cols={{ base: 1, xs: 2, md: 3 }} spacing="xl">
-				<Stack gap="sm">
+			<Box className="attributes-ledger">
+				<Stack className="attributes-ledger-sidebar" gap="md">
 					<Text fw={700} size="sm" tt="uppercase">
 						Ability scores
 					</Text>
-					<SimpleGrid cols={{ base: 1, xs: 2, md: 1 }} spacing="xs">
+					<Stack gap="xs">
 						{CHARACTER_ABILITIES.map((ability) => (
-							<Group justify="space-between" key={ability.key} wrap="nowrap">
+							<Group
+								className={
+									highlightedAbilities.has(ability.key)
+										? "ability-reference-row is-source"
+										: "ability-reference-row"
+								}
+								data-source-highlight={highlightedAbilities.has(ability.key) || undefined}
+								data-testid={`ability-row-${ability.key}`}
+								justify="space-between"
+								key={ability.key}
+								wrap="nowrap"
+							>
 								<Text>{ability.label}</Text>
 								<Group className="numeric" gap="md" wrap="nowrap">
 									<Text c="dimmed">{attributes.scores[ability.key]}</Text>
@@ -144,59 +166,59 @@ function CharacterAttributesContent({
 								</Group>
 							</Group>
 						))}
-					</SimpleGrid>
-				</Stack>
-				<Stack gap="sm">
-					<Text fw={700} size="sm" tt="uppercase">
-						Derived references
-					</Text>
-					<DerivedReference label="Proficiency bonus" value={attributes.proficiencyBonus} />
-					<DerivedReference label="Initiative" value={getRollTotal(attributes, "initiative")} />
-					<DerivedReference
-						label="Passive Perception"
-						unsigned
-						value={getRollTotal(attributes, "passive-perception")}
-					/>
-				</Stack>
-				<Stack gap="sm" className="attributes-reference-note">
-					<Text fw={700} size="sm" tt="uppercase">
-						Reference notes
-					</Text>
-					<Text c="dimmed" size="sm">
-						Totals are calculated from this character&apos;s saved scores and proficiency
-						selections.
-					</Text>
-				</Stack>
-			</SimpleGrid>
-
-			<Divider />
-			<Stack gap="sm">
-				<Group align="flex-end" gap="sm" justify="space-between" wrap="wrap">
-					<Stack gap={2}>
-						<Text fw={700} size="lg">
-							Roll reference
+					</Stack>
+					<Divider />
+					<Stack gap="sm">
+						<Text fw={700} size="sm" tt="uppercase">
+							Derived references
+						</Text>
+						<DerivedReference label="Proficiency bonus" value={attributes.proficiencyBonus} />
+						<DerivedReference label="Initiative" value={getRollTotal(attributes, "initiative")} />
+						<DerivedReference
+							label="Passive Perception"
+							unsigned
+							value={getRollTotal(attributes, "passive-perception")}
+						/>
+					</Stack>
+					<Stack className="attributes-reference-note" gap="sm">
+						<Text fw={700} size="sm" tt="uppercase">
+							Reference notes
 						</Text>
 						<Text c="dimmed" size="sm">
-							Expand a row to see every saved contribution.
+							Totals are calculated from this character&apos;s saved scores and proficiency
+							selections.
 						</Text>
 					</Stack>
-					<TextInput
-						aria-label="Search rolls"
-						placeholder="Search rolls or abilities"
-						value={search}
-						onChange={(event) => setSearch(event.currentTarget.value)}
-						w={{ base: "100%", sm: 280 }}
-					/>
-				</Group>
-				<RollFilterButtons activeFilter={filter} onChange={setFilter} />
-				{visibleRolls.length === 0 ? (
-					<Text c="dimmed" py="md">
-						No rolls match this search.
-					</Text>
-				) : (
-					<RollGroups expanded={expanded} onExpandedChange={setExpanded} rolls={visibleRolls} />
-				)}
-			</Stack>
+				</Stack>
+
+				<Stack className="attributes-ledger-rolls" gap="sm">
+					<Group align="flex-end" gap="sm" justify="space-between" wrap="wrap">
+						<Stack gap={2}>
+							<Text fw={700} size="lg">
+								Roll reference
+							</Text>
+							<Text c="dimmed" size="sm">
+								Expand a row to see every saved contribution.
+							</Text>
+						</Stack>
+						<TextInput
+							aria-label="Search rolls"
+							placeholder="Search rolls or abilities"
+							value={search}
+							onChange={(event) => setSearch(event.currentTarget.value)}
+							w={{ base: "100%", sm: 280 }}
+						/>
+					</Group>
+					<RollFilterButtons activeFilter={filter} onChange={setFilter} />
+					{visibleRolls.length === 0 ? (
+						<Text c="dimmed" py="md">
+							No rolls match this search.
+						</Text>
+					) : (
+						<RollGroups expanded={expanded} onExpandedChange={setExpanded} rolls={visibleRolls} />
+					)}
+				</Stack>
+			</Box>
 			<CharacterAttributesEditor
 				attributes={attributes}
 				characterId={characterId}

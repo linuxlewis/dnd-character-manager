@@ -31,6 +31,8 @@ describe("RollGroups", () => {
 
 		expect(html).toContain('data-accordion="true"');
 		expect(html).toContain("Stealth");
+		expect(html).toContain("Stealth, Dexterity, Expertise, total +3");
+		expect(html).toContain("Passive Perception, Wisdom, No proficiency, total 10");
 		expect(html).toContain("Dexterity");
 		expect(html).toContain("Expertise");
 		expect(html).toContain("+4");

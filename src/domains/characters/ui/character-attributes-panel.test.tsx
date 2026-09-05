@@ -42,6 +42,7 @@ describe("CharacterAttributesPanel", () => {
 		expect(html).toContain("+3");
 		expect(html).toContain("Proficiency bonus");
 		expect(html).toContain("Roll reference");
+		expect(html).toContain("attributes-ledger");
 		expect(html).toContain("Checks &amp; skills");
 		expect(html).toContain("Stealth");
 		expect(html).toContain("+9");
