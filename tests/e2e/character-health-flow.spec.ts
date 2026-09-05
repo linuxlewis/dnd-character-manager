@@ -325,7 +325,7 @@ test("keeps spell query recovery separate from repeatable spell actions", async 
 			});
 			return;
 		}
-		await route.continue();
+		await route.fallback();
 	});
 
 	await page.goto("/characters/new/");
