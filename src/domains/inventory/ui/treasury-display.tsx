@@ -59,10 +59,10 @@ export function TreasuryDisplay({
 						key={key}
 						aria-label={`${label}: ${formatTreasuryAmount(treasury.balances[key])}`}
 					>
-						<Text c={color} fw={700} size="xs">
+						<Text c={color} fw={700} lh={1.2} size="xs">
 							{abbreviation}
 						</Text>
-						<Text className="inventory-currency-amount" fw={700} size="md">
+						<Text className="inventory-currency-amount" fw={700} lh={1.2} size="md">
 							{formatTreasuryAmount(treasury.balances[key])}
 						</Text>
 					</Box>
