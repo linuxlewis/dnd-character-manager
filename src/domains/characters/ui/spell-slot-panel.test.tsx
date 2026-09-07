@@ -59,15 +59,15 @@ describe("CharacterSpellSlotsPanel", () => {
 		);
 
 		const readableHtml = html.replaceAll("<!-- -->", "");
-		expect(readableHtml).toContain("Spell slots");
-		expect(readableHtml).toContain("Default profile: tier 7");
+		expect(readableHtml).toContain("Spells &amp; Abilities");
+		expect(readableHtml).not.toContain("Default profile: tier 7");
 		expect(readableHtml).toContain("Cantrips &amp; features");
 		expect(html).toContain('aria-label="Add cantrip or feature"');
 		expect(readableHtml).toContain("Light");
 		expect(readableHtml).toContain("Cantrip");
 		expect(readableHtml).toContain("1st-level");
 		expect(readableHtml).toContain("1 / 2 remaining");
-		expect(readableHtml).toContain("Total 2");
+		expect(readableHtml).toContain("1 / 2 remaining");
 		expect(html).toContain('aria-label="Add spell to 1st-level"');
 		expect(html).toContain('aria-label="Add spell to 2nd-level"');
 		expect(readableHtml).toContain("Magic Missile");

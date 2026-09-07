@@ -134,9 +134,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: /Spell history/ }).click();
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
+	await page.getByRole("button", { name: "Configure slots", exact: true }).click();
 	await expect(page.getByLabel("1st-level slot total")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("1st-level slot total").fill("2");
-	await page.getByRole("button", { name: "Apply changes" }).click();
+	await page.getByRole("button", { name: "Save changes" }).click();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
 	await expect(
 		page.getByRole("progressbar", { name: "1st-level spell slots: 2 of 2 remaining" }),

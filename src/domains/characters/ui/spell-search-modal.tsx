@@ -1,4 +1,5 @@
-import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { Alert, Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import type { SearchCharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
@@ -14,6 +15,7 @@ export function SpellSearchModal({
 	results,
 	searched,
 	slotLevel,
+	error,
 	withinPortal = true,
 }: {
 	onChangeQuery: (query: string) => void;
@@ -25,12 +27,15 @@ export function SpellSearchModal({
 	results: SpellSearchResult[];
 	searched: boolean;
 	slotLevel: number;
+	error?: Error | null;
 	withinPortal?: boolean;
 }) {
+	const mobile = useMediaQuery("(max-width: 47.999em)");
 	return (
 		<Modal
 			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl" }}
-			fullScreen
+			fullScreen={mobile}
+			size="lg"
 			onClose={onClose}
 			opened={opened}
 			title={
@@ -40,6 +45,11 @@ export function SpellSearchModal({
 			withinPortal={withinPortal}
 		>
 			<Stack gap="md">
+				{error && (
+					<Alert color="red" title="Spell search or save failed">
+						Your search is still here. Retry the selection or change the search to try again.
+					</Alert>
+				)}
 				<TextInput
 					data-autofocus
 					label={slotLevel === 0 ? "Search cantrips and features" : "Search spells"}
@@ -61,13 +71,15 @@ export function SpellSearchModal({
 					) : (
 						results.map((spell) => (
 							<Button
+								mih={44}
 								key={spell.index}
 								color="gray"
 								disabled={pending}
 								onClick={() => onSaveSpell(spell)}
+								styles={{ label: { whiteSpace: "normal" } }}
 								variant="default"
 							>
-								<Group justify="space-between" wrap="nowrap" w="100%">
+								<Group justify="space-between" wrap="wrap" w="100%">
 									<span>{spell.name}</span>
 									<span>{formatSearchResultDetail(spell)}</span>
 								</Group>

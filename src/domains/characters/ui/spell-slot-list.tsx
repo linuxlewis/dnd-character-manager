@@ -1,33 +1,30 @@
-import { Anchor, Button, Group, NumberInput, Progress, Stack, Text } from "@mantine/core";
+import { Anchor, Button, Group, Progress, Stack, Text, Title } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
-import type { NumberDraft } from "./health-dialogs.js";
 import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
 interface SpellSlotListProps {
 	characterSpells: CharacterSpellsResponse["spells"];
-	draftTotals: Record<number, NumberDraft>;
 	isEditing: boolean;
-	onDraftTotalChange: (slotLevel: number, value: NumberDraft) => void;
 	onOpenSpellDetails: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onOpenSpellSearch: (slotLevel: number) => void;
 	onRemoveSpell: (spell: CharacterSpellsResponse["spells"][number]) => void;
 	onRestoreSlot: (slot: CharacterSpellSlot) => void;
 	onUseSlot: (slot: CharacterSpellSlot) => void;
 	spellSlots: CharacterSpellSlot[];
+	pending?: boolean;
 }
 
 export function SpellSlotList({
 	characterSpells,
-	draftTotals,
 	isEditing,
-	onDraftTotalChange,
 	onOpenSpellDetails,
 	onOpenSpellSearch,
 	onRemoveSpell,
 	onRestoreSlot,
 	onUseSlot,
 	spellSlots,
+	pending = false,
 }: SpellSlotListProps) {
 	if (spellSlots.length === 0) return null;
 	const visibleSpellSlots = spellSlots.filter(
@@ -40,6 +37,9 @@ export function SpellSlotList({
 
 	return (
 		<Stack gap="xs">
+			<Title order={3} size="h5">
+				Spell slots
+			</Title>
 			{visibleSpellSlots.map((slot) => {
 				const savedSpells = characterSpells.filter((spell) => spell.slotLevel === slot.level);
 				return (
@@ -54,7 +54,8 @@ export function SpellSlotList({
 										aria-label={`Add spell to ${formatSpellLevel(slot.level)}`}
 										color="gray"
 										onClick={() => onOpenSpellSearch(slot.level)}
-										size="compact-xs"
+										mih={44}
+										miw={44}
 										variant="subtle"
 									>
 										+
@@ -71,37 +72,21 @@ export function SpellSlotList({
 									value={getSlotUsagePercent(slot)}
 								/>
 							</Stack>
-							{isEditing ? (
-								<NumberInput
-									allowDecimal={false}
-									allowNegative={false}
-									hideControls
-									label={`${formatSpellLevel(slot.level)} slot total`}
-									min={0}
-									onChange={(value) => onDraftTotalChange(slot.level, toDraft(value))}
-									style={{ flex: "1 1 7rem" }}
-									value={draftTotals[slot.level] ?? slot.total}
-								/>
-							) : (
-								<Text c="dimmed" size="xs" style={{ flex: "1 1 7rem" }}>
-									Total {slot.total}
-								</Text>
-							)}
-							<Group gap="xs" grow style={{ flex: "1 1 12rem" }} wrap="nowrap">
+							<Group gap="xs" grow style={{ flex: "0 1 auto" }} wrap="nowrap">
 								<Button
 									aria-label={`Use ${formatSpellLevel(slot.level)}`}
-									disabled={slot.remaining <= 0}
+									disabled={pending || slot.remaining <= 0}
 									onClick={() => onUseSlot(slot)}
-									size="xs"
+									mih={44}
 									variant="default"
 								>
 									Use
 								</Button>
 								<Button
 									aria-label={`Restore ${formatSpellLevel(slot.level)}`}
-									disabled={slot.used <= 0}
+									disabled={pending || slot.used <= 0}
 									onClick={() => onRestoreSlot(slot)}
-									size="xs"
+									mih={44}
 									variant="default"
 								>
 									Restore
@@ -120,6 +105,7 @@ export function SpellSlotList({
 												size="sm"
 												ta="left"
 												type="button"
+												mih={44}
 											>
 												{spell.name}
 											</Anchor>
@@ -132,7 +118,8 @@ export function SpellSlotList({
 												aria-label={`Remove ${spell.name}`}
 												color="red"
 												onClick={() => onRemoveSpell(spell)}
-												size="compact-xs"
+												mih={44}
+												miw={44}
 												variant="subtle"
 											>
 												Remove
@@ -147,10 +134,6 @@ export function SpellSlotList({
 			})}
 		</Stack>
 	);
-}
-
-function toDraft(value: number | string): NumberDraft {
-	return typeof value === "number" && Number.isFinite(value) ? value : "";
 }
 
 function getSlotUsagePercent(slot: CharacterSpellSlot) {

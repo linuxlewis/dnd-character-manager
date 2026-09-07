@@ -27,7 +27,8 @@ export function NonSlotSpellList({
 					aria-label="Add cantrip or feature"
 					color="gray"
 					onClick={onOpenSpellSearch}
-					size="compact-xs"
+					mih={44}
+					miw={44}
 					variant="subtle"
 				>
 					+
@@ -45,6 +46,7 @@ export function NonSlotSpellList({
 									size="sm"
 									ta="left"
 									type="button"
+									mih={44}
 								>
 									{spell.name}
 								</Anchor>
@@ -57,7 +59,8 @@ export function NonSlotSpellList({
 									aria-label={`Remove ${spell.name}`}
 									color="red"
 									onClick={() => onRemoveSpell(spell)}
-									size="compact-xs"
+									mih={44}
+									miw={44}
 									variant="subtle"
 								>
 									Remove
@@ -68,7 +71,7 @@ export function NonSlotSpellList({
 				</Stack>
 			) : (
 				<Text c="dimmed" size="sm">
-					No cantrips or features saved.
+					No cantrips or features saved. Use + to add one.
 				</Text>
 			)}
 		</Stack>

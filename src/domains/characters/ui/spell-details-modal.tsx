@@ -1,4 +1,5 @@
-import { Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
+import { Alert, Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import type { CharacterSpellDetails } from "../types/index.js";
 import { formatSpellLevel } from "./spell-slot-format.js";
 
@@ -7,24 +8,33 @@ export function SpellDetailsModal({
 	onClose,
 	opened,
 	pending,
+	error,
 	withinPortal = true,
 }: {
 	details: CharacterSpellDetails | null;
 	onClose: () => void;
 	opened: boolean;
 	pending: boolean;
+	error?: Error | null;
 	withinPortal?: boolean;
 }) {
+	const mobile = useMediaQuery("(max-width: 47.999em)");
 	return (
 		<Modal
-			fullScreen
+			closeButtonProps={{ size: "xl", "aria-label": "Close spell dialog" }}
+			fullScreen={mobile}
+			size="lg"
 			onClose={onClose}
 			opened={opened}
 			title={details?.name ?? "Spell details"}
 			transitionProps={{ duration: 0 }}
 			withinPortal={withinPortal}
 		>
-			{pending ? (
+			{error ? (
+				<Alert color="red" title="Spell details unavailable">
+					Close this sheet and open the spell again to retry.
+				</Alert>
+			) : pending ? (
 				<Text c="dimmed" size="sm">
 					Loading details...
 				</Text>

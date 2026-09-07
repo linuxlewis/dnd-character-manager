@@ -121,3 +121,16 @@ body {
 		position: static;
 	}
 }
+
+/* Opt-in filled actions: black contrast is 5.72:1 normally and 7.80:1 on hover. */
+.workspace-primary-action:not(:disabled):not([data-disabled]) {
+	background-color: var(--mantine-color-bloodstone-5);
+	color: var(--mantine-color-black);
+	border-color: transparent;
+}
+
+.workspace-primary-action:not(:disabled):not([data-disabled]):hover,
+.workspace-primary-action:not(:disabled):not([data-disabled]):active {
+	background-color: var(--mantine-color-bloodstone-4);
+	color: var(--mantine-color-black);
+}
