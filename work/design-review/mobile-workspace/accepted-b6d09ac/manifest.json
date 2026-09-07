@@ -42,12 +42,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"E1",
-				"E3",
-				"E4",
-				"S3"
-			],
+			"criteria": ["E1", "E3", "E4", "S3"],
 			"files": [
 				{
 					"path": "spell-config-full-error-320x740.json",
@@ -69,10 +64,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H7",
-				"N2"
-			],
+			"criteria": ["H7", "N2"],
 			"files": [
 				{
 					"path": "not-found-390x844.json",
@@ -94,10 +86,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"I3",
-				"H6"
-			],
+			"criteria": ["I3", "H6"],
 			"files": [
 				{
 					"path": "treasury-error-items-working-390x844.json",
@@ -119,10 +108,7 @@
 				"width": 1280,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-1280x900.json",
@@ -144,10 +130,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-320x740.json",
@@ -169,10 +152,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-390x844.json",
@@ -194,10 +174,7 @@
 				"width": 430,
 				"height": 932
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-430x932.json",
@@ -219,10 +196,7 @@
 				"width": 767,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-767x900.json",
@@ -244,10 +218,7 @@
 				"width": 768,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-768x900.json",
@@ -269,10 +240,7 @@
 				"width": 844,
 				"height": 390
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-844x390.json",
@@ -294,10 +262,7 @@
 				"width": 991,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-991x900.json",
@@ -319,10 +284,7 @@
 				"width": 992,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "inventory-bottom-992x900.json",
@@ -344,14 +306,7 @@
 				"width": 1280,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-1280x900.json",
@@ -373,14 +328,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-320x740.json",
@@ -402,14 +350,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-390x844.json",
@@ -431,14 +372,7 @@
 				"width": 430,
 				"height": 932
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-430x932.json",
@@ -460,14 +394,7 @@
 				"width": 767,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-767x900.json",
@@ -489,14 +416,7 @@
 				"width": 768,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-768x900.json",
@@ -518,14 +438,7 @@
 				"width": 844,
 				"height": 390
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-844x390.json",
@@ -547,14 +460,7 @@
 				"width": 991,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-991x900.json",
@@ -576,14 +482,7 @@
 				"width": 992,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"I1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
 			"files": [
 				{
 					"path": "inventory-top-992x900.json",
@@ -605,10 +504,7 @@
 				"width": 1280,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-1280x900.json",
@@ -630,10 +526,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-320x740.json",
@@ -655,10 +548,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-390x844.json",
@@ -680,10 +570,7 @@
 				"width": 430,
 				"height": 932
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-430x932.json",
@@ -705,10 +592,7 @@
 				"width": 767,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-767x900.json",
@@ -730,10 +614,7 @@
 				"width": 768,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-768x900.json",
@@ -755,10 +636,7 @@
 				"width": 844,
 				"height": 390
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-844x390.json",
@@ -780,10 +658,7 @@
 				"width": 991,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-991x900.json",
@@ -805,10 +680,7 @@
 				"width": 992,
 				"height": 900
 			},
-			"criteria": [
-				"V6",
-				"N6"
-			],
+			"criteria": ["V6", "N6"],
 			"files": [
 				{
 					"path": "spells-bottom-992x900.json",
@@ -830,14 +702,7 @@
 				"width": 1280,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-1280x900.json",
@@ -859,14 +724,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-320x740.json",
@@ -888,14 +746,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-390x844.json",
@@ -917,14 +768,7 @@
 				"width": 430,
 				"height": 932
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-430x932.json",
@@ -946,14 +790,7 @@
 				"width": 767,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-767x900.json",
@@ -975,14 +812,7 @@
 				"width": 768,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-768x900.json",
@@ -1004,14 +834,7 @@
 				"width": 844,
 				"height": 390
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-844x390.json",
@@ -1033,14 +856,7 @@
 				"width": 991,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-991x900.json",
@@ -1062,14 +878,7 @@
 				"width": 992,
 				"height": 900
 			},
-			"criteria": [
-				"V3",
-				"V4",
-				"V5",
-				"N1",
-				"H2",
-				"S1"
-			],
+			"criteria": ["V3", "V4", "V5", "N1", "H2", "S1"],
 			"files": [
 				{
 					"path": "spells-top-992x900.json",
@@ -1091,10 +900,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"I1",
-				"V6"
-			],
+			"criteria": ["I1", "V6"],
 			"files": [
 				{
 					"path": "currency-large-390x844.json",
@@ -1116,11 +922,7 @@
 				"width": 320,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-0-0-320x844.json",
@@ -1142,11 +944,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-0-0-390x844.json",
@@ -1168,11 +966,7 @@
 				"width": 320,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-9999-0-320x844.json",
@@ -1194,11 +988,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-9999-0-390x844.json",
@@ -1220,11 +1010,7 @@
 				"width": 320,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-9999-9998-320x844.json",
@@ -1246,11 +1032,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H2",
-				"H6",
-				"V6"
-			],
+			"criteria": ["H2", "H6", "V6"],
 			"files": [
 				{
 					"path": "health-9999-9998-390x844.json",
@@ -1272,11 +1054,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"V6",
-				"E1",
-				"E4"
-			],
+			"criteria": ["V6", "E1", "E4"],
 			"files": [
 				{
 					"path": "item-editor-text-200-390x844.json",
@@ -1298,9 +1076,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3"
-			],
+			"criteria": ["H3"],
 			"files": [
 				{
 					"path": "long-name-390x844.json",
@@ -1322,11 +1098,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-0-level-1-390x844.json",
@@ -1348,11 +1120,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-0-level-3-390x844.json",
@@ -1374,11 +1142,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-0-level-5-390x844.json",
@@ -1400,11 +1164,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-2699-level-3-390x844.json",
@@ -1426,11 +1186,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-2700-level-3-390x844.json",
@@ -1452,11 +1208,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-355000-level-20-390x844.json",
@@ -1478,11 +1230,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-6500-level-3-390x844.json",
@@ -1504,11 +1252,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"H3",
-				"H4",
-				"H5"
-			],
+			"criteria": ["H3", "H4", "H5"],
 			"files": [
 				{
 					"path": "xp-900-level-3-390x844.json",
@@ -1530,11 +1274,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"N2",
-				"N3",
-				"N4"
-			],
+			"criteria": ["N2", "N3", "N4"],
 			"files": [
 				{
 					"path": "inventory-restored-390x844.json",
@@ -1556,10 +1296,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"E1",
-				"E5"
-			],
+			"criteria": ["E1", "E5"],
 			"files": [
 				{
 					"path": "item-editor-bottom-320x740.json",
@@ -1581,10 +1318,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"E3",
-				"E6"
-			],
+			"criteria": ["E3", "E6"],
 			"files": [
 				{
 					"path": "item-editor-error-320x740.json",
@@ -1606,10 +1340,7 @@
 				"width": 320,
 				"height": 740
 			},
-			"criteria": [
-				"E1",
-				"E4"
-			],
+			"criteria": ["E1", "E4"],
 			"files": [
 				{
 					"path": "item-editor-top-320x740.json",
@@ -1631,10 +1362,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"E5",
-				"N5"
-			],
+			"criteria": ["E5", "N5"],
 			"files": [
 				{
 					"path": "menu-edit-character-390x844.json",
@@ -1656,10 +1384,7 @@
 				"width": 390,
 				"height": 844
 			},
-			"criteria": [
-				"E5",
-				"N5"
-			],
+			"criteria": ["E5", "N5"],
 			"files": [
 				{
 					"path": "menu-health-history-390x844.json",
