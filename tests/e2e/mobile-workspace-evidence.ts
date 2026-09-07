@@ -47,7 +47,13 @@ export async function captureMobileEvidence(
 	state: string,
 	criteria: string[],
 ) {
-	await page.evaluate(() => document.fonts.ready);
+	await page.evaluate(async () => {
+		await document.fonts.ready;
+		await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+		await new Promise<void>((resolve) =>
+			requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+		);
+	});
 	const sha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 	const patch = execFileSync("git", ["diff", "HEAD"], { encoding: "utf8" });
 	const status = execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" });
