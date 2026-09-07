@@ -10,8 +10,8 @@
 }
 
 .inventory-search {
-	flex: 1;
-	min-width: 0;
+	flex: 1 1 8rem;
+	min-width: min(100%, 8rem);
 }
 
 .inventory-items .mantine-Input-input,

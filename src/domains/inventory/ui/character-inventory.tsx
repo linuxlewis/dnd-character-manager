@@ -188,7 +188,7 @@ export function CharacterInventory({
 	return (
 		<Paper className="inventory-items" data-testid="personal-inventory" p={0}>
 			<Stack gap="md">
-				<Group align="flex-end" gap="sm" wrap="nowrap">
+				<Group align="flex-end" gap="sm" wrap="wrap">
 					<TextInput
 						className="inventory-search"
 						aria-label="Search personal inventory"

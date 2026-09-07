@@ -21,7 +21,7 @@ export function CharacterInventoryWorkspace({
 	const [historyOpened, setHistoryOpened] = useState(false);
 	return (
 		<Stack gap="md">
-			<Group justify="space-between" wrap="nowrap">
+			<Group justify="space-between" wrap="wrap">
 				<Title order={2} size="h4">
 					Inventory
 				</Title>
