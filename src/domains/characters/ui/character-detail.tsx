@@ -1,4 +1,4 @@
-import { Alert, Button, Group, Paper, Stack, Text } from "@mantine/core";
+import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
@@ -40,7 +40,10 @@ export function CharacterDetail({
 
 	return (
 		<Stack gap="md" className="character-workspace">
-			{!characterQuery.data && (
+			<VisuallyHidden role="status" aria-live="polite">
+				{section === "spells" ? "Spells & Abilities section" : "Inventory section"}
+			</VisuallyHidden>
+			{(!characterQuery.data || characterQuery.error) && (
 				<Group justify="space-between" align="center">
 					<BackToListButton onNavigate={onNavigate} />
 					{renderApplicationMenu?.()}
