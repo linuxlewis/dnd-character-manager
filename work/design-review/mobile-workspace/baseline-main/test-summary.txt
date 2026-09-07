@@ -1,0 +1,7 @@
+Source faf519271e2b06a825025ba433c38005340b116e
+Command: pnpm test
+Exit: 0
+Unit:173 files /575 tests passed
+Integration:23 files /68 tests passed
+Browser:25 passed (44.1s)
+Full log captured /tmp/mobile-ux-main-test.log (ephemeral local only).

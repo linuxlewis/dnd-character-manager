@@ -1,0 +1,347 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "scrollWidth": 390,
+  "elements": [
+    {
+      "text": "D&D Character Manager",
+      "rect": {
+        "x": 16,
+        "y": 32,
+        "width": 268.796875,
+        "height": 70.1875,
+        "top": 32,
+        "right": 284.796875,
+        "bottom": 102.1875,
+        "left": 16
+      }
+    },
+    {
+      "text": "Sign in",
+      "rect": {
+        "x": 296.796875,
+        "y": 49.09375,
+        "width": 77.203125,
+        "height": 36,
+        "top": 49.09375,
+        "right": 374,
+        "bottom": 85.09375,
+        "left": 296.796875
+      }
+    },
+    {
+      "text": "Character details",
+      "rect": {
+        "x": 16,
+        "y": 201.984375,
+        "width": 222.515625,
+        "height": 35.09375,
+        "top": 201.984375,
+        "right": 238.515625,
+        "bottom": 237.078125,
+        "left": 16
+      }
+    },
+    {
+      "text": "Mira Thorn",
+      "rect": {
+        "x": 37,
+        "y": 330.078125,
+        "width": 121.265625,
+        "height": 30.796875,
+        "top": 330.078125,
+        "right": 158.265625,
+        "bottom": 360.875,
+        "left": 37
+      }
+    },
+    {
+      "text": "Edit character",
+      "rect": {
+        "x": 168.265625,
+        "y": 334.46875,
+        "width": 97.625,
+        "height": 22,
+        "top": 334.46875,
+        "right": 265.890625,
+        "bottom": 356.46875,
+        "left": 168.265625
+      }
+    },
+    {
+      "text": "Experience",
+      "rect": {
+        "x": 37,
+        "y": 412.875,
+        "width": 87.59375,
+        "height": 24,
+        "top": 412.875,
+        "right": 124.59375,
+        "bottom": 436.875,
+        "left": 37
+      }
+    },
+    {
+      "text": "Health",
+      "rect": {
+        "x": 37,
+        "y": 508.171875,
+        "width": 53.703125,
+        "height": 24,
+        "top": 508.171875,
+        "right": 90.703125,
+        "bottom": 532.171875,
+        "left": 37
+      }
+    },
+    {
+      "text": "History (2)",
+      "rect": {
+        "x": 262.75,
+        "y": 505.171875,
+        "width": 90.25,
+        "height": 30,
+        "top": 505.171875,
+        "right": 353,
+        "bottom": 535.171875,
+        "left": 262.75
+      }
+    },
+    {
+      "text": "Edit",
+      "rect": {
+        "x": 204.640625,
+        "y": 545.171875,
+        "width": 38.53125,
+        "height": 22,
+        "top": 545.171875,
+        "right": 243.171875,
+        "bottom": 567.171875,
+        "left": 204.640625
+      }
+    },
+    {
+      "text": "Heal",
+      "rect": {
+        "x": 296.453125,
+        "y": 577.171875,
+        "width": 56.546875,
+        "height": 30,
+        "top": 577.171875,
+        "right": 353,
+        "bottom": 607.171875,
+        "left": 296.453125
+      }
+    },
+    {
+      "text": "Damage",
+      "rect": {
+        "x": 37,
+        "y": 617.171875,
+        "width": 79,
+        "height": 30,
+        "top": 617.171875,
+        "right": 116,
+        "bottom": 647.171875,
+        "left": 37
+      }
+    },
+    {
+      "text": "Spells & Abilities",
+      "rect": {
+        "x": 37,
+        "y": 711.171875,
+        "width": 139.3125,
+        "height": 36,
+        "top": 711.171875,
+        "right": 176.3125,
+        "bottom": 747.171875,
+        "left": 37
+      }
+    },
+    {
+      "text": "Inventory",
+      "rect": {
+        "x": 176.3125,
+        "y": 711.171875,
+        "width": 95.515625,
+        "height": 36,
+        "top": 711.171875,
+        "right": 271.828125,
+        "bottom": 747.171875,
+        "left": 176.3125
+      }
+    },
+    {
+      "text": "Treasury",
+      "rect": {
+        "x": 37,
+        "y": 763.171875,
+        "width": 69.375,
+        "height": 24,
+        "top": 763.171875,
+        "right": 106.375,
+        "bottom": 787.171875,
+        "left": 37
+      }
+    },
+    {
+      "text": "Add funds",
+      "rect": {
+        "x": 155.28125,
+        "y": 763.171875,
+        "width": 107.359375,
+        "height": 36,
+        "top": 763.171875,
+        "right": 262.640625,
+        "bottom": 799.171875,
+        "left": 155.28125
+      }
+    },
+    {
+      "text": "Spend",
+      "rect": {
+        "x": 272.640625,
+        "y": 763.171875,
+        "width": 80.359375,
+        "height": 36,
+        "top": 763.171875,
+        "right": 353,
+        "bottom": 799.171875,
+        "left": 272.640625
+      }
+    },
+    {
+      "text": ".__m__-_r_5c_{padding:var(--mantine-spacing-md);}@media(min-width: 48em){.__m__-_r_5c_{padding:var(--mantine-spacing-lg);}}Recent activityNo activity yetChanges to items and treasury will appear here.",
+      "rect": {
+        "x": 37,
+        "y": 1132.15625,
+        "width": 316,
+        "height": 157.6875,
+        "top": 1132.15625,
+        "right": 353,
+        "bottom": 1289.84375,
+        "left": 37
+      }
+    },
+    {
+      "text": "Add item",
+      "rect": {
+        "x": 54,
+        "y": 1410.234375,
+        "width": 99.90625,
+        "height": 36,
+        "top": 1410.234375,
+        "right": 153.90625,
+        "bottom": 1446.234375,
+        "left": 54
+      }
+    },
+    {
+      "text": "All 0",
+      "rect": {
+        "x": 54,
+        "y": 1545.03125,
+        "width": 83.421875,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 137.421875,
+        "bottom": 1581.03125,
+        "left": 54
+      }
+    },
+    {
+      "text": "Equipment 0",
+      "rect": {
+        "x": 143.421875,
+        "y": 1545.03125,
+        "width": 140.640625,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 284.0625,
+        "bottom": 1581.03125,
+        "left": 143.421875
+      }
+    },
+    {
+      "text": "Potion 0",
+      "rect": {
+        "x": 290.0625,
+        "y": 1545.03125,
+        "width": 110.546875,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 400.609375,
+        "bottom": 1581.03125,
+        "left": 290.0625
+      }
+    },
+    {
+      "text": "Scroll 0",
+      "rect": {
+        "x": 406.609375,
+        "y": 1545.03125,
+        "width": 103.203125,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 509.8125,
+        "bottom": 1581.03125,
+        "left": 406.609375
+      }
+    },
+    {
+      "text": "Consumable 0",
+      "rect": {
+        "x": 515.8125,
+        "y": 1545.03125,
+        "width": 150.953125,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 666.765625,
+        "bottom": 1581.03125,
+        "left": 515.8125
+      }
+    },
+    {
+      "text": "Misc 0",
+      "rect": {
+        "x": 672.765625,
+        "y": 1545.03125,
+        "width": 96.890625,
+        "height": 36,
+        "top": 1545.03125,
+        "right": 769.65625,
+        "bottom": 1581.03125,
+        "left": 672.765625
+      }
+    },
+    {
+      "text": "Add your first item",
+      "rect": {
+        "x": 111.765625,
+        "y": 1741.71875,
+        "width": 166.46875,
+        "height": 36,
+        "top": 1741.71875,
+        "right": 278.234375,
+        "bottom": 1777.71875,
+        "left": 111.765625
+      }
+    },
+    {
+      "text": "D&D Character ManagerA free community character management tool.Privacy PolicyD&D and related marks belong to their respective owners. This unofficial service is not affiliated with or endorsed by the game's publisher.",
+      "rect": {
+        "x": 0,
+        "y": 1880.71875,
+        "width": 390,
+        "height": 186.78125,
+        "top": 1880.71875,
+        "right": 390,
+        "bottom": 2067.5,
+        "left": 0
+      }
+    }
+  ]
+}
