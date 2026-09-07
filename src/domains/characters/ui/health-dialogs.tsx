@@ -79,6 +79,7 @@ export function HealthAmountModal({
 							Cancel
 						</Button>
 						<Button
+							c="black"
 							mih={44}
 							color={color}
 							disabled={preview === null}
@@ -171,7 +172,7 @@ export function HealthEditModal({
 						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button mih={44} loading={pending} type="submit">
+						<Button c="black" mih={44} loading={pending} type="submit">
 							Save
 						</Button>
 					</Group>

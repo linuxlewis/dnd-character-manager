@@ -111,10 +111,10 @@ export function CharacterHealthPanel({
 						<div className={classes.temporary}>Temp HP +{health.temporaryHp}</div>
 					)}
 				</UnstyledButton>
-				<Button mih={44} px="xs" color="green" onClick={() => openAmountDialog("heal")}>
+				<Button c="black" mih={44} px="xs" color="green" onClick={() => openAmountDialog("heal")}>
 					Heal
 				</Button>
-				<Button mih={44} px="xs" color="red" onClick={() => openAmountDialog("damage")}>
+				<Button c="black" mih={44} px="xs" color="red" onClick={() => openAmountDialog("damage")}>
 					Damage
 				</Button>
 			</div>

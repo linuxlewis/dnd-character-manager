@@ -220,7 +220,7 @@ export function CharacterEditor({
 							>
 								Cancel
 							</Button>
-							<Button mih={44} loading={isSaving} type="submit">
+							<Button c="black" mih={44} loading={isSaving} type="submit">
 								Save character
 							</Button>
 						</Group>
