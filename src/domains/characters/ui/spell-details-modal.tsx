@@ -21,6 +21,7 @@ export function SpellDetailsModal({
 	const mobile = useMediaQuery("(max-width: 47.999em)");
 	return (
 		<Modal
+			classNames={{ body: "workspace-inputs" }}
 			closeButtonProps={{ size: "xl", "aria-label": "Close spell dialog" }}
 			fullScreen={mobile}
 			size="lg"

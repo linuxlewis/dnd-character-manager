@@ -38,7 +38,7 @@ export function SpellRemoveModal({
 					<Button mih={44} color="gray" disabled={pending} onClick={onClose} variant="default">
 						Cancel
 					</Button>
-					<Button mih={44} autoContrast color="red" loading={pending} onClick={onConfirm}>
+					<Button mih={44} c="black" color="red" loading={pending} onClick={onConfirm}>
 						Remove spell
 					</Button>
 				</Group>
