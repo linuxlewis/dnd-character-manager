@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Group, Modal, NumberInput, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
 	apiMutations,
 	apiQueryKeys,
@@ -9,18 +9,31 @@ import {
 } from "../../../generated/api-client.generated.js";
 import { validateCharacterLevel, validateCharacterName } from "./create-character-form.js";
 
+import classes from "./health-workspace.module.css";
+
 export function CharacterEditor({
 	characterId,
 	experiencePoints,
 	level,
 	name,
+	opened: controlledOpened,
+	onClose,
 }: {
 	characterId: string;
 	experiencePoints: number;
 	level: number;
 	name: string;
+	opened?: boolean;
+	onClose?: () => void;
 }) {
-	const [opened, setOpened] = useState(false);
+	const [localOpened, setLocalOpened] = useState(false);
+	const opened = controlledOpened ?? localOpened;
+	function setOpened(next: boolean) {
+		setLocalOpened(next);
+		if (!next) onClose?.();
+	}
+	const saving = useRef(false);
+	const [savedFields, setSavedFields] = useState<string[]>([]);
 	const queryClient = useQueryClient();
 	const form = useForm<{
 		experiencePoints: number | string;
@@ -49,6 +62,7 @@ export function CharacterEditor({
 		updateExperienceMutation.reset();
 		updateLevelMutation.reset();
 		updateNameMutation.reset();
+		setSavedFields([]);
 		form.clearErrors();
 		form.setValues({ experiencePoints, level, name });
 		setOpened(true);
@@ -64,11 +78,6 @@ export function CharacterEditor({
 			apiQueryKeys.getCharacter({ characterId }),
 			(current: CharacterDetailResponse | undefined) => (current ? response : current),
 		);
-		form.setValues({
-			experiencePoints: response.character.experiencePoints,
-			level: response.character.level,
-			name: response.character.name,
-		});
 	}
 
 	async function saveCharacter(values: {
@@ -76,6 +85,9 @@ export function CharacterEditor({
 		level: number | string;
 		name: string;
 	}) {
+		if (saving.current) return;
+		saving.current = true;
+		setSavedFields([]);
 		updateExperienceMutation.reset();
 		updateLevelMutation.reset();
 		updateNameMutation.reset();
@@ -89,6 +101,7 @@ export function CharacterEditor({
 
 		if (!shouldUpdateName && !shouldUpdateLevel && !shouldUpdateExperiencePoints) {
 			setOpened(false);
+			saving.current = false;
 			return;
 		}
 
@@ -100,6 +113,7 @@ export function CharacterEditor({
 					body: { name: nextName },
 				});
 				applyCharacterResponse(response);
+				setSavedFields((fields) => [...fields, "Name"]);
 				didSave = true;
 			}
 
@@ -109,6 +123,7 @@ export function CharacterEditor({
 					body: { level: nextLevel },
 				});
 				applyCharacterResponse(response);
+				setSavedFields((fields) => [...fields, "Level"]);
 				didSave = true;
 			}
 
@@ -118,6 +133,7 @@ export function CharacterEditor({
 					body: { experiencePoints: nextExperiencePoints },
 				});
 				applyCharacterResponse(response);
+				setSavedFields((fields) => [...fields, "Experience"]);
 				didSave = true;
 			}
 
@@ -129,19 +145,41 @@ export function CharacterEditor({
 			if (didSave) {
 				await queryClient.invalidateQueries({ queryKey: apiQueryKeys.listCharacters() });
 			}
+		} finally {
+			saving.current = false;
 		}
 	}
 
 	return (
 		<>
-			<Button onClick={openEditor} size="compact-xs" variant="subtle">
-				Edit character
-			</Button>
-			<Modal onClose={closeEditor} opened={opened} title="Edit character">
-				<Box component="form" onSubmit={form.onSubmit(saveCharacter)}>
+			{controlledOpened === undefined && (
+				<Button mih={44} onClick={openEditor} variant="subtle">
+					Edit character
+				</Button>
+			)}
+			<Modal
+				classNames={{
+					inner: classes.sheetInner,
+					content: classes.sheetContent,
+					body: classes.sheetBody,
+				}}
+				onClose={closeEditor}
+				opened={opened}
+				title="Edit character"
+				closeOnEscape={!isSaving}
+				closeOnClickOutside={!isSaving}
+				closeButtonProps={{ size: 44, disabled: isSaving }}
+			>
+				<Box
+					component="form"
+					onSubmit={form.onSubmit(saveCharacter, (errors) => {
+						form.getInputNode(Object.keys(errors)[0])?.focus();
+					})}
+				>
 					<Stack gap="md">
 						<TextInput
 							{...form.getInputProps("name")}
+							size="md"
 							autoComplete="off"
 							data-autofocus
 							label="Character name"
@@ -154,6 +192,7 @@ export function CharacterEditor({
 							allowNegative={false}
 							data-autofocus
 							hideControls
+							size="md"
 							label="Character level"
 							max={20}
 							min={1}
@@ -164,23 +203,33 @@ export function CharacterEditor({
 							allowDecimal={false}
 							allowNegative={false}
 							hideControls
+							size="md"
 							label="Experience points"
 							max={9_999_999}
 							min={0}
 							thousandSeparator=","
 							withAsterisk
 						/>
-						<Group justify="flex-end">
-							<Button disabled={isSaving} onClick={closeEditor} type="button" variant="default">
+						<Group className={classes.actions} justify="flex-end">
+							<Button
+								mih={44}
+								disabled={isSaving}
+								onClick={closeEditor}
+								type="button"
+								variant="default"
+							>
 								Cancel
 							</Button>
-							<Button loading={isSaving} type="submit">
+							<Button mih={44} loading={isSaving} type="submit">
 								Save character
 							</Button>
 						</Group>
 						{updateError && (
 							<Alert color="red" title="Character update failed" variant="light">
-								One or more changes could not be saved. Try the change again.
+								{savedFields.length > 0
+									? `${savedFields.join(", ")} saved. Remaining changes could not be saved.`
+									: "Changes could not be saved."}{" "}
+								Your draft is kept. Retry to save the remaining changes.
 							</Alert>
 						)}
 					</Stack>
@@ -192,7 +241,12 @@ export function CharacterEditor({
 
 function validateCharacterExperiencePoints(value: number | string) {
 	const experiencePoints = Number(value);
-	if (!Number.isInteger(experiencePoints) || experiencePoints < 0 || experiencePoints > 9_999_999) {
+	if (
+		value === "" ||
+		!Number.isInteger(experiencePoints) ||
+		experiencePoints < 0 ||
+		experiencePoints > 9_999_999
+	) {
 		return "Experience must be a whole number from 0 to 9,999,999";
 	}
 	return null;

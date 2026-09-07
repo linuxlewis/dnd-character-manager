@@ -43,3 +43,20 @@ describe("CharacterExperiencePanel", () => {
 		expect(html).toContain("7,000 XP to level 8");
 	});
 });
+
+import { getCharacterExperienceProgress } from "../types/index.js";
+import { experienceLabel } from "./character-experience-panel.js";
+
+describe("compact XP states", () => {
+	it.each([
+		[1, 0, "0% to Lv 2"],
+		[3, 2196, "72% to Lv 4"],
+		[3, 2699, "99% to Lv 4"],
+		[3, 2700, "Level 4 available"],
+		[3, 6500, "Level 4 available"],
+		[5, 0, "0% to Lv 6"],
+		[20, 355000, "Max level"],
+	] as const)("saved level %s and XP %s", (level, xp, expected) => {
+		expect(experienceLabel(getCharacterExperienceProgress(level, xp))).toBe(expected);
+	});
+});
