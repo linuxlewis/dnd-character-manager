@@ -1,127 +1,164 @@
 {
-	"sourceSha": "faf519271e2b06a825025ba433c38005340b116e",
-	"sourceRef": "origin/main",
-	"capturedAt": "2026-09-07",
-	"browser": "agent-browser Chromium headless",
-	"viewports": [
-		{
-			"width": 320,
-			"height": 740
-		},
-		{
-			"width": 390,
-			"height": 844
-		},
-		{
-			"width": 1280,
-			"height": 900
-		}
-	],
-	"fixture": {
-		"name": "Mira Thorn",
-		"className": "Wizard",
-		"level": 3,
-		"experiencePoints": 2196,
-		"experiencePercent": 72,
-		"health": {
-			"currentHp": 18,
-			"maxHp": 24,
-			"temporaryHp": 3,
-			"effectiveMaxHp": 27
-		},
-		"spells": [],
-		"items": [],
-		"treasury": "empty",
-		"healthHistoryCount": 2
-	},
-	"notes": [
-		"Baseline has no Rolls/attributes route; two in-page tabs Spells & Abilities and Inventory.",
-		"Baseline inventory screenshots full-page, spells390 viewport and other spells full-page.",
-		"Reference HTML is static geometry/hierarchy guidance, not behavioral contract. Inventory/spells reference populated content differs from baseline empty fixture deliberately.",
-		"Reference identity76px + health56px =132px; nav64px.",
-		"API fixture health temp must be set first, then currentHp18 PUT with unchanged temp3 to avoid main temp delta adjustment.",
-		"Reference corrected after independent orchestrator critique: XP >=12px; treasury four denominations including zero PP plus direct Add funds/Spend; Use paired Restore; item first row quantity. Pips are illustrative noninteractive indicators only.",
-		"Reference preserves grouped spells concept; implementation must preserve all main slot/config/remove/detail controls and errors. Reference is hierarchy/geometry, not exact pixel snapshot baseline."
-	],
-	"checks": {
-		"command": "pnpm test",
-		"exitCode": 0,
-		"unit": 575,
-		"integration": 68,
-		"e2e": 25
-	},
-	"artifacts": [
-		{
-			"path": "baseline-main/character-editor-390x844.png",
-			"sha256": "ae2a86e3521343cfa0a31e7ed8f63bec40a847ea6fc280a117219de34c228ada"
-		},
-		{
-			"path": "baseline-main/damage-390x844.png",
-			"sha256": "b6dd03aa18070756cf2fba92a1953d76161848c7467c36adcfe1c641214d2b85"
-		},
-		{
-			"path": "baseline-main/geometry-inventory-390x844.json",
-			"sha256": "1ef840c0539474f90868b961f5e28f240ff3421804513bb2746f88a542b43f42"
-		},
-		{
-			"path": "baseline-main/geometry-spells-390x844.json",
-			"sha256": "0c9b2da3e95c0d8090270faa201929a6bc469097fad5e8e678a30dd78758c511"
-		},
-		{
-			"path": "baseline-main/inventory-1280x900.png",
-			"sha256": "853590e8dbe143abbf07be6278512923be1554f6392e5a0e907be7a91d3be654"
-		},
-		{
-			"path": "baseline-main/inventory-320x740.png",
-			"sha256": "6a400f26f3ee7671da572b8691bf8606c4b5a6e3dad1a68b11f62f215522ce25"
-		},
-		{
-			"path": "baseline-main/inventory-390x844.png",
-			"sha256": "c3da0d7aff129368fc5240bc5fe133a0af54e70fa8a3ca6bb6b447aa4d892105"
-		},
-		{
-			"path": "baseline-main/spells-1280x900.png",
-			"sha256": "7ab213a78ad10f6c84aed5e83d03c96915bf56e1521a62cf1a7db6bfa831ef36"
-		},
-		{
-			"path": "baseline-main/spells-320x740.png",
-			"sha256": "381135f59a435c3c18640bd00fb9e703f86d285d0e144e8a47a41e125b2c6175"
-		},
-		{
-			"path": "baseline-main/spells-390x844.png",
-			"sha256": "5649b4ead8ff6f4de7d6a131de660f5ccbd42d3eef72add9641adef4203b34f2"
-		},
-		{
-			"path": "baseline-main/test-summary.txt",
-			"sha256": "ada152765fb34a401e82c3346c220fd0f2a0c0097beb9fc28a30bbf68c134818"
-		},
-		{
-			"path": "reference/editor-320x740.png",
-			"sha256": "f4e37aa85b6cc14460f4c7131d2ecc0f999288d5bc766a85e6971fe4b27700fb"
-		},
-		{
-			"path": "reference/editor-390x844.png",
-			"sha256": "5d9ac8c9b99aa3deadd209df66c5c639e5af03f2710abd16c188bf1f691b4aa3"
-		},
-		{
-			"path": "reference/index.html",
-			"sha256": "7762a2ab5530968fbee314cd0aab946279532d1a33f88be7fb64e02d5f910b63"
-		},
-		{
-			"path": "reference/inventory-320x740.png",
-			"sha256": "00e7630ad10e1488168d428ade8da1a3aefd98ce22e2e85332398aa31735f0d3"
-		},
-		{
-			"path": "reference/inventory-390x844.png",
-			"sha256": "ac05c621be097be0a74c677ca1cc94c9f47a73a3a6add77f93967e4be65b3883"
-		},
-		{
-			"path": "reference/spells-320x740.png",
-			"sha256": "acb29638a80ee906289ec5ebc6f53c1b134b876ad58ae9652381a458ac1a5f53"
-		},
-		{
-			"path": "reference/spells-390x844.png",
-			"sha256": "0f1c25877e0ba81c9624fa47e8c3a03f0d8005b33a6c3e5805649d9329b71044"
-		}
-	]
+  "sourceSha": "faf519271e2b06a825025ba433c38005340b116e",
+  "sourceRef": "origin/main",
+  "capturedAt": "2026-09-07",
+  "browser": "agent-browser Chromium headless",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 740
+    },
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1280,
+      "height": 900
+    }
+  ],
+  "fixture": {
+    "name": "Mira Thorn",
+    "className": "Wizard",
+    "level": 3,
+    "experiencePoints": 2196,
+    "experiencePercent": 72,
+    "health": {
+      "currentHp": 18,
+      "maxHp": 24,
+      "temporaryHp": 3,
+      "effectiveMaxHp": 27
+    },
+    "spells": [],
+    "items": [],
+    "treasury": "empty",
+    "healthHistoryCount": 2
+  },
+  "notes": [
+    "Baseline has no Rolls/attributes route; two in-page tabs Spells & Abilities and Inventory.",
+    "Baseline inventory screenshots full-page, spells390 viewport and other spells full-page.",
+    "Reference HTML is static geometry/hierarchy guidance, not behavioral contract. Inventory/spells reference populated content differs from baseline empty fixture deliberately.",
+    "Reference identity76px + health56px =132px; nav64px.",
+    "API fixture health temp must be set first, then currentHp18 PUT with unchanged temp3 to avoid main temp delta adjustment.",
+    "Reference corrected after independent orchestrator critique: XP >=12px; treasury four denominations including zero PP plus direct Add funds/Spend; Use paired Restore; item first row quantity. Pips are illustrative noninteractive indicators only.",
+    "Reference preserves grouped spells concept; implementation must preserve all main slot/config/remove/detail controls and errors. Reference is hierarchy/geometry, not exact pixel snapshot baseline.",
+    "Reference HTML hash refreshed after button-type lint fix and addition of item editor and desktop top-navigation illustrations. Existing mobile target pixels are unchanged. Added target illustrations await independent review."
+  ],
+  "checks": {
+    "command": "pnpm test",
+    "exitCode": 0,
+    "unit": 575,
+    "integration": 68,
+    "e2e": 25
+  },
+  "artifacts": [
+    {
+      "path": "baseline-main/character-editor-390x844.png",
+      "sha256": "ae2a86e3521343cfa0a31e7ed8f63bec40a847ea6fc280a117219de34c228ada"
+    },
+    {
+      "path": "baseline-main/damage-390x844.png",
+      "sha256": "b6dd03aa18070756cf2fba92a1953d76161848c7467c36adcfe1c641214d2b85"
+    },
+    {
+      "path": "baseline-main/geometry-inventory-390x844.json",
+      "sha256": "02aaa8f85a2e119e758d1ce4fe4832d0fbabc78b2c9576ccea83907316ff3ca0"
+    },
+    {
+      "path": "baseline-main/geometry-spells-390x844.json",
+      "sha256": "366eebbbd7232198c6c53e1e846de0bdd8e0f5ca3541f0ddbd8ec87b053f4210"
+    },
+    {
+      "path": "baseline-main/inventory-1280x900.png",
+      "sha256": "853590e8dbe143abbf07be6278512923be1554f6392e5a0e907be7a91d3be654"
+    },
+    {
+      "path": "baseline-main/inventory-320x740.png",
+      "sha256": "6a400f26f3ee7671da572b8691bf8606c4b5a6e3dad1a68b11f62f215522ce25"
+    },
+    {
+      "path": "baseline-main/inventory-390x844.png",
+      "sha256": "c3da0d7aff129368fc5240bc5fe133a0af54e70fa8a3ca6bb6b447aa4d892105"
+    },
+    {
+      "path": "baseline-main/spells-1280x900.png",
+      "sha256": "7ab213a78ad10f6c84aed5e83d03c96915bf56e1521a62cf1a7db6bfa831ef36"
+    },
+    {
+      "path": "baseline-main/spells-320x740.png",
+      "sha256": "381135f59a435c3c18640bd00fb9e703f86d285d0e144e8a47a41e125b2c6175"
+    },
+    {
+      "path": "baseline-main/spells-390x844.png",
+      "sha256": "5649b4ead8ff6f4de7d6a131de660f5ccbd42d3eef72add9641adef4203b34f2"
+    },
+    {
+      "path": "baseline-main/test-summary.txt",
+      "sha256": "ada152765fb34a401e82c3346c220fd0f2a0c0097beb9fc28a30bbf68c134818"
+    },
+    {
+      "path": "reference/editor-320x740.png",
+      "sha256": "f4e37aa85b6cc14460f4c7131d2ecc0f999288d5bc766a85e6971fe4b27700fb"
+    },
+    {
+      "path": "reference/editor-390x844.png",
+      "sha256": "5d9ac8c9b99aa3deadd209df66c5c639e5af03f2710abd16c188bf1f691b4aa3"
+    },
+    {
+      "path": "reference/index.html",
+      "sha256": "ec22d9ca450c3caed3f0518e1a71b8d5b73b4c4a4ed140725fab46deff102a24"
+    },
+    {
+      "path": "reference/inventory-320x740.png",
+      "sha256": "00e7630ad10e1488168d428ade8da1a3aefd98ce22e2e85332398aa31735f0d3"
+    },
+    {
+      "path": "reference/inventory-390x844.png",
+      "sha256": "ac05c621be097be0a74c677ca1cc94c9f47a73a3a6add77f93967e4be65b3883"
+    },
+    {
+      "path": "reference/item-editor-390x844.png",
+      "sha256": "f789b9edc70910f15e7f5ec2d3204adb9293a6aebe45629aca05d363cf2587b7"
+    },
+    {
+      "path": "reference/spells-1280x900.png",
+      "sha256": "139e57567a119a28173708bcf02aad711e8e5559c83fe3a96297afdca269a1b6"
+    },
+    {
+      "path": "reference/spells-320x740.png",
+      "sha256": "acb29638a80ee906289ec5ebc6f53c1b134b876ad58ae9652381a458ac1a5f53"
+    },
+    {
+      "path": "reference/spells-390x844.png",
+      "sha256": "0f1c25877e0ba81c9624fa47e8c3a03f0d8005b33a6c3e5805649d9329b71044"
+    },
+    {
+      "path": "shell/shell-1280-scrolled.png",
+      "sha256": "20e3c15c5dcd9d33b6186e215ffaa8bd151084bf3a32132d2a74b9b1cfce5baf"
+    },
+    {
+      "path": "shell/shell-1280-top.png",
+      "sha256": "20e3c15c5dcd9d33b6186e215ffaa8bd151084bf3a32132d2a74b9b1cfce5baf"
+    },
+    {
+      "path": "shell/shell-320-scrolled.png",
+      "sha256": "28d2c3a5911ae4b8ae2e142302f63ba321c0bbf0d013a9f90b180b0895e47dc7"
+    },
+    {
+      "path": "shell/shell-320-top.png",
+      "sha256": "28d2c3a5911ae4b8ae2e142302f63ba321c0bbf0d013a9f90b180b0895e47dc7"
+    },
+    {
+      "path": "shell/shell-390-scrolled.png",
+      "sha256": "5c6d74148e2d1985d4acb365d5dcc266dca0c9f65992c718e2771bd6be5a704c"
+    },
+    {
+      "path": "shell/shell-390-top.png",
+      "sha256": "5c6d74148e2d1985d4acb365d5dcc266dca0c9f65992c718e2771bd6be5a704c"
+    },
+    {
+      "path": "shell/shell-not-found.png",
+      "sha256": "38faca02a0f33edddef4964065c130dac8c0e0fbd41b3f0ddf28a085bb1893c4"
+    }
+  ]
 }
