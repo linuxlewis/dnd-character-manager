@@ -72,7 +72,7 @@ export function SpellSlotList({
 									value={getSlotUsagePercent(slot)}
 								/>
 							</Stack>
-							<Group gap="xs" grow style={{ flex: "0 1 auto" }} wrap="nowrap">
+							<Group gap="xs" style={{ flex: "0 0 auto" }} wrap="nowrap">
 								<Button
 									aria-label={`Use ${formatSpellLevel(slot.level)}`}
 									disabled={pending || slot.remaining <= 0}
