@@ -1,7 +1,8 @@
 import { ActionIcon, Anchor, Menu, Modal, Stack, Text } from "@mantine/core";
+import { useMergedRef } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreVertical } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, type Ref, useRef, useState } from "react";
 import {
 	apiMutations,
 	apiQueries,
@@ -12,10 +13,14 @@ import { MagicLinkLoginForm } from "./magic-link-login.js";
 export function ApplicationMenu({
 	currentUser,
 	children,
+	triggerRef,
 }: {
 	currentUser?: CurrentUserResponse["user"] | null;
 	children?: ReactNode;
+	triggerRef?: Ref<HTMLButtonElement>;
 }) {
+	const localTriggerRef = useRef<HTMLButtonElement>(null);
+	const mergedTriggerRef = useMergedRef(localTriggerRef, triggerRef);
 	const [dialog, setDialog] = useState<"about" | "login" | null>(null);
 	const queryClient = useQueryClient();
 	const signOutMutation = useMutation({
@@ -29,7 +34,13 @@ export function ApplicationMenu({
 		<>
 			<Menu shadow="md" width={240}>
 				<Menu.Target>
-					<ActionIcon size={44} variant="subtle" color="gray" aria-label="Open application menu">
+					<ActionIcon
+						ref={mergedTriggerRef}
+						size={44}
+						variant="subtle"
+						color="gray"
+						aria-label="Open application menu"
+					>
 						<MoreVertical size={22} />
 					</ActionIcon>
 				</Menu.Target>
@@ -61,7 +72,10 @@ export function ApplicationMenu({
 			</Menu>
 			<Modal
 				opened={dialog !== null}
-				onClose={() => setDialog(null)}
+				onClose={() => {
+					setDialog(null);
+					localTriggerRef.current?.focus({ preventScroll: true });
+				}}
 				title={dialog === "login" ? "Sign in" : "About"}
 				centered
 			>

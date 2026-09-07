@@ -1,6 +1,6 @@
 import { Button, Group, Menu, Modal, Stack, Text, Title, UnstyledButton } from "@mantine/core";
 import { ArrowLeft } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, type Ref, type RefObject, useRef, useState } from "react";
 import type { CharacterDetail } from "../types/index.js";
 import { CharacterEditor } from "./character-editor.js";
 import { CharacterExperiencePanel } from "./character-experience-panel.js";
@@ -13,12 +13,19 @@ export function CharacterRibbon({
 	onNavigate,
 	renderApplicationMenu,
 	onOpenHealthHistory,
+	menuTriggerRef,
 }: {
 	character: CharacterDetail;
 	onNavigate: NavigateToCharacterRoute;
-	renderApplicationMenu?: (characterActions?: ReactNode) => ReactNode;
+	renderApplicationMenu?: (
+		characterActions?: ReactNode,
+		triggerRef?: Ref<HTMLButtonElement>,
+	) => ReactNode;
 	onOpenHealthHistory?: () => void;
+	menuTriggerRef?: RefObject<HTMLButtonElement | null>;
 }) {
+	const identityRef = useRef<HTMLButtonElement>(null);
+	const editorReturnRef = useRef<HTMLButtonElement | null>(null);
 	const [detailsOpened, setDetailsOpened] = useState(false);
 	const [editorOpened, setEditorOpened] = useState(false);
 	return (
@@ -40,6 +47,7 @@ export function CharacterRibbon({
 						<ArrowLeft size={20} aria-hidden="true" />
 					</Button>
 					<UnstyledButton
+						ref={identityRef}
 						className={classes.identity}
 						aria-label={`Character details for ${character.name}`}
 						onClick={() => setDetailsOpened(true)}
@@ -53,13 +61,20 @@ export function CharacterRibbon({
 					</UnstyledButton>
 					{renderApplicationMenu?.(
 						<>
-							<Menu.Item mih={44} onClick={() => setEditorOpened(true)}>
+							<Menu.Item
+								mih={44}
+								onClick={() => {
+									editorReturnRef.current = menuTriggerRef?.current ?? identityRef.current;
+									setEditorOpened(true);
+								}}
+							>
 								Edit character
 							</Menu.Item>
 							<Menu.Item mih={44} onClick={onOpenHealthHistory}>
 								Health history
 							</Menu.Item>
 						</>,
+						menuTriggerRef,
 					)}
 				</Group>
 				<CharacterExperiencePanel character={character} compact />
@@ -83,6 +98,7 @@ export function CharacterRibbon({
 						c="black"
 						mih={44}
 						onClick={() => {
+							editorReturnRef.current = identityRef.current;
 							setDetailsOpened(false);
 							setEditorOpened(true);
 						}}
@@ -94,7 +110,10 @@ export function CharacterRibbon({
 			{editorOpened && (
 				<CharacterEditor
 					opened
-					onClose={() => setEditorOpened(false)}
+					onClose={() => {
+						setEditorOpened(false);
+						editorReturnRef.current?.focus({ preventScroll: true });
+					}}
 					characterId={character.id}
 					experiencePoints={character.experiencePoints}
 					level={character.level}

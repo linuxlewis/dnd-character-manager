@@ -17,6 +17,10 @@ agents can change one concern without duplicating app chrome or keeping inactive
 - `CharacterRibbon` receives the typed character and `onNavigate`, plus `renderApplicationMenu`.
   The latter is an app-owned render callback accepting character action menu items. The app supplies
   sign-in/account, About attribution, and Privacy. Character code supplies its edit/history actions.
+  The callback's optional second argument is a ref for the persistent menu trigger. Menu-launched
+  dialogs return focus to that ref when closing because the originating menu item unmounts. The
+  details-to-editor flow instead returns to character identity. Preserve these explicit close
+  callbacks when composing dialogs; Mantine cannot restore focus to a removed menu item.
 - Inventory receives optional `InventoryViewState` (`searchInput`, `activeType`) and
   `onViewStateChange`. Standalone inventory retains its local fallback; the workspace supplies both
   props for preservation across section unmounts. Editor drafts and selected detail dialogs are local.
