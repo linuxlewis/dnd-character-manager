@@ -19,13 +19,18 @@ for (const width of [320, 390, 1280]) {
 		await page.getByRole("button", { name: "Damage", exact: true }).click();
 		await page.getByLabel("Amount").fill("9");
 		if (width < 768) {
-			const sheet = await page.getByRole("dialog", { name: "Damage", exact: true }).boundingBox();
-			expect(sheet).not.toBeNull();
-			expect(sheet?.x).toBe(0);
-			expect(sheet?.width).toBe(width);
-			expect((sheet?.y ?? 0) + (sheet?.height ?? 0)).toBe(width === 320 ? 740 : 900);
+			await expect
+				.poll(async () => {
+					const sheet = await page
+						.getByRole("dialog", { name: "Damage", exact: true })
+						.boundingBox();
+					return (
+						sheet && { x: sheet.x, width: sheet.width, bottom: Math.round(sheet.y + sheet.height) }
+					);
+				})
+				.toEqual({ x: 0, width, bottom: width === 320 ? 740 : 900 });
 		}
-		await expect(page.getByRole("status")).toContainText("Resulting HP: 18");
+		await expect(page.getByRole("dialog").getByRole("status")).toContainText("Resulting HP: 18");
 		await page.route("**/health", (route) =>
 			route.fulfill({
 				status: 500,
@@ -41,7 +46,7 @@ for (const width of [320, 390, 1280]) {
 		await expect(page.getByRole("button", { name: "Edit health: 18 / 27 HP" })).toBeVisible();
 		await page.getByRole("button", { name: "Heal", exact: true }).click();
 		await page.getByLabel("Amount").fill("99");
-		await expect(page.getByRole("status")).toContainText("Resulting HP: 27");
+		await expect(page.getByRole("dialog").getByRole("status")).toContainText("Resulting HP: 27");
 		await page.getByRole("button", { name: "Cancel", exact: true }).click();
 		await expect(page.getByRole("button", { name: "Heal", exact: true })).toBeFocused();
 		await page.getByRole("button", { name: "Open application menu" }).click();
