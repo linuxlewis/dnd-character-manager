@@ -1,9 +1,9 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, eq } from "drizzle-orm";
+import { characterSpellsTable, charactersTable } from "../schema/index.js";
 import type { CharacterSpell, CharacterSpellsResponse } from "../types/index.js";
 import { CharacterSpellsResponseSchema } from "../types/index.js";
 import { toCharacterSpell } from "./character-mappers.js";
-import { characterSpellsTable, charactersTable } from "./character-table.js";
 
 export interface NewCharacterSpell {
 	slotLevel: number;

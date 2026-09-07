@@ -1,6 +1,7 @@
 import { getDb } from "@providers/database/index.js";
 import { and, count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { inventoryHistoryEntriesTable } from "../schema/index.js";
 import type {
 	InventoryHistoryEntry,
 	InventoryHistoryEntryInput,
@@ -15,7 +16,6 @@ import {
 	parseInventoryHistoryEntryInput,
 } from "../types/index.js";
 import { toInventoryHistoryEntry, toInventoryHistoryInsert } from "./inventory-history-mappers.js";
-import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 
 const CountRowSchema = z.object({ value: z.coerce.number().int().nonnegative() }).strict();
 

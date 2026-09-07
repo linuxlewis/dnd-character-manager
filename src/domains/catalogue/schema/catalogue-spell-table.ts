@@ -8,7 +8,7 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import type { CatalogueSource, RulesVersion } from "../types/index.js";
+import type { CatalogueSource, RulesVersion } from "../types/provenance.js";
 
 export const catalogueSpellsTable = pgTable(
 	"catalogue_spells",

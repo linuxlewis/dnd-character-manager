@@ -1,8 +1,13 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import * as schema from "../../database/schema.js";
+
+export type Database = PostgresJsDatabase<typeof schema>;
+export type DatabaseTransaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
+export type DatabaseConnection = Database | DatabaseTransaction;
 
 let client: postgres.Sql | null = null;
-let db: ReturnType<typeof drizzle> | null = null;
+let db: Database | null = null;
 
 export function getDatabaseUrl() {
 	const databaseUrl = process.env.DATABASE_URL;
@@ -17,7 +22,7 @@ export function getDb() {
 		client = postgres(getDatabaseUrl(), {
 			max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
 		});
-		db = drizzle(client);
+		db = drizzle(client, { schema });
 	}
 
 	if (!db) {

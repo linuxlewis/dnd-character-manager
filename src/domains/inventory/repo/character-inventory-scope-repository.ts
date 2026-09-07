@@ -1,9 +1,9 @@
 import { getDb } from "@providers/database/index.js";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { inventoryScopesTable } from "../schema/index.js";
 import type { InventoryScopeId } from "../types/index.js";
 import { InventoryCharacterIdSchema, InventoryScopeIdSchema } from "../types/index.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 const ScopeIdRowSchema = z.object({ id: InventoryScopeIdSchema }).strict();
 

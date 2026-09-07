@@ -1,10 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { and, desc, eq } from "drizzle-orm";
+import { characterHealthTable, charactersTable } from "../schema/index.js";
 import type { Character, CreateCharacter } from "../types/index.js";
 import { CharacterClassSchema } from "../types/index.js";
 import type { CharacterRow } from "./character-row.js";
 import { characterFromRow } from "./character-row.js";
-import { characterHealthTable, charactersTable } from "./character-table.js";
 
 type Db = ReturnType<typeof getDb>;
 

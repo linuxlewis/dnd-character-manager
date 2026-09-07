@@ -1,5 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { and, desc, eq } from "drizzle-orm";
+import {
+	characterSpellSlotEventsTable,
+	characterSpellSlotsTable,
+	charactersTable,
+} from "../schema/index.js";
 import type {
 	CharacterClass,
 	CharacterSpellSlot,
@@ -9,11 +14,6 @@ import type {
 } from "../types/index.js";
 import { CharacterSpellSlotsResponseSchema } from "../types/index.js";
 import { toSpellSlotChange, toSpellSlotState } from "./character-mappers.js";
-import {
-	characterSpellSlotEventsTable,
-	characterSpellSlotsTable,
-	charactersTable,
-} from "./character-table.js";
 
 export interface CharacterSpellSlotContext {
 	className: CharacterClass;

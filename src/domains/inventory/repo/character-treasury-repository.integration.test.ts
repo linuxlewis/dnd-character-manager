@@ -3,13 +3,12 @@ import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { testConcurrentPrecondition } from "../../../../tests/support/treasury-concurrency.js";
+import { inventoryScopesTable, inventoryTreasuriesTable } from "../schema/index.js";
 import type { CurrencyBalance } from "../types/index.js";
 import {
 	CharacterTreasuryPreconditionError,
 	createCharacterTreasuryRepository,
 } from "./character-treasury-repository.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
-import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 const createdUserIds: string[] = [];
 

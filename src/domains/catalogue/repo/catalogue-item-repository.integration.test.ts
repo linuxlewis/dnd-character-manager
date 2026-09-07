@@ -1,6 +1,7 @@
 import { closeDb, getDb } from "@providers/database/index.js";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "../schema/index.js";
 import {
 	auditFor,
 	seedItem,
@@ -11,7 +12,6 @@ import {
 	type CatalogueItemRepository,
 	createCatalogueItemRepository,
 } from "./catalogue-item-repository.js";
-import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-item-table.js";
 
 const pinnedRevision = "f044ce3b56f3b6d5a122cd9f813f25a5823b4cb6";
 const pinnedSentinelKey = "phbwepLongsword0";

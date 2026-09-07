@@ -1,5 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { and, eq } from "drizzle-orm";
+import {
+	inventoryHistoryEntriesTable,
+	inventoryItemsTable,
+	inventoryScopesTable,
+} from "../schema/index.js";
 import type {
 	InventoryCharacterId,
 	InventoryHistoryActorUserId,
@@ -14,7 +19,6 @@ import {
 	InventoryScopeIdSchema,
 } from "../types/index.js";
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
-import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 import {
 	type InventoryItemUpdateInput,
 	parseInventoryItemUpdate,
@@ -23,8 +27,6 @@ import {
 } from "./inventory-item-mappers.js";
 import type { InventoryItemRepository } from "./inventory-item-repository.js";
 import { createInventoryItemRepository } from "./inventory-item-repository.js";
-import { inventoryItemsTable } from "./inventory-item-table.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 type DatabaseTransaction = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
 type ItemHistoryAction = "item_added" | "item_updated" | "item_removed";

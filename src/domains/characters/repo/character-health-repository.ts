@@ -1,5 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { and, desc, eq } from "drizzle-orm";
+import {
+	characterHealthEventsTable,
+	characterHealthTable,
+	charactersTable,
+} from "../schema/index.js";
 import type {
 	CharacterHealth,
 	HealthChangeResponse,
@@ -7,11 +12,6 @@ import type {
 } from "../types/index.js";
 import { CharacterHealthSchema } from "../types/index.js";
 import { toCharacterHealth, toHealthChange } from "./character-mappers.js";
-import {
-	characterHealthEventsTable,
-	characterHealthTable,
-	charactersTable,
-} from "./character-table.js";
 
 export interface NewHealthChange {
 	previous: CharacterHealth;

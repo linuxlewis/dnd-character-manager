@@ -1,6 +1,7 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, count, eq, ilike } from "drizzle-orm";
 import { z } from "zod";
+import { inventoryItemsTable } from "../schema/index.js";
 import type { InventoryItem, InventoryItemFilter, InventoryScopeId } from "../types/index.js";
 import {
 	InventoryItemFilterSchema,
@@ -13,7 +14,6 @@ import {
 	toInventoryItem,
 	toInventoryItemInsert,
 } from "./inventory-item-mappers.js";
-import { inventoryItemsTable } from "./inventory-item-table.js";
 
 const CountRowSchema = z.object({ value: z.coerce.number().int().nonnegative() }).strict();
 
