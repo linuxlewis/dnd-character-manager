@@ -57,6 +57,13 @@ of two per-spec advisory-lock owners. Lifecycle tests cover partial setup failur
 audit cleanup failure, client closure, and metadata validation; real catalogue
 browser assertions remain unchanged. See [evidence](./catalogue-browser-fixture-lifecycle.md).
 
+## Inventory Transactional Ownership
+
+R4b adds real item/treasury production-mutation blocking proofs, service-precheck
+ownership transfer races, denied-write state/history checks, and identity-only
+authorization without health. Character-facing generic write bypasses are removed.
+See [implementation and evidence](./domain-inventory-ownership.md).
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean

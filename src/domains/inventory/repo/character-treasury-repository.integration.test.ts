@@ -140,18 +140,23 @@ describe("character treasury persistence", () => {
 		expect(Object.keys(treasury).sort()).toEqual(["balances", "characterId", "totalValue"]);
 		expect("inventoryScopeId" in treasury).toBe(false);
 		const mutation = vi.fn(() => ({ cp: 1, sp: 0, gp: 0, pp: 0 }));
+		const invalidOwner = { characterId: "not-a-uuid", userId: "not-a-uuid" };
 		await expect(repository.findCharacterTreasury("not-a-uuid")).rejects.toThrow();
-		await expect(repository.mutateCharacterTreasury("not-a-uuid", mutation)).rejects.toThrow();
+		await expect(repository.mutateCharacterTreasury(invalidOwner, mutation)).rejects.toThrow();
 		expect(mutation).not.toHaveBeenCalled();
 	});
 
 	it("creates scope and treasury in the first atomic mutation", async () => {
-		const { characterId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
 		await expect(
-			repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 2 }), {
-				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
-			}),
+			repository.mutateCharacterTreasury(
+				{ characterId, userId },
+				(current) => ({ ...current, gp: 2 }),
+				{
+					expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+				},
+			),
 		).resolves.toEqual({
 			characterId,
 			balances: { cp: 0, sp: 0, gp: 2, pp: 0 },
@@ -161,7 +166,7 @@ describe("character treasury persistence", () => {
 		expect(await countTreasuryRowsForCharacter(characterId)).toBe(1);
 		const replay = vi.fn((current: CurrencyBalance) => ({ ...current, gp: current.gp + 2 }));
 		await expect(
-			repository.mutateCharacterTreasury(characterId, replay, {
+			repository.mutateCharacterTreasury({ characterId, userId }, replay, {
 				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
 			}),
 		).rejects.toBeInstanceOf(CharacterTreasuryPreconditionError);
@@ -172,7 +177,7 @@ describe("character treasury persistence", () => {
 
 		const invalid = await createCharacter();
 		await expect(
-			repository.mutateCharacterTreasury(invalid.characterId, () => ({
+			repository.mutateCharacterTreasury(invalid, () => ({
 				cp: -1,
 				sp: 0,
 				gp: 0,
@@ -183,10 +188,10 @@ describe("character treasury persistence", () => {
 	});
 
 	it("serializes concurrent first mutations without lost updates", async () => {
-		const { characterId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
 		const mutations = Array.from({ length: 12 }, () =>
-			repository.mutateCharacterTreasury(characterId, (current) => ({
+			repository.mutateCharacterTreasury({ characterId, userId }, (current) => ({
 				...current,
 				cp: current.cp + 1,
 			})),
@@ -201,13 +206,15 @@ describe("character treasury persistence", () => {
 		expect(await countTreasuryRowsForCharacter(characterId)).toBe(1);
 	});
 	it("serializes concurrent confirmations", () =>
-		createCharacter().then(({ characterId }) => testConcurrentPrecondition(characterId)));
+		createCharacter().then(({ characterId, userId }) =>
+			testConcurrentPrecondition({ characterId, userId }),
+		));
 
 	it("keeps characters isolated and rejects invalid persisted balances", async () => {
 		const first = await createCharacter();
 		const second = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		await repository.mutateCharacterTreasury(first.characterId, (current) => ({
+		await repository.mutateCharacterTreasury(first, (current) => ({
 			...current,
 			pp: 1,
 		}));
@@ -228,9 +235,12 @@ describe("character treasury persistence", () => {
 	});
 
 	it("cascades treasury data when the owning character is deleted", async () => {
-		const { characterId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		await repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 1 }));
+		await repository.mutateCharacterTreasury({ characterId, userId }, (current) => ({
+			...current,
+			gp: 1,
+		}));
 
 		await getDb().execute(sql`DELETE FROM characters WHERE id = ${characterId}`);
 		expect(await countRows(inventoryScopesTable, characterId)).toBe(0);

@@ -1,4 +1,4 @@
-import { getDb } from "@providers/database/index.js";
+import { type DatabaseTransaction, getDb } from "@providers/database/index.js";
 import { eq } from "drizzle-orm";
 import {
 	inventoryHistoryEntriesTable,
@@ -22,14 +22,16 @@ import {
 	InventoryCharacterIdSchema,
 	InventoryHistoryActorUserIdSchema,
 } from "../types/index.js";
+import {
+	type CharacterInventoryOwner,
+	lockCharacterInventory,
+} from "./character-inventory-scope-repository.js";
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
 import {
 	toCharacterTreasury,
 	toInventoryScope,
 	zeroCharacterTreasury,
 } from "./inventory-mappers.js";
-
-type DatabaseTransaction = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
 
 export type CharacterTreasuryMutation = (current: CurrencyBalance) => CurrencyBalance;
 
@@ -79,7 +81,7 @@ export class CharacterTreasuryPreconditionError extends Error {
 export interface CharacterTreasuryRepository {
 	findCharacterTreasury(characterId: string): Promise<CharacterTreasury>;
 	mutateCharacterTreasury(
-		characterId: string,
+		owner: CharacterInventoryOwner,
 		mutation: CharacterTreasuryMutation,
 		options?: CharacterTreasuryMutationOptions,
 	): Promise<CharacterTreasury>;
@@ -117,12 +119,12 @@ export function createCharacterTreasuryRepository(
 				: zeroCharacterTreasury(parsedCharacterId);
 		},
 
-		async mutateCharacterTreasury(characterId, mutation, options = {}) {
-			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
+		async mutateCharacterTreasury(owner, mutation, options = {}) {
 			const expectedPrevious = options.expectedPrevious
 				? CurrencyBalanceSchema.parse(options.expectedPrevious)
 				: undefined;
 			return getDb().transaction(async (tx) => {
+				const { characterId: parsedCharacterId, userId } = await lockCharacterInventory(owner, tx);
 				await tx
 					.insert(inventoryScopesTable)
 					.values({ characterId: parsedCharacterId })
@@ -176,10 +178,13 @@ export function createCharacterTreasuryRepository(
 					await historyWriter(
 						tx,
 						scope.id,
-						toTreasuryHistoryInput(options.history, {
-							previous: currentTreasury.balances,
-							next: nextBalances,
-						}),
+						toTreasuryHistoryInput(
+							{ ...options.history, actorUserId: userId },
+							{
+								previous: currentTreasury.balances,
+								next: nextBalances,
+							},
+						),
 					);
 				}
 				return toCharacterTreasury(parsedCharacterId, updatedTreasuryRow);

@@ -1,5 +1,4 @@
-import type { CharacterService } from "../../characters/service/index.js";
-import { createCharacterService } from "../../characters/service/index.js";
+import { requireOwnedCharacter } from "../../characters/service/index.js";
 import type {
 	CharacterInventoryScopeRepository,
 	InventoryHistoryRepository,
@@ -30,7 +29,7 @@ export interface CharacterHistoryService {
 export interface CharacterHistoryServiceOptions {
 	repository?: InventoryHistoryRepository;
 	scopeRepository?: CharacterInventoryScopeRepository;
-	characterService?: Pick<CharacterService, "getCharacter">;
+	requireCharacter?: typeof requireOwnedCharacter;
 }
 
 export function createCharacterHistoryService(
@@ -38,12 +37,12 @@ export function createCharacterHistoryService(
 ): CharacterHistoryService {
 	const repository = options.repository ?? createInventoryHistoryRepository();
 	const scopeRepository = options.scopeRepository ?? createCharacterInventoryScopeRepository();
-	const characterService = options.characterService ?? createCharacterService();
+	const requireCharacter = options.requireCharacter ?? requireOwnedCharacter;
 
 	return {
 		async listCharacterHistory(userId, characterId, input = {}) {
 			const request = ListCharacterHistoryRequestSchema.parse(input);
-			await characterService.getCharacter(userId, characterId);
+			await requireCharacter(userId, characterId);
 			try {
 				const scopeId = await scopeRepository.findCharacterScopeId(characterId);
 				if (!scopeId) return emptyHistoryPage(request);

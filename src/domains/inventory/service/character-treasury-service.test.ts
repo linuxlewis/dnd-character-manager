@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
-import type { CharacterDetail } from "../../characters/types/index.js";
 import { getCurrencyTotalValue } from "../config/index.js";
 import {
+	type CharacterInventoryOwner,
 	type CharacterTreasuryMutation,
 	type CharacterTreasuryMutationOptions,
 	CharacterTreasuryPreconditionError,
@@ -20,8 +20,8 @@ const userId = "00000000-0000-4000-8000-000000000002";
 
 describe("createCharacterTreasuryService", () => {
 	it("reads a zero treasury without invoking persistence mutation", async () => {
-		const { repository, characterService } = fakeDependencies();
-		const service = createCharacterTreasuryService({ repository, characterService });
+		const { repository, requireCharacter } = fakeDependencies();
+		const service = createCharacterTreasuryService({ repository, requireCharacter });
 
 		await expect(service.getCharacterTreasury(userId, characterId)).resolves.toEqual({
 			treasury: treasury({ cp: 0, sp: 0, gp: 0, pp: 0 }),
@@ -31,8 +31,8 @@ describe("createCharacterTreasuryService", () => {
 	});
 
 	it("adds mixed funds through the atomic repository callback", async () => {
-		const { repository, characterService } = fakeDependencies();
-		const service = createCharacterTreasuryService({ repository, characterService });
+		const { repository, requireCharacter } = fakeDependencies();
+		const service = createCharacterTreasuryService({ repository, requireCharacter });
 
 		const response = await service.addCharacterTreasury(userId, characterId, {
 			delta: { cp: 2, sp: 3, gp: 4, pp: 5 },
@@ -48,7 +48,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 2, pp: 0 });
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 
 		await service.addCharacterTreasury(userId, characterId, {
@@ -58,7 +58,7 @@ describe("createCharacterTreasuryService", () => {
 		});
 		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenNthCalledWith(
 			1,
-			characterId,
+			{ userId, characterId },
 			expect.any(Function),
 			{
 				expectedPrevious: { cp: 0, sp: 0, gp: 2, pp: 0 },
@@ -78,7 +78,7 @@ describe("createCharacterTreasuryService", () => {
 		});
 		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenNthCalledWith(
 			2,
-			characterId,
+			{ userId, characterId },
 			expect.any(Function),
 			{
 				expectedPrevious: { cp: 0, sp: 0, gp: 3, pp: 0 },
@@ -96,7 +96,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 1, pp: 0 });
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 
 		const preview = await service.previewSpendCharacterTreasury(userId, characterId, {
@@ -118,7 +118,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies();
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 		const request = {
 			delta: { cp: 1, sp: 0, gp: 0, pp: 0 },
@@ -146,7 +146,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies();
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 
 		const preview = await service.previewAddCharacterTreasury(userId, characterId, {
@@ -165,7 +165,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies({ cp: 5, sp: 0, gp: 0, pp: 0 });
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 		const previewRequest = { amount: { denomination: "gp" as const, amount: 1 } };
 
@@ -198,7 +198,7 @@ describe("createCharacterTreasuryService", () => {
 		const dependencies = fakeDependencies({ cp: 0, sp: 0, gp: 0, pp: 1 });
 		const service = createCharacterTreasuryService({
 			repository: dependencies.repository,
-			characterService: dependencies.characterService,
+			requireCharacter: dependencies.requireCharacter,
 		});
 
 		const response = await service.convertCharacterTreasury(userId, characterId, {
@@ -209,7 +209,7 @@ describe("createCharacterTreasuryService", () => {
 		});
 		expect(response.treasury.balances).toEqual({ cp: 0, sp: 0, gp: 10, pp: 0 });
 		expect(dependencies.repository.mutateCharacterTreasury).toHaveBeenCalledWith(
-			characterId,
+			{ userId, characterId },
 			expect.any(Function),
 			{
 				history: {
@@ -222,10 +222,10 @@ describe("createCharacterTreasuryService", () => {
 		);
 
 		const inaccessible = fakeDependencies();
-		inaccessible.characterService.getCharacter.mockRejectedValue(new CharacterNotFoundError());
+		inaccessible.requireCharacter.mockRejectedValue(new CharacterNotFoundError());
 		const inaccessibleService = createCharacterTreasuryService({
 			repository: inaccessible.repository,
-			characterService: inaccessible.characterService,
+			requireCharacter: inaccessible.requireCharacter,
 		});
 		await expect(
 			inaccessibleService.addCharacterTreasury(userId, characterId, {
@@ -244,7 +244,7 @@ function fakeDependencies(initial = { cp: 0, sp: 0, gp: 0, pp: 0 }) {
 		findCharacterTreasury: vi.fn(async (id) => treasury({ ...balances }, id)),
 		mutateCharacterTreasury: vi.fn(
 			async (
-				id: string,
+				owner: CharacterInventoryOwner,
 				mutation: CharacterTreasuryMutation,
 				options: CharacterTreasuryMutationOptions = {},
 			) => {
@@ -253,14 +253,12 @@ function fakeDependencies(initial = { cp: 0, sp: 0, gp: 0, pp: 0 }) {
 				}
 				const next = mutation({ ...balances });
 				balances = next;
-				return treasury(next, id);
+				return treasury(next, owner.characterId);
 			},
 		),
 	};
-	const characterService = {
-		getCharacter: vi.fn().mockResolvedValue({} as CharacterDetail),
-	};
-	return { repository, characterService, getBalances: () => balances };
+	const requireCharacter = vi.fn().mockResolvedValue({});
+	return { repository, requireCharacter, getBalances: () => balances };
 }
 
 function balancesEqual(

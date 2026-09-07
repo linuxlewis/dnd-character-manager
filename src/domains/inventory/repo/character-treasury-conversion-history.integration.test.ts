@@ -25,15 +25,15 @@ afterAll(async () => {
 
 describe("character treasury conversion history persistence", () => {
 	it("writes exact conversion history while preserving total value", async () => {
-		const { characterId, userId: actorUserId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		const seeded = await repository.mutateCharacterTreasury(characterId, (current) => ({
+		const seeded = await repository.mutateCharacterTreasury({ characterId, userId }, (current) => ({
 			...current,
 			pp: 1,
 		}));
 
 		const converted = await repository.mutateCharacterTreasury(
-			characterId,
+			{ characterId, userId },
 			(current) => ({ ...current, gp: 10, pp: 0 }),
 			{
 				expectedPrevious: seeded.balances,
@@ -41,7 +41,7 @@ describe("character treasury conversion history persistence", () => {
 					operation: "convert",
 					requested: { from: "pp", to: "gp", amount: 1 },
 					note: "  Converted before the journey  ",
-					actorUserId,
+					actorUserId: userId,
 				},
 			},
 		);
@@ -69,7 +69,7 @@ describe("character treasury conversion history persistence", () => {
 			entityType: "currency",
 			entityId: null,
 			entityName: null,
-			actorUserId,
+			actorUserId: userId,
 			details: {
 				version: 1,
 				operation: "convert",
@@ -83,9 +83,9 @@ describe("character treasury conversion history persistence", () => {
 	});
 
 	it("rolls back a conversion when history insertion fails", async () => {
-		const { characterId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		const seeded = await repository.mutateCharacterTreasury(characterId, (current) => ({
+		const seeded = await repository.mutateCharacterTreasury({ characterId, userId }, (current) => ({
 			...current,
 			pp: 1,
 		}));
@@ -96,7 +96,7 @@ describe("character treasury conversion history persistence", () => {
 
 		await expect(
 			failingRepository.mutateCharacterTreasury(
-				characterId,
+				{ characterId, userId },
 				(current) => ({ ...current, gp: 10, pp: 0 }),
 				{
 					expectedPrevious: seeded.balances,
@@ -121,33 +121,33 @@ describe("character treasury conversion history persistence", () => {
 	});
 
 	it("does not append history for stale or no-op conversions", async () => {
-		const { characterId, userId: actorUserId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		await repository.mutateCharacterTreasury(characterId, (current) => ({
+		await repository.mutateCharacterTreasury({ characterId, userId }, (current) => ({
 			...current,
 			pp: 1,
 		}));
 		const staleMutation = vi.fn((current) => ({ ...current, gp: 10, pp: 0 }));
 
 		await expect(
-			repository.mutateCharacterTreasury(characterId, staleMutation, {
+			repository.mutateCharacterTreasury({ characterId, userId }, staleMutation, {
 				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
 				history: {
 					operation: "convert",
 					requested: { from: "pp", to: "gp", amount: 1 },
 					note: null,
-					actorUserId,
+					actorUserId: userId,
 				},
 			}),
 		).rejects.toBeInstanceOf(CharacterTreasuryPreconditionError);
 		expect(staleMutation).not.toHaveBeenCalled();
 
-		await repository.mutateCharacterTreasury(characterId, (current) => current, {
+		await repository.mutateCharacterTreasury({ characterId, userId }, (current) => current, {
 			history: {
 				operation: "convert",
 				requested: { from: "pp", to: "gp", amount: 1 },
 				note: null,
-				actorUserId,
+				actorUserId: userId,
 			},
 		});
 

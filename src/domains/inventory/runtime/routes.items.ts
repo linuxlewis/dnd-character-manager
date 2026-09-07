@@ -2,8 +2,7 @@ import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
-import type { CharacterService } from "../../characters/service/index.js";
-import { CharacterNotFoundError, createCharacterService } from "../../characters/service/index.js";
+import { CharacterNotFoundError, requireOwnedCharacter } from "../../characters/service/index.js";
 import type { CharacterItemService } from "../service/index.js";
 import {
 	CatalogueItemNotFoundError,
@@ -23,11 +22,9 @@ import {
 	CharacterItemPathParamsSchema,
 } from "./contract-support.js";
 
-const defaultCharacterService = createCharacterService();
-
 export interface RegisterCharacterItemRoutesOptions {
 	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
-	characterService?: Pick<CharacterService, "getCharacter">;
+	requireCharacter?: typeof requireOwnedCharacter;
 	characterItemService?: CharacterItemService;
 }
 
@@ -36,9 +33,9 @@ export async function registerCharacterItemRoutes(
 	options: RegisterCharacterItemRoutesOptions = {},
 ) {
 	const getCurrentUser = options.getCurrentUser ?? getOrCreateCurrentUser;
-	const characterService = options.characterService ?? defaultCharacterService;
+	const requireCharacter = options.requireCharacter ?? requireOwnedCharacter;
 	const itemService =
-		options.characterItemService ?? createCharacterItemService({ characterService });
+		options.characterItemService ?? createCharacterItemService({ requireCharacter });
 
 	app.post("/api/characters/:characterId/items", async (request, reply) => {
 		const params = parseParams(CharacterItemPathParamsSchema, request, reply);

@@ -1,7 +1,8 @@
-import type { CharacterService } from "../../characters/service/index.js";
-import { createCharacterService } from "../../characters/service/index.js";
+import { CharacterNotFoundError, requireOwnedCharacter } from "../../characters/service/index.js";
 import { getCurrencyTotalValue } from "../config/index.js";
 import {
+	CharacterInventoryAccessError,
+	type CharacterInventoryOwner,
 	type CharacterTreasuryHistoryInput,
 	CharacterTreasuryPreconditionError,
 	type CharacterTreasuryRepository,
@@ -72,18 +73,18 @@ export interface CharacterTreasuryService {
 
 export interface CharacterTreasuryServiceOptions {
 	repository?: CharacterTreasuryRepository;
-	characterService?: Pick<CharacterService, "getCharacter">;
+	requireCharacter?: typeof requireOwnedCharacter;
 }
 
 export function createCharacterTreasuryService(
 	options: CharacterTreasuryServiceOptions = {},
 ): CharacterTreasuryService {
 	const repository = options.repository ?? createCharacterTreasuryRepository();
-	const characterService = options.characterService ?? createCharacterService();
+	const requireCharacter = options.requireCharacter ?? requireOwnedCharacter;
 
 	return {
 		async getCharacterTreasury(userId, characterId) {
-			await characterService.getCharacter(userId, characterId);
+			await requireCharacter(userId, characterId);
 			return CharacterTreasuryResponseSchema.parse({
 				treasury: await repository.findCharacterTreasury(characterId),
 			});
@@ -91,11 +92,11 @@ export function createCharacterTreasuryService(
 
 		async addCharacterTreasury(userId, characterId, input) {
 			const request = AddCharacterTreasuryRequestSchema.parse(input);
-			await characterService.getCharacter(userId, characterId);
+			await requireCharacter(userId, characterId);
 			let plan: CurrencyPlan | undefined;
 			const treasury = await mutateWithPreviewPrecondition(
 				repository,
-				characterId,
+				{ userId, characterId },
 				(current) => {
 					const nextPlan = planAdd(current, { delta: request.delta });
 					plan = nextPlan;
@@ -118,11 +119,11 @@ export function createCharacterTreasuryService(
 
 		async spendCharacterTreasury(userId, characterId, input) {
 			const request = SpendCharacterTreasuryRequestSchema.parse(input);
-			await characterService.getCharacter(userId, characterId);
+			await requireCharacter(userId, characterId);
 			let plan: SpendPlan | undefined;
 			const treasury = await mutateWithPreviewPrecondition(
 				repository,
-				characterId,
+				{ userId, characterId },
 				(current) => {
 					const nextPlan = planSpend(current, { amount: request.amount });
 					plan = nextPlan;
@@ -150,11 +151,11 @@ export function createCharacterTreasuryService(
 
 		async convertCharacterTreasury(userId, characterId, input) {
 			const request = ConvertCharacterTreasuryRequestSchema.parse(input);
-			await characterService.getCharacter(userId, characterId);
+			await requireCharacter(userId, characterId);
 			let plan: ReturnType<typeof planConversion> | undefined;
 			const treasury = await mutateWithPreviewPrecondition(
 				repository,
-				characterId,
+				{ userId, characterId },
 				(current) => {
 					const nextPlan = planConversion(current, {
 						from: request.from,
@@ -184,7 +185,7 @@ export function createCharacterTreasuryService(
 			const treasury = await readAuthorizedTreasury(
 				userId,
 				characterId,
-				characterService,
+				requireCharacter,
 				repository,
 			);
 			return previewAddFromPlan(treasury, planAdd(treasury.treasury.balances, request));
@@ -195,7 +196,7 @@ export function createCharacterTreasuryService(
 			const treasury = await readAuthorizedTreasury(
 				userId,
 				characterId,
-				characterService,
+				requireCharacter,
 				repository,
 			);
 			try {
@@ -223,17 +224,18 @@ export function createCharacterTreasuryService(
 
 async function mutateWithPreviewPrecondition(
 	repository: CharacterTreasuryRepository,
-	characterId: string,
+	owner: CharacterInventoryOwner,
 	mutation: (current: CurrencyBalance) => CurrencyBalance,
 	expectedPrevious?: CurrencyBalance,
 	history?: CharacterTreasuryHistoryInput,
 ) {
 	try {
-		return await repository.mutateCharacterTreasury(characterId, mutation, {
+		return await repository.mutateCharacterTreasury(owner, mutation, {
 			...(expectedPrevious === undefined ? {} : { expectedPrevious }),
 			...(history === undefined ? {} : { history }),
 		});
 	} catch (error) {
+		if (error instanceof CharacterInventoryAccessError) throw new CharacterNotFoundError();
 		if (!(error instanceof CharacterTreasuryPreconditionError)) throw error;
 		throw new TreasuryConflictError({
 			message: error.message,
@@ -246,10 +248,10 @@ async function mutateWithPreviewPrecondition(
 async function readAuthorizedTreasury(
 	userId: string,
 	characterId: string,
-	characterService: Pick<CharacterService, "getCharacter">,
+	requireCharacter: typeof requireOwnedCharacter,
 	repository: CharacterTreasuryRepository,
 ): Promise<CharacterTreasuryResponse> {
-	await characterService.getCharacter(userId, characterId);
+	await requireCharacter(userId, characterId);
 	return CharacterTreasuryResponseSchema.parse({
 		treasury: await repository.findCharacterTreasury(characterId),
 	});
