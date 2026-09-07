@@ -1,0 +1,174 @@
+{
+	"success": true,
+	"data": {
+		"axeVersion": "4.12.1",
+		"counts": {
+			"inapplicable": 36,
+			"incomplete": 2,
+			"passes": 24,
+			"violations": 0
+		},
+		"incomplete": [
+			{
+				"help": "Elements must only use permitted ARIA attributes",
+				"helpUrl": "https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI",
+				"id": "aria-prohibited-attr",
+				"impact": "serious",
+				"nodeCount": 41,
+				"nodes": [
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto c...\" data-size=\"sm\" aria-label=\"Added 1 platinum pie...\" style=\"--text-fz: var(--man...\">",
+						"target": [
+							".character-activity-summary > .character-activity-number"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
+						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
+						"target": [
+							"time[datetime=\"2026-09-07T19:35:05.796Z\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto c...\" data-size=\"sm\" aria-label=\"Balance: 0 gold piec...\" style=\"--text-fz: var(--man...\">",
+						"target": [
+							".character-activity-entry:nth-child(1) > div:nth-child(2) > .character-activity-drawer-detail.character-activity-number"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"Added Explorer's pack with a remarkably long descriptive name for narrow mobile screens\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); font-weight: 600;\">",
+						"target": [
+							".character-activity-entry:nth-child(2) > div:nth-child(2) > .character-activity-summary > p"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
+						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
+						"target": [
+							"time[datetime=\"2026-09-07T19:35:05.774Z\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto character-activity-drawer-detail character-activity-number m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"x12\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); color: var(--mantine-color-dimmed);\">x12</p>",
+						"target": [
+							"p[aria-label=\"x12\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"Added Travel supply 10\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); font-weight: 600;\">Added Travel supply 10</p>",
+						"target": [
+							"p[aria-label=\"Added Travel supply 10\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
+						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
+						"target": [
+							"time[datetime=\"2026-09-07T19:35:05.757Z\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto character-activity-drawer-detail character-activity-number m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"x11\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); color: var(--mantine-color-dimmed);\">x11</p>",
+						"target": [
+							"p[aria-label=\"x11\"]"
+						]
+					},
+					{
+						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
+						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"Added Travel supply 09\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); font-weight: 600;\">Added Travel supply 09</p>",
+						"target": [
+							"p[aria-label=\"Added Travel supply 09\"]"
+						]
+					}
+				],
+				"tags": [
+					"cat.aria",
+					"wcag2a",
+					"wcag412",
+					"EN-301-549",
+					"EN-9.4.1.2",
+					"RGAAv4",
+					"RGAA-7.1.1"
+				]
+			},
+			{
+				"help": "Elements must meet minimum color contrast ratio thresholds",
+				"helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",
+				"id": "color-contrast",
+				"impact": "serious",
+				"nodeCount": 5,
+				"nodes": [
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">6</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(2) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">6</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(3) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(4) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(5) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(6) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					}
+				],
+				"tags": [
+					"cat.color",
+					"wcag2aa",
+					"wcag143",
+					"TTv5",
+					"TT13.c",
+					"EN-301-549",
+					"EN-9.1.4.3",
+					"ACT",
+					"RGAAv4",
+					"RGAA-3.2.1"
+				]
+			}
+		],
+		"lifecycle": {
+			"effectiveLaunch": {
+				"browserLaunched": true,
+				"engine": "chrome",
+				"launchHash": 7707568497978554591
+			},
+			"launched": false,
+			"relaunchedBrowser": false,
+			"restartedBackground": false,
+			"restoreStatus": "not_configured",
+			"reused": true,
+			"saveStatus": "not_attempted"
+		},
+		"url": "http://127.0.0.1:3758/characters/87db0913-5652-48e7-be6b-2c299c69b166/inventory",
+		"violations": []
+	},
+	"error": null
+}

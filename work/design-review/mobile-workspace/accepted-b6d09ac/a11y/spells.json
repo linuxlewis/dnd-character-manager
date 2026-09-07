@@ -1,0 +1,29 @@
+{
+	"success": true,
+	"data": {
+		"axeVersion": "4.12.1",
+		"counts": {
+			"inapplicable": 40,
+			"incomplete": 0,
+			"passes": 20,
+			"violations": 0
+		},
+		"incomplete": [],
+		"lifecycle": {
+			"effectiveLaunch": {
+				"browserLaunched": true,
+				"engine": "chrome",
+				"launchHash": 7707568497978554591
+			},
+			"launched": false,
+			"relaunchedBrowser": false,
+			"restartedBackground": false,
+			"restoreStatus": "not_configured",
+			"reused": true,
+			"saveStatus": "not_attempted"
+		},
+		"url": "http://127.0.0.1:3758/characters/ae6e5374-2a62-4a7d-b84d-317a568e3a1d/spells",
+		"violations": []
+	},
+	"error": null
+}

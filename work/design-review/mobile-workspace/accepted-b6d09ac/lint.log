@@ -1,0 +1,46 @@
+
+> dnd-character-manager@ lint /home/sbolgert/workspace/dnd-mobile-ux-qa
+> biome check . && tsx lints/check-deps.ts
+
+work/design-review/mobile-workspace/reference/index.html:11:160 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+     9 │ <nav class="nav" aria-label="Character sections"><button type="button" id="spells-tab" class="active" onclick="show('spells')"><span>&#10022;</span>Spells</button><button type="button" id="inventory-tab" onclick="show('inventory')"><span>&#9633;</span>Inventory</button></nav>
+    10 │ <div id="editor" class="dialog hidden" role="dialog" aria-label="Edit character"><header><h1>Edit character</h1><button type="button" onclick="closeEditor()" aria-label="Close edit character">&#215;</button></header><section><label>Name<input value="Mira Thorn"></label><label>Level<input value="3" inputmode="numeric"></label><label>Experience points<input value="2196" inputmode="numeric"></label><p class="muted">504 XP to level 4. Updating XP does not change your level automatically.</p></section><footer><button type="button" onclick="closeEditor()">Cancel</button><button type="button" class="primary" onclick="closeEditor()">Save changes</button></footer></div>
+  > 11 │ <script>function show(id){for(const name of ['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(name+'-tab').classList.toggle('active',name===id)}scrollTo(0,0)}function edit(){document.getElementById('editor').classList.remove('hidden')}function closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+       │                                                                                                                                                                ^^^^^^^^^^^
+    12 │ if(location.hash==='#item'){edit();document.querySelector('#editor h1').textContent='Add personal item';document.querySelector('#editor section').innerHTML='<label>Name<input value="Quarterstaff"></label><label>Type<input value="Equipment"></label><label>Category<input value="Weapons"></label><label>Quantity<input value="1" inputmode="numeric"></label><label>Weight (lb)<input value="4" inputmode="decimal"></label><label>Notes<input value="Carried from the observatory"></label>';document.querySelector('#editor .primary').textContent='Add item';}if(innerWidth>=768)document.querySelector('main').before(document.querySelector('nav'));</script></html>
+    13 │ 
+  
+  i Unsafe fix: Use a template literal.
+  
+    1   │ - function·show(id){for(const·name·of·['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(name+'-tab').classList.toggle('active',name===id)}scrollTo(0,0)}function·edit(){document.getElementById('editor').classList.remove('hidden')}function·closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+      1 │ + function·show(id){for(const·name·of·['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(`${name}-tab`).classList.toggle('active',name===id)}scrollTo(0,0)}function·edit(){document.getElementById('editor').classList.remove('hidden')}function·closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+    2 2 │   if(location.hash==='#item'){edit();document.querySelector('#editor h1').textContent='Add personal item';document.querySelector('#editor section').innerHTML='<label>Name<input value="Quarterstaff"></label><label>Type<input value="Equipment"></label><label>Category<input value="Weapons"></label><label>Quantity<input value="1" inputmode="numeric"></label><label>Weight (lb)<input value="4" inputmode="decimal"></label><label>Notes<input value="Carried from the observatory"></label>';document.querySelector('#editor .primary').textContent='Add item';}if(innerWidth>=768)document.querySelector('main').before(document.querySelector('nav'));
+  
+
+work/design-review/mobile-workspace/reference/index.html:11:310 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━
+
+  ! This function closeEditor is unused.
+  
+     9 │ <nav class="nav" aria-label="Character sections"><button type="button" id="spells-tab" class="active" onclick="show('spells')"><span>&#10022;</span>Spells</button><button type="button" id="inventory-tab" onclick="show('inventory')"><span>&#9633;</span>Inventory</button></nav>
+    10 │ <div id="editor" class="dialog hidden" role="dialog" aria-label="Edit character"><header><h1>Edit character</h1><button type="button" onclick="closeEditor()" aria-label="Close edit character">&#215;</button></header><section><label>Name<input value="Mira Thorn"></label><label>Level<input value="3" inputmode="numeric"></label><label>Experience points<input value="2196" inputmode="numeric"></label><p class="muted">504 XP to level 4. Updating XP does not change your level automatically.</p></section><footer><button type="button" onclick="closeEditor()">Cancel</button><button type="button" class="primary" onclick="closeEditor()">Save changes</button></footer></div>
+  > 11 │ <script>function show(id){for(const name of ['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(name+'-tab').classList.toggle('active',name===id)}scrollTo(0,0)}function edit(){document.getElementById('editor').classList.remove('hidden')}function closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+       │                                                                                                                                                                                                                                                                                                                      ^^^^^^^^^^^
+    12 │ if(location.hash==='#item'){edit();document.querySelector('#editor h1').textContent='Add personal item';document.querySelector('#editor section').innerHTML='<label>Name<input value="Quarterstaff"></label><label>Type<input value="Equipment"></label><label>Category<input value="Weapons"></label><label>Quantity<input value="1" inputmode="numeric"></label><label>Weight (lb)<input value="4" inputmode="decimal"></label><label>Notes<input value="Carried from the observatory"></label>';document.querySelector('#editor .primary').textContent='Add item';}if(innerWidth>=768)document.querySelector('main').before(document.querySelector('nav'));</script></html>
+    13 │ 
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend closeEditor with an underscore.
+  
+    1   │ - function·show(id){for(const·name·of·['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(name+'-tab').classList.toggle('active',name===id)}scrollTo(0,0)}function·edit(){document.getElementById('editor').classList.remove('hidden')}function·closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+      1 │ + function·show(id){for(const·name·of·['spells','inventory']){document.getElementById(name).classList.toggle('hidden',name!==id);document.getElementById(name+'-tab').classList.toggle('active',name===id)}scrollTo(0,0)}function·edit(){document.getElementById('editor').classList.remove('hidden')}function·_closeEditor(){document.getElementById('editor').classList.add('hidden')}if(location.hash==='#inventory')show('inventory');if(location.hash==='#editor')edit();
+    2 2 │   if(location.hash==='#item'){edit();document.querySelector('#editor h1').textContent='Add personal item';document.querySelector('#editor section').innerHTML='<label>Name<input value="Quarterstaff"></label><label>Type<input value="Equipment"></label><label>Category<input value="Weapons"></label><label>Quantity<input value="1" inputmode="numeric"></label><label>Weight (lb)<input value="4" inputmode="decimal"></label><label>Notes<input value="Carried from the observatory"></label>';document.querySelector('#editor .primary').textContent='Add item';}if(innerWidth>=768)document.querySelector('main').before(document.querySelector('nav'));
+  
+
+Checked 479 files in 463ms. No fixes applied.
+Found 1 warning.
+Found 1 info.
+✅ No architectural violations found.

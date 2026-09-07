@@ -1,0 +1,4 @@
+
+> dnd-character-manager@ api:check /home/sbolgert/workspace/dnd-mobile-ux-qa
+> tsx scripts/generate-openapi.ts --check
+

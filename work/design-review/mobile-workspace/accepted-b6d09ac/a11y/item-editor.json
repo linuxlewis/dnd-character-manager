@@ -1,0 +1,86 @@
+{
+	"success": true,
+	"data": {
+		"axeVersion": "4.12.1",
+		"counts": {
+			"inapplicable": 36,
+			"incomplete": 1,
+			"passes": 24,
+			"violations": 0
+		},
+		"incomplete": [
+			{
+				"help": "Elements must meet minimum color contrast ratio thresholds",
+				"helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",
+				"id": "color-contrast",
+				"impact": "serious",
+				"nodeCount": 5,
+				"nodes": [
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">6</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(2) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">6</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(3) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(4) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(5) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					},
+					{
+						"failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+						"html": "<span class=\"m_5add502a mantine-Badge-label\">0</span>",
+						"target": [
+							".m_77c9d27d.mantine-Button-root.mantine-active:nth-child(6) > .m_80f1301b.mantine-Button-inner > .m_811560b9.mantine-Button-label > .m_347db0ec.mantine-Badge-root[data-variant=\"filled\"] > .m_5add502a.mantine-Badge-label"
+						]
+					}
+				],
+				"tags": [
+					"cat.color",
+					"wcag2aa",
+					"wcag143",
+					"TTv5",
+					"TT13.c",
+					"EN-301-549",
+					"EN-9.1.4.3",
+					"ACT",
+					"RGAAv4",
+					"RGAA-3.2.1"
+				]
+			}
+		],
+		"lifecycle": {
+			"effectiveLaunch": {
+				"browserLaunched": true,
+				"engine": "chrome",
+				"launchHash": 7707568497978554591
+			},
+			"launched": false,
+			"relaunchedBrowser": false,
+			"restartedBackground": false,
+			"restoreStatus": "not_configured",
+			"reused": true,
+			"saveStatus": "not_attempted"
+		},
+		"url": "http://127.0.0.1:3758/characters/ae6e5374-2a62-4a7d-b84d-317a568e3a1d/inventory",
+		"violations": []
+	},
+	"error": null
+}

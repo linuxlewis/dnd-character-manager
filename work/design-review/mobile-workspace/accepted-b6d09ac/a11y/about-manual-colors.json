@@ -1,0 +1,56 @@
+[
+	{
+		"ancestors": [
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "P"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgb(36, 36, 36)",
+				"tag": "SECTION"
+			}
+		],
+		"color": "rgb(201, 201, 201)",
+		"text": "D&D Character Manager"
+	},
+	{
+		"ancestors": [
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "P"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgb(36, 36, 36)",
+				"tag": "SECTION"
+			}
+		],
+		"color": "rgb(201, 201, 201)",
+		"text": "A free community character management tool."
+	},
+	{
+		"ancestors": [
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "P"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgb(36, 36, 36)",
+				"tag": "SECTION"
+			}
+		],
+		"color": "rgb(201, 201, 201)",
+		"text": "D&D and related marks belong to their respective owners. This unofficial service is not affiliated with or endorsed by the game's publisher."
+	}
+]
