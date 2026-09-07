@@ -1,3 +1,4 @@
+import type { CurrencyPlan, SpendPlanResult } from "../types/currency.js";
 import {
 	CURRENCY_DENOMINATIONS,
 	type CurrencyAddRequest,
@@ -8,36 +9,9 @@ import {
 	type CurrencySpendRequest,
 	CurrencySpendRequestSchema,
 	DND_CURRENCY_TO_COPPER,
-	getCurrencyTotalValue,
-	getCurrencyValueInCopper,
-} from "./currency.js";
-import { SafeIntegerSchema } from "./numeric.js";
-
-export interface CurrencyPlan {
-	previous: CurrencyBalance;
-	next: CurrencyBalance;
-	delta: CurrencyDelta;
-}
-
-export interface SpendPlan extends CurrencyPlan {
-	change?: CurrencyBalance;
-}
-
-export type SpendPlanResult =
-	| { ok: true; plan: SpendPlan }
-	| {
-			ok: false;
-			previous: CurrencyBalance;
-			next: CurrencyBalance;
-			delta: CurrencyDelta;
-			totalValue: ReturnType<typeof getCurrencyTotalValue>;
-			error: {
-				code: "INSUFFICIENT_FUNDS";
-				message: string;
-				available: ReturnType<typeof getCurrencyTotalValue>;
-				requested: ReturnType<typeof getCurrencyTotalValue>;
-			};
-	  };
+} from "../types/currency.js";
+import { SafeIntegerSchema } from "../types/numeric.js";
+import { getCurrencyTotalValue, getCurrencyValueInCopper } from "./currency.js";
 
 export class CurrencyPlanningOverflowError extends Error {
 	readonly code = "TREASURY_OVERFLOW" as const;

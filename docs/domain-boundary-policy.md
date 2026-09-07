@@ -111,6 +111,9 @@ No application source changes are included in R2. Paths below are relative to `s
 
 Additional source-review prerequisites are not disguised as import-check findings:
 
+R2a resolves F1-F5 through the existing public runtime indexes. Its actual report
+retains only F6-F8 with the owners above; see the [R2a delivery](./domain-calculation-refactor.md).
+
 | Coupling | Exact current modules | Remedy |
 | --- | --- | --- |
 | XP calculation in value types | `characters/types/character-experience.ts`: thresholds and `getCharacterExperienceProgress` | R2a moves calculation/default thresholds to owning config; types retain response schemas |

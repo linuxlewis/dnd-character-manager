@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiRouteContracts } from "./api-contracts.js";
 
 describe("apiRouteContracts", () => {
@@ -44,4 +44,23 @@ describe("apiRouteContracts", () => {
 		]);
 		expect(apiRouteContracts.every((route) => route.path.startsWith("/api/"))).toBe(true);
 	});
+});
+
+vi.mock("postgres", () => ({
+	default: vi.fn(() => {
+		throw new Error("Contract registration must not initialize SQL");
+	}),
+}));
+
+afterEach(() => {
+	vi.unstubAllEnvs();
+});
+
+it("loads public runtime contracts without database configuration or SQL initialization", async () => {
+	vi.resetModules();
+	vi.stubEnv("DATABASE_URL", "");
+	const { apiRouteContracts } = await import("./api-contracts.js");
+	const { default: postgres } = await import("postgres");
+	expect(apiRouteContracts.length).toBeGreaterThan(0);
+	expect(postgres).not.toHaveBeenCalled();
 });

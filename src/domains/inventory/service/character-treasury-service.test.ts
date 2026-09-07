@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
 import type { CharacterDetail } from "../../characters/types/index.js";
+import { getCurrencyTotalValue } from "../config/index.js";
 import {
 	type CharacterTreasuryMutation,
 	type CharacterTreasuryMutationOptions,
 	CharacterTreasuryPreconditionError,
 	type CharacterTreasuryRepository,
 } from "../repo/index.js";
-import { type CharacterTreasury, getCurrencyTotalValue } from "../types/index.js";
+import type { CharacterTreasury } from "../types/index.js";
 import {
 	createCharacterTreasuryService,
 	InsufficientFundsError,

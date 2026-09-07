@@ -14,10 +14,9 @@ import {
 	CurrencyDeltaSchema,
 	CurrencyNoteSchema,
 	CurrencySpendRequestSchema,
-	convertDenominationAmount,
 	DND_CURRENCY_TO_COPPER,
-	getCurrencyValueInCopper,
 } from "./currency.js";
+import { PositivePostgresIntegerSchema } from "./numeric.js";
 
 const InventoryHistoryCurrencyDetailsBaseSchema = {
 	version: z.literal(1),
@@ -127,11 +126,19 @@ function validateCurrencyInvariants(
 		return;
 	}
 
+	// Validate value change with the same denomination constants as the boundary schemas.
+	const actualCopperChange = CURRENCY_DENOMINATIONS.reduce(
+		(total, denomination) =>
+			total +
+			(value.next[denomination] - value.previous[denomination]) *
+				DND_CURRENCY_TO_COPPER[denomination],
+		0,
+	);
 	if (value.operation === "spend") {
+		CurrencyBalanceSchema.parse(value.next);
+		CurrencyBalanceSchema.parse(value.previous);
 		const requestedCopper =
 			value.requested.amount.amount * DND_CURRENCY_TO_COPPER[value.requested.amount.denomination];
-		const actualCopperChange =
-			getCurrencyValueInCopper(value.next) - getCurrencyValueInCopper(value.previous);
 		if (actualCopperChange !== -requestedCopper) {
 			ctx.addIssue({
 				code: "custom",
@@ -142,10 +149,9 @@ function validateCurrencyInvariants(
 		return;
 	}
 
-	const convertedAmount = convertDenominationAmount(
-		value.requested.amount,
-		value.requested.from,
-		value.requested.to,
+	const request = CurrencyConversionRequestSchema.parse(value.requested);
+	const convertedAmount = PositivePostgresIntegerSchema.parse(
+		(request.amount * DND_CURRENCY_TO_COPPER[request.from]) / DND_CURRENCY_TO_COPPER[request.to],
 	);
 	const expectedDelta = { cp: 0, sp: 0, gp: 0, pp: 0 };
 	expectedDelta[value.requested.from] -= value.requested.amount;
@@ -159,7 +165,9 @@ function validateCurrencyInvariants(
 			});
 		}
 	}
-	if (getCurrencyValueInCopper(value.next) !== getCurrencyValueInCopper(value.previous)) {
+	CurrencyBalanceSchema.parse(value.next);
+	CurrencyBalanceSchema.parse(value.previous);
+	if (actualCopperChange !== 0) {
 		ctx.addIssue({
 			code: "custom",
 			path: ["next"],

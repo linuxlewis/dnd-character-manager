@@ -64,6 +64,9 @@ The character-action follow-up passed 599 unit, 68 integration and 40 browser te
 focus restoration, successful and partial saves, and 320 px enlarged-text action containment.
 Independent screenshot and live development review are recorded in the
 [acceptance record](./mobile-workspace-acceptance.md#character-action-follow-up).
+R2a moves XP and currency operations into client-safe owning config modules,
+retains history schema refinement behavior, and adds explicit XP bound and
+lazy public-contract registration coverage. See [validation evidence](./domain-calculation-refactor.md).
 
 - [ ] The existing dependency checker still misses relative imports. R1 adds
   [tested import resolution](./domain-import-graph.md) to normal unit validation;

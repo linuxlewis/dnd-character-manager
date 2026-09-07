@@ -55,6 +55,7 @@ export type {
 	CurrencyMutationResponse,
 	CurrencyNote,
 	CurrencyOperation,
+	CurrencyPlan,
 	CurrencyPreview,
 	CurrencySpendRequest,
 	CurrencySpendResponse,
@@ -63,6 +64,8 @@ export type {
 	InsufficientDenominationResponse,
 	InsufficientFundsError,
 	InsufficientFundsResponse,
+	SpendPlan,
+	SpendPlanResult,
 	TreasuryConflictError,
 	TreasuryConflictResponse,
 	TreasurySpendErrorResponse,
@@ -85,11 +88,7 @@ export {
 	CurrencySpendRequestSchema,
 	CurrencySpendResponseSchema,
 	CurrencyTotalValueSchema,
-	convertDenominationAmount,
 	DND_CURRENCY_TO_COPPER,
-	getCurrencyDeltaValueInCopper,
-	getCurrencyTotalValue,
-	getCurrencyValueInCopper,
 	InsufficientDenominationErrorSchema,
 	InsufficientDenominationResponseSchema,
 	InsufficientFundsErrorSchema,
@@ -98,12 +97,7 @@ export {
 	TreasuryConflictResponseSchema,
 	TreasurySpendErrorResponseSchema,
 } from "./currency.js";
-export type { CurrencyPlan, SpendPlan, SpendPlanResult } from "./currency-planning.js";
-export {
-	CurrencyPlanningOverflowError,
-	calculateSpend,
-	planAdd,
-} from "./currency-planning.js";
+
 export type {
 	CharacterHistoryEntry,
 	InventoryHistoryAction,

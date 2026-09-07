@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-	CURRENCY_DENOMINATIONS,
 	CurrencyAddRequestSchema,
 	CurrencyAmountSchema,
 	CurrencyApplyDeltaRequestSchema,
@@ -11,11 +10,7 @@ import {
 	CurrencyNoteSchema,
 	CurrencyPreviewSchema,
 	CurrencySpendRequestSchema,
-	convertDenominationAmount,
 	DND_CURRENCY_TO_COPPER,
-	getCurrencyDeltaValueInCopper,
-	getCurrencyTotalValue,
-	getCurrencyValueInCopper,
 	InsufficientFundsResponseSchema,
 	TreasuryConflictResponseSchema,
 	TreasurySpendErrorResponseSchema,
@@ -24,7 +19,7 @@ import { POSTGRES_INTEGER_MAX, POSTGRES_INTEGER_MIN } from "./numeric.js";
 
 const balance = { cp: 5, sp: 2, gp: 3, pp: 1 };
 
-describe("currency schemas and conversion helpers", () => {
+describe("currency schemas", () => {
 	it("enforces PostgreSQL integer bounds for persisted currency values", () => {
 		const maxBalance = {
 			cp: POSTGRES_INTEGER_MAX,
@@ -117,46 +112,6 @@ describe("currency schemas and conversion helpers", () => {
 		expect(() => CurrencyBalanceSchema.parse({ cp: 1.5, sp: 0, gp: 0, pp: 0 })).toThrow();
 	});
 
-	it("converts denominations using the D&D ten-to-one scale", () => {
-		expect(convertDenominationAmount(1, "gp", "sp")).toBe(10);
-		expect(convertDenominationAmount(100, "cp", "gp")).toBe(1);
-		expect(() => convertDenominationAmount(1, "cp", "gp")).toThrow();
-		expect(getCurrencyValueInCopper(balance)).toBe(1_325);
-		expect(getCurrencyDeltaValueInCopper({ cp: -5, sp: 1, gp: 0, pp: 1 })).toBe(1_005);
-		expect(getCurrencyTotalValue(balance)).toEqual({ copper: 1_325, gp: 13.25 });
-	});
-
-	it("keeps maximum-denomination sums and conversion outputs safe", () => {
-		const maxBalance = {
-			cp: POSTGRES_INTEGER_MAX,
-			sp: POSTGRES_INTEGER_MAX,
-			gp: POSTGRES_INTEGER_MAX,
-			pp: POSTGRES_INTEGER_MAX,
-		};
-		const expectedCopper = POSTGRES_INTEGER_MAX * (1 + 10 + 100 + 1_000);
-		const mixedDelta = {
-			cp: POSTGRES_INTEGER_MIN,
-			sp: POSTGRES_INTEGER_MAX,
-			gp: POSTGRES_INTEGER_MAX,
-			pp: POSTGRES_INTEGER_MAX,
-		};
-
-		expect(CURRENCY_DENOMINATIONS).toEqual(["cp", "sp", "gp", "pp"]);
-		expect(Number.isSafeInteger(expectedCopper)).toBe(true);
-		expect(getCurrencyValueInCopper(maxBalance)).toBe(expectedCopper);
-		expect(getCurrencyTotalValue(maxBalance)).toEqual({
-			copper: expectedCopper,
-			gp: expectedCopper / 100,
-		});
-		expect(Number.isSafeInteger(getCurrencyDeltaValueInCopper(mixedDelta))).toBe(true);
-
-		const largestPpToCpAmount = Math.floor(POSTGRES_INTEGER_MAX / DND_CURRENCY_TO_COPPER.pp);
-		const convertedCopper = convertDenominationAmount(largestPpToCpAmount, "pp", "cp");
-		expect(Number.isSafeInteger(convertedCopper)).toBe(true);
-		expect(convertedCopper).toBe(largestPpToCpAmount * DND_CURRENCY_TO_COPPER.pp);
-		expect(convertedCopper).toBeLessThan(Number.MAX_SAFE_INTEGER);
-	});
-
 	it("keeps converted target balances inside the PostgreSQL integer range", () => {
 		const largestPpToCpAmount = Math.floor(POSTGRES_INTEGER_MAX / DND_CURRENCY_TO_COPPER.pp);
 		const firstOverflowingPpToCpAmount = largestPpToCpAmount + 1;
@@ -169,7 +124,6 @@ describe("currency schemas and conversion helpers", () => {
 				amount: largestPpToCpAmount,
 			}),
 		).toEqual({ from: "pp", to: "cp", amount: largestPpToCpAmount });
-		expect(convertDenominationAmount(largestPpToCpAmount, "pp", "cp")).toBe(largestConvertedAmount);
 		const conversionResponse = {
 			operation: "convert" as const,
 			previous: { cp: 0, sp: 0, gp: 0, pp: largestPpToCpAmount },
@@ -195,7 +149,6 @@ describe("currency schemas and conversion helpers", () => {
 				amount: firstOverflowingPpToCpAmount,
 			}),
 		).toThrow();
-		expect(() => convertDenominationAmount(firstOverflowingPpToCpAmount, "pp", "cp")).toThrow();
 	});
 
 	it("rejects unknown keys in nested currency boundary objects", () => {
