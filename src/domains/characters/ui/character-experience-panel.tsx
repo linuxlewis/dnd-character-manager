@@ -24,7 +24,7 @@ export function CharacterExperiencePanel({
 			<Group
 				gap={8}
 				wrap="nowrap"
-				aria-label={`${`${formatExperience(character.experiencePoints)} XP`}. ${label}`}
+				aria-label={`${formatExperience(character.experiencePoints)} XP. ${label}`}
 			>
 				<Progress
 					aria-label="Experience progress"

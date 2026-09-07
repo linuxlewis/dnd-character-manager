@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import {
 	CharacterActivity,
@@ -36,6 +36,7 @@ export function CharacterDetail({
 	inventoryView,
 	onInventoryViewChange,
 }: CharacterDetailProps) {
+	const [healthHistoryOpened, setHealthHistoryOpened] = useState(false);
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
 
 	return (
@@ -73,12 +74,15 @@ export function CharacterDetail({
 					<section className="character-sticky-header" aria-label="Character workspace header">
 						<CharacterRibbon
 							character={characterQuery.data.character}
+							onOpenHealthHistory={() => setHealthHistoryOpened(true)}
 							onNavigate={onNavigate}
 							renderApplicationMenu={renderApplicationMenu}
 						/>
 						<CharacterHealthPanel
 							characterId={id}
 							health={characterQuery.data.character.health}
+							historyOpened={healthHistoryOpened}
+							onCloseHistory={() => setHealthHistoryOpened(false)}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
 						/>
 					</section>

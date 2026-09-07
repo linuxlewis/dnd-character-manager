@@ -38,9 +38,9 @@ describe("CharacterExperiencePanel", () => {
 			</MantineProvider>,
 		);
 
-		expect(html).toContain("Experience");
-		expect(html).toContain("27,000 XP");
-		expect(html).toContain("7,000 XP to level 8");
+		expect(html.replaceAll("<!-- -->", "")).toContain("Experience");
+		expect(html.replaceAll("<!-- -->", "")).toContain("27,000 XP");
+		expect(html.replaceAll("<!-- -->", "")).toContain("7,000 XP to level 8");
 	});
 });
 

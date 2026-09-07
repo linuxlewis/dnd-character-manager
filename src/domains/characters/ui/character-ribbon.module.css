@@ -1,0 +1,16 @@
+.identity {
+	flex: 1;
+	min-width: 0;
+	min-height: 44px;
+}
+.identity:focus-visible {
+	outline: 2px solid var(--mantine-color-candle-4);
+	outline-offset: 2px;
+}
+.name {
+	font-size: 20px;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
