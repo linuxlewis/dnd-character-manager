@@ -91,7 +91,6 @@ body {
 @media (max-width: 47.999em) {
 	.app-shell-character .app-main {
 		padding-inline: 12px;
-		padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 	}
 
 	.character-section-navigation {

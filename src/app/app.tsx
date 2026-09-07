@@ -117,7 +117,12 @@ function AppLayout({
 				component="main"
 				className="app-main"
 				size="md"
-				py={characterDetail ? "xs" : { base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }}
+				pt={characterDetail ? "xs" : { base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }}
+				pb={
+					characterDetail
+						? { base: "calc(80px + env(safe-area-inset-bottom, 0px))", sm: "xs" }
+						: { base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }
+				}
 			>
 				<Stack gap="xl">{children}</Stack>
 			</Container>

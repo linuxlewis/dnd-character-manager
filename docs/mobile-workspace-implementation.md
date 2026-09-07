@@ -39,6 +39,8 @@ z-index 20, navigation 30, below Mantine overlay defaults. Mobile navigation is 
 bottom safe area, which is applied once on navigation. Content reserves 80px plus that safe area.
 The header flows normally below 500px viewport height. Breakpoint is Mantine `sm` (48em). Header
 identity and health contents are separately owned; their combined mobile target is at most 144px.
+`AppLayout` reserves the bottom clearance with Container's responsive `pb` prop. Do not combine a
+Container `py` prop with CSS bottom padding: its inline padding overrides the navigation clearance.
 
 ## Extending sections
 
@@ -55,8 +57,11 @@ owns validation and focus. Slot totals leave the default workspace view and appe
 spells > Configure slots. The mobile editor is fullscreen; desktop uses a bounded modal. Its fields
 are the only scrolling region, while Cancel and Save changes stay in a separate persistent footer.
 Preserve the parent-qualified CSS selectors: Mantine's modal body rules otherwise override sizing
-and can push the footer outside the viewport. Failed saves retain draft totals. Class defaults still
-save immediately, with explicit explanatory text; this action does not become a staged draft.
+and can push the footer outside the viewport. Failed saves retain draft totals.
+Field children cannot flex-shrink: an error alert must retain its full text height so scrolling it
+into view also reveals its recovery description above the footer.
+Class defaults still save immediately, with explicit explanatory text; this action does not become
+a staged draft.
 
 Saved spell rows preserve Details, Use, and Restore in the default view. Edit spells reveals removal
 and configuration. Use/Restore use intrinsic-width buttons so Restore cannot be clipped at 320px.
