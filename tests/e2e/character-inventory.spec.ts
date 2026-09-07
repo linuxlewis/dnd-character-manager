@@ -80,7 +80,9 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		"aria-pressed",
 		"false",
 	);
-	await expect(page.getByRole("tab")).toHaveCount(2);
+	await expect(
+		page.getByRole("navigation", { name: "Character sections" }).getByRole("link"),
+	).toHaveCount(2);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
@@ -197,7 +199,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		.click();
 	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeHidden();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	const secondCharacterName = `A7 Inventory Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	await openInventoryTab(page);

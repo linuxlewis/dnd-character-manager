@@ -68,7 +68,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await expect(page.getByRole("heading", { name: "Treasury One" })).toBeVisible();
 	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await createCharacter(page, "Treasury Two", "Wizard");
 	await openInventoryTab(page);
 	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });

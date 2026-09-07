@@ -18,7 +18,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByText("Name is required")).toBeVisible();
 	await expect(page.getByText("Class is required")).toBeVisible();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await expect(page.getByRole("heading", { name: "No characters yet" })).toBeVisible();
 
 	await page.getByText("Create character").first().click();
@@ -46,7 +46,7 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByText("27,000 XP")).toBeVisible();
 	await expect(page.getByText("21,000 XP to level 9")).toBeVisible();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await expect(page).toHaveURL(/\/characters$/);
 	await expect(page.getByRole("link", { name: "Lyria Starfall" })).toBeVisible();
 	await expect(page.getByText("Level 8")).toBeVisible();
@@ -76,6 +76,6 @@ test("shows a not-found state for a missing character id", async ({ page }) => {
 	await page.goto("/characters/00000000-0000-4000-8000-000000000000");
 
 	await expect(page.getByText("Character not found")).toBeVisible();
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await expect(page.getByRole("heading", { exact: true, name: "Characters" })).toBeVisible();
 });

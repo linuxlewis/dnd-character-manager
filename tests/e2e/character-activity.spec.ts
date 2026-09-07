@@ -483,7 +483,7 @@ test("retries the preview and resets the filter for another character", async ({
 	await expect(firstDrawer.getByRole("radio", { name: "Treasury", exact: true })).toBeChecked();
 	await firstDrawer.getByRole("button", { name: "Close inventory activity", exact: true }).click();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await createCharacter(page, `Activity Second ${Date.now()}`, "Wizard");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "View inventory activity" }).click();

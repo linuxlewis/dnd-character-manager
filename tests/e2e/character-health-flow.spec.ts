@@ -13,13 +13,12 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Mira" })).toBeVisible();
-	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"true",
+	await expect(page.getByRole("link", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
+		"aria-current",
+		"page",
 	);
-	await expect(page.getByRole("tab", { name: "Inventory", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"false",
+	await expect(page.getByRole("link", { name: "Inventory", exact: true })).not.toHaveAttribute(
+		"aria-current",
 	);
 	await expect(page.getByTestId("personal-inventory")).toHaveCount(0);
 	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
@@ -55,7 +54,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await expect(page.getByText("HP +10, Max HP +10")).toBeVisible();
 
 	await page.reload();
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await page.getByRole("link", { name: "Mira" }).click();
 	await expect(page.getByText("21 / 25 HP (Temp HP +5)")).toBeVisible();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeHidden();
@@ -75,9 +74,9 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Create character" }).click();
 
 	await expect(page.getByRole("heading", { name: "Tamsin" })).toBeVisible();
-	await expect(page.getByRole("tab", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
-		"aria-selected",
-		"true",
+	await expect(page.getByRole("link", { name: "Spells & Abilities", exact: true })).toHaveAttribute(
+		"aria-current",
+		"page",
 	);
 	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.getByText("Cantrips & features")).toBeVisible();

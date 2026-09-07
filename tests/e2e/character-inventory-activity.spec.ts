@@ -236,7 +236,7 @@ test("records, filters, paginates, and persists personal inventory activity", as
 		page.getByTestId("recent-activity").getByText("Spent 15 GP", { exact: true }),
 	).toBeVisible();
 
-	await page.getByText("Back to characters", { exact: true }).click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	const secondCharacterName = `Activity Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	const secondCharacterId = characterIdFromPage(page);
