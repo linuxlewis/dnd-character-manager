@@ -1,5 +1,5 @@
 import { Alert, Button, Paper, Stack, Text } from "@mantine/core";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TreasuryAddModal } from "./treasury-add-modal.js";
 import { TreasuryDisplay } from "./treasury-display.js";
 import { getTreasuryErrorMessage } from "./treasury-format.js";
@@ -62,6 +62,7 @@ export function TreasuryPanel({
 	add,
 	spend,
 }: TreasuryPanelProps) {
+	const dialogTrigger = useRef<HTMLButtonElement | null>(null);
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
 	const treasury = query.data;
@@ -70,7 +71,8 @@ export function TreasuryPanel({
 	const allActionsDisabled =
 		actionsDisabled || reconciliationBlocked || indeterminateOutcome !== null;
 
-	function openDialog(dialog: Exclude<ActiveDialog, null>) {
+	function openDialog(dialog: Exclude<ActiveDialog, null>, trigger: HTMLButtonElement) {
+		dialogTrigger.current = trigger;
 		if (dialog === "add") add.onReset();
 		if (dialog === "spend") spend.onReset();
 		setDialogVersion((version) => version + 1);
@@ -81,10 +83,12 @@ export function TreasuryPanel({
 		if (activeDialog === "add" && (add.mutationPending || add.reconciliationError)) return;
 		if (activeDialog === "spend" && (spend.mutationPending || spend.reconciliationError)) return;
 		setActiveDialog(null);
+		requestAnimationFrame(() => dialogTrigger.current?.focus());
 	}
 
 	function completeDialog() {
 		setActiveDialog(null);
+		requestAnimationFrame(() => dialogTrigger.current?.focus());
 	}
 
 	return (
@@ -113,8 +117,8 @@ export function TreasuryPanel({
 				{treasury && (
 					<TreasuryDisplay
 						actionsDisabled={allActionsDisabled}
-						onAddFunds={() => openDialog("add")}
-						onSpendFunds={() => openDialog("spend")}
+						onAddFunds={(event) => openDialog("add", event.currentTarget)}
+						onSpendFunds={(event) => openDialog("spend", event.currentTarget)}
 						scopeLabel={scopeLabel}
 						treasury={treasury}
 					/>

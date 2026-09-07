@@ -1,4 +1,5 @@
 import { Badge, Box, Button, Group, Stack, Text, Title } from "@mantine/core";
+import type { MouseEventHandler } from "react";
 import { formatTreasuryAmount, TREASURY_DENOMINATIONS } from "./treasury-format.js";
 import "./inventory.css";
 import type { TreasuryData } from "./treasury-types.js";
@@ -7,8 +8,8 @@ export interface TreasuryDisplayProps {
 	scopeLabel?: string;
 	treasury: TreasuryData;
 	actionsDisabled?: boolean;
-	onAddFunds: () => void;
-	onSpendFunds: () => void;
+	onAddFunds: MouseEventHandler<HTMLButtonElement>;
+	onSpendFunds: MouseEventHandler<HTMLButtonElement>;
 }
 
 export function TreasuryDisplay({

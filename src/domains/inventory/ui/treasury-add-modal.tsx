@@ -82,6 +82,7 @@ export function TreasuryAddModal({
 
 	return (
 		<Modal
+			returnFocus={false}
 			closeButtonProps={{ "aria-label": "Close add funds dialog", size: "xl" }}
 			onClose={onClose}
 			opened={opened}

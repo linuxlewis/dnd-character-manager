@@ -43,6 +43,7 @@ export function ItemForm({
 	error,
 	onClose,
 	onSubmit,
+	onAfterClose,
 }: {
 	mode: "create" | "edit";
 	opened: boolean;
@@ -50,6 +51,7 @@ export function ItemForm({
 	pending: boolean;
 	error: Error | null;
 	onClose: () => void;
+	onAfterClose?: () => void;
 	onSubmit: (request: CreateCharacterItemRequest | UpdateCharacterItemRequest) => void;
 }) {
 	const queryClient = useQueryClient();
@@ -84,6 +86,8 @@ export function ItemForm({
 
 	return (
 		<Modal
+			returnFocus={false}
+			onExitTransitionEnd={onAfterClose}
 			closeButtonProps={{
 				"aria-label": `${mode === "create" ? "Close add" : "Close edit"} item dialog`,
 			}}

@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useDeferredValue, useState } from "react";
+import { type MouseEvent, useDeferredValue, useRef, useState } from "react";
 import {
 	apiMutations,
 	apiQueries,
@@ -38,6 +38,7 @@ export function CharacterInventory({
 	onViewStateChange?: (state: InventoryViewState) => void;
 }) {
 	const queryClient = useQueryClient();
+	const formTrigger = useRef<HTMLButtonElement | null>(null);
 	const [localView, setLocalView] = useState<InventoryViewState>({
 		searchInput: "",
 		activeType: "all",
@@ -142,7 +143,8 @@ export function CharacterInventory({
 		equipMutation.isPending ||
 		unequipMutation.isPending ||
 		deleteMutation.isPending;
-	function openCreateForm() {
+	function openCreateForm(event: MouseEvent<HTMLButtonElement>) {
+		formTrigger.current = event.currentTarget;
 		setMutationError(null);
 		setFormItem(undefined);
 		setFormMode("create");
@@ -244,7 +246,14 @@ export function CharacterInventory({
 				{!inventoryQuery.isLoading && !inventoryQuery.error && items.length > 0 && (
 					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
 						{items.map((item) => (
-							<ItemCard item={item} key={item.id} onClick={() => setSelectedItem(item)} />
+							<ItemCard
+								item={item}
+								key={item.id}
+								onClick={(event) => {
+									formTrigger.current = event.currentTarget;
+									setSelectedItem(item);
+								}}
+							/>
 						))}
 					</SimpleGrid>
 				)}
@@ -255,6 +264,9 @@ export function CharacterInventory({
 				)}
 			</Stack>
 			<ItemForm
+				onAfterClose={() => {
+					if (!selectedItem) formTrigger.current?.focus();
+				}}
 				error={mutationError}
 				initialItem={formItem}
 				key={`${formMode}-${formVersion}-${formItem?.id ?? "new"}`}

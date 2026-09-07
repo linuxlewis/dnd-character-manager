@@ -1,5 +1,5 @@
 import { Badge, Card, Group, Image, Stack, Text } from "@mantine/core";
-import { useState } from "react";
+import { type MouseEventHandler, useState } from "react";
 import type { InventoryItem } from "../types/index.js";
 import {
 	formatItemNumber,
@@ -10,7 +10,13 @@ import {
 	getItemTypeLabel,
 } from "./item-presentation.js";
 
-export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () => void }) {
+export function ItemCard({
+	item,
+	onClick,
+}: {
+	item: InventoryItem;
+	onClick: MouseEventHandler<HTMLButtonElement>;
+}) {
 	const rarityStyle = getItemRarityStyle(item.rarity);
 	const stats = getItemStatEntries(item).slice(0, 3);
 	const TypeIcon = getItemTypeIcon(item.type);
