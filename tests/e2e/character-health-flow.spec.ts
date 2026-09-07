@@ -100,7 +100,9 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 		"aria-current",
 		"page",
 	);
-	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
+	await expect(
+		page.getByRole("heading", { name: "Spells & Abilities", exact: true }),
+	).toBeVisible();
 	await expect(page.getByText("Cantrips & features")).toBeVisible();
 	await expect(page.getByText("0 / 0 remaining").first()).toBeHidden();
 	await expect(page.getByLabel("1st-level slot total")).toBeHidden();

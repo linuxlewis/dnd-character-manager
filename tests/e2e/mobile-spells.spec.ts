@@ -28,6 +28,11 @@ test("mobile spells keep play actions visible and configuration recoverable", as
 			})
 		).ok(),
 	).toBeTruthy();
+	const healthWrite = await page.request.put(`/api/characters/${characterId}/health`, {
+		data: { currentHp: 18, maxHp: 24, temporaryHp: 3 },
+	});
+	expect(healthWrite.ok()).toBeTruthy();
+	expect((await healthWrite.json()).health.currentHp).toBe(18);
 	await page.reload();
 	await page.getByRole("button", { name: "Edit spells", exact: true }).click();
 	await page.getByRole("button", { name: "Configure slots", exact: true }).click();
@@ -40,8 +45,8 @@ test("mobile spells keep play actions visible and configuration recoverable", as
 	await page.getByRole("button", { name: /^Light\b/ }).click();
 	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden();
 	await page.getByRole("button", { name: "Add spell to 1st-level", exact: true }).click();
-	await page.getByLabel("Search spells").fill("magic missile");
-	await page.getByRole("button", { name: /^Magic Missile\b/ }).click();
+	await page.getByLabel("Search spells").fill("divine smite");
+	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
 	await expect(page.getByRole("dialog", { name: "Add spell to 1st-level" })).toBeHidden();
 	await page.getByRole("button", { name: "Use 1st-level", exact: true }).click();
 	await expect(page.getByText("3 / 4 remaining")).toBeVisible();
