@@ -40,8 +40,9 @@ visual baselines; no third destination is part of this acceptance gate.
 
 ## Shared Visual Contract (V)
 
-- **V1:** Use the existing Mantine theme. Use Mantine default dark-scale page/surface/text roles (main has no custom dark palette), navigation `bloodstone.4`
-  (#fb7185), XP `candle.4` (#ffca28). These are roles, not permission to recolor all components.
+- **V1:** Use the existing Mantine theme. Use Mantine default dark-scale page/surface/text roles (main has no custom dark palette), selected navigation text `bloodstone.3` and rule `bloodstone.5`, XP `candle.4` (#ffca28).
+  These selected-navigation tones were explicitly accepted in independent mobile/desktop review
+  for readable text and a distinct non-color selection rule within the existing palette. These are roles, not permission to recolor all components.
   Keep existing semantic health/error colors and verify contrast against their actual backgrounds.
 - **V2:** Preserve current Inter family and small radii. Identity 18-20 px semibold/bold; body and
   editable inputs 16 px; utility labels 12-14 px; navigation labels at least 12 px. Use tabular

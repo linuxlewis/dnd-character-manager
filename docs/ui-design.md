@@ -11,7 +11,8 @@ This is a working D&D character sheet for players using a phone during play. Ide
 orient the player; usable spells and inventory are the page's job. Prefer readable numbers and
 clear actions over branding, nested cards, decorative dividers, and explanatory paragraphs.
 Retain the existing dark Mantine palette, bloodstone selection/action accent, candle XP accent,
-Inter type and small radii. Main uses Mantine's default dark scale; do not import a custom scale
+Inter type and small radii. Selected navigation uses bloodstone.3 text and bloodstone.5 rule; XP
+uses candle.4. These exact existing-palette tones were accepted during independent review. Main uses Mantine's default dark scale; do not import a custom scale
 from an unmerged branch. Numerical HP/XP/currency use tabular figures. No decorative count-ups.
 
 ## Stable Interaction Rules

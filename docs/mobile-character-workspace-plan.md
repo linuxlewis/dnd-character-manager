@@ -194,9 +194,13 @@ Reuse existing catalogue loopback fixtures; no live network catalogue is require
 | --- | --- |
 | F1 standard | Mira Thorn, Wizard level 3, XP 2196, returned HP 18/effective max 27, base max 24, temp 3; configured numbered slots plus saved cantrip and level-1 spell from deterministic catalogue |
 | F2 populated | F1 plus at least 12 items across categories with quantities/equipped states, long item name, all four currency denominations, at least 12 activity entries for paging; configured spell slots and saved spell/cantrip/feature via existing fixture capabilities |
-| F3 boundaries | XP table from spec; level 20; zero HP; long 120-character name; HP 9999/9999; temp 9999; large supported currency values |
+| F3 boundaries | XP table from spec; level 20; zero HP; long 120-character name; HP 9999/9999; supported combined maximum: base max 1 plus temp 9998; large supported currency values |
 | F4 empty | New anonymous character, empty items/history/spells;  no artificial empty-history card |
 | F5 failures | Character not found/session error; independent spells/items/treasury/history failure; failed character/item/health save; slow pending mutation |
+
+The current response schema caps effective maximum HP at 9999 while base max is at least 1;
+temporary HP 9999 cannot form a valid returned health state. Test max 1 plus temp 9998 rather
+than changing health rules as part of a layout refactor.
 
 Record exact payloads/fixture version. Fix locale to en-US and timezone to UTC for screenshots;
 freeze time for relative activity labels using test facilities. Dynamic IDs need not be fixed if
@@ -252,8 +256,10 @@ traces/videos unless repository policy calls for it; retain them as linked CI ar
 - Measure actual bounding rectangles: header <=144 px and bar 56-64 px excluding safe areas,
   frequent targets >=44 x 44 px, treasury <=104 px, prescribed first-viewport content counts.
 - Verify no document horizontal overflow (allow <=1 px rounding tolerance); controls are fully
-  inside the visible content region and not underneath chrome. Use hit-testing at control centers
-  as well as rectangles so an overlay cannot falsely pass geometry.
+  inside the visible content region and not underneath chrome. Use hit-testing at control centers and four inset corners
+  as well as rectangles so partial occlusion by navigation/actions cannot falsely pass geometry.
+  Check the last card bottom against the navigation top and the full error/field rectangle against
+  editor actions. A center-only check previously missed real partial occlusion.
 - Scroll to the last item/spell and last editor field. Verify they clear bottom navigation/actions.
   Repeat with dropdowns, validation errors, and large text. At landscape/large-text exceptions test
   reachability instead of applying ordinary header budgets.
