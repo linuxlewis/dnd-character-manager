@@ -31,7 +31,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("button", { name: "Save" }).click();
 	await expect(page.getByRole("button", { name: "Edit health: 15 / 15 HP" })).toBeVisible();
 
-	await page.getByRole("button", { name: "Application menu" }).click();
+	await page.getByRole("button", { name: "Open application menu" }).click();
 	await page.getByRole("menuitem", { name: "Health history" }).click();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeVisible();
 	await page
@@ -50,7 +50,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByLabel("Amount").fill("4");
 	await page.getByRole("button", { name: "Apply damage" }).click();
 	await expect(page.getByRole("button", { name: "Edit health: 11 / 15 HP" })).toBeVisible();
-	await page.getByRole("button", { name: "Application menu" }).click();
+	await page.getByRole("button", { name: "Open application menu" }).click();
 	await page.getByRole("menuitem", { name: "Health history" }).click();
 	await expect(page.getByText("HP -4")).toBeVisible();
 	await page
@@ -62,7 +62,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByLabel("Max HP").fill("20");
 	await page.getByRole("button", { name: "Save" }).click();
 	await expect(page.getByRole("button", { name: "Edit health: 21 / 25 HP" })).toBeVisible();
-	await page.getByRole("button", { name: "Application menu" }).click();
+	await page.getByRole("button", { name: "Open application menu" }).click();
 	await page.getByRole("menuitem", { name: "Health history" }).click();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeVisible();
 	await page
@@ -75,7 +75,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await page.getByRole("link", { name: "Mira" }).click();
 	await expect(page.getByRole("button", { name: "Edit health: 21 / 25 HP" })).toBeVisible();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeHidden();
-	await page.getByRole("button", { name: "Application menu" }).click();
+	await page.getByRole("button", { name: "Open application menu" }).click();
 	await page.getByRole("menuitem", { name: "Health history" }).click();
 	await expect(page.getByText("HP +10, Max HP +10")).toBeVisible();
 	await page

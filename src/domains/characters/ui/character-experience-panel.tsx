@@ -26,15 +26,14 @@ export function CharacterExperiencePanel({
 				wrap="nowrap"
 				aria-label={`${formatExperience(character.experiencePoints)} XP. ${label}`}
 			>
-				<Progress
-					aria-label="Experience progress"
-					aria-valuetext={label}
-					color="candle.4"
-					radius="sm"
-					size={4}
-					flex={1}
-					value={experience.progressPercent}
-				/>
+				<Progress.Root radius="sm" size={4} flex={1}>
+					<Progress.Section
+						value={experience.progressPercent}
+						color="candle.4"
+						aria-label={`Experience progress: ${formatExperience(character.experiencePoints)} XP`}
+						aria-valuetext={label}
+					/>
+				</Progress.Root>
 				<Text size="xs" style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
 					{label}
 				</Text>
@@ -48,13 +47,14 @@ export function CharacterExperiencePanel({
 				</Title>
 				<Text>{`${formatExperience(character.experiencePoints)} XP`}</Text>
 			</Group>
-			<Progress
-				aria-label="Experience progress"
-				aria-valuetext={label}
-				color="candle.4"
-				size={4}
-				value={experience.progressPercent}
-			/>
+			<Progress.Root size={4}>
+				<Progress.Section
+					value={experience.progressPercent}
+					color="candle.4"
+					aria-label="Experience progress"
+					aria-valuetext={label}
+				/>
+			</Progress.Root>
 			<Text>{label}</Text>
 			{!experience.isMaxLevel && (
 				<>

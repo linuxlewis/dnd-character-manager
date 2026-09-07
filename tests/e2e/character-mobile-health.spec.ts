@@ -37,5 +37,32 @@ for (const width of [320, 390, 1280]) {
 		await expect(page.getByRole("status")).toContainText("Resulting HP: 27");
 		await page.getByRole("button", { name: "Cancel", exact: true }).click();
 		await expect(page.getByRole("button", { name: "Heal", exact: true })).toBeFocused();
+		await page.getByRole("button", { name: "Open application menu" }).click();
+		await page.getByRole("menuitem", { name: "Edit character", exact: true }).click();
+		await page.getByLabel("Character name").fill("Mira Saved");
+		await page.getByLabel("Character level").fill("4");
+		await page.getByLabel("Experience points").fill("2196");
+		await page.route("**/level", (route) =>
+			route.fulfill({
+				status: 500,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "Controlled level failure" }),
+			}),
+		);
+		await page.getByRole("button", { name: "Save character" }).click();
+		await expect(page.getByRole("alert")).toContainText("Name saved");
+		await expect(page.getByLabel("Character level")).toHaveValue("4");
+		await expect(page.getByLabel("Experience points")).toHaveValue("2,196");
+		await page.unroute("**/level");
+		await page.getByRole("button", { name: "Save character" }).click();
+		await expect(page.getByRole("dialog", { name: "Edit character", exact: true })).toBeHidden();
+		await page.getByRole("button", { name: "Open application menu" }).click();
+		await page.getByRole("menuitem", { name: "Edit character", exact: true }).click();
+		await page.getByLabel("Character name").fill("Discard me");
+		await page.getByRole("button", { name: "Cancel", exact: true }).click();
+		await page.getByRole("button", { name: "Open application menu" }).click();
+		await page.getByRole("menuitem", { name: "Edit character", exact: true }).click();
+		await expect(page.getByLabel("Character name")).toHaveValue("Mira Saved");
+		await expect(page.getByLabel("Character level")).toHaveValue("4");
 	});
 }
