@@ -6,6 +6,31 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { CharacterDetail } from "./character-detail.js";
 
 describe("CharacterDetail", () => {
+	it("keeps escape and menu controls when a cached character refetch fails", () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const characterId = "00000000-0000-4000-8000-000000000000";
+		const queryKey = apiQueryKeys.getCharacter({ characterId });
+		queryClient.setQueryData(queryKey, { character: { name: "Cached character" } });
+		queryClient
+			.getQueryCache()
+			.find({ queryKey })
+			?.setState({ status: "error", error: new Error("Unavailable") });
+		const html = renderToString(
+			<MantineProvider>
+				<QueryClientProvider client={queryClient}>
+					<CharacterDetail
+						id={characterId}
+						onNavigate={vi.fn()}
+						renderApplicationMenu={() => <button type="button">Application menu</button>}
+					/>
+				</QueryClientProvider>
+			</MantineProvider>,
+		);
+		expect(html).toContain("Character unavailable");
+		expect(html).toContain('href="/characters"');
+		expect(html).toContain("Application menu");
+		expect(html).not.toContain("Cached character");
+	});
 	it("renders the always-visible summary with lower section tabs", () => {
 		const queryClient = new QueryClient();
 		const characterId = "00000000-0000-4000-8000-000000000000";
