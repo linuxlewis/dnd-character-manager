@@ -1,3 +1,8 @@
+.inventory-editor .inventory-editor-inner {
+	left: 0;
+	right: 0;
+}
+
 .inventory-currencies {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -36,8 +41,6 @@
 @media (max-width: 47.999em) {
 	.inventory-editor .inventory-editor-inner {
 		padding: 0;
-		left: 0;
-		right: 0;
 	}
 
 	.inventory-editor .inventory-editor-content {
