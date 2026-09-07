@@ -88,37 +88,38 @@ export function TreasuryPanel({
 	}
 
 	return (
-		<Stack gap="md">
-			{query.isLoading && (
-				<Paper withBorder p="sm">
-					<Text c="dimmed">Loading {scopeLabel.toLowerCase()}...</Text>
-				</Paper>
-			)}
-			{query.error && (
-				<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
-					{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
-				</Alert>
-			)}
-			{indeterminateOutcome && (
-				<Alert color="orange" title="Treasury confirmation could not be verified" variant="light">
-					<Stack align="flex-start" gap="sm">
-						<Text size="sm">{indeterminateOutcome.message}</Text>
-						<Button onClick={indeterminateOutcome.onAcknowledge} size="sm" type="button">
-							I reviewed the balance
-						</Button>
-					</Stack>
-				</Alert>
-			)}
-			{treasury && (
-				<TreasuryDisplay
-					actionsDisabled={allActionsDisabled}
-					onAddFunds={() => openDialog("add")}
-					onSpendFunds={() => openDialog("spend")}
-					scopeLabel={scopeLabel}
-					treasury={treasury}
-				/>
-			)}
-
+		<>
+			<Stack gap="md">
+				{query.isLoading && (
+					<Paper withBorder p="sm">
+						<Text c="dimmed">Loading {scopeLabel.toLowerCase()}...</Text>
+					</Paper>
+				)}
+				{query.error && (
+					<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
+						{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
+					</Alert>
+				)}
+				{indeterminateOutcome && (
+					<Alert color="orange" title="Treasury confirmation could not be verified" variant="light">
+						<Stack align="flex-start" gap="sm">
+							<Text size="sm">{indeterminateOutcome.message}</Text>
+							<Button onClick={indeterminateOutcome.onAcknowledge} size="sm" type="button">
+								I reviewed the balance
+							</Button>
+						</Stack>
+					</Alert>
+				)}
+				{treasury && (
+					<TreasuryDisplay
+						actionsDisabled={allActionsDisabled}
+						onAddFunds={() => openDialog("add")}
+						onSpendFunds={() => openDialog("spend")}
+						scopeLabel={scopeLabel}
+						treasury={treasury}
+					/>
+				)}
+			</Stack>
 			<TreasuryAddModal
 				key={`add-${dialogVersion}`}
 				mutationPending={add.mutationPending}
@@ -147,6 +148,6 @@ export function TreasuryPanel({
 				reconciliationPending={spend.reconciliationPending}
 				stalePreviewError={spend.stalePreviewError}
 			/>
-		</Stack>
+		</>
 	);
 }
