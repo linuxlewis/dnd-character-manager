@@ -414,6 +414,9 @@ test("mobile workspace spell configuration error clears persistent actions", asy
 	await page.getByRole("button", { name: "Configure slots", exact: true }).click();
 	const dialog = page.getByRole("dialog", { name: "Configure spell slots" });
 	await dialog.getByLabel("9th-level slot total").fill("1");
+	await dialog
+		.getByLabel("9th-level slot total")
+		.evaluate((element) => element.scrollIntoView({ block: "center" }));
 	await assertReachable(dialog.getByLabel("9th-level slot total"), page);
 	const save = dialog.getByRole("button", { name: "Save changes", exact: true });
 	await assertTouchTarget(save, page);
@@ -428,7 +431,7 @@ test("mobile workspace spell configuration error clears persistent actions", asy
 	await save.click();
 	const alert = dialog.getByRole("alert", { name: "Spell configuration not saved" });
 	await expect(alert).toBeVisible();
-	await alert.scrollIntoViewIfNeeded();
+	await alert.evaluate((element) => element.scrollIntoView({ block: "center" }));
 	await assertReachable(alert, page);
 	await assertTouchTarget(save, page);
 	await expect(dialog.getByLabel("9th-level slot total")).toHaveValue("1");
