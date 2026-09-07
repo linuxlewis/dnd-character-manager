@@ -197,7 +197,7 @@ export function CharacterInventory({
 						value={searchInput}
 						onChange={(event) => setSearchInput(event.currentTarget.value)}
 					/>
-					<Button autoContrast mih={44} onClick={openCreateForm}>
+					<Button c="black" mih={44} onClick={openCreateForm}>
 						Add item
 					</Button>
 				</Group>

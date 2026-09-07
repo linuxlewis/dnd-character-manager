@@ -166,7 +166,7 @@ export function TreasuryAddModal({
 					<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
 						Cancel
 					</Button>
-					<Button autoContrast disabled={submitDisabled} loading={mutationPending} type="submit">
+					<Button c="black" disabled={submitDisabled} loading={mutationPending} type="submit">
 						Add funds
 					</Button>
 				</Group>
