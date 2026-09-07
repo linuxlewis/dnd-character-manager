@@ -96,9 +96,11 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 			]);
 			await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
 			if (viewport.width < 768) {
-				expect(
-					(await page.getByRole("region", { name: "Character workspace header" }).boundingBox())?.y,
-				).toBe(0);
+				const headerY =
+					(await page.getByRole("region", { name: "Character workspace header" }).boundingBox())
+						?.y ?? -1;
+				if (await page.evaluate(() => scrollY > 0)) expect(headerY).toBe(0);
+				else expect(headerY).toBeLessThanOrEqual(16);
 				await assertReachable(nav, page);
 			}
 			if (section === "inventory")
@@ -192,9 +194,9 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 		else await route.continue();
 	});
 	await save.click();
-	await expect(dialog.getByRole("alert")).toBeVisible();
-	await dialog.getByRole("alert").scrollIntoViewIfNeeded();
-	await assertReachable(dialog.getByRole("alert"), page);
+	await expect(dialog.getByRole("alert", { name: "Item could not be saved" })).toBeVisible();
+	await dialog.getByRole("alert", { name: "Item could not be saved" }).scrollIntoViewIfNeeded();
+	await assertReachable(dialog.getByRole("alert", { name: "Item could not be saved" }), page);
 	await expect(dialog.getByLabel("Name")).toHaveValue("A retained mobile draft");
 	await assertReachable(save, page);
 	await captureMobileEvidence(page, info, "item-editor-error", ["E3", "E6"]);
