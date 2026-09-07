@@ -49,7 +49,14 @@ export async function captureMobileEvidence(
 ) {
 	await page.evaluate(async () => {
 		await document.fonts.ready;
-		await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+		await Promise.allSettled(
+			document
+				.getAnimations()
+				.filter(
+					(animation) => animation.effect?.getTiming().iterations !== Number.POSITIVE_INFINITY,
+				)
+				.map((animation) => animation.finished),
+		);
 		await new Promise<void>((resolve) =>
 			requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
 		);
