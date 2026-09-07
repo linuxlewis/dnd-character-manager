@@ -40,6 +40,9 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 ## Writing Unit Tests
 
 - Place unit tests beside the source file: `foo.ts` gets `foo.test.ts`.
+- Architecture tooling fixtures in `lints/**/*.test.ts` run in the normal unit
+  suite. Import-graph fixtures create temporary projects and exercise real
+  TypeScript resolution; they do not require Docker or installed fixture packages.
 - Test schemas with valid and invalid values.
 - Test row mappers and boundary parsers with realistic external shapes.
 - Test service logic with injected fakes instead of real databases or long-running entrypoints.
