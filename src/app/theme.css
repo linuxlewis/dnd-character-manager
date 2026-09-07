@@ -106,7 +106,7 @@ body {
 	.character-section-link {
 		flex: 1;
 		min-width: 0;
-		min-height: 64px;
+		min-height: 63px;
 		flex-direction: column;
 		gap: 2px;
 		padding: 6px;

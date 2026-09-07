@@ -49,7 +49,7 @@ test("mobile workspace keeps real section routes, browsing state, and reachable 
 		if (viewport.width < 768 && box) {
 			expect(Math.round(box.y + box.height)).toBe(viewport.height);
 			expect(box.height).toBeGreaterThanOrEqual(56);
-			expect(box.height).toBeLessThanOrEqual(66);
+			expect(box.height).toBeLessThanOrEqual(64);
 		}
 		await page.screenshot({ path: testInfo.outputPath(`shell-${viewport.width}-top.png`) });
 		await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
