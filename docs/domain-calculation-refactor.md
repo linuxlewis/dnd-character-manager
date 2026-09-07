@@ -1,11 +1,12 @@
 # R2a: Calculation Ownership And Contract Registration
 
-Base: accepted R2 `091934709c212fd7626c70a091e9063b7d4ecbf0`,
-[PR #104](https://github.com/linuxlewis/dnd-character-manager/pull/104), CI run
-`34152214984` passed. Owner: R2a implementation agent. Delivered SHA and PR are
-recorded by the coordinator after verification. This is a WIP checkpoint, not an
-accepted milestone: full B awaits the R2t test-fixture prerequisite. No merge or
-deployment is part of this delivery.
+Base: locally accepted R2t `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`,
+[PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107), CI pending
+at handoff. R2a's complete B gate passes at
+`2b29a8ece419ea6d0c28edcab0f630e982e9a688`; the subsequent commit only records this
+evidence and passes D. Owner: R2a implementation agent. Delivered SHA and PR are
+recorded by the coordinator after verification. No merge or deployment is part
+of this delivery.
 
 ## Ownership Changes
 
@@ -45,7 +46,8 @@ initialization. Existing operation ordering assertions remain intact.
   `/tmp/domain-r2a-findings.json`.
 - Baseline/final history comparison:
   `pnpm exec tsx /tmp/domain-r2a-compare-history.mts`, run from the R2a worktree.
-  The script imports accepted R2 and the R2a implementation and compares complete
+  The script imports accepted R2 `091934709c212fd7626c70a091e9063b7d4ecbf0`
+  and the R2a implementation and compares complete
   result/issue payloads and throw-versus-failure behavior for 20 cases: valid data,
   nonintegral/same-denomination/overflow conversions, and negative/fractional/
   overflowing balances on each side for spend and convert. Result:
@@ -57,11 +59,12 @@ initialization. Existing operation ordering assertions remain intact.
 | Check | Evidence |
 | --- | --- |
 | `pnpm lint` | Passed; `/tmp/domain-r2a-lint.log` |
-| `pnpm test:unit` | 178 files / 643 tests passed; `/tmp/domain-r2a-unit.log` |
+| `VITEST_MAX_WORKERS=4 pnpm test:unit` | 180 files / 654 tests passed; `/tmp/domain-r2a-unit.log` |
 | Focused fresh API registration test | 2 tests passed; `/tmp/domain-r2a-api-contract-unit.log` |
 | `pnpm build` | Passed API freshness, TypeScript, browser/PWA, server; `/tmp/domain-r2a-build.log` |
 | `env -u DATABASE_URL pnpm api:check` | Passed; `/tmp/domain-r2a-api-check.log` |
-| Full `pnpm test` | Latest run: 643 units, 68 integration tests, 24 browser tests passed; one catalogue fixture hook timed out. R2t prerequisite pending |
+| Full `pnpm test` with local environment below | Passed: 654 units, 68 integration tests, all 25 browser tests (42.1 seconds); `/tmp/domain-r2a-full-test.log` |
+| `pnpm check:docs` / `git diff --check` | Passed; `/tmp/domain-r2a-docs.log` and `/tmp/domain-r2a-diff.log` |
 
 The first attempt (`/tmp/domain-r2a-full-test-initial.log`) exhausted Docker's
 default network address pools. The coordinator verified an unused subnet and
@@ -69,7 +72,7 @@ authorized a temporary Compose file containing only default-network IPAM:
 `10.253.241.0/28`. The full command is:
 
 ```bash
-COMPOSE_FILE=/home/sbolgert/.codex/worktrees/domain-r2a/docker-compose.yml:/tmp/domain-r2a-compose-network.yml pnpm test
+VITEST_MAX_WORKERS=4 COMPOSE_FILE=/home/sbolgert/.codex/worktrees/domain-r2a/docker-compose.yml:/tmp/domain-r2a-compose-network.yml pnpm test
 ```
 
 This override affects only the worktree's owned test network. Normal cleanup
@@ -78,29 +81,33 @@ network-enabled run passed units/integration but hit five browser timeouts under
 host load (20 passed), preserved in `/tmp/domain-r2a-full-test-browser-timeouts.log`
 and `/tmp/domain-r2a-timeout-artifacts.tar.gz`. API logs had no 5xx/errors or requests
 over one second. Traces showed successful ordinary browser actions taking several
-seconds, consuming the existing test budgets. Subsequent runs are sequential.
+seconds, consuming the existing test budgets. The final B gates ran sequentially.
+`VITEST_MAX_WORKERS=4` is a local environment setting supported by the installed
+Vitest to avoid host oversubscription; all suites run and no worker setting is
+committed. Playwright worker settings, assertions, timeouts and retries are unchanged.
 
 A rerun exposed a five-second unit timeout after changing the existing contract
 aggregation test to a dynamic import. Restoring its original static import keeps
 transformation outside the assertion budget. The separate lazy-load test still
 resets the module cache and proves fresh evaluation without SQL initialization.
 The timeout log is `/tmp/domain-r2a-full-test-unit-import-timeout.log`. No test
-timeouts or retry policies were increased; acceptance still requires full B.
+timeouts or retry policies were increased.
 
-The final sequential attempt is preserved in
+The last pre-R2t sequential attempt is preserved in
 `/tmp/domain-r2a-full-test-catalogue-timeout.log` and
 `/tmp/domain-r2a-catalogue-timeout-artifacts.tar.gz`. The only failure is the
 inventory-activity catalogue fixture's setup/cleanup timeout. Both inventory
 specs reserve the same advisory lock throughout their browser journeys; the
 waiting setup hook has a 30-second budget. Accepted R2 was independently rerun
 and passed all 25 browsers in 45 seconds, so this is a timing hazard exposed by
-these runs, not a claimed baseline test failure. R2t will give the shared fixture
-one suite-level lifecycle while retaining real catalogue assertions. R2a must
-rebase onto accepted R2t and rerun all B gates before acceptance.
+these runs, not a claimed baseline test failure. Accepted R2t gives the shared
+fixture one suite-level lifecycle while retaining real catalogue assertions.
+R2a was rebased onto it without source conflicts and passes every B gate. The
+final run removed its owned container, volume, and network after success.
 
 ## Size And Quality Review
 
-Handwritten TypeScript source: 19,737 -> 19,768 lines (+31). Tests:
+Handwritten application TypeScript under `src/`: 19,737 -> 19,768 lines (+31). Tests:
 18,179 -> 18,303 (+124). Generated TypeScript remains 1,400 lines, unchanged;
 OpenAPI JSON and SQL migrations are unchanged. Documentation is counted separately.
 The growth comes from explicit import boundaries, preserved refinement parsing,

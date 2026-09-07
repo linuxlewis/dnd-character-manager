@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t locally accepted; R2a active; later milestones planned.
+Status: R0/R1/R2/R2t locally accepted; R2a submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -24,7 +24,7 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R1 | Import resolution and dependency graph | R0 | accepted | Root verified `5ed2f8fc5dc7ac6432618ba40d3c1b9f83d0b747`; [PR #99](https://github.com/linuxlewis/dnd-character-manager/pull/99); CI run `34150837520` passed |
 | R2 | Boundary rules, fixtures, and migration inventory | R1 | accepted | Coordinator verified `091934709c212fd7626c70a091e9063b7d4ecbf0`; [PR #104](https://github.com/linuxlewis/dnd-character-manager/pull/104); CI run `34152214984` passed |
 | R2t | Suite-owned catalogue browser fixture lifecycle | R2 | accepted | Coordinator verified `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`; [PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107); local B passed, CI pending |
-| R2a | Pure calculations and public contract registration | R2t | active | R2a agent; [implementation/evidence](./domain-calculation-refactor.md); full B gate pending |
+| R2a | Pure calculations and public contract registration | R2t | review | R2a agent; [implementation/evidence](./domain-calculation-refactor.md); full B passed at `2b29a8ece419ea6d0c28edcab0f630e982e9a688`; coordinator verification pending |
 | R3 | Public schemas and typed Drizzle registration | R2a | planned | Unassigned |
 | R4a | Character access and atomic creation workflow | R3 | planned | Unassigned |
 | R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
