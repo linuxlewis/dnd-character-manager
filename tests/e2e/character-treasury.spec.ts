@@ -115,7 +115,9 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: "Load Recovery" })).toBeVisible();
 	await expect(page.getByText("Personal Treasury unavailable")).toBeVisible();
 	await openSpellsAndAbilitiesTab(page);
-	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
+	).toBeVisible();
 
 	treasuryAvailable = true;
 	await page.reload();

@@ -35,8 +35,10 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	const firstCharacterUrl = page.url();
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: firstCharacterName })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Health" })).toBeVisible();
+	await expect(page.getByText("0% to Lv 2", { exact: true })).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
+	).toBeVisible();
 	await expect(page.getByTestId("treasury-total")).toBeVisible();
 	const inventory = page.getByTestId("personal-inventory");
 
@@ -235,7 +237,9 @@ test("keeps character details visible when personal inventory fails", async ({ p
 	await expect(page.getByText("Personal inventory unavailable")).toBeVisible();
 	await expect(page.getByTestId("treasury-total")).toBeVisible();
 	await openSpellsAndAbilitiesTab(page);
-	await expect(page.getByText(/10 \/ 10 HP/)).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
+	).toBeVisible();
 });
 
 function requireCatalogueFixture() {
