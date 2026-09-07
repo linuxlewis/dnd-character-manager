@@ -60,7 +60,13 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 				expect(
 					(await page.getByTestId("treasury-summary").boundingBox())?.height,
 				).toBeLessThanOrEqual(104);
+				if (viewport.height < 480)
+					await page.getByLabel("Search personal inventory").scrollIntoViewIfNeeded();
 				await assertReachable(page.getByLabel("Search personal inventory"), page);
+				if (viewport.height < 480)
+					await page
+						.getByRole("button", { name: "Add item", exact: true })
+						.scrollIntoViewIfNeeded();
 				await assertTouchTarget(page.getByRole("button", { name: "Add item", exact: true }), page);
 				if (viewport.width === 390)
 					await assertReachable(
@@ -210,12 +216,21 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 });
 
 test("mobile workspace geometry rejects injected overlap", async ({ page }) => {
-	await page.setContent(
-		'<button style="width:44px;height:44px">Target</button><div style="position:fixed;inset:0;background:white"></div>',
-	);
-	await expect(
-		assertReachable(page.getByRole("button", { name: "Target" }), page),
-	).rejects.toThrow();
+	test.setTimeout(60_000);
+	const fixture = await prepareMobileWorkspace(page);
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.goto(`${fixture.path}/spells`);
+	const target = page.getByRole("button", { name: "Damage", exact: true });
+	await assertReachable(target, page);
+	await page.evaluate(() => {
+		const overlay = document.createElement("div");
+		overlay.id = "test-only-occlusion";
+		overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:white";
+		document.body.append(overlay);
+	});
+	await expect(assertReachable(target, page)).rejects.toThrow();
+	await page.locator("#test-only-occlusion").evaluate((element) => element.remove());
+	await assertReachable(target, page);
 });
 
 test("mobile workspace XP boundaries and enlarged text remain readable", async ({ page }, info) => {
@@ -223,8 +238,11 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 	await page.setViewportSize({ width: 390, height: 844 });
 	const fixture = await prepareMobileWorkspace(page);
 	for (const state of [
+		{ xp: 0, level: 1, label: "0% to Lv 2" },
+		{ xp: 0, level: 5, label: "0% to Lv 6" },
 		{ xp: 0, level: 3, label: "0% to Lv 4" },
 		{ xp: 900, level: 3, label: "0% to Lv 4" },
+		{ xp: 2699, level: 3, label: "99% to Lv 4" },
 		{ xp: 2700, level: 3, label: "Level 4 available" },
 		{ xp: 6500, level: 3, label: "Level 4 available" },
 		{ xp: 355000, level: 20, label: "Max level" },
@@ -295,4 +313,42 @@ test("mobile workspace local failures retain escape and working section", async 
 	await expect(page.getByRole("navigation", { name: "Character sections" })).toHaveCount(0);
 	await assertReachable(page.getByRole("link", { name: "Back to characters", exact: true }), page);
 	await captureMobileEvidence(page, info, "not-found", ["H7", "N2"]);
+});
+
+test("mobile workspace supported numeric extremes do not overflow", async ({ page }, info) => {
+	test.setTimeout(90_000);
+	const fixture = await prepareMobileWorkspace(page);
+	const root = `/api/characters/${fixture.id}`;
+	for (const width of [320, 390]) {
+		await page.setViewportSize({ width, height: 844 });
+		for (const health of [
+			{ currentHp: 0, maxHp: 24, temporaryHp: 0 },
+			{ currentHp: 9999, maxHp: 9999, temporaryHp: 0 },
+			{ currentHp: 9999, maxHp: 1, temporaryHp: 9998 },
+		]) {
+			const first = await page.request.put(`${root}/health`, { data: health });
+			expect(first.ok()).toBeTruthy();
+			const saved = await page.request.put(`${root}/health`, { data: health });
+			expect(saved.ok()).toBeTruthy();
+			const result = await saved.json();
+			await page.goto(`${fixture.path}/spells`);
+			await expect(page.getByRole("button", { name: "Damage", exact: true })).toBeVisible();
+			await assertNoOverflow(page);
+			await assertTouchTarget(page.getByRole("button", { name: "Damage", exact: true }), page);
+			await captureMobileEvidence(
+				page,
+				info,
+				`health-${result.health.currentHp}-${result.health.temporaryHp}`,
+				["H2", "H6", "V6"],
+			);
+		}
+	}
+	const added = await page.request.put(`${root}/treasury`, {
+		data: { delta: { pp: 2000000, gp: 2000000, sp: 2000000, cp: 2000000 } },
+	});
+	expect(added.ok()).toBeTruthy();
+	await page.goto(`${fixture.path}/inventory`);
+	await expect(page.getByTestId("treasury-summary")).toBeVisible();
+	await assertNoOverflow(page);
+	await captureMobileEvidence(page, info, "currency-large", ["I1", "V6"]);
 });
