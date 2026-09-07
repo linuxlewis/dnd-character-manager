@@ -75,6 +75,10 @@
 		padding-bottom: 16px;
 	}
 
+	.inventory-editor .inventory-editor-scroll > * {
+		flex-shrink: 0;
+	}
+
 	.inventory-editor .inventory-editor-actions {
 		padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
 	}
