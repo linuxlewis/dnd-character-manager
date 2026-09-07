@@ -9,13 +9,21 @@ export async function assertReachable(locator: Locator, page: Page) {
 	await expect(locator).toBeVisible();
 	const geometry = await locator.evaluate((element) => {
 		const box = element.getBoundingClientRect();
-		const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+		const inset = Math.min(4, box.width / 4, box.height / 4);
+		const points = [
+			[box.x + box.width / 2, box.y + box.height / 2],
+			[box.left + inset, box.top + inset],
+			[box.right - inset, box.top + inset],
+			[box.left + inset, box.bottom - inset],
+			[box.right - inset, box.bottom - inset],
+		];
+		const hits = points.map(([x, y]) => document.elementFromPoint(x, y));
 		return {
 			x: box.x,
 			y: box.y,
 			width: box.width,
 			height: box.height,
-			hit: hit === element || element.contains(hit),
+			hit: hits.every((hit) => hit === element || element.contains(hit)),
 		};
 	});
 	expect(geometry.x).toBeGreaterThanOrEqual(-1);
@@ -24,7 +32,7 @@ export async function assertReachable(locator: Locator, page: Page) {
 	expect(geometry.y + geometry.height).toBeLessThanOrEqual((page.viewportSize()?.height ?? 0) + 1);
 	expect(
 		geometry.hit,
-		`${await locator.getAttribute("aria-label")} center must receive pointer`,
+		`${await locator.getAttribute("aria-label")} center and inset corners must receive pointer`,
 	).toBe(true);
 	return geometry;
 }
