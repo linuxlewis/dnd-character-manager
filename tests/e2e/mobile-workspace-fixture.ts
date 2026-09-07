@@ -5,6 +5,9 @@ export const mobileFixtureName = "Mira Thorn";
 
 export async function prepareMobileWorkspace(page: Page) {
 	await page.goto("/");
+	await expect(
+		page.getByRole("link", { name: "Create character", exact: true }).first(),
+	).toBeVisible();
 	const created = await checked(
 		await page.request.post("/api/characters", {
 			data: { name: mobileFixtureName, className: "Wizard", level: 3, maxHp: 24 },
