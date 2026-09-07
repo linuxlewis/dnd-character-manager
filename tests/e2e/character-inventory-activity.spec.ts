@@ -47,8 +47,11 @@ test("records, filters, paginates, and persists personal inventory activity", as
 	const characterId = characterIdFromPage(page);
 	await openInventoryTab(page);
 
-	const recentActivity = page.getByTestId("recent-activity");
-	await expect(recentActivity.getByText("No activity yet", { exact: true })).toBeVisible();
+	await expect(page.getByTestId("recent-activity")).toHaveCount(0);
+	await openActivityDrawer(page);
+	const emptyHistory = page.getByRole("dialog", { name: "Inventory activity" });
+	await expect(emptyHistory.getByText("No activity yet", { exact: true })).toBeVisible();
+	await closeActivityDrawer(emptyHistory);
 
 	await addCatalogueItem(page, fixture.searchQuery, bladeName);
 	await addCustomItem(page, potionName, "Potion");
@@ -122,7 +125,6 @@ test("records, filters, paginates, and persists personal inventory activity", as
 	await expect(addDialog.getByText("0.00 GP -> 20.00 GP", { exact: true })).toBeVisible();
 	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expect(recentActivity.getByText("Added 2 PP", { exact: true })).toBeVisible();
 
 	await openActivityDrawer(page);
 	let activityDrawer = page.getByRole("dialog", { name: "Inventory activity" });
@@ -140,8 +142,11 @@ test("records, filters, paginates, and persists personal inventory activity", as
 	await spendDialog.getByLabel("Note (optional)").fill("  Bought climbing gear  ");
 	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(spendDialog).toBeHidden();
-	await expect(recentActivity.getByText("Spent 15 GP", { exact: true })).toBeVisible();
-	await expect(recentActivity.getByText(/Bought climbing gear/)).toBeVisible();
+	await openActivityDrawer(page);
+	activityDrawer = page.getByRole("dialog", { name: "Inventory activity" });
+	await expect(activityDrawer.getByText("Spent 15 GP", { exact: true })).toBeVisible();
+	await expect(activityDrawer.getByText(/Bought climbing gear/)).toBeVisible();
+	await closeActivityDrawer(activityDrawer);
 
 	const historyBeforeRejected = await getHistory(page, characterId);
 	expect(historyBeforeRejected.total).toBe(21);
@@ -233,19 +238,18 @@ test("records, filters, paginates, and persists personal inventory activity", as
 	await page.reload();
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: characterName })).toBeVisible();
-	await expect(page.getByTestId("treasury-total")).toContainText("5.00 GP");
-	await expect(
-		page.getByTestId("recent-activity").getByText("Spent 15 GP", { exact: true }),
-	).toBeVisible();
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^5$/)).toBeVisible();
+	await openActivityDrawer(page);
+	activityDrawer = page.getByRole("dialog", { name: "Inventory activity" });
+	await expect(activityDrawer.getByText("Spent 15 GP", { exact: true })).toBeVisible();
+	await closeActivityDrawer(activityDrawer);
 
 	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	const secondCharacterName = `Activity Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	const secondCharacterId = characterIdFromPage(page);
 	await openInventoryTab(page);
-	await expect(
-		page.getByTestId("recent-activity").getByText("No activity yet", { exact: true }),
-	).toBeVisible();
+	await expect(page.getByTestId("recent-activity")).toHaveCount(0);
 	const secondHistory = await getHistory(page, secondCharacterId);
 	expect(secondHistory.total).toBe(0);
 	await openActivityDrawer(page);
@@ -368,7 +372,7 @@ async function readActivityEntries(drawer: Locator) {
 }
 
 function characterIdFromPage(page: Page) {
-	return new URL(page.url()).pathname.split("/").at(-1) ?? "";
+	return new URL(page.url()).pathname.split("/")[2] ?? "";
 }
 
 async function assertCharacterIsNotVisibleToAnotherUser(browser: Browser, characterId: string) {

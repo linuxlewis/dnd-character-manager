@@ -1,3 +1,4 @@
+import "./inventory.css";
 import {
 	Alert,
 	Box,
@@ -93,22 +94,26 @@ export function TreasurySpendModal({
 			onClose={onClose}
 			opened={opened}
 			size="md"
-			styles={{
-				content: { maxWidth: "calc(100vw - 2rem)" },
-				inner: { left: 0, padding: 0, right: 0 },
+			className="inventory-editor"
+			classNames={{
+				inner: "inventory-editor-inner",
+				content: "inventory-editor-content",
+				header: "inventory-editor-header",
+				body: "inventory-editor-body",
 			}}
 			title="Spend funds"
 			withinPortal={false}
 		>
 			<Box
 				component="form"
+				className="inventory-editor-form"
 				onSubmit={form.onSubmit(() => {
-					if (draftIsValid && currentRequest && preview?.canApply) {
+					if (!formDisabled && draftIsValid && currentRequest && preview?.canApply) {
 						onSubmit(currentRequest, preview);
 					}
 				})}
 			>
-				<Stack gap="md">
+				<Stack className="inventory-editor-scroll" gap="md">
 					<SimpleGrid cols={{ base: 2, xs: 2 }} spacing="sm">
 						{TREASURY_DENOMINATIONS.map(({ key, label }, index) => (
 							<Box key={key}>
@@ -173,16 +178,15 @@ export function TreasurySpendModal({
 							</Button>
 						</Alert>
 					)}
-
-					<Group justify="flex-end">
-						<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
-							Cancel
-						</Button>
-						<Button disabled={submitDisabled} loading={mutationPending} type="submit">
-							Spend
-						</Button>
-					</Group>
 				</Stack>
+				<Group className="inventory-editor-actions" justify="flex-end">
+					<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
+						Cancel
+					</Button>
+					<Button disabled={submitDisabled} loading={mutationPending} type="submit">
+						Spend
+					</Button>
+				</Group>
 			</Box>
 		</Modal>
 	);

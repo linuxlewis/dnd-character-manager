@@ -38,7 +38,7 @@ describe("CharacterInventory", () => {
 		const client = new QueryClient();
 		setList(client, [equipment, potion], 2);
 		const html = renderInventory(client);
-		expect(html).toContain("Personal inventory");
+		expect(html).toContain("Search items");
 		expect(html).toContain("Longsword");
 		expect(html).toContain("Healing Potion");
 		expect(html).toContain("Rare");
@@ -69,7 +69,7 @@ describe("CharacterInventory", () => {
 		expect(readableHtml).toContain("Inventory counts unavailable");
 		expect(readableHtml).toContain("Item cards remain available");
 		expect(readableHtml).toContain("Longsword");
-		expect(readableHtml).toContain("Item count unavailable");
+		expect(readableHtml).toContain("All, count unavailable");
 		expect(readableHtml).not.toContain("0 items");
 	});
 });

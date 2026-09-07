@@ -25,8 +25,8 @@ export function InventoryFilterBar({
 			aria-label="Inventory type filters"
 			gap={6}
 			role="group"
-			style={{ overflowX: "auto", paddingBottom: 2 }}
-			wrap="nowrap"
+			className="inventory-filters"
+			wrap="wrap"
 		>
 			<FilterButton
 				active={activeType === "all"}
@@ -64,6 +64,7 @@ function FilterButton({
 			aria-pressed={active}
 			onClick={onClick}
 			size="sm"
+			mih={44}
 			style={{ flex: "0 0 auto" }}
 			variant={active ? "light" : "default"}
 		>

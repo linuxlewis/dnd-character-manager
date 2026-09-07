@@ -1,3 +1,4 @@
+import "./inventory.css";
 import {
 	Alert,
 	Box,
@@ -88,27 +89,41 @@ export function ItemForm({
 			}}
 			onClose={onClose}
 			opened={opened}
+			closeOnClickOutside={!pending}
+			closeOnEscape={!pending}
 			size="lg"
-			styles={{
-				content: { maxWidth: "calc(100vw - 2rem)" },
-				inner: { left: 0, padding: 0, right: 0 },
+			className="inventory-editor"
+			classNames={{
+				inner: "inventory-editor-inner",
+				content: "inventory-editor-content",
+				header: "inventory-editor-header",
+				body: "inventory-editor-body",
 			}}
 			title={mode === "create" ? "Add personal item" : "Edit personal item"}
 			withinPortal={false}
 		>
 			<Box
 				component="form"
-				onSubmit={form.onSubmit((values) =>
-					onSubmit(
-						toCharacterItemRequest(
-							values,
-							mode,
-							catalogueItemIdForSubmission(selectedCatalogueId, catalogueDetailError),
-						),
-					),
+				className="inventory-editor-form"
+				onSubmit={form.onSubmit(
+					(values) => {
+						if (pending) return;
+						onSubmit(
+							toCharacterItemRequest(
+								values,
+								mode,
+								catalogueItemIdForSubmission(selectedCatalogueId, catalogueDetailError),
+							),
+						);
+					},
+					(errors) => {
+						const field = form.getInputNode(Object.keys(errors)[0]);
+						field?.focus();
+						field?.scrollIntoView({ block: "center" });
+					},
 				)}
 			>
-				<Stack gap="md">
+				<Stack className="inventory-editor-scroll" gap="md">
 					{mode === "create" && (
 						<CatalogueItemSearch
 							detailError={catalogueDetailError}
@@ -125,7 +140,7 @@ export function ItemForm({
 							{error.message}
 						</Alert>
 					)}
-					<TextInput {...form.getInputProps("name")} label="Name" required />
+					<TextInput {...form.getInputProps("name")} label="Name" data-autofocus required />
 					<Group align="flex-start" grow wrap="wrap">
 						<Select
 							{...form.getInputProps("type")}
@@ -194,15 +209,15 @@ export function ItemForm({
 							rules version.
 						</Text>
 					)}
-					<Group justify="flex-end">
-						<Button disabled={pending} onClick={onClose} type="button" variant="default">
-							Cancel
-						</Button>
-						<Button loading={pending} type="submit">
-							{mode === "create" ? "Add item" : "Save item"}
-						</Button>
-					</Group>
 				</Stack>
+				<Group className="inventory-editor-actions" justify="flex-end">
+					<Button disabled={pending} onClick={onClose} type="button" variant="default">
+						Cancel
+					</Button>
+					<Button loading={pending} type="submit">
+						{mode === "create" ? "Add item" : "Save item"}
+					</Button>
+				</Group>
 			</Box>
 		</Modal>
 	);

@@ -30,7 +30,7 @@ describe("CharacterTreasuryPanel", () => {
 		);
 
 		expect(html).not.toContain("Personal Treasury</span>");
-		expect(html.replaceAll("<!-- -->", "")).toContain("0.00 GP");
+		expect(html.replaceAll("<!-- -->", "")).toContain("Gold pieces: 0");
 	});
 
 	it("writes mutation responses into the character treasury cache", () => {

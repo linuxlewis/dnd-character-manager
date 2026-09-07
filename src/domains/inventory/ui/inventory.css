@@ -1,0 +1,75 @@
+.inventory-currencies {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.inventory-currency-amount {
+	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere;
+}
+
+.inventory-search {
+	flex: 1;
+	min-width: 0;
+}
+
+.inventory-items .mantine-Input-input,
+.inventory-editor .mantine-Input-input {
+	font-size: 16px;
+	min-height: 44px;
+}
+
+.inventory-editor .mantine-Button-root,
+.inventory-editor .mantine-CloseButton-root {
+	min-width: 44px;
+	min-height: 44px;
+}
+
+.inventory-editor-actions {
+	flex-shrink: 0;
+	padding: 12px 0;
+	background: var(--mantine-color-body);
+	border-top: 1px solid var(--mantine-color-default-border);
+}
+
+@media (max-width: 47.999em) {
+	.inventory-editor-inner {
+		padding: 0;
+	}
+
+	.inventory-editor-content {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		max-width: 100%;
+		height: 100dvh;
+		max-height: 100dvh;
+		border-radius: 0;
+	}
+
+	.inventory-editor-header {
+		flex-shrink: 0;
+		padding-top: env(safe-area-inset-top, 0px);
+	}
+
+	.inventory-editor-body,
+	.inventory-editor-form {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	.inventory-editor-scroll {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		padding-bottom: 16px;
+	}
+
+	.inventory-editor-actions {
+		padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+	}
+}

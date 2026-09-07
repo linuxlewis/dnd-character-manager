@@ -232,7 +232,7 @@ async function expectDialogWithinViewport(page: Page, dialog: import("@playwrigh
 
 async function expectBalances(
 	page: Page,
-	balances: { pp: string; gp: string; sp: string; cp: string; total: string },
+	balances: { pp: string; gp: string; sp: string; cp: string },
 ) {
 	await expect.poll(() => readBalances(page)).toEqual(balances);
 }
@@ -243,9 +243,5 @@ async function readBalances(page: Page) {
 		gp: await page.getByTestId("treasury-gp-balance").getByText(/\d/).textContent(),
 		sp: await page.getByTestId("treasury-sp-balance").getByText(/\d/).textContent(),
 		cp: await page.getByTestId("treasury-cp-balance").getByText(/\d/).textContent(),
-		total: await page
-			.getByTestId("treasury-total")
-			.getByText(/\d+\.\d{2} GP/)
-			.textContent(),
 	};
 }

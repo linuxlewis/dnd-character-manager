@@ -1,6 +1,5 @@
 import {
 	Alert,
-	Badge,
 	Button,
 	Group,
 	Loader,
@@ -187,35 +186,20 @@ export function CharacterInventory({
 		deleteMutation.mutate({ characterId, itemId: detailItem.id });
 	}
 	return (
-		<Paper data-testid="personal-inventory" p={{ base: "md", sm: "lg" }} withBorder>
+		<Paper className="inventory-items" data-testid="personal-inventory" p={0}>
 			<Stack gap="md">
-				<Group align="flex-start" justify="space-between" wrap="wrap">
-					<Stack gap={2}>
-						<Group gap="xs">
-							<Text fw={700} size="lg">
-								Personal inventory
-							</Text>
-							<Badge color="candle" variant="light">
-								{totalCount === null ? "Item count unavailable" : `${totalCount} items`}
-							</Badge>
-						</Group>
-						<Text c="dimmed" size="sm">
-							Your character's carried gear, equipment, and magical finds.
-						</Text>
-					</Stack>
-					<Button onClick={openCreateForm}>Add item</Button>
-				</Group>
-				<Group align="flex-end" gap="sm" grow wrap="wrap">
+				<Group align="flex-end" gap="sm" wrap="nowrap">
 					<TextInput
+						className="inventory-search"
 						aria-label="Search personal inventory"
 						label="Search items"
 						placeholder="Search by item name"
 						value={searchInput}
 						onChange={(event) => setSearchInput(event.currentTarget.value)}
 					/>
-					<Text c="dimmed" size="sm" pb={8}>
-						{inventoryQuery.data ? `${inventoryQuery.data.total} matching` : ""}
-					</Text>
+					<Button mih={44} onClick={openCreateForm}>
+						Add item
+					</Button>
 				</Group>
 				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
 				<InventoryFilterBar

@@ -190,7 +190,11 @@ async function submitSpend(page: Page, amount: number) {
 
 async function expectBalances(page: Page, total: string) {
 	await expect(page.getByTestId("treasury-gp-balance").getByText(/\d/)).toBeVisible();
-	await expect(page.getByTestId("treasury-total")).toContainText(total);
+	await expect(
+		page
+			.getByTestId("treasury-gp-balance")
+			.getByText(String(Number.parseFloat(total)), { exact: true }),
+	).toBeVisible();
 }
 
 type ReconciliationGate = ReturnType<typeof createReconciliationGate>;
