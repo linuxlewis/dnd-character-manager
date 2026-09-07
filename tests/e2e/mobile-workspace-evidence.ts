@@ -41,6 +41,10 @@ export async function assertTouchTarget(locator: Locator, page: Page) {
 	const box = await assertReachable(locator, page);
 	expect(box.width).toBeGreaterThanOrEqual(44);
 	expect(box.height).toBeGreaterThanOrEqual(44);
+	await assertTextContained(locator);
+}
+
+export async function assertTextContained(locator: Locator) {
 	const clippedText = await locator.evaluate((element) => {
 		const box = element.getBoundingClientRect();
 		const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
@@ -63,7 +67,7 @@ export async function assertTouchTarget(locator: Locator, page: Page) {
 		}
 		return clipped;
 	});
-	expect(clippedText, "visible action labels must fit their target without clipping").toEqual([]);
+	expect(clippedText, "visible text must fit its container without clipping").toEqual([]);
 }
 
 export async function assertNoOverflow(page: Page) {

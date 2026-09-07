@@ -8,6 +8,7 @@ import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-
 import {
 	assertNoOverflow,
 	assertReachable,
+	assertTextContained,
 	assertTouchTarget,
 	captureMobileEvidence,
 } from "./mobile-workspace-evidence.js";
@@ -215,8 +216,10 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	});
 	await save.click();
 	await expect(dialog.getByRole("alert", { name: "Item could not be saved" })).toBeVisible();
+	await expect(dialog.getByRole("alert")).toContainText("API request failed with HTTP 503");
 	await dialog.getByRole("alert", { name: "Item could not be saved" }).scrollIntoViewIfNeeded();
 	await assertReachable(dialog.getByRole("alert", { name: "Item could not be saved" }), page);
+	await assertTextContained(dialog.getByRole("alert", { name: "Item could not be saved" }));
 	await expect(dialog.getByLabel("Name")).toHaveValue("A retained mobile draft");
 	await assertReachable(save, page);
 	await captureMobileEvidence(page, info, "item-editor-error", ["E3", "E6"]);
@@ -433,6 +436,7 @@ test("mobile workspace spell configuration error clears persistent actions", asy
 	await expect(alert).toBeVisible();
 	await alert.evaluate((element) => element.scrollIntoView({ block: "center" }));
 	await assertReachable(alert, page);
+	await assertTextContained(alert);
 	await assertTouchTarget(save, page);
 	await expect(dialog.getByLabel("9th-level slot total")).toHaveValue("1");
 	await captureMobileEvidence(page, info, "spell-config-full-error", ["E1", "E3", "E4", "S3"]);

@@ -1,6 +1,8 @@
 # Mobile Character Workspace Specification
 
-Status: Implementation-ready proposal; implementation and visual acceptance remain pending.
+Status: Implemented and independently reviewed in the main-based review stack; final stack CI pending.
+Not merged or deployed. See the [acceptance record](./mobile-workspace-acceptance.md) for evidence
+and physical-device follow-up.
 Last verified: 2026-09-07
 
 ## Purpose And Authority

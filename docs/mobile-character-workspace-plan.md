@@ -1,6 +1,9 @@
 # Mobile Workspace Dispatch And Validation Plan
 
-Status: Ready for orchestration; no implementation tasks completed.
+Status: Implementation tasks complete; independent source/browser acceptance recorded. Final stack CI
+pending; not merged or deployed. See the [acceptance record](./mobile-workspace-acceptance.md).
+The task contracts below remain dispatch guidance for follow-up changes; native-device checks are
+explicitly outstanding.
 Last verified: 2026-09-07
 
 Product authority: [mobile workspace spec](./mobile-character-workspace-spec.md).

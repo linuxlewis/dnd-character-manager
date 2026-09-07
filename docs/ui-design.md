@@ -1,9 +1,10 @@
 # UI Design And Interaction Contract
 
 Last verified: 2026-09-07
-Status: Target contract for the mobile refactor; implementation acceptance is tracked in the
-[dispatch plan](./mobile-character-workspace-plan.md). Do not infer that this document proves
-current code implements every behavior. The spec baseline is main `faf5192`.
+Status: Durable contract implemented and independently reviewed in the mobile refactor review stack.
+The [acceptance record](./mobile-workspace-acceptance.md) identifies tested source, evidence, final CI
+status and outstanding physical-device checks. Not merged or deployed. The spec baseline is main
+`faf5192`; future features must preserve this contract and add their own acceptance evidence.
 
 ## Product Character
 
