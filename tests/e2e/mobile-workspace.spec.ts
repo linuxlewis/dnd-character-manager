@@ -358,3 +358,26 @@ test("mobile workspace supported numeric extremes do not overflow", async ({ pag
 	await assertNoOverflow(page);
 	await captureMobileEvidence(page, info, "currency-large", ["I1", "V6"]);
 });
+
+test("mobile workspace menu dialogs return focus to a stable trigger", async ({ page }, info) => {
+	test.setTimeout(90_000);
+	await page.setViewportSize({ width: 390, height: 844 });
+	const fixture = await prepareMobileWorkspace(page);
+	await page.goto(`${fixture.path}/spells`);
+	const menu = page.getByRole("button", { name: "Open application menu", exact: true });
+	for (const name of ["Edit character", "Health history"]) {
+		await menu.click();
+		await page.getByRole("menuitem", { name, exact: true }).click();
+		const dialog = page.getByRole("dialog", { name, exact: true });
+		await expect(dialog).toBeVisible();
+		await captureMobileEvidence(page, info, `menu-${name.toLowerCase().replaceAll(" ", "-")}`, [
+			"E5",
+			"N5",
+		]);
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
+		await expect
+			.poll(() => page.evaluate(() => document.activeElement?.getAttribute("aria-label")))
+			.toMatch(/Open application menu|Character details for/);
+	}
+});
