@@ -35,10 +35,10 @@ export function SpellRemoveModal({
 				)}
 				<Text size="sm">This removes the spell from this character&apos;s spell list.</Text>
 				<Group justify="flex-end" gap="xs">
-					<Button color="gray" disabled={pending} onClick={onClose} variant="default">
+					<Button mih={44} color="gray" disabled={pending} onClick={onClose} variant="default">
 						Cancel
 					</Button>
-					<Button autoContrast color="red" loading={pending} onClick={onConfirm}>
+					<Button mih={44} autoContrast color="red" loading={pending} onClick={onConfirm}>
 						Remove spell
 					</Button>
 				</Group>
