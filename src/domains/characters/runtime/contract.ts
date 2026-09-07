@@ -2,7 +2,6 @@ import type { ApiRouteContract } from "@providers/openapi/index.js";
 import {
 	CharacterDetailResponseSchema,
 	CharacterSpellSlotsResponseSchema,
-	CreateCharacterRequestSchema,
 	ListCharactersResponseSchema,
 	RestoreCharacterSpellSlotRequestSchema,
 	UpdateCharacterExperienceRequestSchema,
@@ -22,25 +21,6 @@ import {
 } from "./contract-support.js";
 
 export const characterRouteContracts = [
-	{
-		method: "post",
-		operationId: "createCharacter",
-		path: "/api/characters",
-		requestBody: CreateCharacterRequestSchema,
-		responses: {
-			201: { description: "Created character", schema: CharacterDetailResponseSchema },
-			400: { description: "Invalid character data", schema: ErrorResponseSchema },
-		},
-		summary: "Create character",
-		tags: ["characters"],
-		client: {
-			functionName: "createCharacter",
-			imports: [...characterTypeImports, ...characterSchemaImports],
-			requestBodyType: "CreateCharacterRequest",
-			responseParser: "CharacterDetailResponseSchema",
-			responseType: "CharacterDetailResponse",
-		},
-	},
 	{
 		method: "get",
 		operationId: "listCharacters",

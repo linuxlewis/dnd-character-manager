@@ -1,5 +1,6 @@
 import { getDb } from "@providers/database/index.js";
 import { and, desc, eq } from "drizzle-orm";
+import { findOwnedCharacter } from "../access/index.js";
 import {
 	characterSpellSlotEventsTable,
 	characterSpellSlotsTable,
@@ -50,16 +51,8 @@ export interface CharacterSpellSlotRepository {
 export function createCharacterSpellSlotRepository(): CharacterSpellSlotRepository {
 	return {
 		async findCharacterSpellSlotContext(userId, characterId) {
-			const [row] = await getDb()
-				.select({
-					className: charactersTable.className,
-					level: charactersTable.level,
-				})
-				.from(charactersTable)
-				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
-				.limit(1);
-
-			return row ?? null;
+			const identity = await findOwnedCharacter(userId, characterId, getDb());
+			return identity ? { className: identity.className, level: identity.level } : null;
 		},
 
 		async findCharacterSpellSlots(userId, characterId) {

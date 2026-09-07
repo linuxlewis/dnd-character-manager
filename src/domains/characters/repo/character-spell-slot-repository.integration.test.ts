@@ -2,8 +2,8 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import type { CharacterSpellSlot } from "../types/index.js";
-import { createCharacterRepository } from "./character-repository.js";
 import { createCharacterSpellSlotRepository } from "./character-spell-slot-repository.js";
 
 const createdUserIds: string[] = [];
@@ -24,7 +24,7 @@ afterAll(async () => {
 describe("createCharacterSpellSlotRepository", () => {
 	it("returns empty owned spell slots, saves slot usage, and lists recent history", async () => {
 		const userId = await createUser();
-		const character = await createCharacterRepository().createCharacter({
+		const character = await createCharacter({
 			userId,
 			name: "Tamsin",
 			className: "Wizard",

@@ -2,9 +2,9 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import type { CharacterHealth } from "../types/index.js";
 import { createCharacterHealthRepository } from "./character-health-repository.js";
-import { createCharacterRepository } from "./character-repository.js";
 
 const createdUserIds: string[] = [];
 
@@ -24,9 +24,8 @@ afterAll(async () => {
 describe("createCharacterHealthRepository", () => {
 	it("finds owned health and saves only the latest five health changes", async () => {
 		const userId = await createUser();
-		const characterRepository = createCharacterRepository();
 		const healthRepository = createCharacterHealthRepository();
-		const created = await characterRepository.createCharacter({
+		const created = await createCharacter({
 			userId,
 			name: "Perrin",
 			className: "Cleric",

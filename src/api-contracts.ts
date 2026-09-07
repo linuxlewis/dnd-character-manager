@@ -1,3 +1,4 @@
+import { characterCreationRouteContracts } from "./application/character-detail/contract.js";
 import { catalogueItemRouteContracts } from "./domains/catalogue/runtime/index.js";
 import { characterRouteContracts } from "./domains/characters/runtime/index.js";
 import {
@@ -9,6 +10,7 @@ import { authRouteContracts } from "./providers/auth/index.js";
 
 export const apiRouteContracts = [
 	...authRouteContracts,
+	...characterCreationRouteContracts,
 	...characterRouteContracts,
 	...inventoryTreasuryRouteContracts,
 	...characterItemRouteContracts,

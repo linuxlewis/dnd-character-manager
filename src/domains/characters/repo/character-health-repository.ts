@@ -1,3 +1,4 @@
+import type { DatabaseTransaction } from "@providers/database/index.js";
 import { getDb } from "@providers/database/index.js";
 import { and, desc, eq } from "drizzle-orm";
 import {
@@ -125,4 +126,17 @@ function healthChangeColumns() {
 		temporaryHpDelta: characterHealthEventsTable.temporaryHpDelta,
 		createdAt: characterHealthEventsTable.createdAt,
 	};
+}
+
+export async function insertInitialCharacterHealth(
+	characterId: string,
+	maxHp: number,
+	transaction: DatabaseTransaction,
+) {
+	await transaction.insert(characterHealthTable).values({
+		characterId,
+		currentHp: maxHp,
+		maxHp,
+		temporaryHp: 0,
+	});
 }

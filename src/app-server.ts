@@ -4,6 +4,7 @@ import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
+import { registerCharacterCreationRoute } from "./application/character-detail/handlers/create-character.js";
 import { registerCatalogueRoutes } from "./domains/catalogue/runtime/index.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
@@ -64,6 +65,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 		},
 	);
 	await registerAuthRoutes(app);
+	await registerCharacterCreationRoute(app);
 	await registerCharacterRoutes(app, { characterService });
 	await registerCharacterTreasuryRoutes(app, {
 		characterService,

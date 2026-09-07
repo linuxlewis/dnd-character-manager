@@ -13,7 +13,6 @@ import {
 	createCharacterSpellSlotService,
 } from "../service/index.js";
 import {
-	CreateCharacterRequestSchema,
 	RestoreCharacterSpellSlotRequestSchema,
 	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterHealthRequestSchema,
@@ -48,15 +47,6 @@ export async function registerCharacterRoutes(
 	const characterSpellSlotService =
 		options.characterSpellSlotService ?? defaultCharacterSpellSlotService;
 	const getCurrentUser = options.getCurrentUser ?? getOrCreateCurrentUser;
-
-	app.post("/api/characters", async (request, reply) => {
-		const body = parseBody(CreateCharacterRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		const character = await characterService.createCharacter(currentUser.user.id, body);
-		return reply.status(201).send({ character });
-	});
 
 	app.get("/api/characters", async (request, reply) => {
 		const currentUser = await getCurrentUser(request, reply);

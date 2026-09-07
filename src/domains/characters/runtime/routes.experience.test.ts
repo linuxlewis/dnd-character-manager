@@ -143,7 +143,6 @@ function fakeServices() {
 
 function fakeService() {
 	return {
-		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
 		transferCharactersToUser: vi.fn(),

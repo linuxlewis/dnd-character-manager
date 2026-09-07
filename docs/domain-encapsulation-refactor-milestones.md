@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a accepted; R3 submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a/R3 accepted; R4a submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -25,8 +25,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R2 | Boundary rules, fixtures, and migration inventory | R1 | accepted | Coordinator verified `091934709c212fd7626c70a091e9063b7d4ecbf0`; [PR #104](https://github.com/linuxlewis/dnd-character-manager/pull/104); CI run `34152214984` passed |
 | R2t | Suite-owned catalogue browser fixture lifecycle | R2 | accepted | Coordinator verified `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`; [PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107); local B passed; CI run `34154029019` passed |
 | R2a | Pure calculations and public contract registration | R2t | accepted | Coordinator verified `a345d79ab0786d0fd1357a2309480a339ea88a6d`; [PR #108](https://github.com/linuxlewis/dnd-character-manager/pull/108); CI run `34154355621` passed; [evidence](./domain-calculation-refactor.md) |
-| R3 | Public schemas and typed Drizzle registration | R2a | review | R3 agent; full B passed; [implementation/evidence](./domain-schema-registration.md); base `a345d79ab0786d0fd1357a2309480a339ea88a6d` |
-| R4a | Character access and atomic creation workflow | R3 | planned | Unassigned |
+| R3 | Public schemas and typed Drizzle registration | R2a | accepted | [PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110), `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`; CI `34155408372` passed; [evidence](./domain-schema-registration.md) |
+| R4a | Character access and atomic creation workflow | R3 | review | R4a agent; full Gate B passed; [implementation/evidence](./domain-character-access-creation.md); base `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64` |
 | R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
 | R5 | Health backend and composed character-detail API | R4b | planned | Unassigned |
 | R6 | Health UI ownership and cache coordination | R5 | planned | Unassigned |
@@ -256,17 +256,17 @@ anonymous sessions, name trimming, HP initialization, and the existing JSON shap
 
 **Acceptance:**
 
-- [ ] Owned identity still loads when unrelated health is missing, with no
+- [x] Owned identity still loads when unrelated health is missing, with no
   health/history queries or returned fields; stranger/missing identity is absent.
-- [ ] A real initializer inserts health on the supplied transaction and then
+- [x] A real initializer inserts health on the supplied transaction and then
   throws; neither identity nor health survives rollback. Also test failure before
   health insertion. Mock call assertions alone do not establish atomicity.
-- [ ] Two independent Postgres connections prove owner locking blocks transfer:
+- [x] Two independent Postgres connections prove owner locking blocks transfer:
   inspect `pg_blocking_pids`, release the lock, and verify completion. Use bounded
   timeouts/cleanup rather than a sleep-only unresolved-promise assertion.
-- [ ] Transfer-first prevents the old owner obtaining the lock; the new owner
+- [x] Transfer-first prevents the old owner obtaining the lock; the new owner
   succeeds. Existing same-user transfer remains a no-op.
-- [ ] Existing create API/browser paths and legacy-factory caller replacements
+- [x] Existing create API/browser paths and legacy-factory caller replacements
   pass; no duplicated POST contract/route or changed OpenAPI shape.
 
 ### R4b: Inventory Access And Transactional Ownership
@@ -464,5 +464,6 @@ in [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98), with g
 
 ## R1 Delivery Record
 
-See [import graph behavior and evidence](./domain-import-graph.md). R1 is submitted
-for review; acceptance remains the coordinator's responsibility.
+See [import graph behavior and evidence](./domain-import-graph.md). R1 was accepted at
+`5ed2f8fc5dc7ac6432618ba40d3c1b9f83d0b747`, [PR #99](https://github.com/linuxlewis/dnd-character-manager/pull/99).
+CI run `34150837520` passed on that commit; the coordinator verified acceptance.
