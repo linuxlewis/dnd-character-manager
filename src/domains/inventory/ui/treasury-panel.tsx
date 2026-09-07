@@ -120,34 +120,38 @@ export function TreasuryPanel({
 					/>
 				)}
 			</Stack>
-			<TreasuryAddModal
-				key={`add-${dialogVersion}`}
-				mutationPending={add.mutationPending}
-				actionsDisabled={allActionsDisabled}
-				mutationError={add.mutationError}
-				treasury={treasury}
-				onRetryReconciliation={add.onRetryReconciliation}
-				onClose={closeDialog}
-				onSubmit={(request, preview) => add.onConfirm(request, preview, completeDialog)}
-				opened={activeDialog === "add"}
-				reconciliationError={add.reconciliationError}
-				reconciliationPending={add.reconciliationPending}
-				stalePreviewError={add.stalePreviewError}
-			/>
-			<TreasurySpendModal
-				key={`spend-${dialogVersion}`}
-				mutationPending={spend.mutationPending}
-				actionsDisabled={allActionsDisabled}
-				mutationError={spend.mutationError}
-				treasury={treasury}
-				onRetryReconciliation={spend.onRetryReconciliation}
-				onClose={closeDialog}
-				onSubmit={(request, preview) => spend.onConfirm(request, preview, completeDialog)}
-				opened={activeDialog === "spend"}
-				reconciliationError={spend.reconciliationError}
-				reconciliationPending={spend.reconciliationPending}
-				stalePreviewError={spend.stalePreviewError}
-			/>
+			{activeDialog === "add" && (
+				<TreasuryAddModal
+					key={`add-${dialogVersion}`}
+					mutationPending={add.mutationPending}
+					actionsDisabled={allActionsDisabled}
+					mutationError={add.mutationError}
+					treasury={treasury}
+					onRetryReconciliation={add.onRetryReconciliation}
+					onClose={closeDialog}
+					onSubmit={(request, preview) => add.onConfirm(request, preview, completeDialog)}
+					opened={activeDialog === "add"}
+					reconciliationError={add.reconciliationError}
+					reconciliationPending={add.reconciliationPending}
+					stalePreviewError={add.stalePreviewError}
+				/>
+			)}
+			{activeDialog === "spend" && (
+				<TreasurySpendModal
+					key={`spend-${dialogVersion}`}
+					mutationPending={spend.mutationPending}
+					actionsDisabled={allActionsDisabled}
+					mutationError={spend.mutationError}
+					treasury={treasury}
+					onRetryReconciliation={spend.onRetryReconciliation}
+					onClose={closeDialog}
+					onSubmit={(request, preview) => spend.onConfirm(request, preview, completeDialog)}
+					opened={activeDialog === "spend"}
+					reconciliationError={spend.reconciliationError}
+					reconciliationPending={spend.reconciliationPending}
+					stalePreviewError={spend.stalePreviewError}
+				/>
+			)}
 		</>
 	);
 }
