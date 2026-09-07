@@ -451,12 +451,12 @@ test("keeps loaded activity during a failed page and retries the page boundary",
 	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
 });
 
-test("retries the preview and resets the filter for another character", async ({ page }) => {
+test("retries on-demand history and resets the filter for another character", async ({ page }) => {
 	let previewFailed = true;
 	await page.route("**/api/characters/*/history**", async (route) => {
 		const requestUrl = new URL(route.request().url());
 		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
-		if (limit === 1 && previewFailed) {
+		if (previewFailed) {
 			previewFailed = false;
 			return route.fulfill({
 				status: 503,
@@ -470,11 +470,11 @@ test("retries the preview and resets the filter for another character", async ({
 	await page.goto("/");
 	await createCharacter(page, `Activity First ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
+	await page.getByRole("button", { name: "View inventory activity" }).click();
 	await expect(page.getByText("Activity unavailable", { exact: true })).toBeVisible();
 	await page.getByRole("button", { name: "Retry activity", exact: true }).click();
 	const firstPreview = page.getByRole("button", { name: "View inventory activity" });
 	await expect(firstPreview).toBeVisible();
-	await firstPreview.click();
 	const firstDrawer = page.getByRole("dialog", { name: "Inventory activity" });
 	await firstDrawer.getByText("Treasury", { exact: true }).click();
 	await expect(firstDrawer.getByRole("radio", { name: "Treasury", exact: true })).toBeChecked();

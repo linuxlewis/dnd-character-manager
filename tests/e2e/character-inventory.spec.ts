@@ -39,6 +39,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await expect(
 		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
 	).toBeVisible();
+
 	await expect(page.getByTestId("treasury-summary")).toBeVisible();
 
 	const inventory = page.getByTestId("personal-inventory");

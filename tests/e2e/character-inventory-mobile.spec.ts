@@ -5,7 +5,7 @@ test("mobile item editor keeps actions reachable and focuses invalid fields", as
 	await page.setViewportSize({ width: 320, height: 740 });
 	await page.goto("/");
 	await page.getByText("Create character").first().click();
-	await page.getByLabel("Name", { exact: true }).fill("Mobile inventory editor");
+	await page.getByLabel("Name").fill("Mobile inventory editor");
 	await page.getByRole("combobox", { name: "Class" }).click();
 	await page.getByRole("option", { name: "Wizard", exact: true }).click();
 	await page.getByRole("button", { name: "Create character", exact: true }).click();
@@ -31,13 +31,13 @@ test("mobile item editor keeps actions reachable and focuses invalid fields", as
 		expect(bounds?.height).toBeGreaterThanOrEqual(44);
 		expect(bounds?.width).toBeGreaterThanOrEqual(44);
 	}
-	await dialog.getByLabel("Name", { exact: true }).fill("   ");
+	await dialog.getByLabel("Name").fill("   ");
 	await scrollBody.evaluate((element) => {
 		element.scrollTop = element.scrollHeight;
 	});
 	await save.click();
-	await expect(dialog.getByLabel("Name", { exact: true })).toBeFocused();
-	await expect(dialog.getByLabel("Name", { exact: true })).toBeInViewport();
+	await expect(dialog.getByLabel("Name")).toBeFocused();
+	await expect(dialog.getByLabel("Name")).toBeInViewport();
 	await expect(save).toBeInViewport();
 	await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
 	await expect(dialog).toBeHidden();
