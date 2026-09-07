@@ -19,9 +19,7 @@
 					{
 						"failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements",
 						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm);\">You touch one object that is no larger than 10 feet in any dimension.</p>",
-						"target": [
-							".m_6d731127.mantine-Stack-root:nth-child(4) > p[data-size=\"sm\"]"
-						]
+						"target": [".m_6d731127.mantine-Stack-root:nth-child(4) > p[data-size=\"sm\"]"]
 					}
 				],
 				"tags": [

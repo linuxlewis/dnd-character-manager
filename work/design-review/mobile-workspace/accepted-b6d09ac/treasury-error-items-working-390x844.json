@@ -1,393 +1,390 @@
 {
-  "sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
-  "dirty": false,
-  "patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "fixture": "F2-main-v1",
-  "route": "http://127.0.0.1:3758/characters/54e660c8-410b-41d8-994a-5d46606e077b/inventory",
-  "viewport": {
-    "width": 390,
-    "height": 844
-  },
-  "state": "treasury-error-items-working",
-  "criteria": [
-    "I3",
-    "H6"
-  ],
-  "geometry": {
-    "scrollY": 0,
-    "scrollWidth": 390,
-    "deviceScale": 1,
-    "elements": [
-      {
-        "label": "Character workspace header",
-        "rect": {
-          "x": 12,
-          "y": 10,
-          "width": 366,
-          "height": 106.796875,
-          "top": 10,
-          "right": 378,
-          "bottom": 116.796875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Character details for Mira Thorn",
-        "rect": {
-          "x": 66,
-          "y": 10,
-          "width": 258,
-          "height": 44,
-          "top": 10,
-          "right": 324,
-          "bottom": 54,
-          "left": 66
-        }
-      },
-      {
-        "label": "Open application menu",
-        "rect": {
-          "x": 334,
-          "y": 10,
-          "width": 44,
-          "height": 44,
-          "top": 10,
-          "right": 378,
-          "bottom": 54,
-          "left": 334
-        }
-      },
-      {
-        "label": "Edit health: 18 / 27 HP",
-        "rect": {
-          "x": 12,
-          "y": 72.796875,
-          "width": 217.859375,
-          "height": 44,
-          "top": 72.796875,
-          "right": 229.859375,
-          "bottom": 116.796875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Heal",
-        "rect": {
-          "x": 237.859375,
-          "y": 72.796875,
-          "width": 52.96875,
-          "height": 44,
-          "top": 72.796875,
-          "right": 290.828125,
-          "bottom": 116.796875,
-          "left": 237.859375
-        }
-      },
-      {
-        "label": "Damage",
-        "rect": {
-          "x": 298.828125,
-          "y": 72.796875,
-          "width": 79.171875,
-          "height": 44,
-          "top": 72.796875,
-          "right": 378,
-          "bottom": 116.796875,
-          "left": 298.828125
-        }
-      },
-      {
-        "label": "Character sections",
-        "rect": {
-          "x": 0,
-          "y": 780,
-          "width": 390,
-          "height": 64,
-          "top": 780,
-          "right": 390,
-          "bottom": 844,
-          "left": 0
-        }
-      },
-      {
-        "label": "View inventory activity",
-        "rect": {
-          "x": 270.453125,
-          "y": 132.796875,
-          "width": 107.546875,
-          "height": 44,
-          "top": 132.796875,
-          "right": 378,
-          "bottom": 176.796875,
-          "left": 270.453125
-        }
-      },
-      {
-        "label": "Search personal inventory",
-        "rect": {
-          "x": 12,
-          "y": 320.96875,
-          "width": 254.09375,
-          "height": 44,
-          "top": 320.96875,
-          "right": 266.09375,
-          "bottom": 364.96875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Add item",
-        "rect": {
-          "x": 278.09375,
-          "y": 320.96875,
-          "width": 99.90625,
-          "height": 44,
-          "top": 320.96875,
-          "right": 378,
-          "bottom": 364.96875,
-          "left": 278.09375
-        }
-      },
-      {
-        "label": "All 12",
-        "rect": {
-          "x": 12,
-          "y": 380.96875,
-          "width": 89.390625,
-          "height": 44,
-          "top": 380.96875,
-          "right": 101.390625,
-          "bottom": 424.96875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Equipment 6",
-        "rect": {
-          "x": 107.390625,
-          "y": 380.96875,
-          "width": 140.640625,
-          "height": 44,
-          "top": 380.96875,
-          "right": 248.03125,
-          "bottom": 424.96875,
-          "left": 107.390625
-        }
-      },
-      {
-        "label": "Potion 6",
-        "rect": {
-          "x": 254.03125,
-          "y": 380.96875,
-          "width": 110.546875,
-          "height": 44,
-          "top": 380.96875,
-          "right": 364.578125,
-          "bottom": 424.96875,
-          "left": 254.03125
-        }
-      },
-      {
-        "label": "Scroll 0",
-        "rect": {
-          "x": 12,
-          "y": 430.96875,
-          "width": 103.203125,
-          "height": 44,
-          "top": 430.96875,
-          "right": 115.203125,
-          "bottom": 474.96875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Consumable 0",
-        "rect": {
-          "x": 121.203125,
-          "y": 430.96875,
-          "width": 150.953125,
-          "height": 44,
-          "top": 430.96875,
-          "right": 272.15625,
-          "bottom": 474.96875,
-          "left": 121.203125
-        }
-      },
-      {
-        "label": "Misc 0",
-        "rect": {
-          "x": 278.15625,
-          "y": 430.96875,
-          "width": 96.890625,
-          "height": 44,
-          "top": 430.96875,
-          "right": 375.046875,
-          "bottom": 474.96875,
-          "left": 278.15625
-        }
-      },
-      {
-        "label": "View Explorer's pack with a remarkably long descriptive name for narrow mobile screens",
-        "rect": {
-          "x": 12,
-          "y": 490.96875,
-          "width": 366,
-          "height": 137.890625,
-          "top": 490.96875,
-          "right": 378,
-          "bottom": 628.859375,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Quarterstaff",
-        "rect": {
-          "x": 12,
-          "y": 640.859375,
-          "width": 366,
-          "height": 148.296875,
-          "top": 640.859375,
-          "right": 378,
-          "bottom": 789.15625,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 01",
-        "rect": {
-          "x": 12,
-          "y": 801.15625,
-          "width": 366,
-          "height": 118.296875,
-          "top": 801.15625,
-          "right": 378,
-          "bottom": 919.453125,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 02",
-        "rect": {
-          "x": 12,
-          "y": 931.453125,
-          "width": 366,
-          "height": 118.296875,
-          "top": 931.453125,
-          "right": 378,
-          "bottom": 1049.75,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 03",
-        "rect": {
-          "x": 12,
-          "y": 1061.75,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1061.75,
-          "right": 378,
-          "bottom": 1180.046875,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 04",
-        "rect": {
-          "x": 12,
-          "y": 1192.046875,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1192.046875,
-          "right": 378,
-          "bottom": 1310.34375,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 05",
-        "rect": {
-          "x": 12,
-          "y": 1322.34375,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1322.34375,
-          "right": 378,
-          "bottom": 1440.640625,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 06",
-        "rect": {
-          "x": 12,
-          "y": 1452.640625,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1452.640625,
-          "right": 378,
-          "bottom": 1570.9375,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 07",
-        "rect": {
-          "x": 12,
-          "y": 1582.9375,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1582.9375,
-          "right": 378,
-          "bottom": 1701.234375,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 08",
-        "rect": {
-          "x": 12,
-          "y": 1713.234375,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1713.234375,
-          "right": 378,
-          "bottom": 1831.53125,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 09",
-        "rect": {
-          "x": 12,
-          "y": 1843.53125,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1843.53125,
-          "right": 378,
-          "bottom": 1961.828125,
-          "left": 12
-        }
-      },
-      {
-        "label": "View Travel supply 10",
-        "rect": {
-          "x": 12,
-          "y": 1973.828125,
-          "width": 366,
-          "height": 118.296875,
-          "top": 1973.828125,
-          "right": 378,
-          "bottom": 2092.125,
-          "left": 12
-        }
-      }
-    ]
-  },
-  "browser": "147.0.7727.15",
-  "platform": "linux",
-  "locale": "en-US",
-  "timezone": "UTC",
-  "nativeDevice": "NOT RUN",
-  "command": "pnpm test:e2e"
+	"sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3758/characters/54e660c8-410b-41d8-994a-5d46606e077b/inventory",
+	"viewport": {
+		"width": 390,
+		"height": 844
+	},
+	"state": "treasury-error-items-working",
+	"criteria": ["I3", "H6"],
+	"geometry": {
+		"scrollY": 0,
+		"scrollWidth": 390,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Character workspace header",
+				"rect": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Character details for Mira Thorn",
+				"rect": {
+					"x": 66,
+					"y": 10,
+					"width": 258,
+					"height": 44,
+					"top": 10,
+					"right": 324,
+					"bottom": 54,
+					"left": 66
+				}
+			},
+			{
+				"label": "Open application menu",
+				"rect": {
+					"x": 334,
+					"y": 10,
+					"width": 44,
+					"height": 44,
+					"top": 10,
+					"right": 378,
+					"bottom": 54,
+					"left": 334
+				}
+			},
+			{
+				"label": "Edit health: 18 / 27 HP",
+				"rect": {
+					"x": 12,
+					"y": 72.796875,
+					"width": 217.859375,
+					"height": 44,
+					"top": 72.796875,
+					"right": 229.859375,
+					"bottom": 116.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Heal",
+				"rect": {
+					"x": 237.859375,
+					"y": 72.796875,
+					"width": 52.96875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 290.828125,
+					"bottom": 116.796875,
+					"left": 237.859375
+				}
+			},
+			{
+				"label": "Damage",
+				"rect": {
+					"x": 298.828125,
+					"y": 72.796875,
+					"width": 79.171875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 298.828125
+				}
+			},
+			{
+				"label": "Character sections",
+				"rect": {
+					"x": 0,
+					"y": 780,
+					"width": 390,
+					"height": 64,
+					"top": 780,
+					"right": 390,
+					"bottom": 844,
+					"left": 0
+				}
+			},
+			{
+				"label": "View inventory activity",
+				"rect": {
+					"x": 270.453125,
+					"y": 132.796875,
+					"width": 107.546875,
+					"height": 44,
+					"top": 132.796875,
+					"right": 378,
+					"bottom": 176.796875,
+					"left": 270.453125
+				}
+			},
+			{
+				"label": "Search personal inventory",
+				"rect": {
+					"x": 12,
+					"y": 320.96875,
+					"width": 254.09375,
+					"height": 44,
+					"top": 320.96875,
+					"right": 266.09375,
+					"bottom": 364.96875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add item",
+				"rect": {
+					"x": 278.09375,
+					"y": 320.96875,
+					"width": 99.90625,
+					"height": 44,
+					"top": 320.96875,
+					"right": 378,
+					"bottom": 364.96875,
+					"left": 278.09375
+				}
+			},
+			{
+				"label": "All 12",
+				"rect": {
+					"x": 12,
+					"y": 380.96875,
+					"width": 89.390625,
+					"height": 44,
+					"top": 380.96875,
+					"right": 101.390625,
+					"bottom": 424.96875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Equipment 6",
+				"rect": {
+					"x": 107.390625,
+					"y": 380.96875,
+					"width": 140.640625,
+					"height": 44,
+					"top": 380.96875,
+					"right": 248.03125,
+					"bottom": 424.96875,
+					"left": 107.390625
+				}
+			},
+			{
+				"label": "Potion 6",
+				"rect": {
+					"x": 254.03125,
+					"y": 380.96875,
+					"width": 110.546875,
+					"height": 44,
+					"top": 380.96875,
+					"right": 364.578125,
+					"bottom": 424.96875,
+					"left": 254.03125
+				}
+			},
+			{
+				"label": "Scroll 0",
+				"rect": {
+					"x": 12,
+					"y": 430.96875,
+					"width": 103.203125,
+					"height": 44,
+					"top": 430.96875,
+					"right": 115.203125,
+					"bottom": 474.96875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Consumable 0",
+				"rect": {
+					"x": 121.203125,
+					"y": 430.96875,
+					"width": 150.953125,
+					"height": 44,
+					"top": 430.96875,
+					"right": 272.15625,
+					"bottom": 474.96875,
+					"left": 121.203125
+				}
+			},
+			{
+				"label": "Misc 0",
+				"rect": {
+					"x": 278.15625,
+					"y": 430.96875,
+					"width": 96.890625,
+					"height": 44,
+					"top": 430.96875,
+					"right": 375.046875,
+					"bottom": 474.96875,
+					"left": 278.15625
+				}
+			},
+			{
+				"label": "View Explorer's pack with a remarkably long descriptive name for narrow mobile screens",
+				"rect": {
+					"x": 12,
+					"y": 490.96875,
+					"width": 366,
+					"height": 137.890625,
+					"top": 490.96875,
+					"right": 378,
+					"bottom": 628.859375,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Quarterstaff",
+				"rect": {
+					"x": 12,
+					"y": 640.859375,
+					"width": 366,
+					"height": 148.296875,
+					"top": 640.859375,
+					"right": 378,
+					"bottom": 789.15625,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 01",
+				"rect": {
+					"x": 12,
+					"y": 801.15625,
+					"width": 366,
+					"height": 118.296875,
+					"top": 801.15625,
+					"right": 378,
+					"bottom": 919.453125,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 02",
+				"rect": {
+					"x": 12,
+					"y": 931.453125,
+					"width": 366,
+					"height": 118.296875,
+					"top": 931.453125,
+					"right": 378,
+					"bottom": 1049.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 03",
+				"rect": {
+					"x": 12,
+					"y": 1061.75,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1061.75,
+					"right": 378,
+					"bottom": 1180.046875,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 04",
+				"rect": {
+					"x": 12,
+					"y": 1192.046875,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1192.046875,
+					"right": 378,
+					"bottom": 1310.34375,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 05",
+				"rect": {
+					"x": 12,
+					"y": 1322.34375,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1322.34375,
+					"right": 378,
+					"bottom": 1440.640625,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 06",
+				"rect": {
+					"x": 12,
+					"y": 1452.640625,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1452.640625,
+					"right": 378,
+					"bottom": 1570.9375,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 07",
+				"rect": {
+					"x": 12,
+					"y": 1582.9375,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1582.9375,
+					"right": 378,
+					"bottom": 1701.234375,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 08",
+				"rect": {
+					"x": 12,
+					"y": 1713.234375,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1713.234375,
+					"right": 378,
+					"bottom": 1831.53125,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 09",
+				"rect": {
+					"x": 12,
+					"y": 1843.53125,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1843.53125,
+					"right": 378,
+					"bottom": 1961.828125,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Travel supply 10",
+				"rect": {
+					"x": 12,
+					"y": 1973.828125,
+					"width": 366,
+					"height": 118.296875,
+					"top": 1973.828125,
+					"right": 378,
+					"bottom": 2092.125,
+					"left": 12
+				}
+			}
+		]
+	},
+	"browser": "147.0.7727.15",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
 }

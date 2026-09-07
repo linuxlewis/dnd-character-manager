@@ -1,798 +1,793 @@
 {
-  "sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
-  "dirty": false,
-  "patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "fixture": "F2-main-v1",
-  "route": "http://127.0.0.1:3758/characters/2647a618-b185-4f3f-9bb8-e4b1cd639897/spells",
-  "viewport": {
-    "width": 320,
-    "height": 740
-  },
-  "state": "spell-config-full-error",
-  "criteria": [
-    "E1",
-    "E3",
-    "E4",
-    "S3"
-  ],
-  "geometry": {
-    "scrollY": 0,
-    "scrollWidth": 320,
-    "deviceScale": 1,
-    "elements": [
-      {
-        "label": "Character workspace header",
-        "rect": {
-          "x": 12,
-          "y": 10,
-          "width": 296,
-          "height": 106.796875,
-          "top": 10,
-          "right": 308,
-          "bottom": 116.796875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Character details for Mira Thorn",
-        "rect": {
-          "x": 66,
-          "y": 10,
-          "width": 188,
-          "height": 44,
-          "top": 10,
-          "right": 254,
-          "bottom": 54,
-          "left": 66
-        }
-      },
-      {
-        "label": "Open application menu",
-        "rect": {
-          "x": 264,
-          "y": 10,
-          "width": 44,
-          "height": 44,
-          "top": 10,
-          "right": 308,
-          "bottom": 54,
-          "left": 264
-        }
-      },
-      {
-        "label": "Edit health: 18 / 27 HP",
-        "rect": {
-          "x": 12,
-          "y": 72.796875,
-          "width": 147.859375,
-          "height": 44,
-          "top": 72.796875,
-          "right": 159.859375,
-          "bottom": 116.796875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Heal",
-        "rect": {
-          "x": 167.859375,
-          "y": 72.796875,
-          "width": 52.96875,
-          "height": 44,
-          "top": 72.796875,
-          "right": 220.828125,
-          "bottom": 116.796875,
-          "left": 167.859375
-        }
-      },
-      {
-        "label": "Damage",
-        "rect": {
-          "x": 228.828125,
-          "y": 72.796875,
-          "width": 79.171875,
-          "height": 44,
-          "top": 72.796875,
-          "right": 308,
-          "bottom": 116.796875,
-          "left": 228.828125
-        }
-      },
-      {
-        "label": "Character sections",
-        "rect": {
-          "x": 0,
-          "y": 676,
-          "width": 320,
-          "height": 64,
-          "top": 676,
-          "right": 320,
-          "bottom": 740,
-          "left": 0
-        }
-      },
-      {
-        "label": "Spell history (2)",
-        "rect": {
-          "x": 12,
-          "y": 167.09375,
-          "width": 87.546875,
-          "height": 44,
-          "top": 167.09375,
-          "right": 99.546875,
-          "bottom": 211.09375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Done",
-        "rect": {
-          "x": 103.546875,
-          "y": 167.09375,
-          "width": 74.03125,
-          "height": 44,
-          "top": 167.09375,
-          "right": 177.578125,
-          "bottom": 211.09375,
-          "left": 103.546875
-        }
-      },
-      {
-        "label": "Configure slots",
-        "rect": {
-          "x": 12,
-          "y": 227.09375,
-          "width": 296,
-          "height": 44,
-          "top": 227.09375,
-          "right": 308,
-          "bottom": 271.09375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Add cantrip or feature",
-        "rect": {
-          "x": 261.984375,
-          "y": 287.09375,
-          "width": 46.015625,
-          "height": 44,
-          "top": 287.09375,
-          "right": 308,
-          "bottom": 331.09375,
-          "left": 261.984375
-        }
-      },
-      {
-        "label": "View Light details",
-        "rect": {
-          "x": 12,
-          "y": 341.09375,
-          "width": 193.21875,
-          "height": 44,
-          "top": 341.09375,
-          "right": 205.21875,
-          "bottom": 385.09375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Remove Light",
-        "rect": {
-          "x": 215.21875,
-          "y": 349.484375,
-          "width": 92.78125,
-          "height": 44,
-          "top": 349.484375,
-          "right": 308,
-          "bottom": 393.484375,
-          "left": 215.21875
-        }
-      },
-      {
-        "label": "View Lay on Hands details",
-        "rect": {
-          "x": 12,
-          "y": 403.890625,
-          "width": 193.21875,
-          "height": 44,
-          "top": 403.890625,
-          "right": 205.21875,
-          "bottom": 447.890625,
-          "left": 12
-        }
-      },
-      {
-        "label": "Remove Lay on Hands",
-        "rect": {
-          "x": 215.21875,
-          "y": 412.28125,
-          "width": 92.78125,
-          "height": 44,
-          "top": 412.28125,
-          "right": 308,
-          "bottom": 456.28125,
-          "left": 215.21875
-        }
-      },
-      {
-        "label": "Add spell to 1st-level",
-        "rect": {
-          "x": 78.734375,
-          "y": 514.6875,
-          "width": 46.015625,
-          "height": 44,
-          "top": 514.6875,
-          "right": 124.75,
-          "bottom": 558.6875,
-          "left": 78.734375
-        }
-      },
-      {
-        "label": "Use 1st-level",
-        "rect": {
-          "x": 12,
-          "y": 592.484375,
-          "width": 63.453125,
-          "height": 44,
-          "top": 592.484375,
-          "right": 75.453125,
-          "bottom": 636.484375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 1st-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 592.484375,
-          "width": 90.328125,
-          "height": 44,
-          "top": 592.484375,
-          "right": 175.78125,
-          "bottom": 636.484375,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "View Divine Smite details",
-        "rect": {
-          "x": 12,
-          "y": 640.484375,
-          "width": 193.21875,
-          "height": 44,
-          "top": 640.484375,
-          "right": 205.21875,
-          "bottom": 684.484375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Remove Divine Smite",
-        "rect": {
-          "x": 215.21875,
-          "y": 648.875,
-          "width": 92.78125,
-          "height": 44,
-          "top": 648.875,
-          "right": 308,
-          "bottom": 692.875,
-          "left": 215.21875
-        }
-      },
-      {
-        "label": "Add spell to 2nd-level",
-        "rect": {
-          "x": 83.9375,
-          "y": 711.28125,
-          "width": 46.015625,
-          "height": 44,
-          "top": 711.28125,
-          "right": 129.953125,
-          "bottom": 755.28125,
-          "left": 83.9375
-        }
-      },
-      {
-        "label": "Use 2nd-level",
-        "rect": {
-          "x": 12,
-          "y": 789.078125,
-          "width": 63.453125,
-          "height": 44,
-          "top": 789.078125,
-          "right": 75.453125,
-          "bottom": 833.078125,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 2nd-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 789.078125,
-          "width": 90.328125,
-          "height": 44,
-          "top": 789.078125,
-          "right": 175.78125,
-          "bottom": 833.078125,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 3rd-level",
-        "rect": {
-          "x": 80.828125,
-          "y": 843.078125,
-          "width": 46.015625,
-          "height": 44,
-          "top": 843.078125,
-          "right": 126.84375,
-          "bottom": 887.078125,
-          "left": 80.828125
-        }
-      },
-      {
-        "label": "Use 3rd-level",
-        "rect": {
-          "x": 12,
-          "y": 920.875,
-          "width": 63.453125,
-          "height": 44,
-          "top": 920.875,
-          "right": 75.453125,
-          "bottom": 964.875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 3rd-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 920.875,
-          "width": 90.328125,
-          "height": 44,
-          "top": 920.875,
-          "right": 175.78125,
-          "bottom": 964.875,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 4th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 974.875,
-          "width": 46.015625,
-          "height": 44,
-          "top": 974.875,
-          "right": 126.875,
-          "bottom": 1018.875,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 4th-level",
-        "rect": {
-          "x": 12,
-          "y": 1052.671875,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1052.671875,
-          "right": 75.453125,
-          "bottom": 1096.671875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 4th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1052.671875,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1052.671875,
-          "right": 175.78125,
-          "bottom": 1096.671875,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 5th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 1106.671875,
-          "width": 46.015625,
-          "height": 44,
-          "top": 1106.671875,
-          "right": 126.875,
-          "bottom": 1150.671875,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 5th-level",
-        "rect": {
-          "x": 12,
-          "y": 1184.46875,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1184.46875,
-          "right": 75.453125,
-          "bottom": 1228.46875,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 5th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1184.46875,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1184.46875,
-          "right": 175.78125,
-          "bottom": 1228.46875,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 6th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 1238.46875,
-          "width": 46.015625,
-          "height": 44,
-          "top": 1238.46875,
-          "right": 126.875,
-          "bottom": 1282.46875,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 6th-level",
-        "rect": {
-          "x": 12,
-          "y": 1316.265625,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1316.265625,
-          "right": 75.453125,
-          "bottom": 1360.265625,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 6th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1316.265625,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1316.265625,
-          "right": 175.78125,
-          "bottom": 1360.265625,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 7th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 1370.265625,
-          "width": 46.015625,
-          "height": 44,
-          "top": 1370.265625,
-          "right": 126.875,
-          "bottom": 1414.265625,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 7th-level",
-        "rect": {
-          "x": 12,
-          "y": 1448.0625,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1448.0625,
-          "right": 75.453125,
-          "bottom": 1492.0625,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 7th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1448.0625,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1448.0625,
-          "right": 175.78125,
-          "bottom": 1492.0625,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 8th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 1502.0625,
-          "width": 46.015625,
-          "height": 44,
-          "top": 1502.0625,
-          "right": 126.875,
-          "bottom": 1546.0625,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 8th-level",
-        "rect": {
-          "x": 12,
-          "y": 1579.859375,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1579.859375,
-          "right": 75.453125,
-          "bottom": 1623.859375,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 8th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1579.859375,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1579.859375,
-          "right": 175.78125,
-          "bottom": 1623.859375,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Add spell to 9th-level",
-        "rect": {
-          "x": 80.859375,
-          "y": 1633.859375,
-          "width": 46.015625,
-          "height": 44,
-          "top": 1633.859375,
-          "right": 126.875,
-          "bottom": 1677.859375,
-          "left": 80.859375
-        }
-      },
-      {
-        "label": "Use 9th-level",
-        "rect": {
-          "x": 12,
-          "y": 1711.65625,
-          "width": 63.453125,
-          "height": 44,
-          "top": 1711.65625,
-          "right": 75.453125,
-          "bottom": 1755.65625,
-          "left": 12
-        }
-      },
-      {
-        "label": "Restore 9th-level",
-        "rect": {
-          "x": 85.453125,
-          "y": 1711.65625,
-          "width": 90.328125,
-          "height": 44,
-          "top": 1711.65625,
-          "right": 175.78125,
-          "bottom": 1755.65625,
-          "left": 85.453125
-        }
-      },
-      {
-        "label": "Configure spell slotsDefault profile: tier 3. Totals must be whole numbers from 0 to 99. Applying class defaults saves immediately.Apply class defaults1st-level slot total2nd-level slot total3rd-level slot total4th-level slot total5th-level slot total6th-level slot total7th-level slot total8th-level slot total9th-level slot totalSpell configuration not savedYour changes are still here. Try saving again.CancelSave changes",
-        "rect": {
-          "x": 0,
-          "y": 0,
-          "width": 320,
-          "height": 740,
-          "top": 0,
-          "right": 320,
-          "bottom": 740,
-          "left": 0
-        }
-      },
-      {
-        "label": "Configure spell slots",
-        "rect": {
-          "x": 0,
-          "y": 0,
-          "width": 320,
-          "height": 76,
-          "top": 0,
-          "right": 320,
-          "bottom": 76,
-          "left": 0
-        }
-      },
-      {
-        "label": "Close spell configuration",
-        "rect": {
-          "x": 265,
-          "y": 16,
-          "width": 44,
-          "height": 44,
-          "top": 16,
-          "right": 309,
-          "bottom": 60,
-          "left": 265
-        }
-      },
-      {
-        "label": "Apply class defaults",
-        "rect": {
-          "x": 16,
-          "y": -259.109375,
-          "width": 288,
-          "height": 44,
-          "top": -259.109375,
-          "right": 304,
-          "bottom": -215.109375,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": -174.3125,
-          "width": 288,
-          "height": 42,
-          "top": -174.3125,
-          "right": 304,
-          "bottom": -132.3125,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": -91.515625,
-          "width": 288,
-          "height": 42,
-          "top": -91.515625,
-          "right": 304,
-          "bottom": -49.515625,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": -8.71875,
-          "width": 288,
-          "height": 42,
-          "top": -8.71875,
-          "right": 304,
-          "bottom": 33.28125,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 74.078125,
-          "width": 288,
-          "height": 42,
-          "top": 74.078125,
-          "right": 304,
-          "bottom": 116.078125,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 156.875,
-          "width": 288,
-          "height": 42,
-          "top": 156.875,
-          "right": 304,
-          "bottom": 198.875,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 239.671875,
-          "width": 288,
-          "height": 42,
-          "top": 239.671875,
-          "right": 304,
-          "bottom": 281.671875,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 322.46875,
-          "width": 288,
-          "height": 42,
-          "top": 322.46875,
-          "right": 304,
-          "bottom": 364.46875,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 405.265625,
-          "width": 288,
-          "height": 42,
-          "top": 405.265625,
-          "right": 304,
-          "bottom": 447.265625,
-          "left": 16
-        }
-      },
-      {
-        "label": "",
-        "rect": {
-          "x": 16,
-          "y": 488.0625,
-          "width": 288,
-          "height": 42,
-          "top": 488.0625,
-          "right": 304,
-          "bottom": 530.0625,
-          "left": 16
-        }
-      },
-      {
-        "label": "Cancel",
-        "rect": {
-          "x": 80.375,
-          "y": 684,
-          "width": 83.28125,
-          "height": 44,
-          "top": 684,
-          "right": 163.65625,
-          "bottom": 728,
-          "left": 80.375
-        }
-      },
-      {
-        "label": "Save changes",
-        "rect": {
-          "x": 173.65625,
-          "y": 684,
-          "width": 130.34375,
-          "height": 44,
-          "top": 684,
-          "right": 304,
-          "bottom": 728,
-          "left": 173.65625
-        }
-      }
-    ]
-  },
-  "browser": "147.0.7727.15",
-  "platform": "linux",
-  "locale": "en-US",
-  "timezone": "UTC",
-  "nativeDevice": "NOT RUN",
-  "command": "pnpm test:e2e"
+	"sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3758/characters/2647a618-b185-4f3f-9bb8-e4b1cd639897/spells",
+	"viewport": {
+		"width": 320,
+		"height": 740
+	},
+	"state": "spell-config-full-error",
+	"criteria": ["E1", "E3", "E4", "S3"],
+	"geometry": {
+		"scrollY": 0,
+		"scrollWidth": 320,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Character workspace header",
+				"rect": {
+					"x": 12,
+					"y": 10,
+					"width": 296,
+					"height": 106.796875,
+					"top": 10,
+					"right": 308,
+					"bottom": 116.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Character details for Mira Thorn",
+				"rect": {
+					"x": 66,
+					"y": 10,
+					"width": 188,
+					"height": 44,
+					"top": 10,
+					"right": 254,
+					"bottom": 54,
+					"left": 66
+				}
+			},
+			{
+				"label": "Open application menu",
+				"rect": {
+					"x": 264,
+					"y": 10,
+					"width": 44,
+					"height": 44,
+					"top": 10,
+					"right": 308,
+					"bottom": 54,
+					"left": 264
+				}
+			},
+			{
+				"label": "Edit health: 18 / 27 HP",
+				"rect": {
+					"x": 12,
+					"y": 72.796875,
+					"width": 147.859375,
+					"height": 44,
+					"top": 72.796875,
+					"right": 159.859375,
+					"bottom": 116.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Heal",
+				"rect": {
+					"x": 167.859375,
+					"y": 72.796875,
+					"width": 52.96875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 220.828125,
+					"bottom": 116.796875,
+					"left": 167.859375
+				}
+			},
+			{
+				"label": "Damage",
+				"rect": {
+					"x": 228.828125,
+					"y": 72.796875,
+					"width": 79.171875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 308,
+					"bottom": 116.796875,
+					"left": 228.828125
+				}
+			},
+			{
+				"label": "Character sections",
+				"rect": {
+					"x": 0,
+					"y": 676,
+					"width": 320,
+					"height": 64,
+					"top": 676,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				}
+			},
+			{
+				"label": "Spell history (2)",
+				"rect": {
+					"x": 12,
+					"y": 167.09375,
+					"width": 87.546875,
+					"height": 44,
+					"top": 167.09375,
+					"right": 99.546875,
+					"bottom": 211.09375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Done",
+				"rect": {
+					"x": 103.546875,
+					"y": 167.09375,
+					"width": 74.03125,
+					"height": 44,
+					"top": 167.09375,
+					"right": 177.578125,
+					"bottom": 211.09375,
+					"left": 103.546875
+				}
+			},
+			{
+				"label": "Configure slots",
+				"rect": {
+					"x": 12,
+					"y": 227.09375,
+					"width": 296,
+					"height": 44,
+					"top": 227.09375,
+					"right": 308,
+					"bottom": 271.09375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add cantrip or feature",
+				"rect": {
+					"x": 261.984375,
+					"y": 287.09375,
+					"width": 46.015625,
+					"height": 44,
+					"top": 287.09375,
+					"right": 308,
+					"bottom": 331.09375,
+					"left": 261.984375
+				}
+			},
+			{
+				"label": "View Light details",
+				"rect": {
+					"x": 12,
+					"y": 341.09375,
+					"width": 193.21875,
+					"height": 44,
+					"top": 341.09375,
+					"right": 205.21875,
+					"bottom": 385.09375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Remove Light",
+				"rect": {
+					"x": 215.21875,
+					"y": 349.484375,
+					"width": 92.78125,
+					"height": 44,
+					"top": 349.484375,
+					"right": 308,
+					"bottom": 393.484375,
+					"left": 215.21875
+				}
+			},
+			{
+				"label": "View Lay on Hands details",
+				"rect": {
+					"x": 12,
+					"y": 403.890625,
+					"width": 193.21875,
+					"height": 44,
+					"top": 403.890625,
+					"right": 205.21875,
+					"bottom": 447.890625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Remove Lay on Hands",
+				"rect": {
+					"x": 215.21875,
+					"y": 412.28125,
+					"width": 92.78125,
+					"height": 44,
+					"top": 412.28125,
+					"right": 308,
+					"bottom": 456.28125,
+					"left": 215.21875
+				}
+			},
+			{
+				"label": "Add spell to 1st-level",
+				"rect": {
+					"x": 78.734375,
+					"y": 514.6875,
+					"width": 46.015625,
+					"height": 44,
+					"top": 514.6875,
+					"right": 124.75,
+					"bottom": 558.6875,
+					"left": 78.734375
+				}
+			},
+			{
+				"label": "Use 1st-level",
+				"rect": {
+					"x": 12,
+					"y": 592.484375,
+					"width": 63.453125,
+					"height": 44,
+					"top": 592.484375,
+					"right": 75.453125,
+					"bottom": 636.484375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 1st-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 592.484375,
+					"width": 90.328125,
+					"height": 44,
+					"top": 592.484375,
+					"right": 175.78125,
+					"bottom": 636.484375,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "View Divine Smite details",
+				"rect": {
+					"x": 12,
+					"y": 640.484375,
+					"width": 193.21875,
+					"height": 44,
+					"top": 640.484375,
+					"right": 205.21875,
+					"bottom": 684.484375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Remove Divine Smite",
+				"rect": {
+					"x": 215.21875,
+					"y": 648.875,
+					"width": 92.78125,
+					"height": 44,
+					"top": 648.875,
+					"right": 308,
+					"bottom": 692.875,
+					"left": 215.21875
+				}
+			},
+			{
+				"label": "Add spell to 2nd-level",
+				"rect": {
+					"x": 83.9375,
+					"y": 711.28125,
+					"width": 46.015625,
+					"height": 44,
+					"top": 711.28125,
+					"right": 129.953125,
+					"bottom": 755.28125,
+					"left": 83.9375
+				}
+			},
+			{
+				"label": "Use 2nd-level",
+				"rect": {
+					"x": 12,
+					"y": 789.078125,
+					"width": 63.453125,
+					"height": 44,
+					"top": 789.078125,
+					"right": 75.453125,
+					"bottom": 833.078125,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 2nd-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 789.078125,
+					"width": 90.328125,
+					"height": 44,
+					"top": 789.078125,
+					"right": 175.78125,
+					"bottom": 833.078125,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 3rd-level",
+				"rect": {
+					"x": 80.828125,
+					"y": 843.078125,
+					"width": 46.015625,
+					"height": 44,
+					"top": 843.078125,
+					"right": 126.84375,
+					"bottom": 887.078125,
+					"left": 80.828125
+				}
+			},
+			{
+				"label": "Use 3rd-level",
+				"rect": {
+					"x": 12,
+					"y": 920.875,
+					"width": 63.453125,
+					"height": 44,
+					"top": 920.875,
+					"right": 75.453125,
+					"bottom": 964.875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 3rd-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 920.875,
+					"width": 90.328125,
+					"height": 44,
+					"top": 920.875,
+					"right": 175.78125,
+					"bottom": 964.875,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 4th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 974.875,
+					"width": 46.015625,
+					"height": 44,
+					"top": 974.875,
+					"right": 126.875,
+					"bottom": 1018.875,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 4th-level",
+				"rect": {
+					"x": 12,
+					"y": 1052.671875,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1052.671875,
+					"right": 75.453125,
+					"bottom": 1096.671875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 4th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1052.671875,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1052.671875,
+					"right": 175.78125,
+					"bottom": 1096.671875,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 5th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 1106.671875,
+					"width": 46.015625,
+					"height": 44,
+					"top": 1106.671875,
+					"right": 126.875,
+					"bottom": 1150.671875,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 5th-level",
+				"rect": {
+					"x": 12,
+					"y": 1184.46875,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1184.46875,
+					"right": 75.453125,
+					"bottom": 1228.46875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 5th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1184.46875,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1184.46875,
+					"right": 175.78125,
+					"bottom": 1228.46875,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 6th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 1238.46875,
+					"width": 46.015625,
+					"height": 44,
+					"top": 1238.46875,
+					"right": 126.875,
+					"bottom": 1282.46875,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 6th-level",
+				"rect": {
+					"x": 12,
+					"y": 1316.265625,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1316.265625,
+					"right": 75.453125,
+					"bottom": 1360.265625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 6th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1316.265625,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1316.265625,
+					"right": 175.78125,
+					"bottom": 1360.265625,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 7th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 1370.265625,
+					"width": 46.015625,
+					"height": 44,
+					"top": 1370.265625,
+					"right": 126.875,
+					"bottom": 1414.265625,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 7th-level",
+				"rect": {
+					"x": 12,
+					"y": 1448.0625,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1448.0625,
+					"right": 75.453125,
+					"bottom": 1492.0625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 7th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1448.0625,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1448.0625,
+					"right": 175.78125,
+					"bottom": 1492.0625,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 8th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 1502.0625,
+					"width": 46.015625,
+					"height": 44,
+					"top": 1502.0625,
+					"right": 126.875,
+					"bottom": 1546.0625,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 8th-level",
+				"rect": {
+					"x": 12,
+					"y": 1579.859375,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1579.859375,
+					"right": 75.453125,
+					"bottom": 1623.859375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 8th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1579.859375,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1579.859375,
+					"right": 175.78125,
+					"bottom": 1623.859375,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Add spell to 9th-level",
+				"rect": {
+					"x": 80.859375,
+					"y": 1633.859375,
+					"width": 46.015625,
+					"height": 44,
+					"top": 1633.859375,
+					"right": 126.875,
+					"bottom": 1677.859375,
+					"left": 80.859375
+				}
+			},
+			{
+				"label": "Use 9th-level",
+				"rect": {
+					"x": 12,
+					"y": 1711.65625,
+					"width": 63.453125,
+					"height": 44,
+					"top": 1711.65625,
+					"right": 75.453125,
+					"bottom": 1755.65625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 9th-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 1711.65625,
+					"width": 90.328125,
+					"height": 44,
+					"top": 1711.65625,
+					"right": 175.78125,
+					"bottom": 1755.65625,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "Configure spell slotsDefault profile: tier 3. Totals must be whole numbers from 0 to 99. Applying class defaults saves immediately.Apply class defaults1st-level slot total2nd-level slot total3rd-level slot total4th-level slot total5th-level slot total6th-level slot total7th-level slot total8th-level slot total9th-level slot totalSpell configuration not savedYour changes are still here. Try saving again.CancelSave changes",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 740,
+					"top": 0,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				}
+			},
+			{
+				"label": "Configure spell slots",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 76,
+					"top": 0,
+					"right": 320,
+					"bottom": 76,
+					"left": 0
+				}
+			},
+			{
+				"label": "Close spell configuration",
+				"rect": {
+					"x": 265,
+					"y": 16,
+					"width": 44,
+					"height": 44,
+					"top": 16,
+					"right": 309,
+					"bottom": 60,
+					"left": 265
+				}
+			},
+			{
+				"label": "Apply class defaults",
+				"rect": {
+					"x": 16,
+					"y": -259.109375,
+					"width": 288,
+					"height": 44,
+					"top": -259.109375,
+					"right": 304,
+					"bottom": -215.109375,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": -174.3125,
+					"width": 288,
+					"height": 42,
+					"top": -174.3125,
+					"right": 304,
+					"bottom": -132.3125,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": -91.515625,
+					"width": 288,
+					"height": 42,
+					"top": -91.515625,
+					"right": 304,
+					"bottom": -49.515625,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": -8.71875,
+					"width": 288,
+					"height": 42,
+					"top": -8.71875,
+					"right": 304,
+					"bottom": 33.28125,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 74.078125,
+					"width": 288,
+					"height": 42,
+					"top": 74.078125,
+					"right": 304,
+					"bottom": 116.078125,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 156.875,
+					"width": 288,
+					"height": 42,
+					"top": 156.875,
+					"right": 304,
+					"bottom": 198.875,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 239.671875,
+					"width": 288,
+					"height": 42,
+					"top": 239.671875,
+					"right": 304,
+					"bottom": 281.671875,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 322.46875,
+					"width": 288,
+					"height": 42,
+					"top": 322.46875,
+					"right": 304,
+					"bottom": 364.46875,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 405.265625,
+					"width": 288,
+					"height": 42,
+					"top": 405.265625,
+					"right": 304,
+					"bottom": 447.265625,
+					"left": 16
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 16,
+					"y": 488.0625,
+					"width": 288,
+					"height": 42,
+					"top": 488.0625,
+					"right": 304,
+					"bottom": 530.0625,
+					"left": 16
+				}
+			},
+			{
+				"label": "Cancel",
+				"rect": {
+					"x": 80.375,
+					"y": 684,
+					"width": 83.28125,
+					"height": 44,
+					"top": 684,
+					"right": 163.65625,
+					"bottom": 728,
+					"left": 80.375
+				}
+			},
+			{
+				"label": "Save changes",
+				"rect": {
+					"x": 173.65625,
+					"y": 684,
+					"width": 130.34375,
+					"height": 44,
+					"top": 684,
+					"right": 304,
+					"bottom": 728,
+					"left": 173.65625
+				}
+			}
+		]
+	},
+	"browser": "147.0.7727.15",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
 }

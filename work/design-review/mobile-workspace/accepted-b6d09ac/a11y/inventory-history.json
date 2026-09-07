@@ -19,16 +19,12 @@
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
 						"html": "<p class=\"mantine-focus-auto c...\" data-size=\"sm\" aria-label=\"Added 1 platinum pie...\" style=\"--text-fz: var(--man...\">",
-						"target": [
-							".character-activity-summary > .character-activity-number"
-						]
+						"target": [".character-activity-summary > .character-activity-number"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
 						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
-						"target": [
-							"time[datetime=\"2026-09-07T19:35:05.796Z\"]"
-						]
+						"target": ["time[datetime=\"2026-09-07T19:35:05.796Z\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
@@ -47,44 +43,32 @@
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
 						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
-						"target": [
-							"time[datetime=\"2026-09-07T19:35:05.774Z\"]"
-						]
+						"target": ["time[datetime=\"2026-09-07T19:35:05.774Z\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
 						"html": "<p class=\"mantine-focus-auto character-activity-drawer-detail character-activity-number m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"x12\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); color: var(--mantine-color-dimmed);\">x12</p>",
-						"target": [
-							"p[aria-label=\"x12\"]"
-						]
+						"target": ["p[aria-label=\"x12\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
 						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"Added Travel supply 10\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); font-weight: 600;\">Added Travel supply 10</p>",
-						"target": [
-							"p[aria-label=\"Added Travel supply 10\"]"
-						]
+						"target": ["p[aria-label=\"Added Travel supply 10\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a time with no valid role attribute.",
 						"html": "<time class=\"mantine-focus-auto c...\" data-size=\"xs\" aria-label=\"Recorded 9/7/2026, 2...\" datetime=\"2026-09-07T19:35:05....\" tabindex=\"0\" style=\"--text-fz: var(--man...\">",
-						"target": [
-							"time[datetime=\"2026-09-07T19:35:05.757Z\"]"
-						]
+						"target": ["time[datetime=\"2026-09-07T19:35:05.757Z\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
 						"html": "<p class=\"mantine-focus-auto character-activity-drawer-detail character-activity-number m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"x11\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); color: var(--mantine-color-dimmed);\">x11</p>",
-						"target": [
-							"p[aria-label=\"x11\"]"
-						]
+						"target": ["p[aria-label=\"x11\"]"]
 					},
 					{
 						"failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a p with no valid role attribute.",
 						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" aria-label=\"Added Travel supply 09\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm); font-weight: 600;\">Added Travel supply 09</p>",
-						"target": [
-							"p[aria-label=\"Added Travel supply 09\"]"
-						]
+						"target": ["p[aria-label=\"Added Travel supply 09\"]"]
 					}
 				],
 				"tags": [

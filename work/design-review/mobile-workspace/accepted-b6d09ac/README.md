@@ -77,3 +77,5 @@ Actual running-app captures from clean `b6d09ac`, application source `333f843`. 
 | item-editor-top | 320 x 740 | [PNG](./item-editor-top-320x740.png) | [PNG](./item-editor-top-320x740-full.png) | [JSON](./item-editor-top-320x740.json) |
 | menu-edit-character | 390 x 844 | [PNG](./menu-edit-character-390x844.png) | [PNG](./menu-edit-character-390x844-full.png) | [JSON](./menu-edit-character-390x844.json) |
 | menu-health-history | 390 x 844 | [PNG](./menu-health-history-390x844.png) | [PNG](./menu-health-history-390x844-full.png) | [JSON](./menu-health-history-390x844.json) |
+
+JSON evidence is formatted for repository conventions; manifests hash the committed files. Parsed fixture, geometry, and source metadata are unchanged from the original captures.

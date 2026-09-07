@@ -11,7 +11,7 @@
 		},
 		{
 			"path": "about.json",
-			"sha256": "e8193f6fdd1cc757878b3d9fad691ce2341539cc2372a3939bc00b8c910c0864"
+			"sha256": "95d4ef2af48e8af6ed9da5e77f355657fb660aa32ef80e5a51491592bee6d69f"
 		},
 		{
 			"path": "badge-colors-fixed.json",
@@ -47,7 +47,7 @@
 		},
 		{
 			"path": "inventory-history.json",
-			"sha256": "04663bc9613ee1dac957b3cff5d1909509c5e9c7aec05ce562e9d9b2e6a86065"
+			"sha256": "1c2d39eae4f78689d5a6e869c694933e72b9c0b2cf4a2d7e400c9231a309151a"
 		},
 		{
 			"path": "inventory.json",
@@ -67,7 +67,7 @@
 		},
 		{
 			"path": "spell-details.json",
-			"sha256": "f1023db942e607df1652a1f27d4427daf65767157a9cec426e3eed87eef95e82"
+			"sha256": "93c73a88cd87c97dff805fd07455134c5344c8bd191466faaff217f831ce1bd4"
 		},
 		{
 			"path": "spell-remove-manual-colors.json",
@@ -75,7 +75,7 @@
 		},
 		{
 			"path": "spell-remove.json",
-			"sha256": "4991855a915f79e7abaa05ebd097d17206141bfa8d27b71226ccce8f72fd850f"
+			"sha256": "cd755075e98c851446377c1464b1d3578255d9020460fbcdf5830336cb0bb762"
 		},
 		{
 			"path": "spell-search.json",
