@@ -69,14 +69,7 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 						.scrollIntoViewIfNeeded();
 				await assertTouchTarget(page.getByRole("button", { name: "Add item", exact: true }), page);
 				if (viewport.width === 390)
-					await assertReachable(
-						page
-							.getByTestId(/inventory-item-/)
-							.first()
-							.getByRole("button")
-							.first(),
-						page,
-					);
+					await assertReachable(page.getByTestId(/inventory-item-/).first(), page);
 			} else if (viewport.width === 320 || viewport.width === 390) {
 				await assertReachable(
 					page.getByRole("button", { name: "View Light details", exact: true }),
@@ -109,14 +102,7 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 				await assertReachable(nav, page);
 			}
 			if (section === "inventory")
-				await assertReachable(
-					page
-						.getByTestId(/inventory-item-/)
-						.last()
-						.getByRole("button")
-						.first(),
-					page,
-				);
+				await assertReachable(page.getByTestId(/inventory-item-/).last(), page);
 			await assertNoOverflow(page);
 			await captureMobileEvidence(page, info, `${section}-bottom`, ["V6", "N6"]);
 		}
@@ -141,6 +127,7 @@ test("mobile workspace preserves section state and isolates inactive queries", a
 	await page.getByLabel("Search personal inventory").fill("Travel");
 	await page.getByRole("button", { name: /^Potion/ }).click();
 	await expect(page.getByRole("button", { name: "View Travel supply 09" })).toBeVisible();
+	await expect(page.getByTestId(/inventory-item-/)).toHaveCount(5);
 	await page.evaluate(() => scrollTo(0, 500));
 	const scroll = await page.evaluate(() => scrollY);
 	await openSpellsAndAbilitiesTab(page);
@@ -180,8 +167,8 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
 	await assertTouchTarget(save, page);
 	await assertTouchTarget(cancel, page);
-	await dialog.getByLabel("Name", { exact: true }).fill("A retained mobile draft");
-	await expect(dialog.getByLabel("Name", { exact: true })).toHaveCSS("font-size", "16px");
+	await dialog.getByLabel("Name").fill("A retained mobile draft");
+	await expect(dialog.getByLabel("Name")).toHaveCSS("font-size", "16px");
 	await captureMobileEvidence(page, info, "item-editor-top", ["E1", "E4"]);
 	await dialog.getByLabel("Notes").fill("Last field is reachable above actions");
 	await assertReachable(dialog.getByLabel("Notes"), page);
@@ -208,7 +195,7 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	await expect(dialog.getByRole("alert")).toBeVisible();
 	await dialog.getByRole("alert").scrollIntoViewIfNeeded();
 	await assertReachable(dialog.getByRole("alert"), page);
-	await expect(dialog.getByLabel("Name", { exact: true })).toHaveValue("A retained mobile draft");
+	await expect(dialog.getByLabel("Name")).toHaveValue("A retained mobile draft");
 	await assertReachable(save, page);
 	await captureMobileEvidence(page, info, "item-editor-error", ["E3", "E6"]);
 	await cancel.click();
@@ -382,7 +369,13 @@ test("mobile workspace menu dialogs return focus to a stable trigger", async ({ 
 		await page.keyboard.press("Escape");
 		await expect(dialog).toBeHidden();
 		await expect
-			.poll(() => page.evaluate(() => document.activeElement?.getAttribute("aria-label")))
+			.poll(() =>
+				page.evaluate(
+					() =>
+						document.activeElement?.getAttribute("aria-label") ??
+						`MISSING:${document.activeElement?.tagName}`,
+				),
+			)
 			.toMatch(/Open application menu|Character details for/);
 	}
 });
