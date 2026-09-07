@@ -71,6 +71,10 @@ export function ApplicationMenu({
 				</Menu.Dropdown>
 			</Menu>
 			<Modal
+				closeButtonProps={{
+					size: 44,
+					"aria-label": dialog === "login" ? "Close sign in dialog" : "Close about dialog",
+				}}
 				opened={dialog !== null}
 				onClose={() => {
 					setDialog(null);
