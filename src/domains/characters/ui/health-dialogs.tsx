@@ -172,7 +172,13 @@ export function HealthEditModal({
 						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button c="black" mih={44} loading={pending} type="submit">
+						<Button
+							className="workspace-primary-action"
+							c="black"
+							mih={44}
+							loading={pending}
+							type="submit"
+						>
 							Save
 						</Button>
 					</Group>

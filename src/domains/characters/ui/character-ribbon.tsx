@@ -79,6 +79,7 @@ export function CharacterRibbon({
 					</Text>
 					<CharacterExperiencePanel character={character} />
 					<Button
+						className="workspace-primary-action"
 						c="black"
 						mih={44}
 						onClick={() => {

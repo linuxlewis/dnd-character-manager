@@ -58,5 +58,26 @@ describe("compact XP states", () => {
 		[20, 355000, "Max level"],
 	] as const)("saved level %s and XP %s", (level, xp, expected) => {
 		expect(experienceLabel(getCharacterExperienceProgress(level, xp))).toBe(expected);
+		const html = renderToString(
+			<MantineProvider>
+				<CharacterExperiencePanel
+					compact
+					character={{
+						id: "00000000-0000-4000-8000-000000000000",
+						name: "Mira",
+						className: "Wizard",
+						level,
+						experiencePoints: xp,
+						experience: getCharacterExperienceProgress(level, xp),
+						health: { currentHp: 10, maxHp: 10, temporaryHp: 0, effectiveMaxHp: 10 },
+						recentHealthChanges: [],
+					}}
+				/>
+			</MantineProvider>,
+		);
+		expect(html.match(/role="progressbar"/g)).toHaveLength(1);
+		expect(html).toContain(
+			`aria-valuetext="${new Intl.NumberFormat("en-US").format(xp)} XP. ${expected}"`,
+		);
 	});
 });

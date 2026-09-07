@@ -220,7 +220,13 @@ export function CharacterEditor({
 							>
 								Cancel
 							</Button>
-							<Button c="black" mih={44} loading={isSaving} type="submit">
+							<Button
+								className="workspace-primary-action"
+								c="black"
+								mih={44}
+								loading={isSaving}
+								type="submit"
+							>
 								Save character
 							</Button>
 						</Group>

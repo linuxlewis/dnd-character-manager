@@ -11,6 +11,7 @@ export function SpellSearchModal({
 	onSaveSpell,
 	opened,
 	pending,
+	saving = false,
 	query,
 	results,
 	searched,
@@ -23,6 +24,7 @@ export function SpellSearchModal({
 	onSaveSpell: (spell: SpellSearchResult) => void;
 	opened: boolean;
 	pending: boolean;
+	saving?: boolean;
 	query: string;
 	results: SpellSearchResult[];
 	searched: boolean;
@@ -33,10 +35,12 @@ export function SpellSearchModal({
 	const mobile = useMediaQuery("(max-width: 47.999em)");
 	return (
 		<Modal
-			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl" }}
+			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl", disabled: saving }}
 			fullScreen={mobile}
 			size="lg"
-			onClose={onClose}
+			onClose={() => {
+				if (!saving) onClose();
+			}}
 			opened={opened}
 			title={
 				slotLevel === 0 ? "Add cantrip or feature" : `Add spell to ${formatSpellLevel(slotLevel)}`
@@ -52,6 +56,7 @@ export function SpellSearchModal({
 				)}
 				<TextInput
 					data-autofocus
+					disabled={saving}
 					label={slotLevel === 0 ? "Search cantrips and features" : "Search spells"}
 					onChange={(event) => onChangeQuery(event.currentTarget.value)}
 					placeholder={slotLevel === 0 ? "Name" : "Spell name"}
@@ -62,7 +67,7 @@ export function SpellSearchModal({
 				<Stack gap="xs">
 					{pending ? (
 						<Text c="dimmed" size="sm">
-							Searching...
+							{saving ? "Adding spell..." : "Searching..."}
 						</Text>
 					) : searched && results.length === 0 ? (
 						<Text c="dimmed" size="sm">
@@ -72,6 +77,8 @@ export function SpellSearchModal({
 						results.map((spell) => (
 							<Button
 								mih={44}
+								h="auto"
+								py="sm"
 								key={spell.index}
 								color="gray"
 								disabled={pending}

@@ -15,11 +15,11 @@
 }
 .amount {
 	overflow-wrap: anywhere;
-	font-size: 16px;
+	font-size: 1rem;
 	font-weight: 700;
 }
 .temporary {
-	font-size: 12px;
+	font-size: 0.75rem;
 }
 .actions {
 	position: sticky;

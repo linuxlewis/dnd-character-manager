@@ -126,6 +126,8 @@ export function CharacterSpellSlotsPanel({
 	}
 
 	function openSpellSearch(slotLevel: number) {
+		if (saveSpellMutation.isPending) return;
+		saveSpellMutation.reset();
 		const nextSearch = { slotLevel, query: "" };
 		setSpellSearch(nextSearch);
 	}
@@ -143,7 +145,7 @@ export function CharacterSpellSlotsPanel({
 	}
 
 	function saveSpell(spell: SpellSearchResult) {
-		if (!spellSearch) return;
+		if (!spellSearch || saveSpellMutation.isPending) return;
 		saveSpellMutation.mutate({
 			params: { characterId },
 			body: { slotLevel: spellSearch.slotLevel, spellIndex: spell.index, source: spell.source },
@@ -151,7 +153,7 @@ export function CharacterSpellSlotsPanel({
 	}
 
 	function removeSpell() {
-		if (!spellToRemove) return;
+		if (!spellToRemove || removeSpellMutation.isPending) return;
 		removeSpellMutation.mutate({ characterId, spellId: spellToRemove.id });
 	}
 
@@ -201,7 +203,10 @@ export function CharacterSpellSlotsPanel({
 				isEditing={isEditing}
 				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
 				onOpenSpellSearch={() => openSpellSearch(0)}
-				onRemoveSpell={setSpellToRemove}
+				onRemoveSpell={(spell) => {
+					removeSpellMutation.reset();
+					setSpellToRemove(spell);
+				}}
 			/>
 
 			<SpellSlotList
@@ -210,7 +215,10 @@ export function CharacterSpellSlotsPanel({
 				isEditing={isEditing}
 				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
 				onOpenSpellSearch={openSpellSearch}
-				onRemoveSpell={setSpellToRemove}
+				onRemoveSpell={(spell) => {
+					removeSpellMutation.reset();
+					setSpellToRemove(spell);
+				}}
 				onRestoreSlot={restoreSlot}
 				onUseSlot={expendSlot}
 				spellSlots={spellSlots}
@@ -234,10 +242,13 @@ export function CharacterSpellSlotsPanel({
 			<SpellSearchModal
 				error={spellSearchQuery.error || saveSpellMutation.error}
 				onChangeQuery={updateSpellSearchQuery}
-				onClose={closeSpellSearch}
+				onClose={() => {
+					if (!saveSpellMutation.isPending) closeSpellSearch();
+				}}
 				onSaveSpell={saveSpell}
 				opened={spellSearch !== null}
 				pending={spellSearchQuery.isFetching || saveSpellMutation.isPending}
+				saving={saveSpellMutation.isPending}
 				query={spellSearch?.query ?? ""}
 				results={spellSearchQuery.data?.spells ?? []}
 				searched={spellSearchQueryText.length > 0 && !spellSearchQuery.isFetching}

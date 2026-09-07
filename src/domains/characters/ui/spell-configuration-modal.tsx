@@ -121,7 +121,8 @@ export function SpellConfigurationModal({
 			<Box component="form" onSubmit={submit} className="spell-editor-form">
 				<Stack className="spell-editor-fields" gap="md">
 					<Text size="sm" c="dimmed">
-						Default profile: tier {level}. Totals must be whole numbers from 0 to 99.
+						Default profile: tier {level}. Totals must be whole numbers from 0 to 99. Applying class
+						defaults saves immediately.
 					</Text>
 					<Button mih={44} variant="default" disabled={pending} onClick={onApplyDefaults}>
 						Apply class defaults
@@ -151,7 +152,11 @@ export function SpellConfigurationModal({
 						/>
 					))}
 					{error && (
-						<Alert color="red" title="Spell configuration not saved">
+						<Alert
+							ref={(node) => node?.scrollIntoView({ block: "nearest" })}
+							color="red"
+							title="Spell configuration not saved"
+						>
 							Your changes are still here. Try saving again.
 						</Alert>
 					)}

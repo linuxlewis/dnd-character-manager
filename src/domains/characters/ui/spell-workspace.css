@@ -1,7 +1,6 @@
 .spell-editor {
 	display: flex;
 	flex-direction: column;
-	max-height: 100dvh;
 }
 
 .spell-editor-body {

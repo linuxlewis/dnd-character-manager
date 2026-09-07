@@ -19,6 +19,14 @@ export function CharacterExperiencePanel({
 }) {
 	const experience = character.experience;
 	const label = experienceLabel(experience);
+	const progressAria = {
+		role: "progressbar" as const,
+		"aria-label": "Experience progress",
+		"aria-valuemin": 0,
+		"aria-valuemax": 100,
+		"aria-valuenow": experience.progressPercent,
+		"aria-valuetext": `${formatExperience(character.experiencePoints)} XP. ${label}`,
+	};
 	if (compact)
 		return (
 			<Group
@@ -26,13 +34,8 @@ export function CharacterExperiencePanel({
 				wrap="nowrap"
 				aria-label={`${formatExperience(character.experiencePoints)} XP. ${label}`}
 			>
-				<Progress.Root radius="sm" size={4} flex={1}>
-					<Progress.Section
-						value={experience.progressPercent}
-						color="candle.4"
-						aria-label={`Experience progress: ${formatExperience(character.experiencePoints)} XP`}
-						aria-valuetext={label}
-					/>
+				<Progress.Root {...progressAria} radius="sm" size={4} flex={1}>
+					<Progress.Section withAria={false} value={experience.progressPercent} color="candle.4" />
 				</Progress.Root>
 				<Text size="xs" style={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
 					{label}
@@ -47,13 +50,8 @@ export function CharacterExperiencePanel({
 				</Title>
 				<Text>{`${formatExperience(character.experiencePoints)} XP`}</Text>
 			</Group>
-			<Progress.Root size={4}>
-				<Progress.Section
-					value={experience.progressPercent}
-					color="candle.4"
-					aria-label="Experience progress"
-					aria-valuetext={label}
-				/>
+			<Progress.Root {...progressAria} size={4}>
+				<Progress.Section withAria={false} value={experience.progressPercent} color="candle.4" />
 			</Progress.Root>
 			<Text>{label}</Text>
 			{!experience.isMaxLevel && (

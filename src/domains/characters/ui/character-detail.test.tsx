@@ -80,13 +80,13 @@ describe("CharacterDetail", () => {
 		expect(html).toContain("27,000 XP");
 		expect(html).toContain("36% to Lv 8");
 		expect(html).toContain("Edit health:");
-		expect(html).toContain("Spell slots");
+		expect(html).toContain("Spells &amp; Abilities");
 		expect(html.indexOf("Experience")).toBeLessThan(html.indexOf("Edit health:"));
 		const firstTabIndex = html.indexOf('aria-label="Character sections"');
 		expect(firstTabIndex).toBeGreaterThan(-1);
 		expect(html.indexOf("Experience")).toBeLessThan(firstTabIndex);
 		expect(html.indexOf("Edit health:")).toBeLessThan(firstTabIndex);
-		expect(firstTabIndex).toBeLessThan(html.indexOf("Spell slots"));
+		expect(firstTabIndex).toBeLessThan(html.lastIndexOf("Spells &amp; Abilities"));
 		expect(html).not.toContain("Personal Treasury");
 		expect(html).not.toContain("Personal inventory");
 		expect(html).toContain("Character details for Mira");

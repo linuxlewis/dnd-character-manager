@@ -59,3 +59,18 @@ is approved and implemented. Review three-way mobile fit while retaining visible
 When behavior ships, update this status and the spec/plan acceptance record with actual commit and
 evidence. Update testing/quality docs only for verified coverage; keep unavailable physical-device
 keyboard, safe-area and standalone checks visible as follow-up rather than claiming emulator proof.
+
+## Filled Actions And Text Scaling
+
+Use `workspace-primary-action` on filled primary actions in character workspaces and their portal
+editors. Normal fill is bloodstone 5 (`#f43f5e`) with black text (5.72:1); hover and active fill is
+bloodstone 4 (`#fb7185`) with black text (7.80:1). Do not rely on `autoContrast` alone: its default
+threshold does not guarantee WCAG AA for this palette. Disabled controls retain Mantine styling.
+Semantic green healing/red damage actions retain their separately verified colors. Check normal,
+hover, focus, pending, and disabled states when extending this treatment.
+
+Use rem-based text sizes in custom CSS so browser text enlargement affects HP, temporary HP, names,
+and navigation labels as well as Mantine components. At 200% text size, permit wrapping and growth;
+normal-size chrome budgets must not clip enlarged text. XP semantics belong to the full progress
+track, with the decorative fill using `withAria={false}`. The accessible value contains exact XP and
+next-level status, including zero progress, level available, and max level.

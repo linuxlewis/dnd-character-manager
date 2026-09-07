@@ -183,7 +183,13 @@ export function TreasurySpendModal({
 					<Button disabled={formDisabled} onClick={onClose} type="button" variant="default">
 						Cancel
 					</Button>
-					<Button c="black" disabled={submitDisabled} loading={mutationPending} type="submit">
+					<Button
+						className="workspace-primary-action"
+						c="black"
+						disabled={submitDisabled}
+						loading={mutationPending}
+						type="submit"
+					>
 						Spend
 					</Button>
 				</Group>
