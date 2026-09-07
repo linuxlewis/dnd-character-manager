@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1 locally accepted; R2 submitted for review; later milestones planned.
+Status: R0/R1/R2 accepted; R2t submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -22,8 +22,9 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | --- | --- | --- | --- | --- |
 | R0 | Baseline, ownership map, and architecture decisions | None | accepted | [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98); coordinator verified `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`; CI green |
 | R1 | Import resolution and dependency graph | R0 | accepted | Root verified `5ed2f8fc5dc7ac6432618ba40d3c1b9f83d0b747`; [PR #99](https://github.com/linuxlewis/dnd-character-manager/pull/99); CI run `34150837520` passed |
-| R2 | Boundary rules, fixtures, and migration inventory | R1 | review | R2 agent; [policy/evidence](./domain-boundary-policy.md); coordinator verification pending |
-| R2a | Pure calculations and public contract registration | R2 | planned | Unassigned |
+| R2 | Boundary rules, fixtures, and migration inventory | R1 | accepted | Root verified `091934709c212fd7626c70a091e9063b7d4ecbf0`; [PR #104](https://github.com/linuxlewis/dnd-character-manager/pull/104) |
+| R2t | Suite-owned catalogue browser fixture lifecycle | R2 | review | R2t agent; [evidence](./catalogue-browser-fixture-lifecycle.md); coordinator verification pending |
+| R2a | Pure calculations and public contract registration | R2t | planned | Unassigned |
 | R3 | Public schemas and typed Drizzle registration | R2a | planned | Unassigned |
 | R4a | Character access and atomic creation workflow | R3 | planned | Unassigned |
 | R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
@@ -143,11 +144,40 @@ fix unrelated violations automatically.
 - [ ] Every current violation has a specific remedy; additional prerequisites
   receive suffixed milestone cards if needed, rather than an open-ended R10 cleanup.
 
+### R2t: Catalogue Browser Fixture Lifecycle
+
+**Owns:** Playwright global setup/teardown, validated worker fixture metadata,
+removal of duplicate inventory-spec fixture hooks, focused lifecycle tests.
+**Gate:** B. **Depends on:** R2. **Excludes:** catalogue/application behavior,
+changes to browser assertions, raised timeouts, and serializing the test suite.
+
+R2a validation exposed contention between two per-spec owners of the same advisory
+lock. R2 baseline rerun passed all 25 browser tests; do not label this as a
+reproduced baseline failure. Execute before rebasing R2a and rerunning its Gate B.
+
+Reuse the existing prepare/cleanup functions once in Playwright global setup,
+after `scripts/test.ts` supplies the owned database URL. Hold the reserved
+connection until suite teardown. Workers receive validated metadata, never the
+owner's client or cleanup responsibility. Existing real catalogue/API assertions
+remain unchanged.
+
+**Acceptance:**
+
+- [ ] Both inventory specs consume the same validated fixture metadata with no
+  per-spec catalogue lock acquisition/cleanup and no module-owned worker SQL pool.
+- [ ] Setup failure after partial acquisition runs cleanup before closing the
+  client; cleanup failure still closes it and does not hide the setup error.
+- [ ] Successful suite teardown restores/removes only owned rows/audit and releases
+  the reserved connection through the existing lifecycle.
+- [ ] Normal unit validation covers resource lifetime and missing/malformed worker
+  metadata; the complete browser suite passes without timeout/worker changes.
+- [ ] Evidence distinguishes observed R2a timeouts from the passing R2 baseline.
+
 ### R2a: Calculation Ownership And Public Contract Registration
 
 **Owns:** character XP/inventory currency calculations, public runtime contract
 exports, API registration imports, associated callers/tests. **Gate:** B.
-**Depends on:** R2. **Excludes:** feature extraction and behavior changes.
+**Depends on:** R2t. **Excludes:** feature extraction and behavior changes.
 
 This is an explicit prerequisite before R3, not deferred R10 cleanup. Move
 `getCharacterExperienceProgress` and XP thresholds from character value types to

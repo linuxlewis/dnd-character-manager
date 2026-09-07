@@ -61,6 +61,17 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 - Parse database rows before asserting domain values.
 - Keep integration tests narrower than e2e tests. They should prove real adapters and runtime boundaries, not browser behavior.
 
+## Catalogue Browser Fixture
+
+Playwright global setup prepares the existing catalogue journey fixture once per
+suite after the test runner supplies its owned database URL. It retains any
+reserved advisory-lock connection until global teardown and publishes validated
+metadata in `CATALOGUE_JOURNEY_FIXTURE` for workers. Inventory specs consume those
+names without acquiring or cleaning up their own catalogue fixture. Character
+data stays isolated per journey. Preparation failures clean partial fixture state
+before closing the database client; suite teardown also runs after test failures.
+See [lifecycle evidence](./catalogue-browser-fixture-lifecycle.md).
+
 ## Writing E2E Tests
 
 - Install browsers with `pnpm exec playwright install chromium` when running e2e locally for the first time. CI installs Chromium before `pnpm test`.

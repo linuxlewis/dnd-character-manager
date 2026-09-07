@@ -1,34 +1,10 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import postgres from "postgres";
-import {
-	type CatalogueJourneyFixture,
-	cleanupCatalogueJourneyFixture,
-	prepareCatalogueJourneyFixture,
-} from "./catalogue-journey-fixture.js";
+import { readCatalogueJourneyFixture } from "../../scripts/catalogue-journey-metadata.js";
 import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-helpers.js";
-
-const databaseUrl = process.env.DATABASE_URL;
-const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
-let catalogueFixture: CatalogueJourneyFixture | null = null;
-
-test.beforeAll(async () => {
-	// The shared catalogue fixture holds its advisory lock for the other inventory journey.
-	test.setTimeout(120_000);
-	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
-	catalogueFixture = await prepareCatalogueJourneyFixture(sql);
-});
-
-test.afterAll(async () => {
-	try {
-		if (sql) await cleanupCatalogueJourneyFixture(sql);
-	} finally {
-		await sql?.end();
-	}
-});
 
 test("completes the M2 personal inventory journey", async ({ page }) => {
 	test.setTimeout(60_000);
-	const fixture = requireCatalogueFixture();
+	const fixture = readCatalogueJourneyFixture();
 	await page.goto("/");
 	const firstCharacterName = `A7 Inventory Hero ${Date.now()}`;
 	await createCharacter(page, firstCharacterName, "Fighter");
@@ -243,11 +219,6 @@ test("keeps character details visible when personal inventory fails", async ({ p
 		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
 	).toBeVisible();
 });
-
-function requireCatalogueFixture() {
-	if (!catalogueFixture) throw new Error("Catalogue fixture was not prepared before navigation.");
-	return catalogueFixture;
-}
 
 async function createCharacter(page: Page, name: string, className: string) {
 	await page.getByText("Create character").first().click();
