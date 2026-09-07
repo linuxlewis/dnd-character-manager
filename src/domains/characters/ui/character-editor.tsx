@@ -168,7 +168,7 @@ export function CharacterEditor({
 				title="Edit character"
 				closeOnEscape={!isSaving}
 				closeOnClickOutside={!isSaving}
-				closeButtonProps={{ size: 44, disabled: isSaving }}
+				closeButtonProps={{ "aria-label": "Close", size: 44, disabled: isSaving }}
 			>
 				<Box
 					component="form"

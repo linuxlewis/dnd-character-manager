@@ -5,19 +5,26 @@ for (const width of [320, 390, 1280]) {
 		await page.setViewportSize({ width, height: width === 320 ? 740 : 900 });
 		await page.goto("/");
 		await page.getByText("Create character").first().click();
-		await page.getByLabel("Name", { exact: true }).fill("Mira Thorn");
+		await page.getByLabel("Name").fill("Mira Thorn");
 		await page.getByRole("combobox", { name: "Class" }).click();
 		await page.getByRole("option", { name: "Wizard" }).click();
-		await page.getByLabel("Level", { exact: true }).fill("3");
+		await page.getByLabel("Level").fill("3");
 		await page.getByRole("button", { name: "Create character" }).click();
 		await expect(page.getByRole("button", { name: /^Edit health:/ })).toBeVisible();
 		await page.getByRole("button", { name: /^Edit health:/ }).click();
-		await page.getByLabel("Max HP", { exact: true }).fill("24");
-		await page.getByLabel("Temp HP", { exact: true }).fill("3");
+		await page.getByLabel("Max HP").fill("24");
+		await page.getByLabel("Temp HP").fill("3");
 		await page.getByRole("button", { name: "Save", exact: true }).click();
 		await expect(page.getByRole("button", { name: "Edit health: 27 / 27 HP" })).toBeVisible();
 		await page.getByRole("button", { name: "Damage", exact: true }).click();
-		await page.getByLabel("Amount", { exact: true }).fill("9");
+		await page.getByLabel("Amount").fill("9");
+		if (width < 768) {
+			const sheet = await page.getByRole("dialog", { name: "Damage", exact: true }).boundingBox();
+			expect(sheet).not.toBeNull();
+			expect(sheet?.x).toBe(0);
+			expect(sheet?.width).toBe(width);
+			expect((sheet?.y ?? 0) + (sheet?.height ?? 0)).toBe(width === 320 ? 740 : 900);
+		}
 		await expect(page.getByRole("status")).toContainText("Resulting HP: 18");
 		await page.route("**/health", (route) =>
 			route.fulfill({

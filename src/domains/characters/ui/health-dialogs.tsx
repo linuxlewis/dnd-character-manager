@@ -42,7 +42,7 @@ export function HealthAmountModal({
 			title={title}
 			closeOnClickOutside={!pending}
 			closeOnEscape={!pending}
-			closeButtonProps={{ size: 44, disabled: pending }}
+			closeButtonProps={{ "aria-label": "Close", size: 44, disabled: pending }}
 		>
 			<Box
 				component="form"
@@ -130,7 +130,7 @@ export function HealthEditModal({
 			title="Edit health"
 			closeOnClickOutside={!pending}
 			closeOnEscape={!pending}
-			closeButtonProps={{ size: 44, disabled: pending }}
+			closeButtonProps={{ "aria-label": "Close", size: 44, disabled: pending }}
 		>
 			<Box
 				component="form"

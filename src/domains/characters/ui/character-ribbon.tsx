@@ -44,7 +44,7 @@ export function CharacterRibbon({
 						aria-label={`Character details for ${character.name}`}
 						onClick={() => setDetailsOpened(true)}
 					>
-						<Title order={1} className={classes.name}>
+						<Title order={1} fz={20} lh={1.2} className={classes.name}>
 							{character.name}
 						</Title>
 						<Text size="xs">
@@ -68,7 +68,7 @@ export function CharacterRibbon({
 				opened={detailsOpened}
 				onClose={() => setDetailsOpened(false)}
 				title="Character details"
-				closeButtonProps={{ size: 44 }}
+				closeButtonProps={{ "aria-label": "Close", size: 44 }}
 			>
 				<Stack>
 					<Title order={2} style={{ overflowWrap: "anywhere" }}>

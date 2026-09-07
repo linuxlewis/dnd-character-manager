@@ -32,19 +32,26 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByRole("heading", { name: "Lyria Dawn" })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
 	await expect(page.getByText("Level 7")).toBeVisible();
+	await expect(page.getByText("0% to Lv 8", { exact: true })).toBeVisible();
+	await page.getByRole("button", { name: "Character details for Lyria Dawn" }).click();
 	await expect(page.getByText("0 XP", { exact: true })).toBeVisible();
 	await expect(page.getByText("34,000 XP to level 8")).toBeVisible();
-	await expect(page.getByText("10 / 10 HP (Temp HP 0)")).toBeVisible();
 
 	await page.getByRole("button", { name: "Edit character" }).click();
 	await page.getByLabel("Character name").fill("Lyria Starfall");
 	await page.getByLabel("Character level").fill("8");
 	await page.getByLabel("Experience points").fill("27000");
 	await page.getByRole("button", { name: "Save character" }).click();
-	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
+	await expect(page.getByRole("dialog", { name: "Edit character", exact: true })).toBeHidden();
+	await expect(page.getByRole("heading", { name: "Lyria Starfall", level: 1 })).toBeVisible();
 	await expect(page.getByText("Level 8")).toBeVisible();
-	await expect(page.getByText("27,000 XP")).toBeVisible();
+	await page.getByRole("button", { name: "Character details for Lyria Starfall" }).click();
+	await expect(page.getByText("27,000 XP", { exact: true })).toBeVisible();
 	await expect(page.getByText("21,000 XP to level 9")).toBeVisible();
+	await page
+		.getByRole("dialog", { name: "Character details", exact: true })
+		.getByRole("button", { name: "Close" })
+		.click();
 
 	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await expect(page).toHaveURL(/\/characters$/);
@@ -56,20 +63,30 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await expect(page.getByText("Level 8")).toBeVisible();
 
 	await page.getByRole("link", { name: "Lyria Starfall" }).click();
-	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Lyria Starfall", level: 1 })).toBeVisible();
 	await expect(page.getByText("Wizard")).toBeVisible();
 	await expect(page.getByText("Level 8")).toBeVisible();
-	await expect(page.getByText("27,000 XP")).toBeVisible();
+	await page.getByRole("button", { name: "Character details for Lyria Starfall" }).click();
+	await expect(page.getByText("27,000 XP", { exact: true })).toBeVisible();
 
+	await page
+		.getByRole("dialog", { name: "Character details", exact: true })
+		.getByRole("button", { name: "Close" })
+		.click();
 	await page.goBack();
 	await expect(page).toHaveURL(/\/characters$/);
 	await expect(page.getByRole("link", { name: "Lyria Starfall" })).toBeVisible();
 
 	await page.goForward();
 	await expect(page).toHaveURL(/\/characters\/[0-9a-f-]{36}$/);
-	await expect(page.getByRole("heading", { name: "Lyria Starfall" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Lyria Starfall", level: 1 })).toBeVisible();
 	await expect(page.getByText("Level 8")).toBeVisible();
+	await page.getByRole("button", { name: "Character details for Lyria Starfall" }).click();
 	await expect(page.getByText("21,000 XP to level 9")).toBeVisible();
+	await page
+		.getByRole("dialog", { name: "Character details", exact: true })
+		.getByRole("button", { name: "Close" })
+		.click();
 });
 
 test("shows a not-found state for a missing character id", async ({ page }) => {

@@ -122,7 +122,7 @@ export function CharacterHealthPanel({
 				opened={historyOpened}
 				onClose={onCloseHistory}
 				title="Health history"
-				closeButtonProps={{ size: 44 }}
+				closeButtonProps={{ "aria-label": "Close", size: 44 }}
 			>
 				<Stack gap="xs">
 					{recentHealthChanges.length === 0 ? (
