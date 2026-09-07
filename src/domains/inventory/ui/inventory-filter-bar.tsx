@@ -69,7 +69,7 @@ function FilterButton({
 			variant={active ? "light" : "default"}
 		>
 			{label}{" "}
-			<Badge color={active ? "candle" : "gray"} ml={4} size="sm" variant="filled">
+			<Badge autoContrast color={active ? "candle" : "gray"} ml={4} size="sm" variant="filled">
 				{count === null ? "-" : count}
 			</Badge>
 		</Button>

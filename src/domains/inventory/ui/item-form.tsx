@@ -218,7 +218,7 @@ export function ItemForm({
 					<Button disabled={pending} onClick={onClose} type="button" variant="default">
 						Cancel
 					</Button>
-					<Button loading={pending} type="submit">
+					<Button autoContrast loading={pending} type="submit">
 						{mode === "create" ? "Add item" : "Save item"}
 					</Button>
 				</Group>
