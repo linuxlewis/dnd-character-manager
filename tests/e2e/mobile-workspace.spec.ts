@@ -64,7 +64,11 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 				await assertTouchTarget(page.getByRole("button", { name: "Add item", exact: true }), page);
 				if (viewport.width === 390)
 					await assertReachable(
-						page.getByTestId(/inventory-item-/).first().getByRole("button").first(),
+						page
+							.getByTestId(/inventory-item-/)
+							.first()
+							.getByRole("button")
+							.first(),
 						page,
 					);
 			} else if (viewport.width === 320 || viewport.width === 390) {
@@ -176,8 +180,18 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	await dialog.getByLabel("Notes").fill("Last field is reachable above actions");
 	await assertReachable(dialog.getByLabel("Notes"), page);
 	await assertTouchTarget(save, page);
-	await page.keyboard.press("Tab");
-	expect(await dialog.evaluate((e) => e.contains(document.activeElement))).toBe(true);
+	for (let step = 0; step < 16; step++) {
+		await page.keyboard.press("Tab");
+		expect(await dialog.evaluate((e) => e.contains(document.activeElement))).toBe(true);
+	}
+	const nav = page.getByRole("navigation", { name: "Character sections", includeHidden: true });
+	expect(
+		await nav.evaluate((element) => {
+			const box = element.getBoundingClientRect();
+			const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+			return element.contains(hit);
+		}),
+	).toBe(false);
 	await captureMobileEvidence(page, info, "item-editor-bottom", ["E1", "E5"]);
 	await page.route(`**/api/characters/${fixture.id}/items`, async (route) => {
 		if (route.request().method() === "POST")
