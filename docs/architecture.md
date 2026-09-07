@@ -47,6 +47,8 @@ appropriate to the layer (for example Zod in types) are allowed.
 
 Public contracts are layer-specific `index.ts` exports, never an all-purpose domain barrel.
 A foreign public type is a value contract, not permission to import its implementation.
+Nested `index.ts` files are private. Public service/access reexport chains cannot expose
+lower-layer repositories or schemas; ordinary service implementations may use own repositories.
 Cross-domain config imports are for application composition only; a domain's pure function
 receives inputs rather than importing another domain's calculation. Shared calculations live
 in the owning domain's client-safe `config/`, importing `types/`; types never import config.
@@ -64,7 +66,8 @@ not services, runtime, application, or feature state. R4 implements this boundar
 
 Define tables once in `domains/<owner>/schema/`; publish them through `schema/index.ts`.
 These server-only modules contain physical mappings and relationships, not database queries.
-Health and spellcasting schema may import `characters/schema/index.ts`; character schema may
+Health, spellcasting, and inventory schema may import `characters/schema/index.ts`.
+Inventory may also import `catalogue/schema/index.ts` for its deployed catalogue FK; character schema may
 import `providers/auth/schema.ts` for the owner FK. Inventory and catalogue publish their
 existing models similarly. Add other schema edges only with a documented FK requirement;
 all schema dependencies must remain acyclic.
@@ -131,3 +134,6 @@ Entrypoints, generated files, and narrow barrels follow the existing shape-check
 Maximum file size remains 300 lines. Zod schemas use `<Thing>Schema` and inferred types.
 UI uses generated TanStack Query helpers; no `useEffect`. Follow
 [implementation.md](./implementation.md), [openapi.md](./openapi.md), and [testing.md](./testing.md).
+
+The [R2 policy and migration ledger](./domain-boundary-policy.md) specifies executable
+module naming, approved browser/provider leaves, FK edges, and analysis limits.

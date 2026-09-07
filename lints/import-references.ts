@@ -1,8 +1,9 @@
 import ts from "typescript";
+import { collectForwardedImports } from "./import-forwarding.js";
 
 export interface ImportReference {
 	specifier: string | null;
-	kind: "import" | "reexport" | "dynamic" | "import-type";
+	kind: "import" | "reexport" | "dynamic" | "import-type" | "require";
 	typeOnly: boolean;
 	line: number;
 	column: number;
@@ -21,6 +22,7 @@ export function collectImportReferences(source: ts.SourceFile): ImportReference[
 		});
 	}
 	function visit(node: ts.Node) {
+		const load = moduleLoad(node);
 		if (ts.isImportDeclaration(node)) {
 			const clause = node.importClause;
 			const bindings = clause?.namedBindings;
@@ -39,12 +41,8 @@ export function collectImportReferences(source: ts.SourceFile): ImportReference[
 				clause.elements.length > 0 &&
 				clause.elements.every((element) => element.isTypeOnly);
 			add(node.moduleSpecifier, "reexport", Boolean(node.isTypeOnly || namedTypesOnly));
-		} else if (
-			ts.isCallExpression(node) &&
-			node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-			node.arguments[0]
-		) {
-			add(node.arguments[0], "dynamic", false);
+		} else if (load) {
+			add(load.target, load.kind, false);
 		} else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
 			add(node.argument.literal, "import-type", true);
 		} else if (
@@ -57,5 +55,16 @@ export function collectImportReferences(source: ts.SourceFile): ImportReference[
 		ts.forEachChild(node, visit);
 	}
 	visit(source);
-	return references;
+	return [...references, ...collectForwardedImports(source)].sort(
+		(a, b) => a.line - b.line || a.column - b.column,
+	);
+}
+
+function moduleLoad(node: ts.Node): { target: ts.Node; kind: "dynamic" | "require" } | undefined {
+	if (!ts.isCallExpression(node)) return undefined;
+	if (node.expression.kind === ts.SyntaxKind.ImportKeyword)
+		return { target: node.arguments[0] ?? node, kind: "dynamic" };
+	if (ts.isIdentifier(node.expression) && node.expression.text === "require")
+		return { target: node.arguments[0] ?? node, kind: "require" };
+	return undefined;
 }

@@ -61,7 +61,9 @@ Independent screenshot and live development review are recorded in the
 
 - [ ] The existing dependency checker still misses relative imports. R1 adds
   [tested import resolution](./domain-import-graph.md) to normal unit validation;
-  R2 adds policy/reporting and R10 activates repository-wide enforcement.
+  R2 adds [tested policy/reporting](./domain-boundary-policy.md), including public
+  entrypoints, barrel forwarding, browser/schema closure checks, and an assigned
+  migration inventory. R10 activates repository-wide enforcement.
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
 - [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, or session management UI yet; the Resend sender domain still needs verification for production email delivery

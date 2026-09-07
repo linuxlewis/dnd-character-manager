@@ -29,7 +29,9 @@
 		"db:migrate": "tsx scripts/db-migrate.ts",
 		"check:docs": "tsx scripts/check-doc-freshness.ts",
 		"quality:audit": "tsx scripts/quality-audit.ts",
-		"worktree:boot": "bash scripts/worktree-boot.sh"
+		"worktree:boot": "bash scripts/worktree-boot.sh",
+		"lint:boundaries:report": "tsx lints/check-boundaries.ts --report",
+		"lint:boundaries": "tsx lints/check-boundaries.ts --strict"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",

@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0 accepted; R1 delivered for review; later milestones remain planned.
+Status: R0/R1 locally accepted; R2 submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -21,11 +21,13 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | ID | Deliverable | Depends on | Status | Owner / PR / verified SHA |
 | --- | --- | --- | --- | --- |
 | R0 | Baseline, ownership map, and architecture decisions | None | accepted | [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98); coordinator verified `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`; CI green |
-| R1 | Import resolution and dependency graph | R0 | review | R1 agent; [delivery evidence](./domain-import-graph.md); coordinator verification pending |
-| R2 | Boundary rules, fixtures, and migration inventory | R1 | planned | Unassigned |
-| R3 | Public schemas and typed Drizzle registration | R2 | planned | Unassigned |
-| R4 | Character access and atomic creation workflow | R3 | planned | Unassigned |
-| R5 | Health backend and composed character-detail API | R4 | planned | Unassigned |
+| R1 | Import resolution and dependency graph | R0 | accepted | Root verified `5ed2f8fc5dc7ac6432618ba40d3c1b9f83d0b747`; [PR #99](https://github.com/linuxlewis/dnd-character-manager/pull/99); CI run `34150837520` passed |
+| R2 | Boundary rules, fixtures, and migration inventory | R1 | review | R2 agent; [policy/evidence](./domain-boundary-policy.md); coordinator verification pending |
+| R2a | Pure calculations and public contract registration | R2 | planned | Unassigned |
+| R3 | Public schemas and typed Drizzle registration | R2a | planned | Unassigned |
+| R4a | Character access and atomic creation workflow | R3 | planned | Unassigned |
+| R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
+| R5 | Health backend and composed character-detail API | R4b | planned | Unassigned |
 | R6 | Health UI ownership and cache coordination | R5 | planned | Unassigned |
 | R7 | Spellcasting backend and relationships | R6 | planned | Unassigned |
 | R8 | Spellcasting UI ownership | R7 | planned | Unassigned |
@@ -141,6 +143,36 @@ fix unrelated violations automatically.
 - [ ] Every current violation has a specific remedy; additional prerequisites
   receive suffixed milestone cards if needed, rather than an open-ended R10 cleanup.
 
+### R2a: Calculation Ownership And Public Contract Registration
+
+**Owns:** character XP/inventory currency calculations, public runtime contract
+exports, API registration imports, associated callers/tests. **Gate:** B.
+**Depends on:** R2. **Excludes:** feature extraction and behavior changes.
+
+This is an explicit prerequisite before R3, not deferred R10 cleanup. Move
+`getCharacterExperienceProgress` and XP thresholds from character value types to
+`characters/config/`. Move the four exported currency conversion/value functions
+and currency planning operations into `inventory/config/`. Keep Zod schemas,
+planning value types, parsers/refinements, and currency constants required by the
+value contract in types; do not duplicate conversion tables or make types import
+config. Publish narrow config APIs and update UI/service/repo callers directly.
+
+Publish existing catalogue/character/inventory contract arrays through their
+`runtime/index.ts` and use those entrypoints in `src/api-contracts.ts`. Preserve
+OpenAPI operation metadata and avoid initializing a database during generation.
+
+**Acceptance:**
+
+- [ ] XP bounds/max-level/rounding, currency precision/overflow/conversion, and
+  spend/change behavior remain covered and unchanged.
+- [ ] No calculation implementation is forwarded back through a types barrel;
+  types/config remain acyclic and schemas retain the same validation semantics.
+- [ ] F1-F5 in the R2 finding ledger are gone; F6-F8 retain named owners.
+- [ ] Public contract registration and generated API freshness pass without SQL
+  connection initialization or changed HTTP metadata.
+- [ ] Record source/test moves separately from eliminated code; no compressed
+  formatting or compatibility aliases obscure the ownership change.
+
 ### R3: Public Schemas And ORM Registration
 
 **Owns:** initial schema moves, database registry, provider database types/tests.
@@ -150,7 +182,11 @@ Move existing character identity and still-character-owned feature table mapping
 into public schema modules. This first move changes the persistence boundary;
 R5 and R7 change feature ownership. Assemble tables once and initialize Drizzle
 with schema-aware database and transaction types. Account for existing auth,
-inventory, and catalogue schema dependencies identified in R2.
+inventory, and catalogue schema dependencies identified in R2. Move the shared inventory runtime
+integration helper to `tests/support/` and use public character schema exports.
+Restore inventory character/catalogue FK metadata to match already-deployed SQL
+(including catalogue `ON DELETE SET NULL`), without adding a migration. Adapt the
+legacy domain-shape check to optional declared layers while retaining its other gates.
 
 **Acceptance:**
 
@@ -160,27 +196,80 @@ inventory, and catalogue schema dependencies identified in R2.
 - [ ] Each table and relation configuration is registered once; imports have no
   initialization cycle or dependency on an initialized client.
 - [ ] Client/server builds pass; database shutdown and test isolation still work.
+- [ ] Registry inspection proves all 17 existing physical tables occur once, with
+  at most one relation configuration per table and no duplicate character-table alias.
+- [ ] Real `db.query` and `tx.query` related reads compile with inferred nested
+  types; owner/stranger isolation, empty plural collections, and absent health
+  (`null` at the ORM boundary) are exercised. R5 preserves HTTP 404 for absence.
+- [ ] Record the measured SQL statement count for the related read and prove
+  importing the registry/client without `DATABASE_URL` does not initialize a
+  connection; existing lazy lifecycle/shutdown/test isolation behavior passes.
 - [ ] Any compatibility exports are enumerated with removal targets.
 
-### R4: Access And Atomic Creation
+### R4a: Access And Atomic Creation
 
-**Owns:** narrow character-access contract and application creation orchestration.
-**Gate:** B. **Excludes:** feature UI extraction.
+**Owns:** narrow character-access contract, public identity service, application
+creation workflow/POST handler, legacy creation consolidation. **Gate:** B.
+**Depends on:** R3. **Excludes:** inventory adoption and feature UI extraction.
 
-Remove the need to load character detail merely to establish access. Establish
-the explicit transaction boundary for identity and initial feature records.
-Use the same transaction connection for collaborating writes; creating several
-independent transactions inside an outer workflow is not atomic composition.
+Expose owned identity read/lock through `characters/access/index.ts`; require the
+caller's connection/transaction, return only parsed identity/class/level context.
+Feature repositories use this persistence boundary; service callers use a public
+identity service. Exercise it in an existing production context path.
+
+Move creation to an application transaction shared by public identity and initial
+health services. Health initialization stays isolated under characters until R5.
+Consolidate production and legacy test creation callers; do not retain an aggregate
+creation service that imports application code or uses injected upward callbacks.
+Register POST once at application level, preserving `createCharacter`, status 201,
+anonymous sessions, name trimming, HP initialization, and the existing JSON shape.
 
 **Acceptance:**
 
-- [ ] Access checks do not read health/history or other unrelated feature state.
-- [ ] A failure initializing health rolls back character creation without orphan rows.
-- [ ] Non-owner operations fail without mutation; ownership transfer and concurrent
-  access scenarios preserve the documented transaction/lock guarantees.
-- [ ] Mutation authorization remains valid at write time, not only before a transaction.
-- [ ] The contract is exercised by an existing path and is usable by R5/R7 without
-  exposing unrestricted private repositories or inventing a general workflow engine.
+- [ ] Owned identity still loads when unrelated health is missing, with no
+  health/history queries or returned fields; stranger/missing identity is absent.
+- [ ] A real initializer inserts health on the supplied transaction and then
+  throws; neither identity nor health survives rollback. Also test failure before
+  health insertion. Mock call assertions alone do not establish atomicity.
+- [ ] Two independent Postgres connections prove owner locking blocks transfer:
+  inspect `pg_blocking_pids`, release the lock, and verify completion. Use bounded
+  timeouts/cleanup rather than a sleep-only unresolved-promise assertion.
+- [ ] Transfer-first prevents the old owner obtaining the lock; the new owner
+  succeeds. Existing same-user transfer remains a no-op.
+- [ ] Existing create API/browser paths and legacy-factory caller replacements
+  pass; no duplicated POST contract/route or changed OpenAPI shape.
+
+### R4b: Inventory Access And Transactional Ownership
+
+**Owns:** inventory item/treasury/history services and routes, character-facing
+item/treasury repositories, public identity integration, corresponding tests.
+**Gate:** B. **Depends on:** R4a. **Excludes:** health/slot concurrency changes.
+
+Replace full `CharacterService.getCharacter` dependencies in inventory services
+and routes with the narrow public identity service. Character-facing create,
+update, delete, equip, and treasury repository mutations require owner user ID
+and character ID; they lock the identity before scope creation or mutable state
+reads, using the same transaction for feature state/history writes. Actor metadata
+is not authorization. Generic scope repositories may retain generic interfaces.
+
+Keep catalogue/network work outside transactions and revalidate any mutable
+context after locking. Preserve explicit non-owner 404 through persistence error
+wrappers; do not import a service error into lower layers or preserve an optional
+ownership bypass solely for old test call sites.
+
+**Acceptance:**
+
+- [ ] Item create/update/delete/equip and treasury writes deny strangers without
+  state/history changes; ownership remains valid at write time.
+- [ ] Transfer between service precheck and real repository mutation rejects
+  the old owner for both item and treasury paths.
+- [ ] An actual production mutation transaction blocks transfer on an independent
+  connection (verified blocker), then completes state/history consistently before
+  transfer. Testing only the access helper is insufficient.
+- [ ] Linked owners can read/mutate inventory; original owners cannot; missing
+  required health does not prevent identity authorization.
+- [ ] Existing treasury no-op/conflict/conversion/history rollback, item catalogue,
+  HTTP status, and browser behavior remain unchanged and pass Gate B.
 
 ### R5: Health Backend And Character-Detail Composition
 
@@ -201,6 +290,8 @@ Use Drizzle relations for the composed identity/health read.
   cases match the documented baseline; calculated values are validated.
 - [ ] The combined read has a measured bounded query count and exposes no extra
   ORM/internal fields. Reads needing consistency use a coherent snapshot.
+- [ ] Health reads mutable state only after the identity lock in the same transaction;
+  concurrent updates cannot overwrite one another, and state/history commit atomically.
 - [ ] Create, health update/history, and generated-client compatibility tests pass.
 
 ### R6: Health UI And Cache Coordination
@@ -239,6 +330,12 @@ contracts and backend callers atomically; existing UI continues using generated 
 - [ ] Catalogue failure behavior and provenance remain owned by the existing boundary.
 - [ ] No duplicate physical mappings, route registrations, or private cross-domain
   repository imports remain in the extracted backend.
+
+- [ ] Concurrent slot use cannot lose consumption; saved-spell add/remove
+  authorization runs inside their transactions, with state read after identity
+  locking and atomic state/history writes. A prior service check is insufficient.
+- [ ] All composed name/level/XP/create/detail contracts and missing-required-health
+  404 remain compatible while spell ownership moves.
 
 ### R8: Move Spellcasting UI
 
