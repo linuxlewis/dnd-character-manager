@@ -39,7 +39,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 		.getByRole("button", { name: "Close" })
 		.click();
 
-	await page.getByRole("button", { name: "Heal" }).click();
+	await page.getByRole("button", { name: "Heal", exact: true }).click();
 	await expect(page.getByLabel("Amount")).toBeFocused();
 	await expect(page.getByLabel("Amount")).toHaveCSS("font-size", "16px");
 	await page.getByRole("button", { name: "Cancel" }).click();
