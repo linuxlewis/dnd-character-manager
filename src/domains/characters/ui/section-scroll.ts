@@ -11,6 +11,7 @@ export function restoreSectionScroll(node: HTMLElement, savedY: number, save: (y
 	}
 	function release() {
 		restoring = false;
+		save(window.scrollY);
 	}
 	const observer = new ResizeObserver(restore);
 	observer.observe(node);
@@ -19,11 +20,13 @@ export function restoreSectionScroll(node: HTMLElement, savedY: number, save: (y
 	window.addEventListener("wheel", release, { passive: true });
 	window.addEventListener("touchstart", release, { passive: true });
 	window.addEventListener("keydown", release);
+	window.addEventListener("pointerdown", release, { passive: true });
 	return () => {
 		observer.disconnect();
 		window.removeEventListener("scroll", record);
 		window.removeEventListener("wheel", release);
 		window.removeEventListener("touchstart", release);
 		window.removeEventListener("keydown", release);
+		window.removeEventListener("pointerdown", release);
 	};
 }

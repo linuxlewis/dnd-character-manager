@@ -33,6 +33,31 @@ describe("restoreSectionScroll", () => {
 		expect(browser.scrollY).toBe(500);
 		cleanup();
 		expect(disconnect).toHaveBeenCalledOnce();
-		expect(browser.removeEventListener).toHaveBeenCalledTimes(4);
+		expect(browser.removeEventListener).toHaveBeenCalledTimes(5);
+	});
+	it("records the clamped position when a player interacts with shorter content", () => {
+		const listeners = new Map<string, () => void>();
+		vi.stubGlobal(
+			"ResizeObserver",
+			class {
+				observe() {}
+				disconnect() {}
+			},
+		);
+		const browser = {
+			scrollY: 20,
+			scrollTo: vi.fn(),
+			addEventListener: (name: string, callback: () => void) => listeners.set(name, callback),
+			removeEventListener: vi.fn(),
+		};
+		vi.stubGlobal("window", browser);
+		const save = vi.fn();
+		const cleanup = restoreSectionScroll({} as HTMLElement, 900, save);
+		listeners.get("pointerdown")?.();
+		expect(save).toHaveBeenLastCalledWith(20);
+		browser.scrollY = 40;
+		listeners.get("scroll")?.();
+		expect(save).toHaveBeenLastCalledWith(40);
+		cleanup();
 	});
 });
