@@ -1,0 +1,1449 @@
+{
+	"sourceSha": "4c229160953f25d6594990afc781d34465f75f40",
+	"browser": "147.0.7727.15",
+	"deviceScaleFactor": 1,
+	"fixture": {
+		"name": "Mira Thorn",
+		"level": 3,
+		"experiencePoints": 2196,
+		"health": {
+			"currentHp": 18,
+			"maxHp": 24,
+			"temporaryHp": 3
+		},
+		"treasury": {
+			"pp": 2,
+			"gp": 45,
+			"sp": 7,
+			"cp": 3
+		},
+		"items": ["Rope, hempen (50 feet) x2", "Potion of healing x3"],
+		"catalogue": {
+			"mode": "synthetic",
+			"searchQuery": "blade",
+			"inventorySearchQuery": "Silvered",
+			"mundaneName": "Silvered Blade mtrlq4yu-41169-72f0983b",
+			"magicName": "Moonblade mtrlq4yu-41169-72f0983b",
+			"rulesVersion": "2024"
+		}
+	},
+	"measurements": [
+		{
+			"state": "390-empty",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 266.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 366,
+					"height": 386.1875,
+					"top": 290.375,
+					"right": 378,
+					"bottom": 676.5625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "320-populated",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 296,
+					"height": 106.796875,
+					"top": 10,
+					"right": 308,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 296,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 308,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 184.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 196.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 296,
+					"height": 493.390625,
+					"top": 290.375,
+					"right": 308,
+					"bottom": 783.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "320-history",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 296,
+					"height": 106.796875,
+					"top": 10,
+					"right": 308,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 296,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 308,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 184.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 196.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 296,
+					"height": 493.390625,
+					"top": 290.375,
+					"right": 308,
+					"bottom": 783.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "320-editor-top",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 0,
+					"width": 296,
+					"height": 106.796875,
+					"top": 0,
+					"right": 308,
+					"bottom": 106.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 138.796875,
+					"width": 296,
+					"height": 81.578125,
+					"top": 138.796875,
+					"right": 308,
+					"bottom": 220.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 236.375,
+					"width": 184.09375,
+					"height": 68.796875,
+					"top": 236.375,
+					"right": 196.09375,
+					"bottom": 305.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 740,
+					"top": 0,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 655,
+					"width": 288,
+					"height": 69,
+					"top": 655,
+					"right": 304,
+					"bottom": 724,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 288,
+					"height": 595,
+					"top": 60,
+					"right": 304,
+					"bottom": 655,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 236.375,
+					"width": 296,
+					"height": 493.390625,
+					"top": 236.375,
+					"right": 308,
+					"bottom": 729.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "320-editor-bottom",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 0,
+					"width": 296,
+					"height": 106.796875,
+					"top": 0,
+					"right": 308,
+					"bottom": 106.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 138.796875,
+					"width": 296,
+					"height": 81.578125,
+					"top": 138.796875,
+					"right": 308,
+					"bottom": 220.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 236.375,
+					"width": 184.09375,
+					"height": 68.796875,
+					"top": 236.375,
+					"right": 196.09375,
+					"bottom": 305.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 740,
+					"top": 0,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 655,
+					"width": 288,
+					"height": 69,
+					"top": 655,
+					"right": 304,
+					"bottom": 724,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 288,
+					"height": 595,
+					"top": 60,
+					"right": 304,
+					"bottom": 655,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 236.375,
+					"width": 296,
+					"height": 493.390625,
+					"top": 236.375,
+					"right": 308,
+					"bottom": 729.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "320-add-funds",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 0,
+					"width": 296,
+					"height": 106.796875,
+					"top": 0,
+					"right": 308,
+					"bottom": 106.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 138.796875,
+					"width": 296,
+					"height": 81.578125,
+					"top": 138.796875,
+					"right": 308,
+					"bottom": 220.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 252.375,
+					"width": 184.09375,
+					"height": 68.796875,
+					"top": 252.375,
+					"right": 196.09375,
+					"bottom": 321.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 740,
+					"top": 0,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 655,
+					"width": 288,
+					"height": 69,
+					"top": 655,
+					"right": 304,
+					"bottom": 724,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 288,
+					"height": 595,
+					"top": 60,
+					"right": 304,
+					"bottom": 655,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 252.375,
+					"width": 296,
+					"height": 493.390625,
+					"top": 252.375,
+					"right": 308,
+					"bottom": 745.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-populated",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 266.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 366,
+					"height": 443.390625,
+					"top": 290.375,
+					"right": 378,
+					"bottom": 733.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-history",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 266.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 366,
+					"height": 443.390625,
+					"top": 290.375,
+					"right": 378,
+					"bottom": 733.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-editor-top",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 266.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 390,
+					"height": 844,
+					"top": 0,
+					"right": 390,
+					"bottom": 844,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 759,
+					"width": 358,
+					"height": 69,
+					"top": 759,
+					"right": 374,
+					"bottom": 828,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 358,
+					"height": 699,
+					"top": 60,
+					"right": 374,
+					"bottom": 759,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 366,
+					"height": 443.390625,
+					"top": 290.375,
+					"right": 378,
+					"bottom": 733.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-editor-bottom",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 290.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 290.375,
+					"right": 266.09375,
+					"bottom": 359.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 390,
+					"height": 844,
+					"top": 0,
+					"right": 390,
+					"bottom": 844,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 759,
+					"width": 358,
+					"height": 69,
+					"top": 759,
+					"right": 374,
+					"bottom": 828,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 358,
+					"height": 699,
+					"top": 60,
+					"right": 374,
+					"bottom": 759,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 290.375,
+					"width": 366,
+					"height": 443.390625,
+					"top": 290.375,
+					"right": 378,
+					"bottom": 733.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-add-funds",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 81.578125,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 274.375,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 306.375,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 306.375,
+					"right": 266.09375,
+					"bottom": 375.171875,
+					"left": 12
+				},
+				".inventory-editor-content": {
+					"x": 0,
+					"y": 0,
+					"width": 390,
+					"height": 844,
+					"top": 0,
+					"right": 390,
+					"bottom": 844,
+					"left": 0
+				},
+				".inventory-editor-actions": {
+					"x": 16,
+					"y": 759,
+					"width": 358,
+					"height": 69,
+					"top": 759,
+					"right": 374,
+					"bottom": 828,
+					"left": 16
+				},
+				".inventory-editor-scroll": {
+					"x": 16,
+					"y": 60,
+					"width": 358,
+					"height": 699,
+					"top": 60,
+					"right": 374,
+					"bottom": 759,
+					"left": 16
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 306.375,
+					"width": 366,
+					"height": 443.390625,
+					"top": 306.375,
+					"right": 378,
+					"bottom": 749.765625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "1280-populated",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 176,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 1104,
+					"bottom": 116.796875,
+					"left": 176
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 176,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 1104,
+					"bottom": 335.375,
+					"left": 176
+				},
+				".inventory-search": {
+					"x": 176,
+					"y": 351.375,
+					"width": 816.09375,
+					"height": 68.796875,
+					"top": 351.375,
+					"right": 992.09375,
+					"bottom": 420.171875,
+					"left": 176
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 176,
+					"y": 351.375,
+					"width": 928,
+					"height": 263.09375,
+					"top": 351.375,
+					"right": 1104,
+					"bottom": 614.46875,
+					"left": 176
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "1280-history",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 176,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 1104,
+					"bottom": 116.796875,
+					"left": 176
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 176,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 1104,
+					"bottom": 335.375,
+					"left": 176
+				},
+				".inventory-search": {
+					"x": 176,
+					"y": 351.375,
+					"width": 816.09375,
+					"height": 68.796875,
+					"top": 351.375,
+					"right": 992.09375,
+					"bottom": 420.171875,
+					"left": 176
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 176,
+					"y": 351.375,
+					"width": 928,
+					"height": 263.09375,
+					"top": 351.375,
+					"right": 1104,
+					"bottom": 614.46875,
+					"left": 176
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "1280-editor-top",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 176,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 1104,
+					"bottom": 116.796875,
+					"left": 176
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 176,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 1104,
+					"bottom": 335.375,
+					"left": 176
+				},
+				".inventory-search": {
+					"x": 176,
+					"y": 351.375,
+					"width": 816.09375,
+					"height": 68.796875,
+					"top": 351.375,
+					"right": 992.09375,
+					"bottom": 420.171875,
+					"left": 176
+				},
+				".inventory-editor-content": {
+					"x": 330,
+					"y": 45,
+					"width": 620,
+					"height": 810,
+					"top": 45,
+					"right": 950,
+					"bottom": 855,
+					"left": 330
+				},
+				".inventory-editor-actions": {
+					"x": 346,
+					"y": 961.5625,
+					"width": 588,
+					"height": 69,
+					"top": 961.5625,
+					"right": 934,
+					"bottom": 1030.5625,
+					"left": 346
+				},
+				".inventory-editor-scroll": {
+					"x": 346,
+					"y": 121,
+					"width": 588,
+					"height": 840.5625,
+					"top": 121,
+					"right": 934,
+					"bottom": 961.5625,
+					"left": 346
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 176,
+					"y": 351.375,
+					"width": 928,
+					"height": 263.09375,
+					"top": 351.375,
+					"right": 1104,
+					"bottom": 614.46875,
+					"left": 176
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "1280-editor-bottom",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 176,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 1104,
+					"bottom": 116.796875,
+					"left": 176
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 176,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 1104,
+					"bottom": 335.375,
+					"left": 176
+				},
+				".inventory-search": {
+					"x": 176,
+					"y": 351.375,
+					"width": 816.09375,
+					"height": 68.796875,
+					"top": 351.375,
+					"right": 992.09375,
+					"bottom": 420.171875,
+					"left": 176
+				},
+				".inventory-editor-content": {
+					"x": 330,
+					"y": 45,
+					"width": 620,
+					"height": 810,
+					"top": 45,
+					"right": 950,
+					"bottom": 855,
+					"left": 330
+				},
+				".inventory-editor-actions": {
+					"x": 346,
+					"y": 769.5625,
+					"width": 588,
+					"height": 69,
+					"top": 769.5625,
+					"right": 934,
+					"bottom": 838.5625,
+					"left": 346
+				},
+				".inventory-editor-scroll": {
+					"x": 346,
+					"y": -71,
+					"width": 588,
+					"height": 840.5625,
+					"top": -71,
+					"right": 934,
+					"bottom": 769.5625,
+					"left": 346
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 176,
+					"y": 351.375,
+					"width": 928,
+					"height": 263.09375,
+					"top": 351.375,
+					"right": 1104,
+					"bottom": 614.46875,
+					"left": 176
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "1280-add-funds",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 176,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 1104,
+					"bottom": 116.796875,
+					"left": 176
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 176,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 1104,
+					"bottom": 335.375,
+					"left": 176
+				},
+				".inventory-search": {
+					"x": 176,
+					"y": 367.375,
+					"width": 816.09375,
+					"height": 68.796875,
+					"top": 367.375,
+					"right": 992.09375,
+					"bottom": 436.171875,
+					"left": 176
+				},
+				".inventory-editor-content": {
+					"x": 420,
+					"y": 45,
+					"width": 440,
+					"height": 743.0625,
+					"top": 45,
+					"right": 860,
+					"bottom": 788.0625,
+					"left": 420
+				},
+				".inventory-editor-actions": {
+					"x": 436,
+					"y": 703.0625,
+					"width": 408,
+					"height": 69,
+					"top": 703.0625,
+					"right": 844,
+					"bottom": 772.0625,
+					"left": 436
+				},
+				".inventory-editor-scroll": {
+					"x": 436,
+					"y": 121,
+					"width": 408,
+					"height": 582.0625,
+					"top": 121,
+					"right": 844,
+					"bottom": 703.0625,
+					"left": 436
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 176,
+					"y": 367.375,
+					"width": 928,
+					"height": 263.09375,
+					"top": 367.375,
+					"right": 1104,
+					"bottom": 630.46875,
+					"left": 176
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-treasury-error",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 296.171875,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 296.171875,
+					"right": 266.09375,
+					"bottom": 364.96875,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 296.171875,
+					"width": 366,
+					"height": 443.390625,
+					"top": 296.171875,
+					"right": 378,
+					"bottom": 739.5625,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-text-200",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 20,
+					"width": 366,
+					"height": 213.59375,
+					"top": 20,
+					"right": 378,
+					"bottom": 233.59375,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 469.78125,
+					"width": 366,
+					"height": 227.1875,
+					"top": 469.78125,
+					"right": 378,
+					"bottom": 696.96875,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 728.96875,
+					"width": 366,
+					"height": 133.59375,
+					"top": 728.96875,
+					"right": 378,
+					"bottom": 862.5625,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 728.96875,
+					"width": 366,
+					"height": 1581.75,
+					"top": 728.96875,
+					"right": 378,
+					"bottom": 2310.71875,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-text-200-controls",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 0,
+					"width": 366,
+					"height": 213.59375,
+					"top": 0,
+					"right": 378,
+					"bottom": 213.59375,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": -130.21875,
+					"width": 366,
+					"height": 227.1875,
+					"top": -130.21875,
+					"right": 378,
+					"bottom": 96.96875,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 128.96875,
+					"width": 366,
+					"height": 133.59375,
+					"top": 128.96875,
+					"right": 378,
+					"bottom": 262.5625,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 128.96875,
+					"width": 366,
+					"height": 1581.75,
+					"top": 128.96875,
+					"right": 378,
+					"bottom": 1710.71875,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-text-200-items",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 0,
+					"width": 366,
+					"height": 213.59375,
+					"top": 0,
+					"right": 378,
+					"bottom": 213.59375,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": -730.21875,
+					"width": 366,
+					"height": 227.1875,
+					"top": -730.21875,
+					"right": 378,
+					"bottom": -503.03125,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": -471.03125,
+					"width": 366,
+					"height": 133.59375,
+					"top": -471.03125,
+					"right": 378,
+					"bottom": -337.4375,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": -471.03125,
+					"width": 366,
+					"height": 1581.75,
+					"top": -471.03125,
+					"right": 378,
+					"bottom": 1110.71875,
+					"left": 12
+				}
+			},
+			"overflow": false
+		},
+		{
+			"state": "390-max-currencies",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"geometry": {
+				".character-sticky-header": {
+					"x": 12,
+					"y": 10,
+					"width": 366,
+					"height": 106.796875,
+					"top": 10,
+					"right": 378,
+					"bottom": 116.796875,
+					"left": 12
+				},
+				"[data-testid=\"treasury-summary\"]": {
+					"x": 12,
+					"y": 192.796875,
+					"width": 366,
+					"height": 100.765625,
+					"top": 192.796875,
+					"right": 378,
+					"bottom": 293.5625,
+					"left": 12
+				},
+				".inventory-search": {
+					"x": 12,
+					"y": 309.5625,
+					"width": 254.09375,
+					"height": 68.796875,
+					"top": 309.5625,
+					"right": 266.09375,
+					"bottom": 378.359375,
+					"left": 12
+				},
+				"[data-testid=\"personal-inventory\"]": {
+					"x": 12,
+					"y": 309.5625,
+					"width": 366,
+					"height": 443.390625,
+					"top": 309.5625,
+					"right": 378,
+					"bottom": 752.953125,
+					"left": 12
+				}
+			},
+			"overflow": false
+		}
+	],
+	"nativeKeyboard": "not tested; viewport emulation only",
+	"capturedAt": "2026-09-07",
+	"notes": [
+		"Real application against owned PostgreSQL/API stack, API-created character/items/treasury and synthetic catalogue test helper.",
+		"390-max-currencies uses all denominations at2147483647; readable wrapped amounts measure100.77px summary, ordinary fixture81.58px.",
+		"200% root text enlargement captured at top, then real wheel navigation to search/actions and items in separate screenshots.",
+		"Native keyboard and safe-area hardware checks not performed. Final integration layer owns shared primary-hover contrast and XP semantic adjustments."
+	],
+	"validation": {
+		"fullSuiteSource": "32e6bbb49babf203772c06aac08cb16adefd2474",
+		"fullSuiteResult": {
+			"unit": 599,
+			"integration": 68,
+			"e2ePassed": 29,
+			"e2eFailed": 1
+		},
+		"fullSuiteRemaining": "Only stale 2 items assertion; updated to visible All 2 count. CI must rerun complete suite.",
+		"currentSourceFocusedInventoryUnits": 82,
+		"currentSourceBuild": "passed",
+		"currentSourceLint": "passed"
+	},
+	"artifacts": [
+		{
+			"path": "1280-add-funds.png",
+			"sha256": "2854793242721365f0df2cd4c904111024bd30b6149b90a8525e2ac091f7a818"
+		},
+		{
+			"path": "1280-editor-bottom.png",
+			"sha256": "b2be9f19c95c14054f4290fad016555a0ecdcba92e9458987f0558136ddc8799"
+		},
+		{
+			"path": "1280-editor-top.png",
+			"sha256": "c92047cd58eb464eccf629f528996526d5ebbd36af463416dfbfaf4629d8d50b"
+		},
+		{
+			"path": "1280-history.png",
+			"sha256": "3e72b53c91fcf4b58f4c94b90608783ac36ae9d13c56c3db9f680b1cca03d262"
+		},
+		{
+			"path": "1280-populated.png",
+			"sha256": "8c93286a45c90520b99db7a34cb211465faf41df1755933d4ca47a287b093997"
+		},
+		{
+			"path": "320-add-funds.png",
+			"sha256": "ae96e5eb116517ba8071a0b66468e541f5f0b0be86c8792d87e423f2b8d9cf42"
+		},
+		{
+			"path": "320-editor-bottom.png",
+			"sha256": "48946ef80a2689763b6cd9e47992884e00c0047b491faee451c1a03821106f4e"
+		},
+		{
+			"path": "320-editor-top.png",
+			"sha256": "994c20934c6294517f4a44c2c9cc1fa3a1a8fe8f42907a5066c7604c537d1e86"
+		},
+		{
+			"path": "320-history.png",
+			"sha256": "20d981eaa45be9f45ba63402dcf46e63d0912bacb5d5c69d00542102b4657cdc"
+		},
+		{
+			"path": "320-populated.png",
+			"sha256": "7682a65c9c3aa03c92833123918916fe521ebd5557488ac60b0785dd345ebf21"
+		},
+		{
+			"path": "390-add-funds.png",
+			"sha256": "ecb5d6ac1f4c905358e06d92bbc0cebc1718f4d064111f13f50573f37de5387e"
+		},
+		{
+			"path": "390-editor-bottom.png",
+			"sha256": "8223d8666455a2eacd9c0c489ea259a67eb1f73ae2a42fa181cac516677c318f"
+		},
+		{
+			"path": "390-editor-top.png",
+			"sha256": "c1e01af6d85a0017e86a637c88b8f942937b80db8d106bff9293fb61f3b09039"
+		},
+		{
+			"path": "390-empty.png",
+			"sha256": "074af9cb4716b47eae4a6dc3389dae71ac6902c2625afe678cd73051d6b115b0"
+		},
+		{
+			"path": "390-history.png",
+			"sha256": "4983b9ca8a3c3bd9afae795208b6e66e31650bb8dacd0c943e1e375287848619"
+		},
+		{
+			"path": "390-max-currencies.png",
+			"sha256": "da40f94e79ffb94d780a2a9e6bb2ac7f3fef0602702a4ae100402ad14cca9f55"
+		},
+		{
+			"path": "390-populated.png",
+			"sha256": "69228b07a9d7491c0796fc78ff3f5b28d2163b580e718082bc67002a6dff575d"
+		},
+		{
+			"path": "390-text-200-controls.png",
+			"sha256": "29c628ad0dec6da0196f872dbccc3f37d788f43820d29a9f6d7e00c133cd3a76"
+		},
+		{
+			"path": "390-text-200-items.png",
+			"sha256": "e0c3a96deed7ab2c17c2de2aa94ff175c5cb7c7aef69dec7c598242695e8f6c9"
+		},
+		{
+			"path": "390-text-200.png",
+			"sha256": "be68a197eec9ea249feb637707ab24db812527bf3077493b0e4dc70de9461ffd"
+		},
+		{
+			"path": "390-treasury-error.png",
+			"sha256": "988648fe7806ac1ddb97ceb1920d49f65b6ce080110850abd97674fb8f761212"
+		}
+	]
+}
