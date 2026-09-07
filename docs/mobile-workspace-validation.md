@@ -54,3 +54,23 @@ existing character, scroll both sections, switch and go Back, open each long edi
 last field, verify Save/Cancel above the keyboard, rotate, dismiss and check focus/context, then
 repeat in installed mode where supported. Record device, OS, browser, build SHA and results.
 Reduced viewport height or doubled text size must never be described as physical keyboard proof.
+
+## Mantine Layout Verification
+
+Prefer Mantine's Styles API and stable scoped classes for overlay internals. A class name or a
+`position: fixed` declaration is not evidence that an element occupies the intended rectangle:
+inspect computed styles and bounds after component styles apply. Ensure one scrolling editor body
+and persistent actions actually win over component defaults. Check the last field and Save at
+both scroll extremes, with enlarged text and validation errors.
+
+A non-portalled overlay (`withinPortal={false}`) can inherit transformed or positioned ancestors;
+its fixed inner container must still anchor to the viewport. Check the overlay above the sticky
+header, and test on desktop as well as mobile. Closed modal roots can remain flex children and
+introduce unexpected Stack gaps; inspect actual children and measured spacing rather than adding
+compensating negative margins.
+
+Wait for finite entrance/exit transitions, fonts and settled frames before capturing. A screenshot
+of a fading overlay cannot establish text contrast or geometry. Verify full action-label ranges,
+not just button rectangles: a 44px target with a truncated Restore label still fails acceptance.
+The evidence helper combines rectangle bounds with center hit-testing so a control hidden beneath
+sticky navigation or an overlay fails even when Playwright reports it as visible.

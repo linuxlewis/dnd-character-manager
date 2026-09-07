@@ -33,6 +33,29 @@ export async function assertTouchTarget(locator: Locator, page: Page) {
 	const box = await assertReachable(locator, page);
 	expect(box.width).toBeGreaterThanOrEqual(44);
 	expect(box.height).toBeGreaterThanOrEqual(44);
+	const clippedText = await locator.evaluate((element) => {
+		const box = element.getBoundingClientRect();
+		const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+		const clipped: string[] = [];
+		while (walker.nextNode()) {
+			const text = walker.currentNode;
+			if (!text.textContent?.trim()) continue;
+			const range = document.createRange();
+			range.selectNodeContents(text);
+			for (const rect of range.getClientRects()) {
+				if (
+					rect.width > 0 &&
+					(rect.left < box.left - 1 ||
+						rect.right > box.right + 1 ||
+						rect.top < box.top - 1 ||
+						rect.bottom > box.bottom + 1)
+				)
+					clipped.push(text.textContent);
+			}
+		}
+		return clipped;
+	});
+	expect(clippedText, "visible action labels must fit their target without clipping").toEqual([]);
 }
 
 export async function assertNoOverflow(page: Page) {
