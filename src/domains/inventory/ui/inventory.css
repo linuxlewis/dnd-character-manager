@@ -26,7 +26,7 @@
 	min-height: 44px;
 }
 
-.inventory-editor-actions {
+.inventory-editor .inventory-editor-actions {
 	flex-shrink: 0;
 	padding: 12px 0;
 	background: var(--mantine-color-body);
@@ -34,13 +34,16 @@
 }
 
 @media (max-width: 47.999em) {
-	.inventory-editor-inner {
+	.inventory-editor .inventory-editor-inner {
 		padding: 0;
+		left: 0;
+		right: 0;
 	}
 
-	.inventory-editor-content {
+	.inventory-editor .inventory-editor-content {
 		display: flex;
 		flex-direction: column;
+		flex: 0 0 100%;
 		width: 100%;
 		max-width: 100%;
 		height: 100dvh;
@@ -48,13 +51,13 @@
 		border-radius: 0;
 	}
 
-	.inventory-editor-header {
+	.inventory-editor .inventory-editor-header {
 		flex-shrink: 0;
 		padding-top: env(safe-area-inset-top, 0px);
 	}
 
-	.inventory-editor-body,
-	.inventory-editor-form {
+	.inventory-editor .inventory-editor-body,
+	.inventory-editor .inventory-editor-form {
 		display: flex;
 		flex: 1;
 		flex-direction: column;
@@ -62,14 +65,14 @@
 		overflow: hidden;
 	}
 
-	.inventory-editor-scroll {
+	.inventory-editor .inventory-editor-scroll {
 		flex: 1;
 		min-height: 0;
 		overflow-y: auto;
 		padding-bottom: 16px;
 	}
 
-	.inventory-editor-actions {
+	.inventory-editor .inventory-editor-actions {
 		padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
 	}
 }

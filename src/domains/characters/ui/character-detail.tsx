@@ -2,12 +2,7 @@ import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@manti
 import { useQuery } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
-import {
-	CharacterActivity,
-	CharacterInventory,
-	CharacterTreasuryPanel,
-	type InventoryViewState,
-} from "../../inventory/ui/index.js";
+import { CharacterInventoryWorkspace, type InventoryViewState } from "../../inventory/ui/index.js";
 import { CharacterRibbon } from "./character-ribbon.js";
 import {
 	type CharacterSection,
@@ -97,18 +92,12 @@ export function CharacterDetail({
 								level={characterQuery.data.character.level}
 							/>
 						) : (
-							<Stack gap="md">
-								<CharacterTreasuryPanel characterId={id} />
-								<CharacterActivity
-									characterId={id}
-									characterName={characterQuery.data.character.name}
-								/>
-								<CharacterInventory
-									characterId={id}
-									viewState={inventoryView}
-									onViewStateChange={onInventoryViewChange}
-								/>
-							</Stack>
+							<CharacterInventoryWorkspace
+								characterId={id}
+								characterName={characterQuery.data.character.name}
+								viewState={inventoryView}
+								onViewStateChange={onInventoryViewChange}
+							/>
 						)}
 					</section>
 				</>

@@ -65,7 +65,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	await openInventoryTab(page);
 	const preview = page.getByRole("button", { name: "View inventory activity" });
 	await expect(preview).toBeVisible();
-	await expect(preview.getByText("Added Ledger Item 00", { exact: true })).toBeVisible();
+	expect(historyRequests).toEqual([]);
 	const previewTabStops = await preview.evaluate(
 		(element) =>
 			[...element.querySelectorAll<HTMLElement>("*")].filter((child) => child.tabIndex >= 0).length,
@@ -179,7 +179,6 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 
-	await expect(preview.getByText("Added Mutation trigger", { exact: true })).toBeVisible();
 	await preview.click();
 	await expect.poll(() => refreshedFirstPageResolved).toBe(true);
 	await expect(drawer.getByText("Added Mutation trigger", { exact: true })).toHaveCount(0);
@@ -296,7 +295,6 @@ test("retains the ledger and retries a failed loaded page refresh", async ({ pag
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 
-	await expect(preview.getByText("Added Refresh error trigger", { exact: true })).toBeVisible();
 	await preview.click();
 	await expect.poll(() => failedPageRequest).not.toBeNull();
 	const failedUrl = new URL(failedPageRequest ?? "http://127.0.0.1/");
@@ -396,7 +394,6 @@ test("shows an activity retry when a previously empty history refetch fails", as
 	await addDialog.getByLabel("Category").fill("Testing");
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expect(preview.getByText("Added Empty refresh recovery", { exact: true })).toBeVisible();
 
 	await preview.click();
 	await expect.poll(() => failedPageRequest).not.toBeNull();

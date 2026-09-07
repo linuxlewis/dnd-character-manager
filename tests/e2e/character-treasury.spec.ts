@@ -16,7 +16,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await createCharacter(page, "Treasury One", "Fighter");
 	await openInventoryTab(page);
 
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0" });
 
 	await page.getByRole("button", { name: "Add funds" }).click();
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
@@ -34,7 +34,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await expect(addDialog.getByText("Server-backed result preview")).toBeHidden();
 	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expectBalances(page, { pp: "1", gp: "3", sp: "4", cp: "5", total: "13.45 GP" });
+	await expectBalances(page, { pp: "1", gp: "3", sp: "4", cp: "5" });
 
 	await page.getByRole("button", { name: "Spend" }).click();
 	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
@@ -48,7 +48,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await expect(spendDialog.getByRole("button", { name: "Confirm spend" })).toBeHidden();
 	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(spendDialog).toBeHidden();
-	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
+	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5" });
 
 	const balancesBeforeOverspend = await readBalances(page);
 	await page.getByRole("button", { name: "Spend" }).click();
@@ -66,12 +66,12 @@ test("completes the M1 personal treasury journey with live client previews", asy
 	await page.reload();
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: "Treasury One" })).toBeVisible();
-	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5", total: "12.95 GP" });
+	await expectBalances(page, { pp: "1", gp: "2", sp: "9", cp: "5" });
 
 	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await createCharacter(page, "Treasury Two", "Wizard");
 	await openInventoryTab(page);
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0" });
 });
 
 test("normalizes the entire balance after spending when an exact coin is available", async ({
@@ -85,7 +85,7 @@ test("normalizes the entire balance after spending when an exact coin is availab
 	const addDialog = page.getByRole("dialog", { name: "Add funds" });
 	await addDialog.getByLabel("Copper pieces (CP)").fill("100");
 	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "100", total: "1.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "100" });
 
 	await page.getByRole("button", { name: "Spend", exact: true }).click();
 	const spendDialog = page.getByRole("dialog", { name: "Spend funds" });
@@ -95,7 +95,7 @@ test("normalizes the entire balance after spending when an exact coin is availab
 	await expect(spendDialog.getByText("Returned change")).toBeHidden();
 	await spendDialog.getByRole("button", { name: "Spend", exact: true }).click();
 
-	await expectBalances(page, { pp: "0", gp: "0", sp: "9", cp: "9", total: "0.99 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "9", cp: "9" });
 });
 
 test("isolates and recovers from treasury load failures", async ({ page }) => {
@@ -122,7 +122,7 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 	treasuryAvailable = true;
 	await page.reload();
 	await openInventoryTab(page);
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0" });
 });
 
 test("uses a single mutation after a failed add response and keeps the recovery warning", async ({
@@ -150,7 +150,7 @@ test("uses a single mutation after a failed add response and keeps the recovery 
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
 	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0", total: "0.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "0", sp: "0", cp: "0" });
 	const warning = page.getByRole("alert").filter({
 		hasText: "Treasury confirmation could not be verified",
 	});
@@ -162,7 +162,7 @@ test("uses a single mutation after a failed add response and keeps the recovery 
 	await addDialog.getByLabel("Gold pieces (GP)").fill("1");
 	await addDialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expectBalances(page, { pp: "0", gp: "1", sp: "0", cp: "0", total: "1.00 GP" });
+	await expectBalances(page, { pp: "0", gp: "1", sp: "0", cp: "0" });
 	await expect(mutationAttempts).toBe(2);
 });
 

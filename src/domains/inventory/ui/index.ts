@@ -1,6 +1,7 @@
 export { CharacterActivity } from "./character-activity.js";
 export { CharacterActivityDrawer } from "./character-activity-drawer.js";
 export { CharacterInventory } from "./character-inventory.js";
+export { CharacterInventoryWorkspace } from "./character-inventory-workspace.js";
 export { CharacterTreasuryPanel } from "./character-treasury-panel.js";
 export { InventoryFilterBar, type InventoryViewState } from "./inventory-filter-bar.js";
 export { ItemCard } from "./item-card.js";
