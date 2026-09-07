@@ -119,6 +119,7 @@ export function CharacterHealthPanel({
 				</Button>
 			</div>
 			<Modal
+				classNames={{ body: "workspace-inputs" }}
 				opened={historyOpened}
 				onClose={onCloseHistory}
 				title="Health history"

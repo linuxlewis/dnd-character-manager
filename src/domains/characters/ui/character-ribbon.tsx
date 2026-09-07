@@ -80,6 +80,7 @@ export function CharacterRibbon({
 				<CharacterExperiencePanel character={character} compact />
 			</Stack>
 			<Modal
+				classNames={{ body: "workspace-inputs" }}
 				opened={detailsOpened}
 				onClose={() => setDetailsOpened(false)}
 				title="Character details"
