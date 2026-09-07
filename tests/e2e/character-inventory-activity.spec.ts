@@ -14,6 +14,8 @@ let catalogueFixture: CatalogueJourneyFixture | null = null;
 test.setTimeout(90_000);
 
 test.beforeAll(async () => {
+	// The shared catalogue fixture holds its advisory lock for the other inventory journey.
+	test.setTimeout(120_000);
 	if (!sql) throw new Error("DATABASE_URL is required for character activity e2e tests.");
 	catalogueFixture = await prepareCatalogueJourneyFixture(sql);
 });

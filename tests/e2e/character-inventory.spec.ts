@@ -12,6 +12,8 @@ const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
 let catalogueFixture: CatalogueJourneyFixture | null = null;
 
 test.beforeAll(async () => {
+	// The shared catalogue fixture holds its advisory lock for the other inventory journey.
+	test.setTimeout(120_000);
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
 	catalogueFixture = await prepareCatalogueJourneyFixture(sql);
 });
