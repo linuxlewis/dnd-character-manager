@@ -48,7 +48,7 @@ export function SpellSearchModal({
 			transitionProps={{ duration: 0 }}
 			withinPortal={withinPortal}
 		>
-			<Stack gap="md">
+			<Stack gap="md" className="workspace-inputs">
 				{error && (
 					<Alert color="red" title="Spell search or save failed">
 						Your search is still here. Retry the selection or change the search to try again.

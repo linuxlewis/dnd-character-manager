@@ -74,3 +74,17 @@ and navigation labels as well as Mantine components. At 200% text size, permit w
 normal-size chrome budgets must not clip enlarged text. XP semantics belong to the full progress
 track, with the decorative fill using `withAria={false}`. The accessible value contains exact XP and
 next-level status, including zero progress, level available, and max level.
+
+## Workspace Field Boundaries And Helper Text
+
+Workspace controls need visible boundaries: neutral input borders use `#858585`, exceeding 3:1
+against the field (`#2e2e2e`) and editor (`#242424`) surfaces. Error, focused, and disabled controls
+retain Mantine's semantic styling. Do not replace the error border with the neutral boundary.
+Helper text and placeholders inherit `dark.1` within the workspace instead of the lower-contrast
+default dimmed token. Labels remain visible; placeholders do not replace labels.
+
+The scope is `.character-workspace` and the portaled form containers `.workspace-inputs`,
+`.inventory-editor-form`, and `.spell-editor-form`. Add `workspace-inputs` to new workspace dialog
+content containers so portaling does not lose these roles. This is an opt-in workspace contract,
+not a global application theme change. Validate computed text, field, and surrounding surface
+colors in both unfocused and focused/error states when adding controls.

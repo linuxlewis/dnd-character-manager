@@ -46,6 +46,7 @@ export function HealthAmountModal({
 		>
 			<Box
 				component="form"
+				className="workspace-inputs"
 				onSubmit={(event) => {
 					event.preventDefault();
 					if (!pending) onSubmit();
@@ -135,6 +136,7 @@ export function HealthEditModal({
 		>
 			<Box
 				component="form"
+				className="workspace-inputs"
 				onSubmit={(event) => {
 					event.preventDefault();
 					if (!pending) onSubmit();

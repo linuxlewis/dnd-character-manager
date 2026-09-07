@@ -134,3 +134,16 @@ body {
 	background-color: var(--mantine-color-bloodstone-4);
 	color: var(--mantine-color-black);
 }
+
+/* A visible field boundary on workspace surfaces; Mantine retains error/focus colors. */
+:is(.character-workspace, .workspace-inputs, .inventory-editor-form, .spell-editor-form) {
+	--mantine-color-dimmed: var(--mantine-color-dark-1);
+	--mantine-color-placeholder: var(--mantine-color-dark-1);
+}
+
+:is(.character-workspace, .workspace-inputs, .inventory-editor-form, .spell-editor-form)
+	.mantine-Input-input:not([data-error]):not([data-error] *):not(:disabled):not(
+		[data-disabled]
+	):not(:focus):not(:focus-within) {
+	border-color: #858585;
+}

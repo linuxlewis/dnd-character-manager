@@ -29,11 +29,7 @@ export function CharacterExperiencePanel({
 	};
 	if (compact)
 		return (
-			<Group
-				gap={8}
-				wrap="nowrap"
-				aria-label={`${formatExperience(character.experiencePoints)} XP. ${label}`}
-			>
+			<Group gap={8} wrap="nowrap">
 				<Progress.Root {...progressAria} radius="sm" size={4} flex={1}>
 					<Progress.Section withAria={false} value={experience.progressPercent} color="candle.4" />
 				</Progress.Root>

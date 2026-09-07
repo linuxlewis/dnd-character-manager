@@ -172,6 +172,7 @@ export function CharacterEditor({
 			>
 				<Box
 					component="form"
+					className="workspace-inputs"
 					onSubmit={form.onSubmit(saveCharacter, (errors) => {
 						form.getInputNode(Object.keys(errors)[0])?.focus();
 					})}
