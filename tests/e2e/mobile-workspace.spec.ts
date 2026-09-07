@@ -206,6 +206,8 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	});
 	await save.click();
 	await expect(dialog.getByRole("alert")).toBeVisible();
+	await dialog.getByRole("alert").scrollIntoViewIfNeeded();
+	await assertReachable(dialog.getByRole("alert"), page);
 	await expect(dialog.getByLabel("Name", { exact: true })).toHaveValue("A retained mobile draft");
 	await assertReachable(save, page);
 	await captureMobileEvidence(page, info, "item-editor-error", ["E3", "E6"]);
