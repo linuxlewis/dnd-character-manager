@@ -30,13 +30,36 @@ Track the health of each domain and architectural layer. Update this when you im
 | production | B | Node 24 multi-stage Docker image and production Compose stack are documented; local production deploy verifies public PWA cache headers; deployment hardening remains environment-specific |
 | feature-flags | D | Placeholder |
 
+## Mobile Workspace Validation
+
+The main-based mobile refactor preserves the shipping Spells and Inventory functionality; the
+deferred Attributes & Rolls feature is not included. Coverage now includes compact identity/XP/HP,
+responsive section navigation, retained section state and query isolation, compact inventory and
+spell presentation, on-demand history, persistent editor actions, failed-draft retention, focus
+trapping/return, enlarged text, numerical extremes, and section-local recovery. Existing mutation,
+reconciliation, catalogue, and history-pagination journeys continue to run.
+
+At clean candidate `64efd03` (application source `f675112`), the complete `pnpm test` gate passed
+599 unit, 68 integration, and 40 browser tests. Static validation also passed. The orchestrator
+independently reviewed 62 viewport screenshots and live focus behavior; this is separate evidence
+from successful compilation or geometry assertions. See the
+[validation record](./mobile-workspace-validation.md) and [testing procedure](./testing.md) for
+the focused harness command, fixture details, and evidence requirements.
+
+These captures are reviewed artifacts, not accepted pixel-comparison baselines. No pixel baselines
+are established by this refactor; future baseline adoption or replacement requires independent
+review. Physical iOS/Android browser, standalone installation, software keyboard, safe-area, and
+rotation checks remain **NOT RUN** and must be recorded separately from Chromium emulation.
+
 ## Known Gaps
 
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
 - [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, or session management UI yet; the Resend sender domain still needs verification for production email delivery
 - [ ] Character health does not yet include death saves, rest automation, damage types, or rules-derived max HP
+- [ ] Mobile workspace physical-device keyboard, safe-area, rotation, and installed-mode validation is not yet run; follow the device procedure in [mobile workspace validation](./mobile-workspace-validation.md)
+- [ ] Accepted pixel-comparison baselines are not established; current viewport captures require independent visual review
 
 ---
 
-*Last updated: 2026-09-02*
+*Last updated: 2026-09-07*

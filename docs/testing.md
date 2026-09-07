@@ -1,6 +1,6 @@
 # Testing Procedure
 
-Last verified: 2026-05-05
+Last verified: 2026-09-07
 
 This repository uses a testing pyramid. Most behavior should be covered by fast unit tests, narrower integration tests should prove real boundaries, and e2e tests should cover the browser journeys that matter to users.
 
@@ -65,6 +65,39 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 - Keep e2e coverage selective. Prefer one complete journey over many assertions that duplicate unit or integration coverage.
 
 ## Agent Procedure
+
+### Mobile Workspace Validation
+
+The shared mobile workspace harness runs the real application against the owned API/database
+stack and deterministic catalogue fixture. It covers responsive boundaries, section URLs and
+retained state, inactive-query isolation, editor geometry and failed drafts, focus trapping and
+return, XP boundaries, enlarged text, numeric extremes, and local error recovery. Existing
+inventory, treasury, history, health, and spell journeys remain part of the full regression gate.
+
+For focused iteration, stop this worktree's manual stack, then run:
+
+```bash
+PLAYWRIGHT_GREP='mobile workspace' pnpm test:e2e
+```
+
+`PLAYWRIGHT_GREP` is an optional test-title regular expression read by Playwright configuration.
+Omit it for the full browser suite. The normal runner still owns the catalogue fixture, dynamic
+ports, database, and cleanup; filename arguments appended to `scripts/test.ts` are not forwarded.
+The focused run does not replace `pnpm test` for final acceptance.
+
+The clean candidate `64efd03` (application source `f675112`) passed `pnpm test` with 599 unit,
+68 integration, and 40 browser tests. Lint, generated API freshness, build, documentation links,
+and whitespace checks also passed. The orchestrator separately reviewed 62 viewport captures
+and live focus behavior. See [mobile workspace validation](./mobile-workspace-validation.md)
+for fixtures, evidence sidecars, acceptance, and reproduction details.
+
+No accepted pixel-comparison baselines have been established. Current screenshots are review
+evidence, not automatic visual regression expectations. Future baseline adoption requires
+independent review at an exact clean source SHA. Physical iOS/Android, installed standalone mode,
+software-keyboard occlusion, safe areas, and rotation are **NOT RUN**; viewport emulation and
+enlarged-text checks do not prove those device behaviors.
+
+### Required Commands
 
 For source-only changes:
 
