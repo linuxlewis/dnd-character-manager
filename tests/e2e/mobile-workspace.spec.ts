@@ -192,7 +192,8 @@ test("mobile workspace item editor retains failed draft and traps focus above ch
 	await expect(dialog.getByLabel("Name")).toHaveCSS("font-size", "16px");
 	await captureMobileEvidence(page, info, "item-editor-top", ["E1", "E4"]);
 	await dialog.getByLabel("Notes").fill("Last field is reachable above actions");
-	await assertReachable(dialog.getByLabel("Notes"), page);
+	await dialog.getByLabel("Thumbnail URL").scrollIntoViewIfNeeded();
+	await assertReachable(dialog.getByLabel("Thumbnail URL"), page);
 	await assertTouchTarget(save, page);
 	for (let step = 0; step < 16; step++) {
 		await page.keyboard.press("Tab");
@@ -303,7 +304,8 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 	const dialog = page.getByRole("dialog", { name: "Add personal item" });
 	await expect(dialog).toBeVisible();
 	await dialog.getByLabel("Notes").fill("Enlarged text last field");
-	await assertReachable(dialog.getByLabel("Notes"), page);
+	await dialog.getByLabel("Thumbnail URL").scrollIntoViewIfNeeded();
+	await assertReachable(dialog.getByLabel("Thumbnail URL"), page);
 	await assertReachable(dialog.getByRole("button", { name: "Cancel", exact: true }), page);
 	await captureMobileEvidence(page, info, "item-editor-text-200", ["V6", "E1", "E4"]);
 });
