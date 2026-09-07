@@ -263,6 +263,12 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 		).toBeTruthy();
 		await page.goto(`${fixture.path}/spells`);
 		await expect(page.getByText(state.label, { exact: true })).toBeVisible();
+		const progress = page.getByRole("progressbar", { name: "Experience progress", exact: true });
+		await expect(progress).toHaveCount(1);
+		await expect(progress).toHaveAttribute(
+			"aria-valuetext",
+			`${new Intl.NumberFormat("en-US").format(state.xp)} XP. ${state.label}`,
+		);
 		await assertNoOverflow(page);
 		await captureMobileEvidence(page, info, `xp-${state.xp}-level-${state.level}`, [
 			"H3",
