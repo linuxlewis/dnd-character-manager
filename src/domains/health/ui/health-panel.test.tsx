@@ -11,6 +11,7 @@ describe("CharacterHealthPanel", () => {
 			<MantineProvider>
 				<QueryClientProvider client={queryClient}>
 					<CharacterHealthPanel
+						onHealthUpdated={() => {}}
 						characterId="00000000-0000-4000-8000-000000000001"
 						health={{ currentHp: 15, maxHp: 20, temporaryHp: 5, effectiveMaxHp: 25 }}
 						recentHealthChanges={[

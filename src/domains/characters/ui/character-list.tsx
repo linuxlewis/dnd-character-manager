@@ -2,8 +2,8 @@ import { Alert, Anchor, Badge, Button, Group, Paper, Stack, Text, Title } from "
 import { useQuery } from "@tanstack/react-query";
 import { apiQueries } from "../../../generated/api-client.generated.js";
 import type { CharacterSummary } from "../types/index.js";
+import type { NavigateToCharacterRoute } from "./character-route.js";
 import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
-import type { NavigateToCharacterRoute } from "./character-workspace.js";
 
 interface CharacterListProps {
 	onNavigate: NavigateToCharacterRoute;

@@ -1,18 +1,22 @@
 import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
-import { CharacterInventoryWorkspace, type InventoryViewState } from "../../inventory/ui/index.js";
-import { CharacterRibbon } from "./character-ribbon.js";
 import {
+	CharacterRibbon,
 	type CharacterSection,
+	CharacterSpellSlotsPanel,
 	characterRoutePath,
+	type NavigateToCharacterRoute,
 	shouldHandleCharacterLink,
-} from "./character-route.js";
+} from "../../../domains/characters/ui/index.js";
+import { CharacterHealthPanel } from "../../../domains/health/ui/index.js";
+import {
+	CharacterInventoryWorkspace,
+	type InventoryViewState,
+} from "../../../domains/inventory/ui/index.js";
+import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
+import { applyHealthResponse } from "../cache/health.js";
 import { CharacterSectionNavigation } from "./character-section-navigation.js";
-import type { NavigateToCharacterRoute } from "./character-workspace.js";
-import { CharacterHealthPanel } from "./health-panel.js";
-import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
 interface CharacterDetailProps {
 	id: string;
@@ -31,6 +35,7 @@ export function CharacterDetail({
 	inventoryView,
 	onInventoryViewChange,
 }: CharacterDetailProps) {
+	const queryClient = useQueryClient();
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
 
 	return (
@@ -72,6 +77,9 @@ export function CharacterDetail({
 							renderApplicationMenu={renderApplicationMenu}
 						/>
 						<CharacterHealthPanel
+							onHealthUpdated={(response, characterId) =>
+								applyHealthResponse(queryClient, characterId, response)
+							}
 							characterId={id}
 							health={characterQuery.data.character.health}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}

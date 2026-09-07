@@ -1,11 +1,14 @@
 import { Button, Group, Modal, Stack, Text, UnstyledButton } from "@mantine/core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { History } from "lucide-react";
 import { useRef, useState } from "react";
-import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
-import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
+import { apiMutations } from "../../../generated/api-client.generated.js";
 
-import type { CharacterHealth, HealthChangeResponse } from "../../health/types/index.js";
+import type {
+	CharacterHealth,
+	HealthChangeResponse,
+	UpdateCharacterHealthResponse,
+} from "../types/index.js";
 import { HealthAmountModal, HealthEditModal, type NumberDraft } from "./health-dialogs.js";
 import { formatHealthChange } from "./health-display.js";
 
@@ -17,10 +20,12 @@ export function CharacterHealthPanel({
 	characterId,
 	health,
 	recentHealthChanges,
+	onHealthUpdated,
 }: {
 	characterId: string;
 	health: CharacterHealth;
 	recentHealthChanges: HealthChangeResponse[];
+	onHealthUpdated: (response: UpdateCharacterHealthResponse, characterId: string) => void;
 }) {
 	const historyTriggerRef = useRef<HTMLButtonElement>(null);
 	const [historyOpened, setHistoryOpened] = useState(false);
@@ -28,24 +33,11 @@ export function CharacterHealthPanel({
 	const [amountDraft, setAmountDraft] = useState<NumberDraft>("");
 	const [maxDraft, setMaxDraft] = useState<NumberDraft>(health.maxHp);
 	const [temporaryDraft, setTemporaryDraft] = useState<NumberDraft>(health.temporaryHp);
-	const queryClient = useQueryClient();
 	const updateMutation = useMutation({
 		...apiMutations.updateCharacterHealth(),
-		onSuccess: (response) => {
+		onSuccess: (response, variables) => {
 			setActiveDialog(null);
-			queryClient.setQueryData(
-				apiQueryKeys.getCharacter({ characterId }),
-				(current: CharacterDetailResponse | undefined) =>
-					current
-						? {
-								character: {
-									...current.character,
-									health: response.health,
-									recentHealthChanges: response.recentHealthChanges,
-								},
-							}
-						: current,
-			);
+			onHealthUpdated(response, variables.params.characterId);
 		},
 	});
 

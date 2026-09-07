@@ -1,14 +1,15 @@
 import { type ReactNode, useCallback, useRef, useState } from "react";
+import {
+	CharacterList,
+	type CharacterRoute,
+	characterRoutePath,
+	parseCharacterRoute,
+} from "../../../domains/characters/ui/index.js";
+import type { InventoryViewState } from "../../../domains/inventory/ui/index.js";
 import { navigateBrowserPath } from "../../../providers/navigation/index.js";
-import type { InventoryViewState } from "../../inventory/ui/index.js";
 import { CharacterDetail } from "./character-detail.js";
-import { CharacterList } from "./character-list.js";
-import type { CharacterRoute } from "./character-route.js";
-import { characterRoutePath, parseCharacterRoute } from "./character-route.js";
 import { CreateCharacterForm } from "./create-character-form.js";
 import { restoreSectionScroll } from "./section-scroll.js";
-
-export type NavigateToCharacterRoute = (route: CharacterRoute) => void;
 
 export function CharacterWorkspace({
 	pathname,
