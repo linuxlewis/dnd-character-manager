@@ -1,14 +1,20 @@
-import { Alert, Badge, Button, Group, Paper, Stack, Tabs, Text, Title } from "@mantine/core";
+import { Alert, Button, Group, Paper, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import {
 	CharacterActivity,
 	CharacterInventory,
 	CharacterTreasuryPanel,
+	type InventoryViewState,
 } from "../../inventory/ui/index.js";
-import { CharacterEditor } from "./character-editor.js";
-import { CharacterExperiencePanel } from "./character-experience-panel.js";
-import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
+import { CharacterRibbon } from "./character-ribbon.js";
+import {
+	type CharacterSection,
+	characterRoutePath,
+	shouldHandleCharacterLink,
+} from "./character-route.js";
+import { CharacterSectionNavigation } from "./character-section-navigation.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
 import { CharacterHealthPanel } from "./health-panel.js";
 import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
@@ -16,17 +22,30 @@ import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 interface CharacterDetailProps {
 	id: string;
 	onNavigate: NavigateToCharacterRoute;
+	section?: CharacterSection;
+	renderApplicationMenu?: (characterActions?: ReactNode) => ReactNode;
+	inventoryView?: InventoryViewState;
+	onInventoryViewChange?: (state: InventoryViewState) => void;
 }
 
-export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
+export function CharacterDetail({
+	id,
+	onNavigate,
+	section = "spells",
+	renderApplicationMenu,
+	inventoryView,
+	onInventoryViewChange,
+}: CharacterDetailProps) {
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
 
 	return (
-		<Stack gap="lg">
-			<Group justify="space-between" align="center">
-				<Title order={2}>Character details</Title>
-				<BackToListButton onNavigate={onNavigate} />
-			</Group>
+		<Stack gap="md" className="character-workspace">
+			{!characterQuery.data && (
+				<Group justify="space-between" align="center">
+					<BackToListButton onNavigate={onNavigate} />
+					{renderApplicationMenu?.()}
+				</Group>
+			)}
 
 			{characterQuery.isLoading && (
 				<Paper withBorder p="lg">
@@ -47,55 +66,45 @@ export function CharacterDetail({ id, onNavigate }: CharacterDetailProps) {
 			)}
 
 			{characterQuery.data && !characterQuery.error && (
-				<Paper withBorder p="lg">
-					<Stack gap="md">
-						<Group gap="xs" align="center">
-							<Title order={3}>{characterQuery.data.character.name}</Title>
-							<CharacterEditor
-								characterId={characterQuery.data.character.id}
-								experiencePoints={characterQuery.data.character.experiencePoints}
-								level={characterQuery.data.character.level}
-								name={characterQuery.data.character.name}
-							/>
-						</Group>
-						<Group gap="xs">
-							<Badge variant="light">{characterQuery.data.character.className}</Badge>
-							<Badge color="candle" variant="light">
-								Level {characterQuery.data.character.level}
-							</Badge>
-						</Group>
-						<CharacterExperiencePanel character={characterQuery.data.character} />
+				<>
+					<section className="character-sticky-header" aria-label="Character workspace header">
+						<CharacterRibbon
+							character={characterQuery.data.character}
+							onNavigate={onNavigate}
+							renderApplicationMenu={renderApplicationMenu}
+						/>
 						<CharacterHealthPanel
-							characterId={characterQuery.data.character.id}
+							characterId={id}
 							health={characterQuery.data.character.health}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
 						/>
-						<Tabs defaultValue="spells-abilities" keepMounted={false}>
-							<Tabs.List aria-label="Character sections">
-								<Tabs.Tab value="spells-abilities">Spells &amp; Abilities</Tabs.Tab>
-								<Tabs.Tab value="inventory">Inventory</Tabs.Tab>
-							</Tabs.List>
-
-							<Tabs.Panel value="spells-abilities" pt="md">
-								<CharacterSpellSlotsPanel
-									characterId={characterQuery.data.character.id}
-									level={characterQuery.data.character.level}
+					</section>
+					<CharacterSectionNavigation characterId={id} section={section} onNavigate={onNavigate} />
+					<section
+						className="character-section-content"
+						aria-label={section === "spells" ? "Spells & Abilities" : "Inventory"}
+					>
+						{section === "spells" ? (
+							<CharacterSpellSlotsPanel
+								characterId={id}
+								level={characterQuery.data.character.level}
+							/>
+						) : (
+							<Stack gap="md">
+								<CharacterTreasuryPanel characterId={id} />
+								<CharacterActivity
+									characterId={id}
+									characterName={characterQuery.data.character.name}
 								/>
-							</Tabs.Panel>
-
-							<Tabs.Panel value="inventory" pt="md">
-								<Stack gap="md">
-									<CharacterTreasuryPanel characterId={characterQuery.data.character.id} />
-									<CharacterActivity
-										characterId={characterQuery.data.character.id}
-										characterName={characterQuery.data.character.name}
-									/>
-									<CharacterInventory characterId={characterQuery.data.character.id} />
-								</Stack>
-							</Tabs.Panel>
-						</Tabs>
-					</Stack>
-				</Paper>
+								<CharacterInventory
+									characterId={id}
+									viewState={inventoryView}
+									onViewStateChange={onInventoryViewChange}
+								/>
+							</Stack>
+						)}
+					</section>
+				</>
 			)}
 		</Stack>
 	);

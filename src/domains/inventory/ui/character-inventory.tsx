@@ -25,15 +25,27 @@ import { invalidateCharacterHistory } from "./activity-cache.js";
 import { characterItemsQueryPrefix, reconcileItem } from "./inventory-cache.js";
 import { InventoryCountsAlert } from "./inventory-counts-alert.js";
 import { getInventoryErrorMessage, toInventoryError } from "./inventory-errors.js";
-import { type InventoryFilter, InventoryFilterBar } from "./inventory-filter-bar.js";
+import { InventoryFilterBar, type InventoryViewState } from "./inventory-filter-bar.js";
 import { ItemCard } from "./item-card.js";
 import { ItemDetailDrawer } from "./item-detail-drawer.js";
 import { ItemForm } from "./item-form.js";
-
-export function CharacterInventory({ characterId }: { characterId: string }) {
+export function CharacterInventory({
+	characterId,
+	viewState,
+	onViewStateChange,
+}: {
+	characterId: string;
+	viewState?: InventoryViewState;
+	onViewStateChange?: (state: InventoryViewState) => void;
+}) {
 	const queryClient = useQueryClient();
-	const [searchInput, setSearchInput] = useState("");
-	const [activeType, setActiveType] = useState<InventoryFilter>("all");
+	const [localView, setLocalView] = useState<InventoryViewState>({
+		searchInput: "",
+		activeType: "all",
+	});
+	const { searchInput, activeType } = viewState ?? localView;
+	const updateView = onViewStateChange ?? setLocalView;
+	const setSearchInput = (searchInput: string) => updateView({ searchInput, activeType });
 	const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 	const [formItem, setFormItem] = useState<InventoryItem | undefined>();
 	const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -47,7 +59,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		type: activeType === "all" ? undefined : activeType,
 	};
 	const countFilter = { search: search || undefined };
-
 	const inventoryQuery = useQuery({
 		...apiQueries.listCharacterItems({ characterId }, activeFilter),
 		retry: false,
@@ -74,7 +85,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	const items = inventoryQuery.data?.items ?? [];
 	const countItems = countsQuery.error ? null : (countsQuery.data?.items ?? null);
 	const totalCount = countsQuery.error ? null : (countsQuery.data?.total ?? null);
-
 	const createMutation = useMutation({
 		...apiMutations.createCharacterItem(),
 		onError: (error) => setMutationError(toInventoryError(error)),
@@ -133,7 +143,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		equipMutation.isPending ||
 		unequipMutation.isPending ||
 		deleteMutation.isPending;
-
 	function openCreateForm() {
 		setMutationError(null);
 		setFormItem(undefined);
@@ -141,7 +150,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		setFormVersion((version) => version + 1);
 		setFormOpen(true);
 	}
-
 	function openEditForm() {
 		if (!detailItem) return;
 		setMutationError(null);
@@ -151,7 +159,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		setSelectedItem(null);
 		setFormOpen(true);
 	}
-
 	function submitForm(request: CreateCharacterItemRequest | UpdateCharacterItemRequest) {
 		if (formMode === "create") {
 			createMutation.mutate({
@@ -167,22 +174,18 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 			});
 		}
 	}
-
 	function performEquip() {
 		if (!detailItem) return;
 		equipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performUnequip() {
 		if (!detailItem) return;
 		unequipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performDelete() {
 		if (!detailItem) return;
 		deleteMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	return (
 		<Paper data-testid="personal-inventory" p={{ base: "md", sm: "lg" }} withBorder>
 			<Stack gap="md">
@@ -202,7 +205,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 					</Stack>
 					<Button onClick={openCreateForm}>Add item</Button>
 				</Group>
-
 				<Group align="flex-end" gap="sm" grow wrap="wrap">
 					<TextInput
 						aria-label="Search personal inventory"
@@ -215,16 +217,13 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 						{inventoryQuery.data ? `${inventoryQuery.data.total} matching` : ""}
 					</Text>
 				</Group>
-
 				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
-
 				<InventoryFilterBar
 					activeType={activeType}
 					countItems={countItems}
-					onChange={setActiveType}
+					onChange={(activeType) => updateView({ searchInput, activeType })}
 					totalCount={totalCount}
 				/>
-
 				{inventoryQuery.isLoading && (
 					<Group justify="center" py="xl">
 						<Loader size="sm" />
@@ -265,14 +264,12 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 						))}
 					</SimpleGrid>
 				)}
-
 				{mutationError && !formOpen && (
 					<Alert color="red" title="Inventory action failed" variant="light">
 						{mutationError.message}
 					</Alert>
 				)}
 			</Stack>
-
 			<ItemForm
 				error={mutationError}
 				initialItem={formItem}

@@ -46,18 +46,18 @@ describe("CharacterDetail", () => {
 			</MantineProvider>,
 		);
 
-		expect(html).toContain("Character details");
+		expect(html).toContain("Character workspace header");
 		expect(html).toContain("Spells &amp; Abilities");
 		expect(html).toContain("Inventory");
-		expect(html).toMatch(/role="tab"[^>]*aria-selected="true"/);
-		expect(html).toMatch(/role="tab"[^>]*aria-selected="false"/);
+		expect(html).toContain('aria-current="page"');
+		expect(html).not.toContain('role="tab"');
 		expect(html).toContain("Experience");
 		expect(html).toContain("27,000 XP");
 		expect(html).toContain("7,000 XP to level 8");
 		expect(html).toContain("Health");
 		expect(html).toContain("Spell slots");
 		expect(html.indexOf("Experience")).toBeLessThan(html.indexOf("Health"));
-		const firstTabIndex = html.indexOf('role="tab"');
+		const firstTabIndex = html.indexOf('aria-label="Character sections"');
 		expect(firstTabIndex).toBeGreaterThan(-1);
 		expect(html.indexOf("Experience")).toBeLessThan(firstTabIndex);
 		expect(html.indexOf("Health")).toBeLessThan(firstTabIndex);

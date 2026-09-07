@@ -4,6 +4,11 @@ import { INVENTORY_ITEM_TYPES, ITEM_TYPE_LABELS } from "./item-presentation.js";
 
 export type InventoryFilter = "all" | InventoryItemType;
 
+export interface InventoryViewState {
+	searchInput: string;
+	activeType: InventoryFilter;
+}
+
 export function InventoryFilterBar({
 	activeType,
 	countItems,

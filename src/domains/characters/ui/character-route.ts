@@ -1,6 +1,8 @@
+export type CharacterSection = "spells" | "inventory";
+
 export type CharacterRoute =
 	| { screen: "create" }
-	| { screen: "detail"; id: string }
+	| { screen: "detail"; id: string; section?: CharacterSection }
 	| { screen: "list" };
 
 export const characterListRoute: CharacterRoute = { screen: "list" };
@@ -10,10 +12,12 @@ export function parseCharacterRoute(pathname: string): CharacterRoute {
 	if (pathname === "/" || pathname === "/characters") return characterListRoute;
 	if (pathname === "/characters/new") return createCharacterRoute;
 
-	const detailMatch = pathname.match(/^\/characters\/([^/]+)$/);
+	const detailMatch = pathname.match(/^\/characters\/([^/]+)(?:\/(spells|inventory))?$/);
 	if (detailMatch?.[1]) {
 		try {
-			return { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
+			const route: CharacterRoute = { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
+			if (detailMatch[2]) route.section = detailMatch[2] as CharacterSection;
+			return route;
 		} catch {
 			return characterListRoute;
 		}
@@ -24,7 +28,9 @@ export function parseCharacterRoute(pathname: string): CharacterRoute {
 
 export function characterRoutePath(route: CharacterRoute) {
 	if (route.screen === "create") return "/characters/new";
-	if (route.screen === "detail") return `/characters/${encodeURIComponent(route.id)}`;
+	if (route.screen === "detail") {
+		return `/characters/${encodeURIComponent(route.id)}${route.section ? `/${route.section}` : ""}`;
+	}
 	return "/characters";
 }
 
