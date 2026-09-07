@@ -11,6 +11,7 @@ This is a TypeScript monorepo using pnpm workspaces. The application follows a d
 | What | Where |
 |------|-------|
 | Feature implementation process | [docs/implementation.md](./docs/implementation.md) |
+| Domain refactor milestones | [docs/domain-encapsulation-refactor-milestones.md](./docs/domain-encapsulation-refactor-milestones.md) |
 | Architecture & dependency rules | [docs/architecture.md](./docs/architecture.md) |
 | Authentication & session model | [docs/auth.md](./docs/auth.md) |
 | Testing procedure | [docs/testing.md](./docs/testing.md) |
@@ -35,7 +36,7 @@ pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · Postg
 
 ## Key Rules
 
-1. **Layered architecture is law.** Each domain follows: Types → Config → Repo → Service → Runtime → UI. Dependencies flow forward only. See [docs/architecture.md](./docs/architecture.md).
+1. **Layered architecture is law.** Follow the domain-layer and application-composition matrix, including public persistence schemas and client-safe boundaries. See [docs/architecture.md](./docs/architecture.md).
 2. **Parse at the boundary.** All external data (API inputs, DB rows, env vars) must be validated with Zod schemas before entering the domain.
 3. **Structured logging only.** Use the Pino logger from `src/providers/telemetry`. No `console.log`.
 4. **Cross-cutting via Providers.** Database, telemetry, auth, and feature flags enter through `src/providers/`. No direct imports of cross-cutting concerns in domain code.

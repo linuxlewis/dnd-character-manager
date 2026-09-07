@@ -2,7 +2,7 @@
 
 Last verified: 2026-05-05
 
-The HTTP contract is generated from TypeScript route contract metadata and Zod schemas. Domain runtime layers own their route contracts because routes are the HTTP boundary, and the generated frontend client imports only client-safe domain types. The generated client also exposes TanStack Query option factories so UI code can share query keys, query functions, mutation keys, and mutation functions without hand-written wrappers.
+The HTTP contract is generated from TypeScript route contract metadata and Zod schemas. Domain runtime layers own feature route contracts. Application modules own contracts that combine domains; generated frontend clients import only client-safe domain or application types. The generated client also exposes TanStack Query option factories so UI code can share query keys, query functions, mutation keys, and mutation functions without hand-written wrappers.
 
 ## Files
 
@@ -28,9 +28,9 @@ The HTTP contract is generated from TypeScript route contract metadata and Zod s
 
 ## Adding Or Changing Routes
 
-1. Add or update request, response, and parameter schemas in the domain `types/` layer. Use JSON-serializable response schemas for HTTP payloads; for example, date-time fields should be strings in response schemas even if service-layer domain entities use `Date`.
-2. Add or update the route contract in the domain `runtime/contract.ts`.
-3. Implement the Fastify route in the domain `runtime/routes.ts`.
+1. Add or update request, response, and parameter schemas in the domain `types/` layer, or `application/<use-case>/types/` for combined responses. Use JSON-serializable response schemas for HTTP payloads; for example, date-time fields should be strings in response schemas even if service-layer domain entities use `Date`.
+2. Add or update the route contract in the domain `runtime/contract.ts`, or the application contract for a combined use case.
+3. Implement the Fastify route in the domain runtime, or the application handler; register it exactly once.
 4. Run `pnpm api:generate`.
 5. Use `apiQueries`, `apiMutations`, and `apiQueryKeys` from the compatibility barrel at `src/generated/api-client.generated.ts` in UI code instead of hand-written `fetch`, `queryKey`, `queryFn`, or `mutationFn` wrappers.
 
@@ -247,3 +247,22 @@ When changing contracts, verify all of the following:
 3. `pnpm api:generate` updates the OpenAPI document and every generated client module.
 4. `pnpm api:check` passes without rewriting artifacts and detects missing or unexpected generated modules.
 5. UI code imports `apiQueries`, `apiMutations`, `apiQueryKeys`, `apiClient`, or generated exported types from `src/generated/api-client.generated.ts`.
+
+## Combined Responses During The Domain Refactor
+
+The [architecture](./architecture.md) defines application composition. Character detail,
+creation, name, level, and XP responses currently contain health, so their combined JSON
+schemas move to `application/character-detail/types/`. A character URL does not imply a
+character-domain owner. Keep existing paths, operation IDs, methods, statuses, parsers, and
+generated query-key behavior. Update `src/api-contracts.ts` and generator import metadata;
+generated modules may move internally, while their public client calls remain compatible.
+
+Use Drizzle relations to load required records, then map/validate the explicit response.
+Never expose raw ownership fields or silently default required health if the relation is absent.
+The current list has no health fields, so health changes need not invalidate it. Application
+cache coordination updates `apiQueryKeys.getCharacter({ characterId })` after health mutations;
+feature hooks accept callbacks rather than enumerating every consuming page. Keep independent
+spell endpoints. This refactor adds neither arbitrary includes nor a full-sheet endpoint.
+
+See the [baseline operation inventory](./domain-encapsulation-refactor-baseline.md) for exact
+contracts and compatibility scenarios. API generation and owner-isolation tests verify moves.

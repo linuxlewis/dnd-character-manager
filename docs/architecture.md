@@ -1,83 +1,133 @@
 # Architecture
 
-## Domain-Driven Layered Architecture
+## Policy And Rollout
 
-Every business domain is organized into six layers with **strict forward-only dependencies**.
+This is the target architecture for the [domain refactor](./domain-encapsulation-refactor-brief.md).
+The [milestones](./domain-encapsulation-refactor-milestones.md) introduce and verify it incrementally.
+Current `lints/check-deps.ts` checks alias-shaped imports and does not prove compliance for
+relative imports. R1 adds resolution, R2 adds report-only policy checks, and R10 activates
+repository-wide enforcement. Existing checks stay enabled throughout. See the
+[baseline and decisions](./domain-encapsulation-refactor-baseline.md) for migration ownership.
 
-```
-Types → Config → Repo → Service → Runtime → UI
-   │                                      │       ▲
-   └── Zod request/response schemas ─────┘       │
-                         │                       │
-                         ▼                       │
-              OpenAPI spec + typed API client
-              + TanStack Query helpers ───────────┘
-```
+## Functionality Ownership
 
-### Layer Responsibilities
+A domain owns cohesive business rules, state, and mutations. Sharing a character ID does not
+make health, spellcasting, and inventory part of character identity. Create a domain when a
+feature has independent rules and persistence; use ordinary modules/components for smaller
+workflows. Do not require empty layer directories or a service wrapper with no responsibility.
 
-| Layer | Purpose | May Import |
-|-------|---------|------------|
-| **types/** | Domain types, Zod schemas, constants | Nothing (leaf layer) |
-| **config/** | Domain configuration, defaults, env parsing | types |
-| **repo/** | Data access, database queries, external API clients | types, config |
-| **service/** | Business logic, orchestration, domain rules | types, config, repo |
-| **runtime/** | Server routes, route contracts, background jobs, event handlers | types, config, repo, service |
-| **ui/** | React components, hooks, pages; uses generated API client and TanStack Query helpers for HTTP | types, config (client-safe only), generated client |
+Characters owns identity, owner, name, class, level, and XP. Health owns HP and health history.
+Spellcasting owns saved spells/features, slots, defaults, and slot history. Inventory and
+catalogue retain their existing responsibilities. Application composition owns combined
+responses, creation across domains, page assembly, and cross-feature cache coordination.
+Future attributes owns scores, proficiencies, and derived rolls.
 
-Route contracts live in `runtime/contract.ts` because they describe the HTTP boundary. They depend on lower-layer Zod schemas and provider contract types, then feed generated artifacts under `src/generated/`. UI code may import the generated client, generated TanStack Query option factories, generated query keys, and exported client-safe types, but it must not import runtime route modules directly.
+## Dependency Matrix
 
-### Cross-Cutting Concerns (Providers)
+Entries list allowed project dependencies; same-layer modules within a domain may collaborate.
+Imports must also satisfy browser/server safety and public-entrypoint rules. External libraries
+appropriate to the layer (for example Zod in types) are allowed.
 
-Database, telemetry, auth, feature flags, and shared connectors (cache, queue) live in `src/providers/`. Any layer may import from providers — this is the **only** exception to the forward-only rule.
-The current authentication and session model is documented in [auth.md](./auth.md).
+| Importer | Allowed project targets |
+| --- | --- |
+| Domain `types/` | Own types; explicitly exported foreign `types/index.ts` value contracts, with acyclic dependencies |
+| Domain `config/` | Own types/config; client-safe pure calculations and defaults live here |
+| Domain `schema/` | Own schema and leaf types; declared public foreign schemas for FKs; auth persistence schema |
+| Domain `repo/` | Own types/config/schema/repo; database and relevant server providers |
+| Domain `service/` | Own lower layers/service; other domains' public `service/index.ts` and `types/index.ts` |
+| Domain `runtime/` | Own lower layers/runtime; foreign public service/types; server providers |
+| Domain `ui/` | Own UI and public client-safe types/config; generated client; browser-safe providers |
+| `application/<feature>/types/` | Public domain types and other client-safe application types |
+| `application/<feature>/query.ts` | Public schemas, database handle, public service/types/config; explicit reads only |
+| Application workflows/handlers | Public domain services/types, database transaction machinery, own queries/contracts |
+| Application contracts | Own client-safe response types, public domain types, provider contract types |
+| Application UI/cache modules | Public domain UI/types/config, generated clients, browser-safe providers |
+| `database/` assembly | Public domain schemas, auth schema, Drizzle; no repositories/services/client initialization |
+| Providers | Provider infrastructure; no domain business rules; database registry exception below |
 
-```
-src/providers/
-├── database/      # Postgres client and lifecycle
-├── openapi/       # Route contract to OpenAPI document builder
-├── telemetry/     # Structured Pino logging; metrics/traces are future work
-├── auth/          # Authentication & authorization
-└── feature-flags/ # Feature flag evaluation
-```
+Public contracts are layer-specific `index.ts` exports, never an all-purpose domain barrel.
+A foreign public type is a value contract, not permission to import its implementation.
+Cross-domain config imports are for application composition only; a domain's pure function
+receives inputs rather than importing another domain's calculation. Shared calculations live
+in the owning domain's client-safe `config/`, importing `types/`; types never import config.
+Do not introduce a generic shared-business/provider package or configuration injection solely
+for layer ordering. Server environment config must not enter any browser dependency closure.
 
-### Database Schema And Migrations
+The only lower-layer behavioral collaboration exception is
+`characters/access/index.ts`: a narrow persistence access API implemented over the character
+schema and database transaction type. Feature repositories may use it to obtain an owned
+identity or lock it within their transaction. It never loads feature aggregates and exports no
+general character repository. It may import its own types/schema and database infrastructure,
+not services, runtime, application, or feature state. R4 implements this boundary.
 
-Domain repository layers define Drizzle table mappings for the physical database schema they use.
-Manual SQL migrations live under `migrations/` and are applied through the `schema_migrations`
-ledger.
+## Domain-Owned Persistence
 
-Once a migration may have run in production or another shared environment, treat that migration file
-as immutable. Do not edit it for follow-up SQL. Add a new numbered migration file for additional
-schema or data changes, and include explicit backfills when existing rows need new required data.
-Keep Drizzle table mappings aligned to the physical schema that already exists in production.
+Define tables once in `domains/<owner>/schema/`; publish them through `schema/index.ts`.
+These server-only modules contain physical mappings and relationships, not database queries.
+Health and spellcasting schema may import `characters/schema/index.ts`; character schema may
+import `providers/auth/schema.ts` for the owner FK. Inventory and catalogue publish their
+existing models similarly. Add other schema edges only with a documented FK requirement;
+all schema dependencies must remain acyclic.
 
-### Dependency Rules (Enforced)
+Local and owning-side relations stay with their domain. Reverse cross-domain relationships
+live in `database/character-relations.ts`. `database/schema.ts` registers every table and
+relation configuration exactly once. Do not export competing `relations(...)` definitions for
+one table. Drizzle relation metadata complements, rather than replaces, physical foreign keys.
 
-These rules are enforced by the custom linter at `lints/check-deps.ts`:
+`providers/database/client.ts` may import the assembled registry to initialize
+`drizzle(client, { schema })`. This is a specific composition exception: the registry's entire
+closure must consist of schema definitions and leaf types, never initialized clients. Preserve
+inferred database and transaction types. No domain schema may import the registry or provider
+client. Provider lifecycle code stays infrastructure-only.
 
-1. **No backward imports.** `types/` cannot import from `service/`. `repo/` cannot import from `runtime/`. Period.
-2. **No cross-domain imports at lower layers.** `domainA/repo` cannot import `domainB/repo`. Cross-domain communication happens at the `service` layer or above.
-3. **No direct cross-cutting imports.** Use `src/providers/`, not raw `pino` or `@opentelemetry/*` imports in domain code.
-4. **UI only imports types and client-safe config.** No server-side code in the UI layer.
-5. **Generated API client is the UI HTTP boundary.** Browser code should use `src/generated/api-client.generated.ts`, preferably through generated TanStack Query helpers, not hand-written `fetch` wrappers for app routes.
-6. **Co-located tests are required.** Source modules must have adjacent unit or integration tests unless they are approved entrypoints, generated files, or barrel files.
-7. **Structured logging only.** Application code must not use `console.*`; use providers so stack logs stay queryable.
+General cross-domain reads belong to application queries using Drizzle related loading or
+explicit joins. Repositories write only their owner's tables. Public schemas do not authorize
+cross-domain writes. Import checks cannot detect every use of `db.query.otherTable`, SQL text,
+or an aliased table handle: reviewers must inspect table access and transaction collaborators.
+Do not claim import enforcement alone proves data ownership.
 
-### Adding a New Domain
+SQL migrations live under `migrations/` and use the `schema_migrations` ledger. Preserve physical
+table names, keys, indexes, and deployed migrations during moves. Add a new migration for an
+actual schema change; never edit a migration that may have run in a shared environment.
 
-1. Create `src/domains/<name>/` with all six layer directories
-2. Add types and Zod schemas first (types layer is the foundation)
-3. Add route contracts and route handlers in the runtime layer
-4. Register domain contracts in `src/api-contracts.ts`
-5. Run `pnpm api:generate` when HTTP behavior changes
-6. Add co-located tests for every source module
-7. Add browser e2e coverage when the domain exposes user-visible flows
-8. Update [implementation.md](./implementation.md), [testing.md](./testing.md), [openapi.md](./openapi.md), or domain-specific docs when behavior changes
+## Composition And Transactions
 
-### File Conventions
+Character-detail query and JSON contract belong to `application/character-detail/` and reuse
+public domain types. Maintain current URLs, operation IDs, generated client calls, response
+fields, status codes, and feature behavior. Raw relational results are not API responses:
+select required fields, derive values using owning-domain calculations, and parse the boundary.
+Related loading must remain owner-scoped; it does not grant access by itself.
 
-- One export per file preferred (agents navigate better)
-- Co-locate tests: `foo.ts` → `foo.test.ts`; database tests use `foo.integration.test.ts`
-- Max file size: 300 lines (enforced by linter)
-- Schemas named `<Thing>Schema`, types inferred as `type Thing = z.infer<typeof ThingSchema>`
+Character creation is an application workflow sharing one database transaction between narrow
+public domain initialization services. Those services use the supplied transaction and write
+only their own tables. A health initialization failure rolls back identity creation. Avoid
+nested independent transactions, events for mandatory initialization, and provider business logic.
+
+For feature mutations, lock the owned character row before reading mutable feature state or
+writing it, using the same transaction throughout. Ownership transfer updates the same identity
+row and serializes with this lock. When several characters are involved, acquire identity locks
+in ID order, then feature locks in a documented stable order. Do not hold transactions open
+while fetching catalogue/network data. Revalidate relevant context after acquiring the lock.
+Read compositions needing a coherent snapshot use one relational statement or one snapshot
+transaction; an earlier owner lookup alone cannot authorize a later write.
+
+## Enforcement And Browser Safety
+
+R1/R2 resolve relative paths, aliases, `.js` to TypeScript, re-exports, and literal dynamic
+imports using TypeScript resolution. Type-only imports obey the same ownership matrix; they
+cannot tunnel into private repositories. Browser closures may not depend on schema, repo,
+service, runtime, database assembly, or server providers, including via barrels. Generated
+client parsers must import only client-safe domain/application contracts.
+
+Unresolved local/alias project imports are errors. Resolved external packages are classified
+separately; nonliteral dynamic imports require explicit review and cannot bypass a boundary.
+Cycle detection and forbidden transitive dependencies must terminate and report useful traces.
+Cross-cutting logging uses Pino through telemetry providers; no `console.*` in application code.
+
+## File And Test Conventions
+
+Co-locate meaningful tests (`foo.test.ts`, database boundaries `foo.integration.test.ts`).
+Entrypoints, generated files, and narrow barrels follow the existing shape-check exceptions.
+Maximum file size remains 300 lines. Zod schemas use `<Thing>Schema` and inferred types.
+UI uses generated TanStack Query helpers; no `useEffect`. Follow
+[implementation.md](./implementation.md), [openapi.md](./openapi.md), and [testing.md](./testing.md).
