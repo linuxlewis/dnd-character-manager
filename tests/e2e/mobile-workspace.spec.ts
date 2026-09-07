@@ -402,3 +402,37 @@ test("mobile workspace menu dialogs return focus to a stable trigger", async ({ 
 			.toMatch(/Open application menu|Character details for/);
 	}
 });
+
+test("mobile workspace spell configuration error clears persistent actions", async ({
+	page,
+}, info) => {
+	test.setTimeout(90_000);
+	await page.setViewportSize({ width: 320, height: 740 });
+	const fixture = await prepareMobileWorkspace(page);
+	await page.goto(`${fixture.path}/spells`);
+	await page.getByRole("button", { name: "Edit spells", exact: true }).click();
+	await page.getByRole("button", { name: "Configure slots", exact: true }).click();
+	const dialog = page.getByRole("dialog", { name: "Configure spell slots" });
+	await dialog.getByLabel("9th-level slot total").fill("1");
+	await assertReachable(dialog.getByLabel("9th-level slot total"), page);
+	const save = dialog.getByRole("button", { name: "Save changes", exact: true });
+	await assertTouchTarget(save, page);
+	await page.route(`**/api/characters/${fixture.id}/spell-slots`, (route) =>
+		route.request().method() === "PUT"
+			? route.fulfill({
+					status: 503,
+					json: { error: "Spell configuration temporarily unavailable" },
+				})
+			: route.continue(),
+	);
+	await save.click();
+	const alert = dialog.getByRole("alert", { name: "Spell configuration not saved" });
+	await expect(alert).toBeVisible();
+	await alert.scrollIntoViewIfNeeded();
+	await assertReachable(alert, page);
+	await assertTouchTarget(save, page);
+	await expect(dialog.getByLabel("9th-level slot total")).toHaveValue("1");
+	await captureMobileEvidence(page, info, "spell-config-full-error", ["E1", "E3", "E4", "S3"]);
+	await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+	await page.unroute(`**/api/characters/${fixture.id}/spell-slots`);
+});
