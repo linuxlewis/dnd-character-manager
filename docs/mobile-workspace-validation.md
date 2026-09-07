@@ -72,5 +72,15 @@ compensating negative margins.
 Wait for finite entrance/exit transitions, fonts and settled frames before capturing. A screenshot
 of a fading overlay cannot establish text contrast or geometry. Verify full action-label ranges,
 not just button rectangles: a 44px target with a truncated Restore label still fails acceptance.
-The evidence helper combines rectangle bounds with center hit-testing so a control hidden beneath
-sticky navigation or an overlay fails even when Playwright reports it as visible.
+The evidence helper combines rectangle bounds with center and four inset-corner hit-testing so a
+control partly hidden beneath sticky navigation or an overlay fails even when Playwright reports
+it as visible. Check complete last-card and error-body bounds, not only their action centers.
+
+## Acceptance Record
+
+The [acceptance report](./mobile-workspace-acceptance.md) separates verified source behavior,
+independent visual review, automated accessibility results, and outstanding device checks. Locale
+and timezone are pinned for Playwright; the server clock and recorded timestamps are not frozen.
+Current captures support geometry and independent review, not pixel-golden approval. Before
+adopting pixel expectations, make timestamps deterministic and independently accept those captures.
+Review axe `incomplete` results manually: short numeric labels can conceal real contrast failures.
