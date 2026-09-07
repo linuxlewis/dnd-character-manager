@@ -20,7 +20,7 @@ export function TreasuryDisplay({
 }: TreasuryDisplayProps) {
 	return (
 		<Stack className="inventory-treasury" data-testid="treasury-summary" gap={4}>
-			<Group justify="space-between" gap={8} wrap="nowrap">
+			<Group justify="space-between" gap={8} wrap="wrap">
 				<Title order={3} size="h5">
 					Treasury
 				</Title>
@@ -29,7 +29,7 @@ export function TreasuryDisplay({
 						{scopeLabel}
 					</Badge>
 				)}
-				<Group gap={8} wrap="nowrap">
+				<Group gap={8} wrap="wrap">
 					<Button
 						disabled={actionsDisabled}
 						onClick={onAddFunds}

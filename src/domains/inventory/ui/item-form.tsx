@@ -154,6 +154,7 @@ export function ItemForm({
 						/>
 						<Select
 							{...form.getInputProps("rarity")}
+							rightSectionWidth={44}
 							clearable
 							data={Object.entries(ITEM_RARITY_LABELS).map(([value, label]) => ({ value, label }))}
 							label="Rarity"
@@ -163,6 +164,7 @@ export function ItemForm({
 					<TextInput {...form.getInputProps("category")} label="Category" required />
 					<Group align="flex-start" grow wrap="wrap">
 						<NumberInput
+							hideControls
 							{...form.getInputProps("quantity")}
 							allowDecimal={false}
 							allowNegative={false}
@@ -171,6 +173,7 @@ export function ItemForm({
 							required
 						/>
 						<NumberInput
+							hideControls
 							{...form.getInputProps("weight")}
 							allowDecimal
 							allowNegative={false}
@@ -178,6 +181,7 @@ export function ItemForm({
 							min={0}
 						/>
 						<NumberInput
+							hideControls
 							{...form.getInputProps("estimatedValue")}
 							allowDecimal
 							allowNegative={false}
