@@ -71,6 +71,7 @@ export function ApplicationMenu({
 				</Menu.Dropdown>
 			</Menu>
 			<Modal
+				classNames={{ body: "workspace-inputs" }}
 				closeButtonProps={{
 					size: 44,
 					"aria-label": dialog === "login" ? "Close sign in dialog" : "Close about dialog",
