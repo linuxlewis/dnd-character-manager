@@ -43,3 +43,26 @@ branch in `CharacterDetail`, plus loading/error/query-isolation and three-destin
 coverage. Do not add dormant links, routes, queries, or attributes imports now. Preserve existing
 Spells canonical URLs and default while introducing a future destination. Additional view state
 must be typed, scoped by character and section, and limited to committed browsing preferences.
+
+## Spell workflows
+
+`CharacterSpellConfiguration` owns configuration drafts and mutations. `SpellConfigurationModal`
+owns validation and focus. Slot totals leave the default workspace view and appear through Edit
+spells > Configure slots. The mobile editor is fullscreen; desktop uses a bounded modal. Its fields
+are the only scrolling region, while Cancel and Save changes stay in a separate persistent footer.
+Preserve the parent-qualified CSS selectors: Mantine's modal body rules otherwise override sizing
+and can push the footer outside the viewport. Failed saves retain draft totals. Class defaults still
+save immediately, with explicit explanatory text; this action does not become a staged draft.
+
+Saved spell rows preserve Details, Use, and Restore in the default view. Edit spells reveals removal
+and configuration. Use/Restore use intrinsic-width buttons so Restore cannot be clipped at 320px.
+Search and detail dialogs are fullscreen on mobile. Add requests block duplicate saves and dialog
+closure while pending; mutation failures appear inside the active dialog.
+
+## Acceptance evidence
+
+Spell candidate captures and their source/fixture metadata live in
+`work/design-review/mobile-workspace/spells-candidate/manifest.json`. These are implementation
+evidence, not approved visual baselines. Final QA owns the integrated matrix, error readability,
+focus/hit testing, text scaling, and source-matched approval. Updating a baseline requires explicit
+review of the new screenshots against the spec and design rules.
