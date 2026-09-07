@@ -2,22 +2,15 @@ import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
-	type CharacterHealthService,
-	CharacterNotFoundError,
 	type CharacterService,
 	type CharacterSpellService,
 	type CharacterSpellSlotService,
-	createCharacterHealthService,
 	createCharacterService,
 	createCharacterSpellService,
 	createCharacterSpellSlotService,
 } from "../service/index.js";
 import {
 	RestoreCharacterSpellSlotRequestSchema,
-	UpdateCharacterExperienceRequestSchema,
-	UpdateCharacterHealthRequestSchema,
-	UpdateCharacterLevelRequestSchema,
-	UpdateCharacterNameRequestSchema,
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
@@ -25,14 +18,12 @@ import { parseBody, parseParams, sendSpellSlotError } from "./route-helpers.js";
 import { registerCharacterSpellRoutes } from "./routes.spells.js";
 
 const defaultCharacterService = createCharacterService();
-const defaultCharacterHealthService = createCharacterHealthService();
 const defaultCharacterSpellService = createCharacterSpellService();
 const defaultCharacterSpellSlotService = createCharacterSpellSlotService();
 
 export interface RegisterCharacterRoutesOptions {
 	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
 	characterService?: CharacterService;
-	characterHealthService?: CharacterHealthService;
 	characterSpellService?: CharacterSpellService;
 	characterSpellSlotService?: CharacterSpellSlotService;
 }
@@ -42,7 +33,6 @@ export async function registerCharacterRoutes(
 	options: RegisterCharacterRoutesOptions = {},
 ) {
 	const characterService = options.characterService ?? defaultCharacterService;
-	const characterHealthService = options.characterHealthService ?? defaultCharacterHealthService;
 	const characterSpellService = options.characterSpellService ?? defaultCharacterSpellService;
 	const characterSpellSlotService =
 		options.characterSpellSlotService ?? defaultCharacterSpellSlotService;
@@ -52,116 +42,6 @@ export async function registerCharacterRoutes(
 		const currentUser = await getCurrentUser(request, reply);
 		const characters = await characterService.listCharacters(currentUser.user.id);
 		return { characters };
-	});
-
-	app.get("/api/characters/:characterId", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			const character = await characterService.getCharacter(
-				currentUser.user.id,
-				params.characterId,
-			);
-			return { character };
-		} catch (error) {
-			if (error instanceof CharacterNotFoundError) {
-				return reply.status(404).send({ error: "Character not found." });
-			}
-			throw error;
-		}
-	});
-
-	app.put("/api/characters/:characterId/level", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UpdateCharacterLevelRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			const character = await characterService.updateCharacterLevel(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-			return { character };
-		} catch (error) {
-			if (error instanceof CharacterNotFoundError) {
-				return reply.status(404).send({ error: "Character not found." });
-			}
-			throw error;
-		}
-	});
-
-	app.put("/api/characters/:characterId/name", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UpdateCharacterNameRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			const character = await characterService.updateCharacterName(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-			return { character };
-		} catch (error) {
-			if (error instanceof CharacterNotFoundError) {
-				return reply.status(404).send({ error: "Character not found." });
-			}
-			throw error;
-		}
-	});
-
-	app.put("/api/characters/:characterId/experience", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UpdateCharacterExperienceRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			const character = await characterService.updateCharacterExperience(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-			return { character };
-		} catch (error) {
-			if (error instanceof CharacterNotFoundError) {
-				return reply.status(404).send({ error: "Character not found." });
-			}
-			throw error;
-		}
-	});
-
-	app.put("/api/characters/:characterId/health", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UpdateCharacterHealthRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterHealthService.updateCharacterHealth(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			if (error instanceof CharacterNotFoundError) {
-				return reply.status(404).send({ error: "Character not found." });
-			}
-			throw error;
-		}
 	});
 
 	app.get("/api/characters/:characterId/spell-slots", async (request, reply) => {

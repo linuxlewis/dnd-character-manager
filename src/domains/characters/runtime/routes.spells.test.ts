@@ -1,11 +1,6 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
-import type {
-	CharacterHealthService,
-	CharacterService,
-	CharacterSpellService,
-	CharacterSpellSlotService,
-} from "../service/index.js";
+import type { CharacterSpellService, CharacterSpellSlotService } from "../service/index.js";
 import { SpellSearchUnavailableError } from "../service/index.js";
 import { registerCharacterRoutes } from "./routes.js";
 
@@ -189,7 +184,6 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
 	await registerCharacterRoutes(app, {
 		characterService: services.characterService,
-		characterHealthService: services.characterHealthService,
 		characterSpellService: services.characterSpellService,
 		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({
@@ -200,13 +194,13 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 			},
 		}),
 	});
+
 	return app;
 }
 
 function fakeServices() {
 	return {
 		characterService: fakeService(),
-		characterHealthService: fakeHealthService(),
 		characterSpellService: fakeSpellService(),
 		characterSpellSlotService: fakeSpellSlotService(),
 	};
@@ -214,19 +208,12 @@ function fakeServices() {
 
 function fakeService() {
 	return {
-		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
 		transferCharactersToUser: vi.fn(),
 		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),
-	} satisfies CharacterService;
-}
-
-function fakeHealthService() {
-	return {
-		updateCharacterHealth: vi.fn(),
-	} satisfies CharacterHealthService;
+	};
 }
 
 function fakeSpellService() {

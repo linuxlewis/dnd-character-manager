@@ -112,3 +112,10 @@ rollback/locking coverage. The access test observes two independent backend PIDs
 and actual pg_blocking_pids waits in both ownership-transfer orderings. Inventory
 write adoption remains R4b; health and spell state-after-lock guarantees remain
 R5/R7. These primitive tests do not claim those later integrations are complete.
+
+## R5 Health And Detail Composition
+
+Health backend ownership and application-composed detail have dedicated pure, route,
+query-count, rollback and actual concurrent ownership-transfer coverage. Health PUT
+retains absolute semantics; normalization runs after the identity lock. Health UI
+relocation remains R6. See [implementation and evidence](./domain-health-composition.md).

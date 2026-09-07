@@ -1,13 +1,8 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
-import {
-	type CharacterHealthService,
-	CharacterNotFoundError,
-	type CharacterService,
-	type CharacterSpellService,
-	type CharacterSpellSlotService,
-} from "../service/index.js";
-import { registerCharacterRoutes } from "./routes.js";
+import { CharacterNotFoundError } from "../../../domains/characters/service/index.js";
+import type { createCharacterDetailService } from "../workflows/character-detail.js";
+import { registerCharacterDetailRoutes } from "./detail.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
 const character = {
@@ -91,11 +86,8 @@ describe("registerCharacterRoutes name routes", () => {
 
 async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
-	await registerCharacterRoutes(app, {
+	await registerCharacterDetailRoutes(app, {
 		characterService: services.characterService,
-		characterHealthService: services.characterHealthService,
-		characterSpellService: services.characterSpellService,
-		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({
 			user: {
 				id: userId,
@@ -110,45 +102,14 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 function fakeServices() {
 	return {
 		characterService: fakeService(),
-		characterHealthService: fakeHealthService(),
-		characterSpellService: fakeSpellService(),
-		characterSpellSlotService: fakeSpellSlotService(),
 	};
 }
 
 function fakeService() {
 	return {
 		getCharacter: vi.fn(),
-		listCharacters: vi.fn(),
-		transferCharactersToUser: vi.fn(),
 		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),
-	} satisfies CharacterService;
-}
-
-function fakeHealthService() {
-	return {
-		updateCharacterHealth: vi.fn(),
-	} satisfies CharacterHealthService;
-}
-
-function fakeSpellService() {
-	return {
-		getCharacterSpellDetails: vi.fn(),
-		listCharacterSpells: vi.fn(),
-		removeCharacterSpell: vi.fn(),
-		saveCharacterSpell: vi.fn(),
-		searchCharacterSpells: vi.fn(),
-	} satisfies CharacterSpellService;
-}
-
-function fakeSpellSlotService() {
-	return {
-		applyDefaultSpellSlots: vi.fn(),
-		expendCharacterSpellSlot: vi.fn(),
-		getCharacterSpellSlots: vi.fn(),
-		restoreCharacterSpellSlot: vi.fn(),
-		updateCharacterSpellSlots: vi.fn(),
-	} satisfies CharacterSpellSlotService;
+	} satisfies ReturnType<typeof createCharacterDetailService>;
 }

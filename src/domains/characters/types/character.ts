@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { CharacterClassSchema } from "./character-class.js";
-import {
-	CharacterExperiencePointsSchema,
-	CharacterExperienceProgressSchema,
-} from "./character-experience.js";
+import { CharacterExperiencePointsSchema } from "./character-experience.js";
 
 export const CharacterIdSchema = z.string().uuid();
 export type CharacterId = z.infer<typeof CharacterIdSchema>;
@@ -12,8 +9,6 @@ export const CharacterUserIdSchema = z.string().uuid();
 export const CharacterNameSchema = z.string().min(1).max(120).regex(/\S/);
 export const CharacterClassNameSchema = CharacterClassSchema;
 export const CharacterLevelSchema = z.number().int().min(1).max(20);
-export const HitPointsSchema = z.number().int().min(0).max(9999);
-export const MaxHitPointsSchema = z.number().int().min(1).max(9999);
 export const SpellSlotLevelSchema = z.number().int().min(1).max(9);
 export const SpellListBucketLevelSchema = z.number().int().min(0).max(9);
 export const SpellSlotCountSchema = z.number().int().min(0).max(99);
@@ -37,41 +32,6 @@ export const SpellApiUrlSchema = z
 	.regex(/^\/api\/(?:2014|2024)\/(?:features|spells)\/[a-z0-9-]+$/);
 export const CharacterSpellIdSchema = z.string().uuid();
 export type CharacterSpellId = z.infer<typeof CharacterSpellIdSchema>;
-
-export const CharacterHealthSchema = z.object({
-	currentHp: HitPointsSchema,
-	maxHp: MaxHitPointsSchema,
-	temporaryHp: HitPointsSchema,
-	effectiveMaxHp: HitPointsSchema,
-});
-export type CharacterHealth = z.infer<typeof CharacterHealthSchema>;
-
-export const HealthSnapshotSchema = z.object({
-	currentHp: HitPointsSchema,
-	maxHp: MaxHitPointsSchema,
-	temporaryHp: HitPointsSchema,
-	effectiveMaxHp: HitPointsSchema,
-});
-export type HealthSnapshot = z.infer<typeof HealthSnapshotSchema>;
-
-export const HealthChangeResponseSchema = z.object({
-	id: z.string().uuid(),
-	previous: HealthSnapshotSchema,
-	next: HealthSnapshotSchema,
-	currentHpDelta: z.number().int(),
-	maxHpDelta: z.number().int(),
-	temporaryHpDelta: z.number().int(),
-	createdAt: z.iso.datetime(),
-});
-export type HealthChangeResponse = z.infer<typeof HealthChangeResponseSchema>;
-
-export const CreateCharacterRequestSchema = z.object({
-	name: CharacterNameSchema,
-	className: CharacterClassNameSchema,
-	level: CharacterLevelSchema,
-	maxHp: MaxHitPointsSchema,
-});
-export type CreateCharacterRequest = z.infer<typeof CreateCharacterRequestSchema>;
 
 export const CreateCharacterSchema = z.object({
 	name: CharacterNameSchema,
@@ -111,23 +71,10 @@ export const CharacterSummarySchema = z.object({
 });
 export type CharacterSummary = z.infer<typeof CharacterSummarySchema>;
 
-export const CharacterDetailSchema = CharacterSummarySchema.extend({
-	experiencePoints: CharacterExperiencePointsSchema,
-	experience: CharacterExperienceProgressSchema,
-	health: CharacterHealthSchema,
-	recentHealthChanges: z.array(HealthChangeResponseSchema).max(5),
-});
-export type CharacterDetail = z.infer<typeof CharacterDetailSchema>;
-
 export const ListCharactersResponseSchema = z.object({
 	characters: z.array(CharacterSummarySchema),
 });
 export type ListCharactersResponse = z.infer<typeof ListCharactersResponseSchema>;
-
-export const CharacterDetailResponseSchema = z.object({
-	character: CharacterDetailSchema,
-});
-export type CharacterDetailResponse = z.infer<typeof CharacterDetailResponseSchema>;
 
 export const UpdateCharacterLevelRequestSchema = z.object({
 	level: CharacterLevelSchema,
@@ -145,19 +92,6 @@ export const UpdateCharacterExperienceRequestSchema = z.object({
 export type UpdateCharacterExperienceRequest = z.infer<
 	typeof UpdateCharacterExperienceRequestSchema
 >;
-
-export const UpdateCharacterHealthRequestSchema = z.object({
-	currentHp: HitPointsSchema,
-	maxHp: MaxHitPointsSchema,
-	temporaryHp: HitPointsSchema,
-});
-export type UpdateCharacterHealthRequest = z.infer<typeof UpdateCharacterHealthRequestSchema>;
-
-export const UpdateCharacterHealthResponseSchema = z.object({
-	health: CharacterHealthSchema,
-	recentHealthChanges: z.array(HealthChangeResponseSchema).max(5),
-});
-export type UpdateCharacterHealthResponse = z.infer<typeof UpdateCharacterHealthResponseSchema>;
 
 export const CharacterSpellSlotSchema = z.object({
 	level: SpellSlotLevelSchema,

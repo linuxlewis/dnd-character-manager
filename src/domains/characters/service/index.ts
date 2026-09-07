@@ -6,13 +6,6 @@ export {
 	SpellSlotDefaultsUnavailableError,
 	SpellSlotUnavailableError,
 } from "./character-errors.js";
-export type { CharacterHealthService } from "./character-health-service.js";
-export {
-	createCharacterHealthService,
-	initializeCharacterHealth,
-	normalizeHealthUpdate,
-	toHealthChange,
-} from "./character-health-service.js";
 export type { CharacterService } from "./character-service.js";
 export {
 	createCharacterService,

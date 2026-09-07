@@ -17,16 +17,16 @@ export function createApiQueryOptions(client: ApiClient = apiClient) {
 				queryFn: () => client.getCurrentUser(options),
 			}),
 
-		listCharacters: (options: ApiRequestOptions = {}) =>
-			queryOptions({
-				queryKey: apiQueryKeys.listCharacters(),
-				queryFn: () => client.listCharacters(options),
-			}),
-
 		getCharacter: (params: { characterId: string }, options: ApiRequestOptions = {}) =>
 			queryOptions({
 				queryKey: apiQueryKeys.getCharacter(params),
 				queryFn: () => client.getCharacter(params, options),
+			}),
+
+		listCharacters: (options: ApiRequestOptions = {}) =>
+			queryOptions({
+				queryKey: apiQueryKeys.listCharacters(),
+				queryFn: () => client.listCharacters(options),
 			}),
 
 		getCharacterSpellSlots: (params: { characterId: string }, options: ApiRequestOptions = {}) =>

@@ -5,9 +5,11 @@ import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
 import { registerCharacterCreationRoute } from "./application/character-detail/handlers/create-character.js";
+import { registerCharacterDetailRoutes } from "./application/character-detail/handlers/detail.js";
 import { registerCatalogueRoutes } from "./domains/catalogue/runtime/index.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
+import { registerHealthRoutes } from "./domains/health/runtime/index.js";
 import {
 	registerCharacterHistoryRoutes,
 	registerCharacterItemRoutes,
@@ -61,6 +63,8 @@ export async function buildServer(options: BuildServerOptions = {}) {
 	);
 	await registerAuthRoutes(app);
 	await registerCharacterCreationRoute(app);
+	await registerCharacterDetailRoutes(app);
+	await registerHealthRoutes(app);
 	await registerCharacterRoutes(app, { characterService });
 	await registerCharacterTreasuryRoutes(app);
 	await registerCharacterItemRoutes(app);

@@ -5,7 +5,6 @@ import { insertCharacterIdentity } from "../repo/character-repository.js";
 import type { CharacterRepository } from "../repo/index.js";
 import { createCharacterRepository } from "../repo/index.js";
 import type {
-	CharacterDetail,
 	CharacterSummary,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterLevelRequest,
@@ -16,23 +15,22 @@ import { CharacterNotFoundError } from "./character-errors.js";
 
 export interface CharacterService {
 	listCharacters(userId: string): Promise<CharacterSummary[]>;
-	getCharacter(userId: string, characterId: string): Promise<CharacterDetail>;
 	transferCharactersToUser(fromUserId: string, toUserId: string): Promise<number>;
 	updateCharacterLevel(
 		userId: string,
 		characterId: string,
 		input: UpdateCharacterLevelRequest,
-	): Promise<CharacterDetail>;
+	): Promise<string>;
 	updateCharacterName(
 		userId: string,
 		characterId: string,
 		input: UpdateCharacterNameRequest,
-	): Promise<CharacterDetail>;
+	): Promise<string>;
 	updateCharacterExperience(
 		userId: string,
 		characterId: string,
 		input: UpdateCharacterExperienceRequest,
-	): Promise<CharacterDetail>;
+	): Promise<string>;
 }
 
 export function createCharacterService(
@@ -41,12 +39,6 @@ export function createCharacterService(
 	return {
 		listCharacters(userId) {
 			return repository.listCharacters(userId);
-		},
-
-		async getCharacter(userId, characterId) {
-			const character = await repository.findCharacterDetail(userId, characterId);
-			if (!character) throw new CharacterNotFoundError();
-			return character;
 		},
 
 		transferCharactersToUser(fromUserId, toUserId) {

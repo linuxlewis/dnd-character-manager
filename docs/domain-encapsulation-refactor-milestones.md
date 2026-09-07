@@ -27,8 +27,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R2a | Pure calculations and public contract registration | R2t | accepted | Coordinator verified `a345d79ab0786d0fd1357a2309480a339ea88a6d`; [PR #108](https://github.com/linuxlewis/dnd-character-manager/pull/108); CI run `34154355621` passed; [evidence](./domain-calculation-refactor.md) |
 | R3 | Public schemas and typed Drizzle registration | R2a | accepted | [PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110), `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`; CI `34155408372` passed; [evidence](./domain-schema-registration.md) |
 | R4a | Character access and atomic creation workflow | R3 | accepted | Coordinator verified `9e9f77ee4fbd33656f14e4085e225255f01808e3`; [PR #111](https://github.com/linuxlewis/dnd-character-manager/pull/111); CI run `34156463773` passed; [evidence](./domain-character-access-creation.md) |
-| R4b | Inventory identity access and transactional ownership | R4a | review | R4b agent; full Gate B passed; [implementation/evidence](./domain-inventory-ownership.md); base `9e9f77ee4fbd33656f14e4085e225255f01808e3` |
-| R5 | Health backend and composed character-detail API | R4b | planned | Unassigned |
+| R4b | Inventory identity access and transactional ownership | R4a | accepted | Coordinator verified `b94446457a1cf9c812ecd82f1b9341d1d5d5a3e2`; [PR #113](https://github.com/linuxlewis/dnd-character-manager/pull/113); CI run `34157394245` passed; [evidence](./domain-inventory-ownership.md) |
+| R5 | Health backend and composed character-detail API | R4b | review | Codex; full Gate B passed; [implementation/evidence](./domain-health-composition.md) |
 | R6 | Health UI ownership and cache coordination | R5 | planned | Unassigned |
 | R7 | Spellcasting backend and relationships | R6 | planned | Unassigned |
 | R8 | Spellcasting UI ownership | R7 | planned | Unassigned |
@@ -304,7 +304,7 @@ ownership bypass solely for old test call sites.
 ### R5: Health Backend And Character-Detail Composition
 
 **Owns:** health models/types/repo/service/runtime; application detail query/contract;
-health relationship registration. **Gate:** B.
+health relationship registration. **Gate:** B. See [R5 implementation and evidence](./domain-health-composition.md).
 
 Move health backend ownership and the combined detail response together so no
 character-domain leaf schema imports health to keep the old aggregate alive.
@@ -313,16 +313,18 @@ Use Drizzle relations for the composed identity/health read.
 
 **Acceptance:**
 
-- [ ] Health tables and rules have one owner; identity schemas do not import health.
-- [ ] All existing operations returning character detail use the composed contract
+- [x] Health tables and rules have one owner; identity schemas do not import health.
+- [x] All existing operations returning character detail use the composed contract
   without circular imports or duplicate route registration.
-- [ ] Owner/non-owner, missing-required-health, and recent-history ordering/limit
+- [x] Owner/non-owner, missing-required-health, and recent-history ordering/limit
   cases match the documented baseline; calculated values are validated.
-- [ ] The combined read has a measured bounded query count and exposes no extra
+- [x] The combined read has a measured bounded query count and exposes no extra
   ORM/internal fields. Reads needing consistency use a coherent snapshot.
-- [ ] Health reads mutable state only after the identity lock in the same transaction;
-  concurrent updates cannot overwrite one another, and state/history commit atomically.
-- [ ] Create, health update/history, and generated-client compatibility tests pass.
+- [x] Health reads mutable state only after the identity lock in the same transaction;
+  concurrent absolute writes are serial-equivalent, with normalization and events based
+  on locked persisted state and atomic state/history commits. Preserve absolute PUT
+  semantics; no additive damage/heal or retry-idempotency protocol is introduced.
+- [x] Create, health update/history, and generated-client compatibility tests pass.
 
 ### R6: Health UI And Cache Coordination
 

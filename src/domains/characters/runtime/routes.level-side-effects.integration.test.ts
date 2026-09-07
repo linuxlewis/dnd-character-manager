@@ -1,9 +1,15 @@
 import { resetAuthForTest } from "@providers/auth/auth.js";
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
+import { characterHealthEventsTable, characterHealthTable } from "../../health/schema/index.js";
+import {
+	inventoryItemsTable,
+	inventoryScopesTable,
+	inventoryTreasuriesTable,
+} from "../../inventory/schema/index.js";
 import { createCharacterSpellRepository } from "../repo/index.js";
 
 const createdUserIds: string[] = [];
@@ -20,7 +26,7 @@ afterEach(async () => {
 });
 
 describe("character level route side effects", () => {
-	it("updates level without changing spell slots or saved spells", async () => {
+	it("updates identity without changing health, inventory, spell slots or saved spells", async () => {
 		const app = await buildServer();
 		try {
 			const session = await createSession(app);
@@ -68,6 +74,45 @@ describe("character level route side effects", () => {
 			expect(initialSpellSlots.statusCode).toBe(200);
 			expect(initialSpells.statusCode).toBe(200);
 
+			const [scope] = await getDb()
+				.insert(inventoryScopesTable)
+				.values({ characterId: character.id })
+				.returning();
+			await getDb()
+				.insert(inventoryTreasuriesTable)
+				.values({ inventoryScopeId: scope.id, gold: 17 });
+			await getDb()
+				.insert(inventoryItemsTable)
+				.values({ inventoryScopeId: scope.id, name: "Torch", type: "equipment", category: "gear" });
+			const healthUpdated = await app.inject({
+				method: "PUT",
+				url: `/api/characters/${character.id}/health`,
+				headers: { cookie: session.cookie },
+				payload: { currentHp: 25, maxHp: 30, temporaryHp: 2 },
+			});
+			expect(healthUpdated.statusCode).toBe(200);
+			async function featureSnapshot() {
+				return {
+					health: await getDb()
+						.select()
+						.from(characterHealthTable)
+						.where(eq(characterHealthTable.characterId, character.id)),
+					events: await getDb()
+						.select()
+						.from(characterHealthEventsTable)
+						.where(eq(characterHealthEventsTable.characterId, character.id)),
+					treasury: await getDb()
+						.select()
+						.from(inventoryTreasuriesTable)
+						.where(eq(inventoryTreasuriesTable.inventoryScopeId, scope.id)),
+					items: await getDb()
+						.select()
+						.from(inventoryItemsTable)
+						.where(eq(inventoryItemsTable.inventoryScopeId, scope.id)),
+				};
+			}
+			const before = await featureSnapshot();
+
 			const levelUpdated = await app.inject({
 				method: "PUT",
 				url: `/api/characters/${character.id}/level`,
@@ -76,6 +121,20 @@ describe("character level route side effects", () => {
 			});
 			expect(levelUpdated.statusCode).toBe(200);
 			expect(levelUpdated.json().character.level).toBe(8);
+
+			for (const [suffix, payload] of [
+				["name", { name: "Tamsin New" }],
+				["experience", { experiencePoints: 35000 }],
+			] as const) {
+				const updated = await app.inject({
+					method: "PUT",
+					url: `/api/characters/${character.id}/${suffix}`,
+					headers: { cookie: session.cookie },
+					payload,
+				});
+				expect(updated.statusCode).toBe(200);
+			}
+			expect(await featureSnapshot()).toEqual(before);
 
 			const currentSpellSlots = await app.inject({
 				method: "GET",
