@@ -78,7 +78,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await customDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeVisible();
 
-	await expect(page.getByText("2 items")).toBeVisible();
+	await expect(page.getByRole("button", { name: "All 2", exact: true })).toBeVisible();
 	await expect(page.getByRole("button", { name: /Equipment/ })).toContainText("1");
 	await expect(page.getByRole("button", { name: /Potion/ })).toContainText("1");
 	await expect(page.getByRole("button", { name: /All/ })).toHaveAttribute("aria-pressed", "true");
