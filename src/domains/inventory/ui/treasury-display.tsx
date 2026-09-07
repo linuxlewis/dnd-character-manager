@@ -56,6 +56,7 @@ export function TreasuryDisplay({
 			<Box className="inventory-currencies">
 				{TREASURY_DENOMINATIONS.map(({ key, abbreviation, label, color }) => (
 					<Box
+						role="group"
 						data-testid={`treasury-${key}-balance`}
 						key={key}
 						aria-label={`${label}: ${formatTreasuryAmount(treasury.balances[key])}`}

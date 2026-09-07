@@ -56,13 +56,13 @@ export function ItemCard({
 						</Stack>
 					</Group>
 					<Group gap="xs" justify="space-between" wrap="wrap">
-						<Group c="dimmed" gap={5} wrap="nowrap">
+						<Group c="dark.1" gap={5} wrap="nowrap">
 							<TypeIcon aria-hidden="true" size={15} />
 							<Text size="sm">{getItemTypeLabel(item.type)}</Text>
 							<Text size="sm">·</Text>
 							<Text size="sm">{item.category}</Text>
 						</Group>
-						<Group c="dimmed" gap="xs">
+						<Group c="dark.1" gap="xs">
 							{formatItemNumber(item.weight, "lb") && (
 								<Text size="xs">{formatItemNumber(item.weight, "lb")}</Text>
 							)}
@@ -74,7 +74,7 @@ export function ItemCard({
 					{stats.length > 0 && (
 						<Group gap="xs" wrap="wrap">
 							{stats.map((stat) => (
-								<Text c="dimmed" key={stat.label} size="xs">
+								<Text c="dark.1" key={stat.label} size="xs">
 									<Text fw={600} span>
 										{stat.label}:
 									</Text>{" "}

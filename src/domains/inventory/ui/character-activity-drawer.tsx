@@ -144,7 +144,6 @@ export function CharacterActivityDrawer({
 
 	return (
 		<Drawer
-			aria-label="Inventory activity"
 			closeButtonProps={{
 				"aria-label": "Close inventory activity",
 				size: "lg",
