@@ -79,7 +79,10 @@ export async function prepareMobileWorkspace(page: Page) {
 	}
 	await checked(
 		await page.request.put(`${root}/treasury`, {
-			data: { delta: { pp: 1, gp: 12, sp: 4, cp: 8 } },
+			data: {
+				delta: { pp: 1, gp: 12, sp: 4, cp: 8 },
+				expectedPrevious: { pp: 0, gp: 0, sp: 0, cp: 0 },
+			},
 		}),
 	);
 	return { id, path: `/characters/${id}`, fixture: mobileFixtureVersion };

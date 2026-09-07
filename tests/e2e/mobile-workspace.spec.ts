@@ -352,7 +352,10 @@ test("mobile workspace supported numeric extremes do not overflow", async ({ pag
 		}
 	}
 	const added = await page.request.put(`${root}/treasury`, {
-		data: { delta: { pp: 2000000, gp: 2000000, sp: 2000000, cp: 2000000 } },
+		data: {
+			delta: { pp: 2000000, gp: 2000000, sp: 2000000, cp: 2000000 },
+			expectedPrevious: { pp: 1, gp: 12, sp: 4, cp: 8 },
+		},
 	});
 	expect(added.ok()).toBeTruthy();
 	await page.goto(`${fixture.path}/inventory`);
