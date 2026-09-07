@@ -7,11 +7,11 @@ CI acceptance pending. Not merged or deployed. Last reviewed: 2026-09-07.
 
 The implementation preserves main `faf519271e2b06a825025ba433c38005340b116e` functionality.
 PR #96 Attributes & Rolls is excluded; only Spells and Inventory ship. The source candidate is
-`20b2d0e`, tested through clean QA commit `198e3daa3e3bfd901f2ebe1fa13827202aaa92b9`.
+`333f843`, tested through clean QA commit `b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad`.
 Later documentation commits do not change that tested source. A subsequent source correction
 requires its own recorded validation and must not be represented as this candidate's capture.
 
-The immutable [candidate evidence index](../work/design-review/mobile-workspace/accepted-198e3da/README.md)
+The immutable [candidate evidence index](../work/design-review/mobile-workspace/accepted-b6d09ac/README.md)
 contains 62 viewport captures, their full-page counterparts and JSON metadata, six contact sheets,
 file hashes, and command summaries. The design reference is guidance; these images render the real
 application with its real owned-stack APIs and deterministic local catalogue fixture F2-main-v1.
@@ -53,23 +53,23 @@ Every criterion is listed so future changes can target the owning behavior and e
 | V2 | PASS: Typography/numeric hierarchy reviewed in all sheets; enlarged text and long-name cases pass. |
 | V3 | PASS: Mobile gutters, grouped controls and section spacing reviewed in top/bottom captures. |
 | V4 | PASS: Geometry covers 767/768 and 991/992 boundaries, plus 320/390/430/1280 widths. |
-| V5 | PASS: Automated header/nav budgets and first-content reachability pass at normal text; 844x390 landscape and 200% text remain usable. |
-| V6 | PASS: Last-card corner hit tests pass after bottom-padding correction; overlays cover chrome. Real safe areas remain device follow-up. |
+| V5 | PASS: Automated header/nav budgets and first-content reachability pass at normal text; 844 x 390 landscape and 200% text remain usable. |
+| V6 | PASS emulated; device NOT RUN: Last-card corner hit tests pass after bottom-padding correction; overlays cover chrome. Real safe areas remain device follow-up. |
 | V7 | PASS: Stable selected rule/icon/text and reduced-motion browser context reviewed. |
 | H1 | PASS: Navigation journey exercises roster escape, details/menu and app links; auth/session journeys remain green. |
 | H2 | PASS: Header/health target bounds and accessible labels pass, including zero/max/temp numeric fixtures. |
 | H3 | PASS: Character details/editor exercised in navigation and character journeys; full name available in details. |
-| H4 | PASS: XP 0/900/2196/2699/2700/6500/355000 fixtures exercise 0%,72%, 99%,available,max labels. |
+| H4 | PASS: XP 0/900/2196/2699/2700/6500/355000 fixtures exercise 0%, 72%, 99%, available, max labels. |
 | H5 | PASS: Saved levels 1/3/5/20 retained; below-minimum and above-next-level XP remain correctly clamped. |
 | H6 | PASS: Health-flow and mobile-health tests preserve previews, saved server values, cache updates and history; F2 asserts 18/27 with temp 3. |
 | H7 | PASS: Crosscutting not-found/local-failure tests retain escape and working chrome; existing session recovery passes. |
 | H8 | PASS: Character footer removal reviewed; About attribution and Privacy navigation exercised in navigation test. |
-| N1 | PASS: Exactly two real destinations,44 px targets and no mobile top duplicates in geometry matrix. |
+| N1 | PASS: Exactly two real destinations, 44 px targets and no mobile top duplicates in geometry matrix. |
 | N2 | PASS: Canonical/legacy paths, real links, reload and browser navigation in navigation journey. |
 | N3 | PASS: Search/Potion/scroll survive section switch and Back; inactive query interception proves isolation. |
 | N4 | PASS: First-heading placement and restored offset checked after content settles; root independently observed restored scroll 291. |
 | N5 | PASS: Failed item draft/focus test proves trapping and background shielding; cancellation and menu return-focus verified. |
-| N6 | PASS: Persistent chrome at top/bottom and constrained height pass; actual software keyboard remains NOT RUN. |
+| N6 | PASS emulated; keyboard NOT RUN: Persistent chrome at top/bottom and constrained height pass; actual software keyboard remains NOT RUN. |
 | S1 | PASS: First saved entry and usable numbered group visible in 390/320 captures. |
 | S2 | PASS: Existing spell/health flow plus mobile-spells journey pass use/restore/configuration/catalogue/details/removal and error recovery. |
 | S3 | PASS: Complete action-label ranges and targets checked; configuration last field/error clear persistent footer. |
@@ -78,8 +78,8 @@ Every criterion is listed so future changes can target the owning behavior and e
 | I3 | PASS: Inventory CRUD/catalogue/equipment/filter journeys pass; search/first-item geometry passes. |
 | E1 | PASS: Fullscreen long editors have one scroll body and reachable persistent actions; top/bottom/error/200% captures reviewed. |
 | E2 | PASS: 320/390 health journeys verify sheets, invalid input, failure retention, previews, pending and server reconciliation; desktop modal preserved. |
-| E3 | PASS: Failed item/config drafts retained, last fields/errors reachable; existing character sequential-save semantics preserved. Native keyboard check outstanding. |
-| E4 | PASS: Changed controls checked for44 x 44 bounds, overlap and full action labels; no page overflow in matrix. |
+| E3 | PASS emulated; keyboard NOT RUN: Failed item/config drafts retained, last fields/errors reachable; existing character sequential-save semantics preserved. Native keyboard check outstanding. |
+| E4 | PASS: Changed controls checked for 44 x 44 bounds, overlap and full action labels; no page overflow in matrix. |
 | E5 | PASS: Focus trap/return, visible focus, names and enlarged text pass. Inactive count contrast now 10.12:1 and active 12.88:1; do not infer universal accessibility conformance from axe 0 violations. |
 | E6 | PASS: Existing mutation/safety/reconciliation suite passes; slow/failed editor behavior verified without changing transactions. |
 
@@ -96,7 +96,7 @@ Manual review of `incomplete` results found inactive inventory category counts u
 `rgb(173,181,189)`, approximately 2.1:1. Axe excludes these short numeric labels from automatic
 contrast conclusions. Source `20b2d0e` corrects inactive counts to black. Post-fix computed colors give 10.12:1 inactive and 12.88:1 active, closing this finding.
 The extra About paragraphs, spell description and remove explanation flagged for uncertain
-backgrounds were inspected in the live DOM: text rgb201 against dialog rgb36 exceeds 9:1.
+backgrounds were inspected in the live DOM: text rgb(201,201,201) against dialog rgb(36,36,36) exceeds 9:1.
 All remaining short-text contrast incompletes refer to the corrected inactive counts.
 History also retains existing `aria-label` on narrative paragraphs/time elements, reported as
 incomplete support: visible text and native time content remain available, but expanded spoken
@@ -104,10 +104,17 @@ wording requires a screen-reader follow-up. Do not count incomplete findings as 
 
 Fixed during this review: menu and item-editor focus return; low-contrast metadata/history/editor
 labels; essential input boundaries; destructive spell-confirmation label; unnamed/small About and
-Sign-in close actions; partial last-card occlusion; and configuration fields/error body shrinking
-beneath persistent actions. The stronger corner-hit test first reproduced the final two issues,
-then passed after their source corrections. Neutral field borders now use actual rgb133 against
-rgb46 backgrounds; focus/error styling remains distinct.
+Sign-in close actions; partial last-card occlusion; configuration fields/error body shrinking
+beneath persistent actions; and item-error Alert backgrounds shrinking beneath their title/body.
+The stronger corner-hit test first reproduced last-card and configuration-error occlusion,
+then passed after their source corrections. The final item-error screenshot exposed an additional
+Alert flex-shrink defect. Source `333f843` prevents direct editor-body children from shrinking;
+the shared text-range assertion now requires every title/body fragment inside its Alert for both
+item and spell errors. The item case also asserts the real generated-client HTTP 503 error message.
+A separate pre-fix live reproduction attempt timed out at its Name locator and is not counted
+as successful automated reproduction; the reviewed screenshot and source diagnosis established it.
+Neutral field borders now use actual rgb(133,133,133) against rgb(46,46,46) backgrounds;
+focus/error styling remains distinct.
 
 ## Remaining Validation And Future-Agent Rules
 

@@ -39,7 +39,7 @@ spell presentation, on-demand history, persistent editor actions, failed-draft r
 trapping/return, enlarged text, numerical extremes, and section-local recovery. Existing mutation,
 reconciliation, catalogue, and history-pagination journeys continue to run.
 
-At clean candidate `64efd03` (application source `f675112`), the complete `pnpm test` gate passed
+At clean candidate `b6d09ac` (application source `333f843`), the complete `pnpm test` gate passed
 599 unit, 68 integration, and 40 browser tests. Static validation also passed. The orchestrator
 independently reviewed 62 viewport screenshots and live focus behavior; this is separate evidence
 from successful compilation or geometry assertions. See the

@@ -75,6 +75,9 @@ not just button rectangles: a 44px target with a truncated Restore label still f
 The evidence helper combines rectangle bounds with center and four inset-corner hit-testing so a
 control partly hidden beneath sticky navigation or an overlay fails even when Playwright reports
 it as visible. Check complete last-card and error-body bounds, not only their action centers.
+Assert every error title/body text range fits inside its Alert surface; a flex-shrunk background
+can remain reachable while its message spills into the next field. Assert the actual generated
+client error message too, rather than assuming the mocked response body is what the UI displays.
 
 ## Acceptance Record
 

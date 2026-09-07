@@ -85,7 +85,7 @@ Omit it for the full browser suite. The normal runner still owns the catalogue f
 ports, database, and cleanup; filename arguments appended to `scripts/test.ts` are not forwarded.
 The focused run does not replace `pnpm test` for final acceptance.
 
-The clean candidate `64efd03` (application source `f675112`) passed `pnpm test` with 599 unit,
+The clean candidate `b6d09ac` (application source `333f843`) passed `pnpm test` with 599 unit,
 68 integration, and 40 browser tests. Lint, generated API freshness, build, documentation links,
 and whitespace checks also passed. The orchestrator separately reviewed 62 viewport captures
 and live focus behavior. See [mobile workspace validation](./mobile-workspace-validation.md)
