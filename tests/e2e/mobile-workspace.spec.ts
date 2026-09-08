@@ -299,18 +299,44 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 	await page.goto(`${fixture.path}/inventory`);
 	await expect(page.getByLabel("Search personal inventory")).toBeVisible();
 	await captureMobileEvidence(page, info, "long-name", ["H3"]);
-	// Text-only enlargement, not viewport scaling: geometry budgets are intentionally waived.
-	await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-	await assertNoOverflow(page);
-	await page.getByRole("button", { name: "Add item", exact: true }).scrollIntoViewIfNeeded();
-	await page.getByRole("button", { name: "Add item", exact: true }).click();
-	const dialog = page.getByRole("dialog", { name: "Add personal item" });
-	await expect(dialog).toBeVisible();
-	await dialog.getByLabel("Notes").fill("Enlarged text last field");
-	await dialog.getByLabel("Thumbnail URL").scrollIntoViewIfNeeded();
-	await assertReachable(dialog.getByLabel("Thumbnail URL"), page);
-	await assertReachable(dialog.getByRole("button", { name: "Cancel", exact: true }), page);
-	await captureMobileEvidence(page, info, "item-editor-text-200", ["V6", "E1", "E4"]);
+	for (const width of [320, 390]) {
+		await page.setViewportSize({ width, height: 844 });
+		await page.goto(`${fixture.path}/inventory`);
+		// Text-only enlargement, not viewport scaling: geometry budgets are intentionally waived.
+		await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+		const addItem = page.getByRole("button", { name: "Add item", exact: true });
+		await expect(addItem).toBeVisible();
+		await assertNoOverflow(page);
+		// Browser auto-scroll centers against the viewport, which may be covered by enlarged chrome.
+		await addItem.evaluate((element) => {
+			const header = document.querySelector('[aria-label="Character workspace header"]');
+			window.scrollBy(
+				0,
+				element.getBoundingClientRect().top - (header?.getBoundingClientRect().height ?? 0) - 16,
+			);
+		});
+		const buttonBox = await assertReachable(addItem, page);
+		await assertTouchTarget(addItem, page);
+		const headerBox = await page
+			.getByRole("region", { name: "Character workspace header" })
+			.boundingBox();
+		const navBox = await page.getByRole("navigation", { name: "Character sections" }).boundingBox();
+		expect(headerBox).not.toBeNull();
+		expect(navBox).not.toBeNull();
+		expect(buttonBox.y).toBeGreaterThanOrEqual((headerBox?.y ?? 0) + (headerBox?.height ?? 0));
+		expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(navBox?.y ?? 0);
+		await captureMobileEvidence(page, info, "item-action-text-200-reachable", ["V6", "E1", "E4"]);
+		await addItem.click();
+		const dialog = page.getByRole("dialog", { name: "Add personal item" });
+		await expect(dialog).toBeVisible();
+		await dialog.getByLabel("Notes").fill("Enlarged text last field");
+		await dialog.getByLabel("Thumbnail URL").scrollIntoViewIfNeeded();
+		await assertReachable(dialog.getByLabel("Thumbnail URL"), page);
+		await assertReachable(dialog.getByRole("button", { name: "Cancel", exact: true }), page);
+		await captureMobileEvidence(page, info, "item-editor-text-200", ["V6", "E1", "E4"]);
+		await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+		await expect(dialog).toBeHidden();
+	}
 });
 
 test("mobile workspace local failures retain escape and working section", async ({
