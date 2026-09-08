@@ -2,7 +2,8 @@
 
 Prepared: 2026-09-07
 
-Status: orchestration started; R0 documentation submitted for review.
+Status: R0-R9 accepted; R10 accepted with green CI; final R11 integrated checks passed.
+Publication/CI acceptance is tracked in the [milestone ledger](./domain-encapsulation-refactor-milestones.md).
 
 ## Task For The Implementing Agent
 

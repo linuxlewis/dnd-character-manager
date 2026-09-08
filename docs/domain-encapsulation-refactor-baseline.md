@@ -1,6 +1,8 @@
 # Domain Refactor R0: Baseline And Decisions
 
-Prepared: 2026-09-07. Status: R0 submitted for coordinator review.
+Prepared: 2026-09-07. R0 accepted at `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`;
+see the [milestone ledger](./domain-encapsulation-refactor-milestones.md).
+The baseline observations and original validation below are historical evidence.
 
 ## Pinned Evidence
 

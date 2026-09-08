@@ -4,7 +4,8 @@ Base: accepted R8 `624c89b38369cc1fa26ab4092537bf2917dea713`,
 [PR #117](https://github.com/linuxlewis/dnd-character-manager/pull/117), successful
 CI run `34176310606`. R7 [PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116)
 also passed CI run `34175991433` at `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`.
-R9 coordinator acceptance is pending.
+R9 accepted at `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a`,
+[PR #118](https://github.com/linuxlewis/dnd-character-manager/pull/118), CI `34177152588` passed.
 
 ## Responsibilities And Deleted Indirection
 
