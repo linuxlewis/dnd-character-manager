@@ -1,24 +1,27 @@
-import { Alert, Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
+import { Alert, Button, Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import type { CharacterSpellDetails } from "../types/index.js";
+import { useQuery } from "@tanstack/react-query";
+import { apiQueries } from "../../../generated/api-client.generated.js";
 import { formatSpellLevel } from "./spell-slot-format.js";
 
 export function SpellDetailsModal({
-	details,
+	characterId,
+	spellId,
 	onClose,
-	opened,
-	pending,
-	error,
 	withinPortal = true,
 }: {
-	details: CharacterSpellDetails | null;
+	characterId: string;
+	spellId: string;
 	onClose: () => void;
-	opened: boolean;
-	pending: boolean;
-	error?: Error | null;
 	withinPortal?: boolean;
 }) {
 	const mobile = useMediaQuery("(max-width: 47.999em)");
+	const query = useQuery({
+		...apiQueries.getCharacterSpellDetails({ characterId, spellId }),
+		retry: false,
+	});
+	const details = query.data?.spell;
+
 	return (
 		<Modal
 			classNames={{ body: "workspace-inputs" }}
@@ -26,16 +29,23 @@ export function SpellDetailsModal({
 			fullScreen={mobile}
 			size="lg"
 			onClose={onClose}
-			opened={opened}
+			opened
 			title={details?.name ?? "Spell details"}
 			transitionProps={{ duration: 0 }}
 			withinPortal={withinPortal}
 		>
-			{error ? (
-				<Alert color="red" title="Spell details unavailable">
-					Close this sheet and open the spell again to retry.
+			{query.error ? (
+				<Alert color="red" title="Spell details unavailable" variant="light">
+					<Button
+						mih={44}
+						onClick={() => query.refetch()}
+						loading={query.isFetching}
+						variant="subtle"
+					>
+						Retry details
+					</Button>
 				</Alert>
-			) : pending ? (
+			) : query.isFetching ? (
 				<Text c="dimmed" size="sm">
 					Loading details...
 				</Text>
@@ -83,11 +93,7 @@ export function SpellDetailsModal({
 						</Stack>
 					)}
 				</Stack>
-			) : (
-				<Text c="dimmed" size="sm">
-					Select a spell to view details.
-				</Text>
-			)}
+			) : null}
 		</Modal>
 	);
 }

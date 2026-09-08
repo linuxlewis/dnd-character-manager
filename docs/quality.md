@@ -77,6 +77,13 @@ R8 relocates spell controls and their existing tests to spellcasting, exposed vi
 one public panel entrypoint used by application detail. All workflow bodies remain
 unchanged; boundary reporting stays at zero findings. See [move evidence](./domain-spellcasting-ui.md).
 
+## Spell Workflow Recovery
+
+R9 gives existing spell modals ownership of local query/mutation failures and
+explicit retries. Real browser scenarios cover pending guards, no automatic replay,
+stale search isolation, original-character cache writes, and newer-dialog retention.
+Slot failure survives unrelated view changes. See [evidence](./domain-spell-workflows.md).
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean
