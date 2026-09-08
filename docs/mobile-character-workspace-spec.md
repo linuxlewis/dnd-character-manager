@@ -169,12 +169,13 @@ visually occupy multiple lines. The full character name must remain available in
 
 - **S1:** Keep cantrips/features and numbered slot groups with saved spells. Compact headings and
   administration so F1 shows the first saved entry and one usable numbered slot group at 390 x 844;
-  the first saved entry is visible at 320 x 740. History is collapsed/on demand. Remove redundant
+  the first saved entry is visible at 320 x 740. Spell history is hidden from players. Remove redundant
   framing and verbose tier metadata from the default content path; defaults remain in editing.
 - **S2:** Preserve use/restore, all slot totals, defaults, catalogue search/save/remove, cantrips,
-  features, saved details, history, and server reconciliation. Preserve independent slot/list query
+  features, saved details, backend slot-change records, and server reconciliation. Do not expose a
+  spell-history toggle, log or empty-history message. Preserve independent slot/list query
   states and recoverable errors. Empty states explain how to add/configure content.
-- **S3:** Use/Restore, Edit, add/remove/details/history targets meet E4. Pending prevents duplicate
+- **S3:** Use/Restore, Edit, add/remove/details targets meet E4. Pending prevents duplicate
   submissions. Configuration/search/detail/removal meet E1/E3 without preserving half-edited drafts
   by retaining background sections. No new spell search/filter product behavior is required.
 - **I1:** Inventory order: title with History action; compact treasury with PP/GP/SP/CP and Add

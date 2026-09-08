@@ -177,3 +177,19 @@ documentation links and whitespace checks pass. Root and the independent reviewe
 [final inventory evidence](../work/design-review/mobile-workspace/character-actions-a6234a2/manifest.json).
 Earlier manifests retain their original source provenance; this final source adds only the scoped
 inventory-filter wrapping change and test corrections to the previously reviewed character actions.
+
+## Hidden Spell History
+
+The product decision to hide spell history supersedes the original S1/S2 on-demand spell-log
+requirement. At clean `aed3e793dd66421650fc0ee2beb52e61150d7ed6`, the toggle, expandable log and
+unused presentation code are removed. Edit spells, configuration, Use/Restore and backend records
+remain available. Health history and inventory activity are unchanged. No deferred abilities or
+Attributes & Rolls functionality is introduced.
+
+The CI-mode full local suite passes 597 unit, 68 integration and 41 browser tests. Lint,
+build/API freshness, documentation links and whitespace checks pass. Root and an independent
+reviewer accepted the [four focused captures](../work/design-review/mobile-workspace/spell-history-hidden-aed3e79/manifest.json)
+at 320, 390 and 1280 px, including the state after slot use. Browser coverage verifies no spell
+history control or log, retained health-history touch targets, correct Use/Restore counts and
+preserved API usage records. Earlier screenshots remain historical; physical-device and
+screen-reader follow-ups remain outstanding.

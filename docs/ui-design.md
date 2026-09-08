@@ -37,6 +37,9 @@ from an unmerged branch. Numerical HP/XP/currency use tabular figures. No decora
 - Useful content precedes history/administration. Inventory shows compact four-denomination
   treasury then search/items; activity is on demand. Spell controls operate slot groups; a saved
   spell's details must not imply automatic casting or slot expenditure.
+- Spells & Abilities has no player-facing history control, log or empty-history message. Keep
+  Edit spells, configuration and Use/Restore available. Backend slot-change records remain intact;
+  their existence in API responses is not a reason to expose another history interface.
 - Use at least 44 x 44 px effective targets and 16 px editable text. Visible focus, accessible
   labels, error text, non-color selection and keyboard support are required, not optional polish.
 - Long mobile editors use one scrolling body and persistent Save/Cancel. Short edits may use

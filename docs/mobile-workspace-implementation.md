@@ -23,6 +23,9 @@ agents can change one concern without duplicating app chrome or keeping inactive
 - CharacterHealthPanel owns its local history state and stable History trigger ref. History opens
   directly beside Heal/Damage; close restores that trigger without changing section or scroll.
   HP still opens editing. Do not route history through account menus or insert another mobile row.
+- CharacterSpellSlotsPanel intentionally omits spell-history controls and rendering. Slot-change
+  records remain in the existing API for compatibility; preserve recording and reconciliation,
+  but do not reintroduce a player-facing log. Health and inventory history remain available.
 - Inventory receives optional `InventoryViewState` (`searchInput`, `activeType`) and
   `onViewStateChange`. Standalone inventory retains its local fallback; the workspace supplies both
   props for preservation across section unmounts. Editor drafts and selected detail dialogs are local.

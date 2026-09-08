@@ -35,7 +35,7 @@ Track the health of each domain and architectural layer. Update this when you im
 The main-based mobile refactor preserves the shipping Spells and Inventory functionality; the
 deferred Attributes & Rolls feature is not included. Coverage now includes compact identity/XP/HP,
 responsive section navigation, retained section state and query isolation, compact inventory and
-spell presentation, on-demand history, persistent editor actions, failed-draft retention, focus
+spell presentation, on-demand health/inventory history, persistent editor actions, failed-draft retention, focus
 trapping/return, enlarged text, numerical extremes, and section-local recovery. Existing mutation,
 reconciliation, catalogue, and history-pagination journeys continue to run.
 
@@ -71,5 +71,9 @@ Independent screenshot and live development review are recorded in the
 Inventory filter validation now includes 320 px at 200% text with DejaVu Sans fallback, complete
 label/count containment and unobscured pointer targets. The correction and clean-source evidence
 are recorded in [workspace acceptance](./mobile-workspace-acceptance.md).
+
+Spell history is intentionally hidden from players. At clean `aed3e79`, 597 unit, 68 integration
+and 41 browser tests pass; the spell journey proves Use/Restore still work and usage records remain
+in the API while no history control or log appears. See the acceptance record for visual evidence.
 
 *Last updated: 2026-09-07*

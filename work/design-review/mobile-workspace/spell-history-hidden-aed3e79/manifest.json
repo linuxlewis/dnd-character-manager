@@ -1,0 +1,55 @@
+{
+	"sourceSha": "aed3e793dd66421650fc0ee2beb52e61150d7ed6",
+	"command": "CI=1 pnpm test (isolated external-network override)",
+	"validation": "PASS 597 unit, 68 integration, 41 browser tests",
+	"review": "Root and independent visual reviewer: PASS",
+	"nativeDevices": "NOT RUN",
+	"captures": [
+		{
+			"state": "spells-after-use-history-hidden",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "spells-after-use-history-hidden-1280x844.png",
+			"metadata": "spells-after-use-history-hidden-1280x844.json"
+		},
+		{
+			"state": "spells-history-hidden",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "spells-history-hidden-1280x844.png",
+			"metadata": "spells-history-hidden-1280x844.json"
+		},
+		{
+			"state": "spells-history-hidden",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "spells-history-hidden-320x844.png",
+			"metadata": "spells-history-hidden-320x844.json"
+		},
+		{
+			"state": "spells-history-hidden",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "spells-history-hidden-390x844.png",
+			"metadata": "spells-history-hidden-390x844.json"
+		}
+	],
+	"checksums": {
+		"spells-after-use-history-hidden-1280x844.json": "38a31161015c8eaf6304316c6b7f0aba5bc2d3f8c1b964069aca3429e491073c",
+		"spells-after-use-history-hidden-1280x844.png": "16b9fef2389098896019216ef0dc13d4e63c61accc2a0292abe645373d8b3782",
+		"spells-history-hidden-1280x844.json": "b3c69d6ca4313fb9a62374506ed6ffa8017cf95bc102a77c14784c988c82322e",
+		"spells-history-hidden-1280x844.png": "50bd27689db0b1774db8826da61c353fd5697fa1e4899eb5ce1463111994a065",
+		"spells-history-hidden-320x844.json": "bfd6f3c0dce95f81e86fa7416e7fdac0d88b3bd41e695dfa9e4b882021af1fec",
+		"spells-history-hidden-320x844.png": "0fbbe59d9995d2d25297b76e0d8c0e1b00ed1261ca74d5955eb00066ff2f1779",
+		"spells-history-hidden-390x844.json": "85dec1ffc704c852d23ebb42af5770869d930e57dc38e151402a86216b2fcf28",
+		"spells-history-hidden-390x844.png": "4547a462522242b0f8826e9e8ba73bbbf809c025c7a441056df6e3719a2ef854"
+	}
+}
