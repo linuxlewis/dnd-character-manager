@@ -155,3 +155,13 @@ Root also verified history focus return, details-to-editor-to-details cancellati
 return, and the signed-in account-only menu on the running Tailscale development instance without
 changing its seeded character data. Current PR-head CI is the final external gate; these results
 do not claim native-device, screen-reader or production deployment acceptance.
+
+CI follow-up at clean `e30f6a88f2bd472af764067df58835234c2cb5c1` corrects the enlarged-text
+test's automatic scroll alignment without changing application source. The first PR run placed
+Add item beneath the enlarged sticky header. The test now scrolls into the measured space between
+header and navigation, checks the entire target, text and corner hit-testing, then clicks normally
+at both 320 and 390 px. The CI-mode full local suite passes 599 unit, 68 integration and 40 browser
+tests. Root and the independent reviewer accepted the four [additional captures](../work/design-review/mobile-workspace/character-actions-e30f6a8/manifest.json).
+Local Chrome keyboard checks also confirm Tab reaches Add item, Enter opens the editor and Escape
+returns focus at both widths with 200% text and the 120-character name. These local checks do not
+replace the outstanding physical-device and screen-reader validation.
