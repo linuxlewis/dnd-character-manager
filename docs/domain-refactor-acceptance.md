@@ -7,11 +7,19 @@ Review date: 2026-09-07. Integration/evidence owner: R11 agent `r4_access_prep`;
 independent source/spec reviewer: `r1_finish`, verified by coordinator `root`;
 earlier backend semantic reviewer: `r2_rules`.
 
-Local integrated validation passed. R11 changes documentation only. Coordinator
-review, final PR publication and green CI remain prerequisites to final acceptance;
-this document does not self-accept its unpublished commit. The
-[milestone ledger](./domain-encapsulation-refactor-milestones.md) records lower
-accepted SHAs/CI. No merge, deployment or attributes adaptation was performed.
+The coordinator accepted R11 at `7be07d94f5efaa35fe107b74a299389455a41545`,
+[PR #121](https://github.com/linuxlewis/dnd-character-manager/pull/121), after CI
+`34178542117` passed at that exact SHA. All 15 stack layers have verified heads,
+bases, native positions, green CI and commit-pinned evidence links on their PRs.
+Every milestone is accepted; the [ledger](./domain-encapsulation-refactor-milestones.md)
+records those verified deliveries. No merge, deployment or attributes adaptation
+was performed.
+
+This subsequent documentation-only closure records the verified acceptance above.
+Gate D passed after these status edits; application/source/test state and the full
+implementation Gate B at `2824232f0b9acd844868025bd747607175042dfd` remain unchanged.
+The current PR head's CI is available on GitHub; the historical run above is evidence
+for its named SHA, not a claim about a later commit.
 
 ## Exact Implementation Validation
 

@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0-R9 (including suffixed milestones) accepted; R10 accepted with green CI; R11 integrated validation passed, documentation submitted for coordinator review.
+Status: all milestones R0-R11 (including suffixed milestones) accepted by the coordinator. No merge or deployment performed.
 
 ## Purpose And Authority
 
@@ -34,7 +34,7 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R8 | Spellcasting UI ownership | R7 | accepted | Coordinator verified `624c89b38369cc1fa26ab4092537bf2917dea713`; [PR #117](https://github.com/linuxlewis/dnd-character-manager/pull/117); CI `34176310606` passed; [evidence](./domain-spellcasting-ui.md) |
 | R9 | Spell workflow simplification | R8 | accepted | Coordinator verified `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a`; [PR #118](https://github.com/linuxlewis/dnd-character-manager/pull/118); CI `34177152588` passed; full Gate B passed; [implementation/evidence](./domain-spell-workflows.md) |
 | R10 | Repository-wide enforcement and bridge removal | R9 | accepted | Coordinator verified `2824232f0b9acd844868025bd747607175042dfd`; [PR #119](https://github.com/linuxlewis/dnd-character-manager/pull/119); CI `34178059057` passed; full Gate B passed; [evidence](./domain-strict-enforcement.md) |
-| R11 | Integrated acceptance and attributes handoff | R10 | review | R11 agent `r4_access_prep`; full Gate B passed at R10 SHA; [acceptance and audit](./domain-refactor-acceptance.md); final commit/PR/CI and acceptance recorded by coordinator after review |
+| R11 | Integrated acceptance and attributes handoff | R10 | accepted | Coordinator verified `7be07d94f5efaa35fe107b74a299389455a41545`; [PR #121](https://github.com/linuxlewis/dnd-character-manager/pull/121); CI `34178542117` passed; [acceptance and audit](./domain-refactor-acceptance.md) |
 
 ## Orchestration And Review Rules
 
@@ -443,19 +443,21 @@ and failure/rollback coverage from earlier milestones without duplicating tests.
 
 **Acceptance:**
 
-- [ ] Required commands pass at the recorded final SHA; each PR links its evidence.
+- [x] Required commands pass at the recorded final SHA; each PR links its evidence.
 - [x] An old-to-new model/type/service/route/UI map identifies how the attributes
   stack must adopt public schemas, relations, access contracts, and cache policy.
 - [x] Likely attributes rebase conflicts and the three previously reported recovery/
   validation issues are classified by current trunk versus unmerged-stack behavior.
 - [x] Handwritten source/test deltas distinguish code moved from code eliminated;
   generated artifacts and docs are reported separately.
-- [ ] Every milestone is accepted, all temporary bridges/findings are resolved,
+- [x] Every milestone is accepted, all temporary bridges/findings are resolved,
   and draft PRs are ready for review. No merge or deployment is performed.
 
-Local commands pass at R10; the first and last acceptance boxes remain open
-until the coordinator publishes/verifies the R11 PR and all required CI. Bridge
-closure is already verified. See [integrated evidence](./domain-refactor-acceptance.md),
+The coordinator accepted R11 at the SHA/CI above and verified all 15 stack layers,
+including exact heads, bases, native positions, green CI and commit-pinned evidence
+links on every PR. This subsequent documentation-only closure records that acceptance;
+the current PR head's CI is reported by GitHub. Bridge closure is verified. See
+[integrated evidence](./domain-refactor-acceptance.md),
 [module map](./domain-refactor-module-map.md), and
 [attributes handoff](./domain-attributes-adaptation.md).
 

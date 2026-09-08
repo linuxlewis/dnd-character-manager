@@ -2,8 +2,9 @@
 
 Prepared: 2026-09-07
 
-Status: R0-R9 accepted; R10 accepted with green CI; final R11 integrated checks passed.
-Publication/CI acceptance is tracked in the [milestone ledger](./domain-encapsulation-refactor-milestones.md).
+Status: all milestones R0-R11 (including suffixed milestones) accepted by the coordinator.
+Verified SHAs/CI are recorded in the [milestone ledger](./domain-encapsulation-refactor-milestones.md).
+No merge or deployment performed.
 
 ## Task For The Implementing Agent
 
