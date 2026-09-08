@@ -73,7 +73,7 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 				expect(navBox.height).toBeLessThanOrEqual(64);
 				expect(navBox.y + navBox.height).toBe(viewport.height);
 				for (const link of await nav.getByRole("link").all()) await assertTouchTarget(link, page);
-				for (const name of ["Heal", "Damage"])
+				for (const name of ["Health history", "Heal", "Damage"])
 					await assertTouchTarget(page.getByRole("button", { name, exact: true }), page);
 			} else expect(await nav.evaluate((e) => getComputedStyle(e).position)).not.toBe("fixed");
 			if (section === "inventory") {
@@ -356,12 +356,25 @@ test("mobile workspace supported numeric extremes do not overflow", async ({ pag
 			await expect(page.getByRole("button", { name: "Damage", exact: true })).toBeVisible();
 			await assertNoOverflow(page);
 			await assertTouchTarget(page.getByRole("button", { name: "Damage", exact: true }), page);
+			await assertTouchTarget(
+				page.getByRole("button", { name: "Health history", exact: true }),
+				page,
+			);
+			await assertTextContained(page.getByRole("button", { name: /^Edit health:/ }));
 			await captureMobileEvidence(
 				page,
 				info,
 				`health-${result.health.currentHp}-${result.health.temporaryHp}`,
 				["H2", "H6", "V6"],
 			);
+			if (width === 320 && health.temporaryHp === 9998) {
+				await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+				await assertNoOverflow(page);
+				for (const name of ["Health history", "Heal", "Damage"])
+					await assertTouchTarget(page.getByRole("button", { name, exact: true }), page);
+				await assertTextContained(page.getByRole("button", { name: /^Edit health:/ }));
+				await captureMobileEvidence(page, info, "health-extreme-text-200", ["H2", "V6"]);
+			}
 		}
 	}
 	const added = await page.request.put(`${root}/treasury`, {
@@ -424,6 +437,7 @@ test("mobile workspace character actions have dedicated triggers and exact focus
 		await captureMobileEvidence(page, info, `direct-health-history-${width}`, ["H2", "E5"]);
 		await page.keyboard.press("Escape");
 		await expect(history).toBeFocused();
+		await expect(page.getByRole("dialog", { name: "Health history", exact: true })).toBeHidden();
 		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
 		await expect(page).toHaveURL(/\/inventory$/);
 		if (width === 390) {

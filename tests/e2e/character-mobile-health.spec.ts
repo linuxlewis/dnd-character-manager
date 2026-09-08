@@ -69,6 +69,16 @@ for (const width of [320, 390, 1280]) {
 		await page.getByRole("button", { name: "Save character" }).click();
 		await expect(page.getByRole("dialog", { name: "Edit character", exact: true })).toBeHidden();
 		await expect(
+			page
+				.getByRole("dialog", { name: "Character details", exact: true })
+				.getByRole("button", { name: "Edit character", exact: true }),
+		).toBeFocused();
+		await expect(
+			page
+				.getByRole("dialog", { name: "Character details", exact: true })
+				.getByRole("heading", { name: "Mira Saved", exact: true }),
+		).toBeVisible();
+		await expect(
 			page.getByRole("dialog", { name: "Character details", exact: true }),
 		).toBeVisible();
 		await page.getByRole("button", { name: "Edit character", exact: true }).click();
