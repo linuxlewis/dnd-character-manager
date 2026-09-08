@@ -1,6 +1,6 @@
 # Feature Implementation Process
 
-Architecture guidance updated: 2026-09-07 (target rollout described in architecture.md)
+Architecture guidance updated: 2026-09-07 (strict enforcement active in normal lint)
 
 Use this process when adding or changing application behavior. Keep changes small, preserve the layered architecture, and let tests follow the testing pyramid.
 
@@ -60,6 +60,12 @@ Generated API artifacts are committed source artifacts. `pnpm build` runs `pnpm 
 - Avoid duplicating the same assertion at every layer. Unit tests should cover combinations; e2e tests should prove the journey works.
 
 ## 5. Validate
+
+`pnpm lint` includes Biome, existing source conventions, and strict resolved-import
+boundary enforcement. Fix the dependency at its owning layer; do not replace this
+gate with `lint:boundaries:report`. That explicitly labeled command is diagnostic
+and exits zero for findings. Database table access still needs the manual review
+checks in [domain-boundary-policy.md](./domain-boundary-policy.md).
 
 For source-only changes:
 
