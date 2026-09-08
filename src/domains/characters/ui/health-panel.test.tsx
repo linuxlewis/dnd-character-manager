@@ -31,6 +31,7 @@ describe("CharacterHealthPanel", () => {
 
 		const readableHtml = toReadableText(html);
 		expect(readableHtml).toContain("HP 15/25");
+		expect(html).toContain('aria-label="Health history"');
 		expect(readableHtml).toContain("Heal");
 		expect(readableHtml).toContain("Damage");
 		expect(readableHtml).toContain("Temp HP +5");

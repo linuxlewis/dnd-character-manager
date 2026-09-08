@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode, type Ref, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import { CharacterInventoryWorkspace, type InventoryViewState } from "../../inventory/ui/index.js";
 import { CharacterRibbon } from "./character-ribbon.js";
@@ -18,10 +18,7 @@ interface CharacterDetailProps {
 	id: string;
 	onNavigate: NavigateToCharacterRoute;
 	section?: CharacterSection;
-	renderApplicationMenu?: (
-		characterActions?: ReactNode,
-		triggerRef?: Ref<HTMLButtonElement>,
-	) => ReactNode;
+	renderApplicationMenu?: () => ReactNode;
 	inventoryView?: InventoryViewState;
 	onInventoryViewChange?: (state: InventoryViewState) => void;
 }
@@ -34,8 +31,6 @@ export function CharacterDetail({
 	inventoryView,
 	onInventoryViewChange,
 }: CharacterDetailProps) {
-	const menuTriggerRef = useRef<HTMLButtonElement>(null);
-	const [healthHistoryOpened, setHealthHistoryOpened] = useState(false);
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
 
 	return (
@@ -73,19 +68,12 @@ export function CharacterDetail({
 					<section className="character-sticky-header" aria-label="Character workspace header">
 						<CharacterRibbon
 							character={characterQuery.data.character}
-							onOpenHealthHistory={() => setHealthHistoryOpened(true)}
 							onNavigate={onNavigate}
-							menuTriggerRef={menuTriggerRef}
 							renderApplicationMenu={renderApplicationMenu}
 						/>
 						<CharacterHealthPanel
 							characterId={id}
 							health={characterQuery.data.character.health}
-							historyOpened={healthHistoryOpened}
-							onCloseHistory={() => {
-								setHealthHistoryOpened(false);
-								menuTriggerRef.current?.focus({ preventScroll: true });
-							}}
 							recentHealthChanges={characterQuery.data.character.recentHealthChanges}
 						/>
 					</section>

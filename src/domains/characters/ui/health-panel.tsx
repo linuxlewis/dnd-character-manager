@@ -1,6 +1,7 @@
 import { Button, Group, Modal, Stack, Text, UnstyledButton } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { History } from "lucide-react";
+import { useRef, useState } from "react";
 import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import type { CharacterHealth, HealthChangeResponse } from "../types/index.js";
@@ -15,15 +16,13 @@ export function CharacterHealthPanel({
 	characterId,
 	health,
 	recentHealthChanges,
-	historyOpened = false,
-	onCloseHistory = () => {},
 }: {
 	characterId: string;
 	health: CharacterHealth;
 	recentHealthChanges: HealthChangeResponse[];
-	historyOpened?: boolean;
-	onCloseHistory?: () => void;
 }) {
+	const historyTriggerRef = useRef<HTMLButtonElement>(null);
+	const [historyOpened, setHistoryOpened] = useState(false);
 	const [activeDialog, setActiveDialog] = useState<HealthDialog>(null);
 	const [amountDraft, setAmountDraft] = useState<NumberDraft>("");
 	const [maxDraft, setMaxDraft] = useState<NumberDraft>(health.maxHp);
@@ -111,6 +110,18 @@ export function CharacterHealthPanel({
 						<div className={classes.temporary}>Temp HP +{health.temporaryHp}</div>
 					)}
 				</UnstyledButton>
+				<Button
+					ref={historyTriggerRef}
+					variant="default"
+					mih={44}
+					miw={44}
+					px={10}
+					aria-label="Health history"
+					onClick={() => setHistoryOpened(true)}
+				>
+					<History size={20} aria-hidden="true" />
+					<span className={classes.historyLabel}>History</span>
+				</Button>
 				<Button c="black" mih={44} px="xs" color="green" onClick={() => openAmountDialog("heal")}>
 					Heal
 				</Button>
@@ -121,7 +132,11 @@ export function CharacterHealthPanel({
 			<Modal
 				classNames={{ body: "workspace-inputs" }}
 				opened={historyOpened}
-				onClose={onCloseHistory}
+				returnFocus={false}
+				onClose={() => {
+					setHistoryOpened(false);
+					historyTriggerRef.current?.focus({ preventScroll: true });
+				}}
 				title="Health history"
 				closeButtonProps={{ "aria-label": "Close", size: 44 }}
 			>

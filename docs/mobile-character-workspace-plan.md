@@ -96,7 +96,9 @@ presentation and its connection to the existing editor. Does not edit health dia
 Depends on M1; consumes M0 header/dialog contracts. Criteria: H2-H6, V1/V2/V5, E4/E6.
 
 Deliverables: compact identity/XP, exact-details access, HP readout/Edit trigger, Heal/Damage,
-health-history menu integration. Menu wiring in shared files is applied by M1/integration owner.
+direct health-history action beside Heal/Damage. Account menu contains no character actions.
+Identity details owns Edit character; editor exits return to details, then identity on final close.
+Shared wiring is applied by M1/integration owner.
 
 Acceptance: every XP example in the spec matches the existing server-derived state; level is never
 automatically changed; details shows full long names; current/effective max and nonzero temporary

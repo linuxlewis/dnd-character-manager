@@ -1,4 +1,4 @@
-import { type ReactNode, type Ref, useCallback, useRef, useState } from "react";
+import { type ReactNode, useCallback, useRef, useState } from "react";
 import { navigateBrowserPath } from "../../../providers/navigation/index.js";
 import type { InventoryViewState } from "../../inventory/ui/index.js";
 import { CharacterDetail } from "./character-detail.js";
@@ -15,10 +15,7 @@ export function CharacterWorkspace({
 	renderApplicationMenu,
 }: {
 	pathname?: string;
-	renderApplicationMenu?: (
-		characterActions?: ReactNode,
-		triggerRef?: Ref<HTMLButtonElement>,
-	) => ReactNode;
+	renderApplicationMenu?: () => ReactNode;
 }) {
 	const route = parseCharacterRoute(
 		pathname ?? (typeof window === "undefined" ? "/" : window.location.pathname),

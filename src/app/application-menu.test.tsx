@@ -10,7 +10,7 @@ describe("ApplicationMenu", () => {
 				<ApplicationMenu currentUser={null} />
 			</AppProviders>,
 		);
-		expect(html).toContain('aria-label="Open application menu"');
+		expect(html).toContain('aria-label="Open account menu"');
 		expect(html).toContain('aria-haspopup="menu"');
 	});
 });

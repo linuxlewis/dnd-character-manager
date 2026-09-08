@@ -69,11 +69,11 @@ visual baselines; no third destination is part of this acceptance gate.
 
 ```text
 +--------------------------------------+
-| <  Mira Thorn                    ... |
+| <  Mira Thorn v              Account |
 |    Wizard - Level 3                  |
 |    [==========----] 72% to Lv 4       |
 +--------------------------------------+
-| HP 18/27 +3 temp    [Heal] [Damage]   |
+| HP 18/27 +3 temp [History][Heal][Damage]|
 +--------------------------------------+
 | Spells & Abilities            [Edit] |
 | Cantrips & features                  |
@@ -94,16 +94,21 @@ visually occupy multiple lines. The full character name must remain available in
 
 - **H1:** On character detail, replace the site title/tagline/sign-in block and standalone back link
   with one character header. Back is a real link to the roster. Identity opens character details.
-  The menu exposes Edit character, Health history, About, Privacy, and the appropriate Sign in or
-  Account/Sign out actions. Anonymous users can reach sign-in without leaving the character.
+  The person-icon account menu exposes only About, Privacy, and the appropriate Sign in or
+  Account/Sign out actions; character actions must not be mixed into it. Anonymous users can reach sign-in without leaving the character.
   No character-dependent bottom navigation appears on roster, creation, privacy, or not-found pages.
-- **H2:** Keep character name, class, level, XP progress, current/effective-max HP, Heal, and Damage
+- **H2:** Keep character name, class, level, XP progress, current/effective-max HP, Health history, Heal, and Damage
   visible in the persistent mobile top region. Show temporary HP when nonzero; omit "Temp HP 0".
+  Health history opens the existing newest-first log directly in one tap and restores focus to its
+  own trigger, with section/scroll unchanged on close. Its target is at least 44 x 44 px with the
+  accessible name Health history; its visible label appears when space permits.
   Tapping the HP readout opens Edit health. Give the identity and HP readouts semantic button names;
   avoid nesting progress bars or buttons inside other interactive elements incorrectly.
 - **H3:** Character details shows the full name, class, exact XP, current level, next threshold,
   remaining XP, and access to the existing name/level/XP editor. Preserve existing mutation/cache
-  behavior and errors. Full details need not be permanently expanded in the header.
+  behavior and errors. Identity has a subtle chevron and hover/pressed/focus treatment. Editor
+  Save/Cancel/Escape returns to details with Edit character focused; closing details restores
+  identity focus. Never stack active details/editor dialogs. Full details need not be permanently expanded in the header.
 - **H4:** Render authoritative `character.experience` response data; do not duplicate threshold
   tables or derive level from XP in the component. Label ordinary progress as `{percent}% to Lv N`.
   If `!isMaxLevel && experienceRemaining === 0`, label `Level N available`. At max level label

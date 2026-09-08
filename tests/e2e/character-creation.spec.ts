@@ -43,6 +43,10 @@ test("creates a character, lists it, opens detail, and persists across reloads",
 	await page.getByLabel("Experience points").fill("27000");
 	await page.getByRole("button", { name: "Save character" }).click();
 	await expect(page.getByRole("dialog", { name: "Edit character", exact: true })).toBeHidden();
+	await page
+		.getByRole("dialog", { name: "Character details", exact: true })
+		.getByRole("button", { name: "Close", exact: true })
+		.click();
 	await expect(page.getByRole("heading", { name: "Lyria Starfall", level: 1 })).toBeVisible();
 	await expect(page.getByText("Level 8")).toBeVisible();
 	await page.getByRole("button", { name: "Character details for Lyria Starfall" }).click();

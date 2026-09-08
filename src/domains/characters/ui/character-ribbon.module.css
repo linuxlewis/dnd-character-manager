@@ -8,9 +8,18 @@
 	outline-offset: 2px;
 }
 .name.name {
+	min-width: 0;
 	font-size: 1.25rem;
 	line-height: 1.2;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.identity:hover,
+.identity:active {
+	background: var(--mantine-color-dark-6);
+}
+.chevron {
+	flex-shrink: 0;
 }

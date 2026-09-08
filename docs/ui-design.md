@@ -21,7 +21,13 @@ from an unmerged branch. Numerical HP/XP/currency use tabular figures. No decora
 - Character detail has compact identity/XP/health and mobile bottom navigation below `sm`.
   Spells and Inventory are the only shipping destinations; default is Spells. Desktop uses top
   navigation. No duplicate top/bottom tabs on a phone. The roster and privacy page retain site chrome.
-- Identity opens exact character details; HP opens health editing. App-owned account/sign-in,
+- Identity has a visible chevron and opens exact character details with a prominent Edit character
+  action. Edit Save/Cancel/Escape returns to details and focuses Edit character; closing details
+  focuses identity. Only one dialog is mounted at a time in this flow. HP opens health editing.
+- Health history is a direct 44 x 44 px minimum action beside Heal and Damage, available in one
+  tap during battle. Its icon has the accessible name Health history; show History text where
+  space permits. Closing history restores its trigger, section and scroll position.
+- The person icon opens an account menu containing no character actions. App-owned account/sign-in,
   About/attribution and Privacy remain reachable without restoring the large marketing header.
 - Bottom navigation changes sections, never performs mutations. Real URLs support reload and
   browser navigation. Preserve per-character section scroll and inventory search/category.

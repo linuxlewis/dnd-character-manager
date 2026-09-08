@@ -1,11 +1,12 @@
 .healthRow {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px;
 }
 .readout {
 	flex: 1;
-	min-width: 0;
+	min-width: 4.5rem;
 	min-height: 44px;
 	font-variant-numeric: tabular-nums;
 }
@@ -42,5 +43,15 @@
 	}
 	.sheetBody.sheetBody {
 		padding-bottom: max(16px, env(safe-area-inset-bottom));
+	}
+}
+
+.historyLabel {
+	display: none;
+	margin-left: 6px;
+}
+@media (min-width: 30em) {
+	.historyLabel {
+		display: inline;
 	}
 }

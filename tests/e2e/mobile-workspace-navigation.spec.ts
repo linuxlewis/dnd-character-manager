@@ -31,7 +31,7 @@ test("mobile workspace keeps real section routes, browsing state, and reachable 
 	await expect(spells).toHaveAttribute("aria-current", "page");
 	await page.reload();
 	await expect(spells).toHaveAttribute("aria-current", "page");
-	await page.getByRole("button", { name: "Open application menu" }).click();
+	await page.getByRole("button", { name: "Open account menu" }).click();
 	await expect(page.getByRole("menuitem", { name: "Sign in" })).toBeVisible();
 	await page.getByRole("menuitem", { name: "About", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "About" })).toContainText("unofficial service");
@@ -60,6 +60,6 @@ test("mobile workspace keeps real section routes, browsing state, and reachable 
 	);
 	await expect(page.getByText("Character not found", { exact: true })).toBeVisible();
 	await expect(page.getByRole("link", { name: "Back to characters" })).toBeVisible();
-	await expect(page.getByRole("button", { name: "Open application menu" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "Open account menu" })).toBeVisible();
 	await page.screenshot({ path: testInfo.outputPath("shell-not-found.png") });
 });

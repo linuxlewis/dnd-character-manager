@@ -1,8 +1,8 @@
 import { ActionIcon, Anchor, Menu, Modal, Stack, Text } from "@mantine/core";
 import { useMergedRef } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MoreVertical } from "lucide-react";
-import { type ReactNode, type Ref, useRef, useState } from "react";
+import { UserRound } from "lucide-react";
+import { type Ref, useRef, useState } from "react";
 import {
 	apiMutations,
 	apiQueries,
@@ -12,11 +12,9 @@ import { MagicLinkLoginForm } from "./magic-link-login.js";
 
 export function ApplicationMenu({
 	currentUser,
-	children,
 	triggerRef,
 }: {
 	currentUser?: CurrentUserResponse["user"] | null;
-	children?: ReactNode;
 	triggerRef?: Ref<HTMLButtonElement>;
 }) {
 	const localTriggerRef = useRef<HTMLButtonElement>(null);
@@ -39,17 +37,17 @@ export function ApplicationMenu({
 						size={44}
 						variant="subtle"
 						color="gray"
-						aria-label="Open application menu"
+						aria-label="Open account menu"
 					>
-						<MoreVertical size={22} />
+						<UserRound size={22} aria-hidden="true" />
 					</ActionIcon>
 				</Menu.Target>
 				<Menu.Dropdown>
-					{children}
 					{currentUser && !currentUser.isAnonymous ? (
 						<>
 							<Menu.Label>{currentUser.name || "Account"}</Menu.Label>
 							<Menu.Item
+								mih={44}
 								disabled={signOutMutation.isPending}
 								onClick={() => signOutMutation.mutate()}
 							>

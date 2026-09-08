@@ -92,11 +92,7 @@ function CharacterApplication({ pathname }: { pathname: string }) {
 				<Stack gap="md">
 					<CharacterWorkspace
 						pathname={pathname}
-						renderApplicationMenu={(actions, triggerRef) => (
-							<ApplicationMenu currentUser={currentUser} triggerRef={triggerRef}>
-								{actions}
-							</ApplicationMenu>
-						)}
+						renderApplicationMenu={() => <ApplicationMenu currentUser={currentUser} />}
 					/>
 				</Stack>
 			)}

@@ -377,32 +377,65 @@ test("mobile workspace supported numeric extremes do not overflow", async ({ pag
 	await captureMobileEvidence(page, info, "currency-large", ["I1", "V6"]);
 });
 
-test("mobile workspace menu dialogs return focus to a stable trigger", async ({ page }, info) => {
-	test.setTimeout(90_000);
-	await page.setViewportSize({ width: 390, height: 844 });
+test("mobile workspace character actions have dedicated triggers and exact focus return", async ({
+	page,
+}, info) => {
 	const fixture = await prepareMobileWorkspace(page);
-	await page.goto(`${fixture.path}/spells`);
-	const menu = page.getByRole("button", { name: "Open application menu", exact: true });
-	for (const name of ["Edit character", "Health history"]) {
+	for (const width of [320, 390, 1280]) {
+		await page.setViewportSize({ width, height: 844 });
+		await page.goto(`${fixture.path}/inventory`);
+		const identity = page.getByRole("button", { name: /^Character details for/ });
+		const history = page.getByRole("button", { name: "Health history", exact: true });
+		const menu = page.getByRole("button", { name: "Open account menu", exact: true });
+		await assertTouchTarget(history, page);
+		await assertTextContained(page.getByRole("button", { name: /^Edit health:/ }));
+		if (width < 768) {
+			const header = await page
+				.getByRole("region", { name: "Character workspace header" })
+				.boundingBox();
+			expect(header?.height).toBeLessThanOrEqual(144);
+		}
+		await captureMobileEvidence(page, info, `character-actions-${width}`, ["H1", "H2", "V5"]);
 		await menu.click();
-		await page.getByRole("menuitem", { name, exact: true }).click();
-		const dialog = page.getByRole("dialog", { name, exact: true });
-		await expect(dialog).toBeVisible();
-		await captureMobileEvidence(page, info, `menu-${name.toLowerCase().replaceAll(" ", "-")}`, [
-			"E5",
-			"N5",
-		]);
+		await expect(page.getByRole("menuitem")).toHaveText(["Sign in", "About", "Privacy Policy"]);
+		await captureMobileEvidence(page, info, `account-menu-${width}`, ["H1", "E5"]);
 		await page.keyboard.press("Escape");
-		await expect(dialog).toBeHidden();
-		await expect
-			.poll(() =>
-				page.evaluate(
-					() =>
-						document.activeElement?.getAttribute("aria-label") ??
-						`MISSING:${document.activeElement?.tagName}`,
-				),
-			)
-			.toMatch(/Open application menu|Character details for/);
+		await identity.click();
+		const details = page.getByRole("dialog", { name: "Character details", exact: true });
+		const edit = details.getByRole("button", { name: "Edit character", exact: true });
+		for (const exit of ["Cancel", "Escape", "Save character"]) {
+			await edit.click();
+			const editor = page.getByRole("dialog", { name: "Edit character", exact: true });
+			await expect(editor).toBeVisible();
+			await expect(page.getByRole("dialog")).toHaveCount(1);
+			if (exit === "Cancel")
+				await captureMobileEvidence(page, info, `identity-editor-${width}`, ["H3", "E5"]);
+			if (exit === "Escape") await page.keyboard.press("Escape");
+			else await editor.getByRole("button", { name: exit, exact: true }).click();
+			await expect(edit).toBeFocused();
+		}
+		await captureMobileEvidence(page, info, `character-details-return-${width}`, ["H3", "E5"]);
+		await page.keyboard.press("Escape");
+		await expect(identity).toBeFocused();
+		await page.evaluate(() => window.scrollTo(0, 250));
+		const scroll = await page.evaluate(() => window.scrollY);
+		await history.click();
+		await expect(page.getByRole("dialog", { name: "Health history", exact: true })).toBeVisible();
+		await captureMobileEvidence(page, info, `direct-health-history-${width}`, ["H2", "E5"]);
+		await page.keyboard.press("Escape");
+		await expect(history).toBeFocused();
+		await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
+		await expect(page).toHaveURL(/\/inventory$/);
+		if (width === 390) {
+			await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+			await page.evaluate(() => window.scrollTo(0, 0));
+			await assertNoOverflow(page);
+			for (const name of ["Health history", "Heal", "Damage"]) {
+				await assertTouchTarget(page.getByRole("button", { name, exact: true }), page);
+			}
+			await assertTextContained(page.getByRole("button", { name: /^Edit health:/ }));
+			await captureMobileEvidence(page, info, "character-actions-text-200", ["H2", "V6"]);
+		}
 	}
 });
 

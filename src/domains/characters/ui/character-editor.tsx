@@ -163,6 +163,7 @@ export function CharacterEditor({
 					content: classes.sheetContent,
 					body: classes.sheetBody,
 				}}
+				returnFocus={controlledOpened === undefined}
 				onClose={closeEditor}
 				opened={opened}
 				title="Edit character"

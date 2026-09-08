@@ -132,3 +132,13 @@ Final QA-stack CI must be verified on the submitted head. Later documentation/ev
 reuse this source test run only if application and test source are unchanged. Any new source fix
 requires appropriate tests and new evidence scoped to what changed. Do not describe this review
 as a production deployment or include unmerged Attributes & Rolls to make a screenshot look complete.
+
+## Character Action Follow-up
+
+The subsequent character-action adjustment supersedes the original mixed-menu behavior for H1,
+H2, H3, N5 and E5. Earlier screenshots and acceptance results remain historical evidence at their
+recorded source SHA, not proof of the updated controls. The current contract separates account
+actions, provides one-tap Health history beside Heal/Damage, and returns character editing to
+details. Follow-up validation must record exact focus, unchanged section/scroll, 320/390/desktop
+geometry, 200% text, and updated screenshots before independent acceptance. Physical-device
+checks remain NOT RUN.

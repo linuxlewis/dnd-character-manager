@@ -15,12 +15,14 @@ agents can change one concern without duplicating app chrome or keeping inactive
   Its header contains `CharacterRibbon` and `CharacterHealthPanel` exactly once. The two destination
   links are a single responsive navigation element, not duplicate desktop/mobile trees.
 - `CharacterRibbon` receives the typed character and `onNavigate`, plus `renderApplicationMenu`.
-  The latter is an app-owned render callback accepting character action menu items. The app supplies
-  sign-in/account, About attribution, and Privacy. Character code supplies its edit/history actions.
-  The callback's optional second argument is a ref for the persistent menu trigger. Menu-launched
-  dialogs return focus to that ref when closing because the originating menu item unmounts. The
-  details-to-editor flow instead returns to character identity. Preserve these explicit close
-  callbacks when composing dialogs; Mantine cannot restore focus to a removed menu item.
+  The latter is an argument-free app-owned render callback for sign-in/account, About and Privacy.
+  It deliberately accepts no injected character actions. The person icon is labelled Open account
+  menu. CharacterRibbon owns identity/details/editor navigation; details and editor conditionally
+  mount to avoid competing focus traps. Editor exits reopen details with Edit character autofocus;
+  final details close explicitly focuses the persistent identity trigger without scrolling.
+- CharacterHealthPanel owns its local history state and stable History trigger ref. History opens
+  directly beside Heal/Damage; close restores that trigger without changing section or scroll.
+  HP still opens editing. Do not route history through account menus or insert another mobile row.
 - Inventory receives optional `InventoryViewState` (`searchInput`, `activeType`) and
   `onViewStateChange`. Standalone inventory retains its local fallback; the workspace supplies both
   props for preservation across section unmounts. Editor drafts and selected detail dialogs are local.
