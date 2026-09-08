@@ -1,0 +1,386 @@
+{
+	"sourceSha": "0fad2dcc4f306834381cd9ec25645a057b286acb",
+	"applicationSha": "51ec86e11fbe3813bcefc3a0d6379d2c85c30a3d",
+	"command": "COMPOSE_FILE=<isolated local external-network override> pnpm test",
+	"fixture": "F2-main-v1",
+	"nativeDevices": "NOT RUN",
+	"pixelBaselines": "Not established; screenshots are review evidence",
+	"captures": [
+		{
+			"state": "health-9999-0",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "health-9999-0-320x844.png",
+			"metadata": "health-9999-0-320x844.json"
+		},
+		{
+			"state": "health-9999-0",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "health-9999-0-390x844.png",
+			"metadata": "health-9999-0-390x844.json"
+		},
+		{
+			"state": "health-9999-9998",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "health-9999-9998-320x844.png",
+			"metadata": "health-9999-9998-320x844.json"
+		},
+		{
+			"state": "health-9999-9998",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "health-9999-9998-390x844.png",
+			"metadata": "health-9999-9998-390x844.json"
+		},
+		{
+			"state": "health-extreme-text-200",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "health-extreme-text-200-320x844.png",
+			"metadata": "health-extreme-text-200-320x844.json"
+		},
+		{
+			"state": "spell-actions-text-200",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "spell-actions-text-200-320x844.png",
+			"metadata": "spell-actions-text-200-320x844.json"
+		},
+		{
+			"state": "account-menu-1280",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "account-menu-1280-1280x844.png",
+			"metadata": "account-menu-1280-1280x844.json"
+		},
+		{
+			"state": "account-menu-320",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "account-menu-320-320x844.png",
+			"metadata": "account-menu-320-320x844.json"
+		},
+		{
+			"state": "account-menu-390",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "account-menu-390-390x844.png",
+			"metadata": "account-menu-390-390x844.json"
+		},
+		{
+			"state": "character-actions-1280",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "character-actions-1280-1280x844.png",
+			"metadata": "character-actions-1280-1280x844.json"
+		},
+		{
+			"state": "character-actions-320",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "character-actions-320-320x844.png",
+			"metadata": "character-actions-320-320x844.json"
+		},
+		{
+			"state": "character-actions-390",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "character-actions-390-390x844.png",
+			"metadata": "character-actions-390-390x844.json"
+		},
+		{
+			"state": "character-actions-text-200",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "character-actions-text-200-390x844.png",
+			"metadata": "character-actions-text-200-390x844.json"
+		},
+		{
+			"state": "character-details-return-1280",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "character-details-return-1280-1280x844.png",
+			"metadata": "character-details-return-1280-1280x844.json"
+		},
+		{
+			"state": "character-details-return-320",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "character-details-return-320-320x844.png",
+			"metadata": "character-details-return-320-320x844.json"
+		},
+		{
+			"state": "character-details-return-390",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "character-details-return-390-390x844.png",
+			"metadata": "character-details-return-390-390x844.json"
+		},
+		{
+			"state": "direct-health-history-1280",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "direct-health-history-1280-1280x844.png",
+			"metadata": "direct-health-history-1280-1280x844.json"
+		},
+		{
+			"state": "direct-health-history-320",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "direct-health-history-320-320x844.png",
+			"metadata": "direct-health-history-320-320x844.json"
+		},
+		{
+			"state": "direct-health-history-390",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "direct-health-history-390-390x844.png",
+			"metadata": "direct-health-history-390-390x844.json"
+		},
+		{
+			"state": "identity-editor-1280",
+			"viewport": {
+				"width": 1280,
+				"height": 844
+			},
+			"image": "identity-editor-1280-1280x844.png",
+			"metadata": "identity-editor-1280-1280x844.json"
+		},
+		{
+			"state": "identity-editor-320",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "identity-editor-320-320x844.png",
+			"metadata": "identity-editor-320-320x844.json"
+		},
+		{
+			"state": "identity-editor-390",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "identity-editor-390-390x844.png",
+			"metadata": "identity-editor-390-390x844.json"
+		}
+	],
+	"files": [
+		{
+			"path": "account-menu-1280-1280x844.json",
+			"sha256": "751de6ead6550d87fac265bdbd5b29fd6d61f4298429ec28ad2d63bbb98ab514"
+		},
+		{
+			"path": "account-menu-1280-1280x844.png",
+			"sha256": "da8fe0be670022cceef99294c1825b3b30412208e0073c08fd72937bf36db723"
+		},
+		{
+			"path": "account-menu-320-320x844.json",
+			"sha256": "e69e78aed6fa6d816c5f4ac198e0a0d79e5ef3114e99589710af9d405e2d9d01"
+		},
+		{
+			"path": "account-menu-320-320x844.png",
+			"sha256": "d95ab47334dc8214c8bf600eaec86dc1f7880a68c0c400718a52d50956fdd203"
+		},
+		{
+			"path": "account-menu-390-390x844.json",
+			"sha256": "8840dafdd6cd36d9b1fdc825fd71fae4111b8e47119d46c181aa8bd9c0fa8080"
+		},
+		{
+			"path": "account-menu-390-390x844.png",
+			"sha256": "3082fc40ed7ce3ac1561a5ce60c84e5ef936d60e08d20f473af8ab22af0e3fd2"
+		},
+		{
+			"path": "character-actions-1280-1280x844.json",
+			"sha256": "0bda4d8b7e552f35d7607f4c3134e934a2bf41653cfadc24b6ec3ec342b5820d"
+		},
+		{
+			"path": "character-actions-1280-1280x844.png",
+			"sha256": "281fde0581db18f4ef0112052ae07f3c5e21ef420d8b2fbbe69c5e792ab5ef0a"
+		},
+		{
+			"path": "character-actions-320-320x844.json",
+			"sha256": "40ea304bb8213a490737e560fafa31f54d9e2692906242080f2bffa92f404cb1"
+		},
+		{
+			"path": "character-actions-320-320x844.png",
+			"sha256": "4e02f46a5f48a50707e42f2d43ff4f6accc4750764138b06909076cfca61a900"
+		},
+		{
+			"path": "character-actions-390-390x844.json",
+			"sha256": "e6204deb124320b6c3b76d5ef2cb7584e0ccccc9913e072145b08bada45b240b"
+		},
+		{
+			"path": "character-actions-390-390x844.png",
+			"sha256": "eecf25c56adfb0a610a438dd5329bae0f32d83da81ac702463fa48e0d2c4d0e2"
+		},
+		{
+			"path": "character-actions-text-200-390x844.json",
+			"sha256": "c5683698a590b3d3804296a148e62812124ac95dce388c7a051cdc82b6d7b3a4"
+		},
+		{
+			"path": "character-actions-text-200-390x844.png",
+			"sha256": "bab32fc7e598a38387ae741a7b6bad0c622df75213b19c359077531079462cdb"
+		},
+		{
+			"path": "character-details-return-1280-1280x844.json",
+			"sha256": "80747d54150f950761700148f958ab1d04f44ce00e6853b2697c8dfa32506b90"
+		},
+		{
+			"path": "character-details-return-1280-1280x844.png",
+			"sha256": "eb80361e1dfda890a18e6717fd339a1d192ee36b7489da9e481d351747fde80e"
+		},
+		{
+			"path": "character-details-return-320-320x844.json",
+			"sha256": "66cbf306550944f8db6b5555a4f96a569925b77c8d73154758c078d4fcfa0f8f"
+		},
+		{
+			"path": "character-details-return-320-320x844.png",
+			"sha256": "4618ea6302a75af58933731ebf94a316eaabb296bdf869ec7d722a0c313c6618"
+		},
+		{
+			"path": "character-details-return-390-390x844.json",
+			"sha256": "27b079ec2a59763f2876bf2aab24b0fa08020c7b2f7f6a5c2392414a3a8b57af"
+		},
+		{
+			"path": "character-details-return-390-390x844.png",
+			"sha256": "58d99e5427b6c6aa7e346a05b751097f8217acedc06fa39ebe3651daf1c00117"
+		},
+		{
+			"path": "direct-health-history-1280-1280x844.json",
+			"sha256": "8508a498d9a8fdd5e2da78f3894f8873069f74950fe6c32a5945d4818c3579ef"
+		},
+		{
+			"path": "direct-health-history-1280-1280x844.png",
+			"sha256": "f9fcef8cfee4d3c831c9ded788ef54d61d6da0c59ba2c166cd34bc5b4ff34495"
+		},
+		{
+			"path": "direct-health-history-320-320x844.json",
+			"sha256": "2ce81f5730b3b2bd4c5e8f7d52563d8a220c64378d61e7af5e1ce8691a0099f8"
+		},
+		{
+			"path": "direct-health-history-320-320x844.png",
+			"sha256": "3ead9f234abe322221dbe826b8a9e0275d7a6c3a8707cb79be557ea3801aed63"
+		},
+		{
+			"path": "direct-health-history-390-390x844.json",
+			"sha256": "11048e378a23a8b21dfeeb295528d63132f17ca2fb22731f85353ebba9e58d12"
+		},
+		{
+			"path": "direct-health-history-390-390x844.png",
+			"sha256": "10eb2e8a847680c297d61187613ebb57369c82473f4ac1800a9c39e32f49be36"
+		},
+		{
+			"path": "health-9999-0-320x844.json",
+			"sha256": "f1e7a54509acdd9753e6c6b55ae539d638972c62014c42e118fa70f6c933bf3f"
+		},
+		{
+			"path": "health-9999-0-320x844.png",
+			"sha256": "8831ba63b3670c898cac5101836531194de2c98a146a29cf81b6e32009a145bb"
+		},
+		{
+			"path": "health-9999-0-390x844.json",
+			"sha256": "89548ab7fd1f7eeabb1748dbec946f824bff68c68e4e25cdfdd3689bbe484d23"
+		},
+		{
+			"path": "health-9999-0-390x844.png",
+			"sha256": "c30c2ca75231b3a7a26865bc68584be65f7e34bbdaa21b23710bb98a1a1c87d0"
+		},
+		{
+			"path": "health-9999-9998-320x844.json",
+			"sha256": "bb6047242aaa5b071f3d1a639e3e77d86f6aeef100a63ca1d65ee2c1ab5619dc"
+		},
+		{
+			"path": "health-9999-9998-320x844.png",
+			"sha256": "c0d5ac2872a8cc2f2543eca38537520f9c44add69d7d96e40ffaecf984413f84"
+		},
+		{
+			"path": "health-9999-9998-390x844.json",
+			"sha256": "dece344cfaba086ad749f7cd646e607f25e56b55bf5d0d7be9029008f0f0941f"
+		},
+		{
+			"path": "health-9999-9998-390x844.png",
+			"sha256": "2add4510b37ccad23499b1663f09f55892e1a394ca46b8ed26f07a394a249c8b"
+		},
+		{
+			"path": "health-extreme-text-200-320x844.json",
+			"sha256": "6aa169bd15abe23c8167fd64e94e830ef7422566edaaa72975f23aa95a296127"
+		},
+		{
+			"path": "health-extreme-text-200-320x844.png",
+			"sha256": "2146f28402dacb6894c901ccf2654c225a458d673396bc858d047c9f4622d501"
+		},
+		{
+			"path": "identity-editor-1280-1280x844.json",
+			"sha256": "ed6ffb34f418472cf30b5d9981fbbcc86d81320ae347def6faf72b54e9b59f11"
+		},
+		{
+			"path": "identity-editor-1280-1280x844.png",
+			"sha256": "d54044eb44bd0ec77afd443934c95aacf08e941b8416955b163202ead830f807"
+		},
+		{
+			"path": "identity-editor-320-320x844.json",
+			"sha256": "a44d047448b42396ef0060585628df1d28a584567296a76703f16f0a1538fc27"
+		},
+		{
+			"path": "identity-editor-320-320x844.png",
+			"sha256": "ef62c43185cd705746b8ca636ee7930dd3302ad22d4114a4cdd68bc7ea0085e8"
+		},
+		{
+			"path": "identity-editor-390-390x844.json",
+			"sha256": "de9f824de928d8906191c95cce1df5e201cb2f1d5bedfd350742dc1807d37753"
+		},
+		{
+			"path": "identity-editor-390-390x844.png",
+			"sha256": "b206ed4d587a7a9393718509d38d4e7688e1226865d0dddb631ee1fd9fdae413"
+		},
+		{
+			"path": "spell-actions-text-200-320x844.json",
+			"sha256": "3308474a5cf2beb05534b27d1b9f1ebfc66e33c7ad13c133def891227e49e4be"
+		},
+		{
+			"path": "spell-actions-text-200-320x844.png",
+			"sha256": "649cab8c2779e1db3cd8538158d900020f913f0a4bf1229b1266a0dbfd98e0ea"
+		}
+	]
+}

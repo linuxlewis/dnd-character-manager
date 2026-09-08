@@ -142,3 +142,16 @@ actions, provides one-tap Health history beside Heal/Damage, and returns charact
 details. Follow-up validation must record exact focus, unchanged section/scroll, 320/390/desktop
 geometry, 200% text, and updated screenshots before independent acceptance. Physical-device
 checks remain NOT RUN.
+
+Follow-up source/browser acceptance: PASS at clean `0fad2dcc4f306834381cd9ec25645a057b286acb`
+(application source `51ec86e`). The full suite passed 599 unit, 68 integration and 40 browser
+tests; lint, API freshness, typecheck/build, documentation links and whitespace checks passed.
+The [focused evidence manifest](../work/design-review/mobile-workspace/character-actions-0fad2dc/manifest.json)
+records 22 real-app screenshots and their formatted metadata/checksums. Root and the independent
+visual reviewer accepted mobile/desktop controls, details/editor/history, maximum HP, 200% text
+and the related Use/Restore wrapping correction. Browser tests cover exact focus after successful,
+partial and cancelled edits, history scroll retention, and complete target/text containment.
+Root also verified history focus return, details-to-editor-to-details cancellation, identity focus
+return, and the signed-in account-only menu on the running Tailscale development instance without
+changing its seeded character data. Current PR-head CI is the final external gate; these results
+do not claim native-device, screen-reader or production deployment acceptance.

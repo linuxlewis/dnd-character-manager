@@ -53,6 +53,12 @@ rotation checks remain **NOT RUN** and must be recorded separately from Chromium
 
 ## Known Gaps
 
+The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean
+`0fad2dc`. Coverage now verifies dedicated health-history access, exact identity/details/editor
+focus restoration, successful and partial saves, and 320 px enlarged-text action containment.
+Independent screenshot and live development review are recorded in the
+[acceptance record](./mobile-workspace-acceptance.md#character-action-follow-up).
+
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
 - [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, or session management UI yet; the Resend sender domain still needs verification for production email delivery
