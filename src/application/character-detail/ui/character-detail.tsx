@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import {
 	CharacterRibbon,
 	type CharacterSection,
-	CharacterSpellSlotsPanel,
 	characterRoutePath,
 	type NavigateToCharacterRoute,
 	shouldHandleCharacterLink,
@@ -14,6 +13,7 @@ import {
 	CharacterInventoryWorkspace,
 	type InventoryViewState,
 } from "../../../domains/inventory/ui/index.js";
+import { CharacterSpellSlotsPanel } from "../../../domains/spellcasting/ui/index.js";
 import { ApiClientError, apiQueries } from "../../../generated/api-client.generated.js";
 import { applyHealthResponse } from "../cache/health.js";
 import { CharacterSectionNavigation } from "./character-section-navigation.js";

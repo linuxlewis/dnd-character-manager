@@ -1,6 +1,6 @@
 import { Anchor, Button, Group, Progress, Stack, Text, Title } from "@mantine/core";
 import type { CharacterSpellsResponse } from "../../../generated/api-client.generated.js";
-import type { CharacterSpellSlot } from "../../spellcasting/types/index.js";
+import type { CharacterSpellSlot } from "../types/index.js";
 import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
 interface SpellSlotListProps {
