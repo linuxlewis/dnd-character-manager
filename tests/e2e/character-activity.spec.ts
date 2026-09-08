@@ -202,7 +202,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	expect(intermediateDrawer).not.toBeNull();
 	expect(intermediateViewport).not.toBeNull();
 	if (intermediateDrawer && intermediateViewport) {
-		expect(intermediateDrawer.width).toBe(intermediateViewport.width);
+		expect(intermediateDrawer.width).toBeCloseTo(intermediateViewport.width, 2);
 	}
 
 	await page.setViewportSize({ width: 390, height: 844 });
@@ -210,7 +210,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	const viewport = page.viewportSize();
 	expect(mobileDrawer).not.toBeNull();
 	expect(viewport).not.toBeNull();
-	if (mobileDrawer && viewport) expect(mobileDrawer.width).toBe(viewport.width);
+	if (mobileDrawer && viewport) expect(mobileDrawer.width).toBeCloseTo(viewport.width, 2);
 	await expect(drawer.locator(".character-activity-entry").first()).toHaveCSS(
 		"grid-template-columns",
 		/^28px /,

@@ -83,3 +83,21 @@
 		padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
 	}
 }
+.inventory-filter {
+	flex: 0 1 auto;
+	max-width: 100%;
+	height: auto;
+	padding-block: 8px;
+}
+
+.inventory-filter-inner {
+	height: auto;
+}
+
+.inventory-filter-label {
+	flex-wrap: wrap;
+	justify-content: center;
+	white-space: normal;
+	overflow: visible;
+	overflow-wrap: anywhere;
+}

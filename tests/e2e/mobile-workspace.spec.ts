@@ -299,33 +299,60 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 	await page.goto(`${fixture.path}/inventory`);
 	await expect(page.getByLabel("Search personal inventory")).toBeVisible();
 	await captureMobileEvidence(page, info, "long-name", ["H3"]);
-	for (const width of [320, 390]) {
+	for (const { width, fallback } of [
+		{ width: 320, fallback: false },
+		{ width: 390, fallback: false },
+		{ width: 320, fallback: true },
+	]) {
+		const suffix = fallback ? "-fallback" : "";
 		await page.setViewportSize({ width, height: 844 });
 		await page.goto(`${fixture.path}/inventory`);
+		await expect(page.getByRole("button", { name: "Consumable 0", exact: true })).toBeVisible();
+		if (!fallback)
+			await captureMobileEvidence(page, info, "inventory-filters-normal", ["I1", "V6"]);
 		// Text-only enlargement, not viewport scaling: geometry budgets are intentionally waived.
-		await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+		await page.addStyleTag({
+			content: `html { font-size: 200% !important; } ${fallback ? 'body { --mantine-font-family: "DejaVu Sans", sans-serif; --mantine-font-family-headings: "DejaVu Sans", sans-serif; }' : ""}`,
+		});
+		await page.evaluate(() => document.fonts.ready);
 		const addItem = page.getByRole("button", { name: "Add item", exact: true });
 		await expect(addItem).toBeVisible();
 		await assertNoOverflow(page);
-		// Browser auto-scroll centers against the viewport, which may be covered by enlarged chrome.
-		await addItem.evaluate((element) => {
-			const header = document.querySelector('[aria-label="Character workspace header"]');
-			window.scrollBy(
-				0,
-				element.getBoundingClientRect().top - (header?.getBoundingClientRect().height ?? 0) - 16,
-			);
-		});
-		const buttonBox = await assertReachable(addItem, page);
-		await assertTouchTarget(addItem, page);
-		const headerBox = await page
-			.getByRole("region", { name: "Character workspace header" })
-			.boundingBox();
-		const navBox = await page.getByRole("navigation", { name: "Character sections" }).boundingBox();
-		expect(headerBox).not.toBeNull();
-		expect(navBox).not.toBeNull();
-		expect(buttonBox.y).toBeGreaterThanOrEqual((headerBox?.y ?? 0) + (headerBox?.height ?? 0));
-		expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(navBox?.y ?? 0);
-		await captureMobileEvidence(page, info, "item-action-text-200-reachable", ["V6", "E1", "E4"]);
+		for (const kind of ["filter", "item-action"]) {
+			const action =
+				kind === "filter"
+					? page.getByRole("button", { name: "Consumable 0", exact: true })
+					: addItem;
+			// Browser auto-scroll centers against the viewport, which may be covered by enlarged chrome.
+			await action.evaluate((element) => {
+				const header = document.querySelector('[aria-label="Character workspace header"]');
+				window.scrollBy(
+					0,
+					element.getBoundingClientRect().top - (header?.getBoundingClientRect().height ?? 0) - 16,
+				);
+			});
+			const buttonBox = await assertReachable(action, page);
+			await assertTouchTarget(action, page);
+			const headerBox = await page
+				.getByRole("region", { name: "Character workspace header" })
+				.boundingBox();
+			const navBox = await page
+				.getByRole("navigation", { name: "Character sections" })
+				.boundingBox();
+			expect(headerBox).not.toBeNull();
+			expect(navBox).not.toBeNull();
+			expect(buttonBox.y).toBeGreaterThanOrEqual((headerBox?.y ?? 0) + (headerBox?.height ?? 0));
+			expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(navBox?.y ?? 0);
+			await captureMobileEvidence(page, info, `${kind}-text-200-reachable${suffix}`, [
+				"V6",
+				"E1",
+				"E4",
+			]);
+			if (kind === "filter") {
+				await action.click();
+				await expect(action).toHaveAttribute("aria-pressed", "true");
+			}
+		}
 		await addItem.click();
 		const dialog = page.getByRole("dialog", { name: "Add personal item" });
 		await expect(dialog).toBeVisible();
@@ -333,7 +360,7 @@ test("mobile workspace XP boundaries and enlarged text remain readable", async (
 		await dialog.getByLabel("Thumbnail URL").scrollIntoViewIfNeeded();
 		await assertReachable(dialog.getByLabel("Thumbnail URL"), page);
 		await assertReachable(dialog.getByRole("button", { name: "Cancel", exact: true }), page);
-		await captureMobileEvidence(page, info, "item-editor-text-200", ["V6", "E1", "E4"]);
+		await captureMobileEvidence(page, info, `item-editor-text-200${suffix}`, ["V6", "E1", "E4"]);
 		await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
 		await expect(dialog).toBeHidden();
 	}

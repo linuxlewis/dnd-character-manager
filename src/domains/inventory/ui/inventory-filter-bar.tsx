@@ -60,12 +60,16 @@ function FilterButton({
 }) {
 	return (
 		<Button
+			classNames={{
+				root: "inventory-filter",
+				inner: "inventory-filter-inner",
+				label: "inventory-filter-label",
+			}}
 			aria-label={count === null ? `${label}, count unavailable` : undefined}
 			aria-pressed={active}
 			onClick={onClick}
 			size="sm"
 			mih={44}
-			style={{ flex: "0 0 auto" }}
 			variant={active ? "light" : "default"}
 		>
 			{label}{" "}
