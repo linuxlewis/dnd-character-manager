@@ -1,5 +1,8 @@
+import { CharacterNotFoundError } from "../../characters/service/index.js";
+import { assertSpellCanSaveToBucket } from "../config/index.js";
 import type { CharacterSpellRepository, DndApiSpellClient } from "../repo/index.js";
 import { createCharacterSpellRepository, DndApiSpellClientError } from "../repo/index.js";
+import { SpellSearchUnavailableError } from "../types/errors.js";
 import type {
 	CharacterSpellDetailsResponse,
 	CharacterSpellsResponse,
@@ -12,11 +15,6 @@ import {
 	SearchCharacterSpellsResponseSchema,
 } from "../types/index.js";
 import { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
-import {
-	CharacterNotFoundError,
-	SpellSearchUnavailableError,
-	SpellSlotUnavailableError,
-} from "./character-errors.js";
 
 export interface CharacterSpellService {
 	getCharacterSpellDetails(
@@ -133,31 +131,4 @@ export function createCharacterSpellService(
 			return response;
 		},
 	};
-}
-
-function assertSpellCanSaveToBucket(
-	spell: { level: number; source: "feature" | "spell" },
-	slotLevel: number,
-) {
-	if (spell.source === "feature") {
-		if (slotLevel !== 0) {
-			throw new SpellSlotUnavailableError("Features must be saved outside spell slots.");
-		}
-		return;
-	}
-
-	if (slotLevel === 0) {
-		if (spell.level !== 0) {
-			throw new SpellSlotUnavailableError("Leveled spells require a spell slot.");
-		}
-		return;
-	}
-
-	if (spell.level === 0) {
-		throw new SpellSlotUnavailableError("Cantrips must be saved outside spell slots.");
-	}
-
-	if (spell.level > slotLevel) {
-		throw new SpellSlotUnavailableError("Spell level is too high for this slot.");
-	}
 }

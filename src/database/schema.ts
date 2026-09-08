@@ -2,6 +2,7 @@ export * from "../domains/catalogue/schema/index.js";
 export * from "../domains/characters/schema/index.js";
 export * from "../domains/health/schema/index.js";
 export * from "../domains/inventory/schema/index.js";
+export * from "../domains/spellcasting/schema/index.js";
 export {
 	accountTable,
 	sessionTable,

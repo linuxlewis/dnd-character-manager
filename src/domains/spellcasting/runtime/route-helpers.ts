@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { z } from "zod";
+import { CharacterNotFoundError } from "../../characters/service/index.js";
 import {
-	CharacterNotFoundError,
 	SpellSearchUnavailableError,
 	SpellSlotDefaultsUnavailableError,
 	SpellSlotUnavailableError,

@@ -6,24 +6,24 @@ import type {
 } from "../application/character-detail/types/index.js";
 import { CharacterDetailResponseSchema } from "../application/character-detail/types/index.js";
 import type {
-	CharacterSpellSlotsResponse,
 	ListCharactersResponse,
-	RestoreCharacterSpellSlotRequest,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
-	UpdateCharacterSpellSlotsRequest,
-	UseCharacterSpellSlotRequest,
 } from "../domains/characters/types/index.js";
-import {
-	CharacterSpellSlotsResponseSchema,
-	ListCharactersResponseSchema,
-} from "../domains/characters/types/index.js";
+import { ListCharactersResponseSchema } from "../domains/characters/types/index.js";
 import type {
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
 } from "../domains/health/types/index.js";
 import { UpdateCharacterHealthResponseSchema } from "../domains/health/types/index.js";
+import type {
+	CharacterSpellSlotsResponse,
+	RestoreCharacterSpellSlotRequest,
+	UpdateCharacterSpellSlotsRequest,
+	UseCharacterSpellSlotRequest,
+} from "../domains/spellcasting/types/index.js";
+import { CharacterSpellSlotsResponseSchema } from "../domains/spellcasting/types/index.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
 
 export function createCharactersApiClient(runtime: ApiClientRuntime) {

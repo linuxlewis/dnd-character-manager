@@ -7,7 +7,7 @@ import { afterAll, afterEach, expect, it } from "vitest";
 import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import * as schema from "../../../database/schema.js";
 import { characterHealthTable } from "../../health/schema/index.js";
-import { createCharacterSpellSlotRepository } from "../repo/character-spell-slot-repository.js";
+import { createCharacterSpellSlotRepository } from "../../spellcasting/repo/character-spell-slot-repository.js";
 import { CharacterNotFoundError, requireOwnedCharacter } from "../service/index.js";
 import { findOwnedCharacter, lockOwnedCharacter } from "./index.js";
 

@@ -1,9 +1,9 @@
 import { relations } from "drizzle-orm";
+import { charactersTable } from "../../characters/schema/index.js";
 import {
 	characterSpellSlotEventsTable,
 	characterSpellSlotsTable,
 	characterSpellsTable,
-	charactersTable,
 } from "./tables.js";
 
 export const characterSpellSlotsRelations = relations(characterSpellSlotsTable, ({ one }) => ({

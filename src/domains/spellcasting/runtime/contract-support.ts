@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CharacterIdSchema, CharacterSpellIdSchema } from "../types/index.js";
+import { CharacterIdSchema } from "../../characters/types/index.js";
+import { CharacterSpellIdSchema } from "../types/index.js";
 
 export const ErrorResponseSchema = z.object({
 	error: z.string(),
@@ -17,20 +18,16 @@ export const CharacterSpellPathParamsSchema = z.object({
 export const characterTypeImports = [
 	{
 		kind: "type",
-		module: "../domains/characters/types/index.js",
+		module: "../domains/spellcasting/types/index.js",
 		names: [
 			"CharacterSpellDetailsResponse",
 			"CharacterSpellsResponse",
 			"CharacterSpellSlotsResponse",
-			"ListCharactersResponse",
 			"RestoreCharacterSpellSlotRequest",
 			"SaveCharacterSpellRequest",
 			"SearchCharacterSpellsRequest",
 			"SearchCharacterSpellsResponse",
-			"UpdateCharacterExperienceRequest",
 			"UpdateCharacterSpellSlotsRequest",
-			"UpdateCharacterLevelRequest",
-			"UpdateCharacterNameRequest",
 			"UseCharacterSpellSlotRequest",
 		],
 	},
@@ -39,12 +36,11 @@ export const characterTypeImports = [
 export const characterSchemaImports = [
 	{
 		kind: "value",
-		module: "../domains/characters/types/index.js",
+		module: "../domains/spellcasting/types/index.js",
 		names: [
 			"CharacterSpellDetailsResponseSchema",
 			"CharacterSpellsResponseSchema",
 			"CharacterSpellSlotsResponseSchema",
-			"ListCharactersResponseSchema",
 			"SearchCharacterSpellsResponseSchema",
 		],
 	},

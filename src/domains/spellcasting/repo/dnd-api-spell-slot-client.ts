@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CharacterClass, CharacterSpellSlotConfiguration } from "../types/index.js";
+import type { CharacterSpellSlotConfiguration, CharacterSpellSlotContext } from "../types/index.js";
 
 const DND_API_GRAPHQL_ENDPOINT = "https://www.dnd5eapi.co/graphql";
 
@@ -47,7 +47,7 @@ const GET_CLASS_LEVEL_SPELL_SLOTS = `
 
 export interface DndApiSpellSlotClient {
 	findDefaultSpellSlots(
-		className: CharacterClass,
+		className: CharacterSpellSlotContext["className"],
 		level: number,
 	): Promise<CharacterSpellSlotConfiguration[]>;
 }
@@ -94,7 +94,10 @@ export function createDndApiSpellSlotClient(
 	};
 }
 
-export function toDndClassLevelIndex(className: CharacterClass, level: number) {
+export function toDndClassLevelIndex(
+	className: CharacterSpellSlotContext["className"],
+	level: number,
+) {
 	return `${className.toLowerCase()}-${level}`;
 }
 

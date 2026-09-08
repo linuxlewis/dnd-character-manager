@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { CharacterSpellRepository, DndApiSpellClient } from "../repo/index.js";
+import { SpellSlotUnavailableError } from "../types/errors.js";
 import type { CharacterSpell } from "../types/index.js";
-import { SpellSlotUnavailableError } from "./character-errors.js";
 import { createCharacterSpellService } from "./character-spell-service.js";
 
 describe("createCharacterSpellService save behavior", () => {

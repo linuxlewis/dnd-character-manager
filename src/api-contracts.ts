@@ -7,6 +7,7 @@ import {
 	characterItemRouteContracts,
 	inventoryTreasuryRouteContracts,
 } from "./domains/inventory/runtime/index.js";
+import { spellcastingRouteContracts } from "./domains/spellcasting/runtime/index.js";
 import { authRouteContracts } from "./providers/auth/index.js";
 
 export const apiRouteContracts = [
@@ -14,6 +15,7 @@ export const apiRouteContracts = [
 	...characterDetailRouteContracts,
 	...healthRouteContracts,
 	...characterRouteContracts,
+	...spellcastingRouteContracts,
 	...inventoryTreasuryRouteContracts,
 	...characterItemRouteContracts,
 	...characterHistoryRouteContracts,

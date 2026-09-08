@@ -1,7 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { CharacterNotFoundError, SpellSearchUnavailableError } from "../service/index.js";
+import { CharacterNotFoundError } from "../../characters/service/index.js";
+import { SpellSearchUnavailableError } from "../service/index.js";
 import { parseBody, parseParams, parseSpellParams, sendSpellError } from "./route-helpers.js";
 
 describe("route helpers", () => {

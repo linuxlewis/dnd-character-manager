@@ -15,6 +15,7 @@ import {
 	registerCharacterItemRoutes,
 	registerCharacterTreasuryRoutes,
 } from "./domains/inventory/runtime/index.js";
+import { registerSpellcastingRoutes } from "./domains/spellcasting/runtime/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -65,6 +66,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 	await registerCharacterCreationRoute(app);
 	await registerCharacterDetailRoutes(app);
 	await registerHealthRoutes(app);
+	await registerSpellcastingRoutes(app);
 	await registerCharacterRoutes(app, { characterService });
 	await registerCharacterTreasuryRoutes(app);
 	await registerCharacterItemRoutes(app);

@@ -10,7 +10,7 @@ import {
 	inventoryScopesTable,
 	inventoryTreasuriesTable,
 } from "../../inventory/schema/index.js";
-import { createCharacterSpellRepository } from "../repo/index.js";
+import { createCharacterSpellRepository } from "../../spellcasting/repo/index.js";
 
 const createdUserIds: string[] = [];
 

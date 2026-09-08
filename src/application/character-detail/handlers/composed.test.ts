@@ -1,15 +1,16 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
 import { registerCharacterRoutes } from "../../../domains/characters/runtime/routes.js";
+import { CharacterNotFoundError } from "../../../domains/characters/service/index.js";
+import { registerHealthRoutes } from "../../../domains/health/runtime/index.js";
+import type { CharacterHealthService } from "../../../domains/health/service/index.js";
+import { registerSpellcastingRoutes } from "../../../domains/spellcasting/runtime/index.js";
 import {
-	CharacterNotFoundError,
 	type CharacterSpellService,
 	type CharacterSpellSlotService,
 	SpellSlotDefaultsUnavailableError,
 	SpellSlotUnavailableError,
-} from "../../../domains/characters/service/index.js";
-import { registerHealthRoutes } from "../../../domains/health/runtime/index.js";
-import type { CharacterHealthService } from "../../../domains/health/service/index.js";
+} from "../../../domains/spellcasting/service/index.js";
 import { registerCharacterDetailRoutes } from "./detail.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
@@ -199,8 +200,6 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
 	await registerCharacterRoutes(app, {
 		characterService: services.characterService,
-		characterSpellService: services.characterSpellService,
-		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({
 			user: {
 				id: userId,
@@ -208,6 +207,11 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 				name: "Anonymous",
 			},
 		}),
+	});
+	await registerSpellcastingRoutes(app, {
+		characterSpellService: services.characterSpellService,
+		characterSpellSlotService: services.characterSpellSlotService,
+		getCurrentUser: async () => ({ user: { id: userId, isAnonymous: true, name: "Anonymous" } }),
 	});
 	await registerCharacterDetailRoutes(app, {
 		characterService: services.characterService,
