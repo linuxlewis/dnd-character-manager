@@ -96,3 +96,12 @@ The scope is `.character-workspace` and the portaled form containers `.workspace
 content containers so portaling does not lose these roles. This is an opt-in workspace contract,
 not a global application theme change. Validate computed text, field, and surrounding surface
 colors in both unfocused and focused/error states when adding controls.
+
+## Filter Text And Fallback Fonts
+
+Inventory filter buttons must fit their container at 320 px with 200% text, including wider
+fallback fonts. Allow the label and count badge to wrap and the button to grow vertically while
+preserving the 44 px minimum target. Do not clip labels or hide page overflow to satisfy geometry
+checks. Validate the longest label with a count badge using DejaVu Sans as well as the normal font.
+When testing enlarged text, scroll controls into the actual space between the measured sticky
+header and bottom navigation, then assert complete text and target hit-testing before normal clicks.

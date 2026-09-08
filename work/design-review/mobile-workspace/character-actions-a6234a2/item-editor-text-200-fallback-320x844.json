@@ -1,0 +1,494 @@
+{
+	"sha": "a6234a258f1a9c840e8fd8ee720a44f73ce5151f",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3370/characters/d8e2c5e8-6f57-45e2-98cf-9340c05baa4f/inventory",
+	"viewport": {
+		"width": 320,
+		"height": 844
+	},
+	"state": "item-editor-text-200-fallback",
+	"criteria": ["V6", "E1", "E4"],
+	"geometry": {
+		"scrollY": 761,
+		"scrollWidth": 320,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Character workspace header",
+				"rect": {
+					"x": 12,
+					"y": 0,
+					"width": 296,
+					"height": 432.78125,
+					"top": 0,
+					"right": 308,
+					"bottom": 432.78125,
+					"left": 12
+				}
+			},
+			{
+				"label": "Character details for Mira Thorn of the Ancient Observatory Mira Thorn of the Ancient Observatory Mira Thorn of the Ancient Observatory Mira T",
+				"rect": {
+					"x": 76,
+					"y": 0,
+					"width": 124,
+					"height": 115.1875,
+					"top": 0,
+					"right": 200,
+					"bottom": 115.1875,
+					"left": 76
+				}
+			},
+			{
+				"label": "Open account menu",
+				"rect": {
+					"x": 220,
+					"y": 13.59375,
+					"width": 88,
+					"height": 88,
+					"top": 13.59375,
+					"right": 308,
+					"bottom": 101.59375,
+					"left": 220
+				}
+			},
+			{
+				"label": "Edit health: 18 / 27 HP",
+				"rect": {
+					"x": 12,
+					"y": 153.390625,
+					"width": 200,
+					"height": 86.78125,
+					"top": 153.390625,
+					"right": 212,
+					"bottom": 240.171875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Health history",
+				"rect": {
+					"x": 220,
+					"y": 152.78125,
+					"width": 88,
+					"height": 88,
+					"top": 152.78125,
+					"right": 308,
+					"bottom": 240.78125,
+					"left": 220
+				}
+			},
+			{
+				"label": "Heal",
+				"rect": {
+					"x": 12,
+					"y": 248.78125,
+					"width": 114.921875,
+					"height": 88,
+					"top": 248.78125,
+					"right": 126.921875,
+					"bottom": 336.78125,
+					"left": 12
+				}
+			},
+			{
+				"label": "Damage",
+				"rect": {
+					"x": 12,
+					"y": 344.78125,
+					"width": 173.25,
+					"height": 88,
+					"top": 344.78125,
+					"right": 185.25,
+					"bottom": 432.78125,
+					"left": 12
+				}
+			},
+			{
+				"label": "Character sections",
+				"rect": {
+					"x": 0,
+					"y": 768.8125,
+					"width": 320,
+					"height": 75.1875,
+					"top": 768.8125,
+					"right": 320,
+					"bottom": 844,
+					"left": 0
+				}
+			},
+			{
+				"label": "View inventory activity",
+				"rect": {
+					"x": 12,
+					"y": -192.03125,
+					"width": 214.390625,
+					"height": 88,
+					"top": -192.03125,
+					"right": 226.390625,
+					"bottom": -104.03125,
+					"left": 12
+				}
+			},
+			{
+				"label": "TreasuryAdd fundsSpendPP1GP12SP4CP8",
+				"rect": {
+					"x": 12,
+					"y": -72.03125,
+					"width": 296,
+					"height": 331.1875,
+					"top": -72.03125,
+					"right": 308,
+					"bottom": 259.15625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add funds",
+				"rect": {
+					"x": 12,
+					"y": -8.03125,
+					"width": 212.265625,
+					"height": 88,
+					"top": -8.03125,
+					"right": 224.265625,
+					"bottom": 79.96875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Spend",
+				"rect": {
+					"x": 12,
+					"y": 95.96875,
+					"width": 151.1875,
+					"height": 88,
+					"top": 95.96875,
+					"right": 163.1875,
+					"bottom": 183.96875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Search personal inventory",
+				"rect": {
+					"x": 12,
+					"y": 340.75,
+					"width": 296,
+					"height": 84,
+					"top": 340.75,
+					"right": 308,
+					"bottom": 424.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add item",
+				"rect": {
+					"x": 12,
+					"y": 448.75,
+					"width": 218.65625,
+					"height": 88,
+					"top": 448.75,
+					"right": 230.65625,
+					"bottom": 536.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "All 12",
+				"rect": {
+					"x": 12,
+					"y": 568.75,
+					"width": 189.71875,
+					"height": 88,
+					"top": 568.75,
+					"right": 201.71875,
+					"bottom": 656.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Equipment 6",
+				"rect": {
+					"x": 12,
+					"y": 668.75,
+					"width": 296,
+					"height": 88,
+					"top": 668.75,
+					"right": 308,
+					"bottom": 756.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Potion 6",
+				"rect": {
+					"x": 12,
+					"y": 768.75,
+					"width": 236.34375,
+					"height": 88,
+					"top": 768.75,
+					"right": 248.34375,
+					"bottom": 856.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Scroll 0",
+				"rect": {
+					"x": 12,
+					"y": 868.75,
+					"width": 223.4375,
+					"height": 88,
+					"top": 868.75,
+					"right": 235.4375,
+					"bottom": 956.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Consumable 0",
+				"rect": {
+					"x": 12,
+					"y": 968.75,
+					"width": 296,
+					"height": 88,
+					"top": 968.75,
+					"right": 308,
+					"bottom": 1056.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Misc 0",
+				"rect": {
+					"x": 12,
+					"y": 1068.75,
+					"width": 205.15625,
+					"height": 88,
+					"top": 1068.75,
+					"right": 217.15625,
+					"bottom": 1156.75,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add personal itemLocal SRD catalogueSearch mundane and magic equipment together, then auto-fill the form.Rules 2024Search SRDOwned item detailsName *Type *RarityCategory *Quantity *Weight (lb)Value (GP)DescriptionNotesEnlarged text last fieldThumbnail URLCancelAdd item",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 844,
+					"top": 0,
+					"right": 320,
+					"bottom": 844,
+					"left": 0
+				}
+			},
+			{
+				"label": "Add personal item",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 320,
+					"height": 120,
+					"top": 0,
+					"right": 320,
+					"bottom": 120,
+					"left": 0
+				}
+			},
+			{
+				"label": "Close add item dialog",
+				"rect": {
+					"x": 254,
+					"y": 16,
+					"width": 44,
+					"height": 56,
+					"top": 16,
+					"right": 298,
+					"bottom": 72,
+					"left": 254
+				}
+			},
+			{
+				"label": "Search SRD catalogue",
+				"rect": {
+					"x": 58,
+					"y": -1023.0625,
+					"width": 204,
+					"height": 84,
+					"top": -1023.0625,
+					"right": 262,
+					"bottom": -939.0625,
+					"left": 58
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 32,
+					"y": -714.28125,
+					"width": 256,
+					"height": 84,
+					"top": -714.28125,
+					"right": 288,
+					"bottom": -630.28125,
+					"left": 32
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 32,
+					"y": -548.6875,
+					"width": 112,
+					"height": 84,
+					"top": -548.6875,
+					"right": 144,
+					"bottom": -464.6875,
+					"left": 32
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 0,
+					"height": 0,
+					"top": 0,
+					"right": 0,
+					"bottom": 0,
+					"left": 0
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 176,
+					"y": -548.6875,
+					"width": 120,
+					"height": 84,
+					"top": -548.6875,
+					"right": 296,
+					"bottom": -464.6875,
+					"left": 176
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 0,
+					"y": 0,
+					"width": 0,
+					"height": 0,
+					"top": 0,
+					"right": 0,
+					"bottom": 0,
+					"left": 0
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 32,
+					"y": -383.09375,
+					"width": 256,
+					"height": 84,
+					"top": -383.09375,
+					"right": 288,
+					"bottom": -299.09375,
+					"left": 32
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 32,
+					"y": -167.90625,
+					"width": 63.984375,
+					"height": 84,
+					"top": -167.90625,
+					"right": 95.984375,
+					"bottom": -83.90625,
+					"left": 32
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 127.984375,
+					"y": -167.90625,
+					"width": 63.984375,
+					"height": 84,
+					"top": -167.90625,
+					"right": 191.96875,
+					"bottom": -83.90625,
+					"left": 127.984375
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 223.96875,
+					"y": -167.90625,
+					"width": 63.984375,
+					"height": 84,
+					"top": -167.90625,
+					"right": 287.953125,
+					"bottom": -83.90625,
+					"left": 223.96875
+				}
+			},
+			{
+				"label": "",
+				"rect": {
+					"x": 32,
+					"y": 511.46875,
+					"width": 256,
+					"height": 84,
+					"top": 511.46875,
+					"right": 288,
+					"bottom": 595.46875,
+					"left": 32
+				}
+			},
+			{
+				"label": "Cancel",
+				"rect": {
+					"x": 107.4375,
+					"y": 624,
+					"width": 180.5625,
+					"height": 72,
+					"top": 624,
+					"right": 288,
+					"bottom": 696,
+					"left": 107.4375
+				}
+			},
+			{
+				"label": "Add item",
+				"rect": {
+					"x": 69.34375,
+					"y": 728,
+					"width": 218.65625,
+					"height": 72,
+					"top": 728,
+					"right": 288,
+					"bottom": 800,
+					"left": 69.34375
+				}
+			}
+		]
+	},
+	"browser": "152.0.7977.82",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
+}

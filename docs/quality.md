@@ -68,4 +68,8 @@ Independent screenshot and live development review are recorded in the
 
 ---
 
+Inventory filter validation now includes 320 px at 200% text with DejaVu Sans fallback, complete
+label/count containment and unobscured pointer targets. The correction and clean-source evidence
+are recorded in [workspace acceptance](./mobile-workspace-acceptance.md).
+
 *Last updated: 2026-09-07*

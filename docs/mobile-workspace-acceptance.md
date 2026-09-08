@@ -165,3 +165,15 @@ tests. Root and the independent reviewer accepted the four [additional captures]
 Local Chrome keyboard checks also confirm Tab reaches Add item, Enter opens the editor and Escape
 returns focus at both widths with 200% text and the 120-character name. These local checks do not
 replace the outstanding physical-device and screen-reader validation.
+
+Final source/browser acceptance: PASS at clean `a6234a258f1a9c840e8fd8ee720a44f73ce5151f`.
+CI exposed a further 19 px overflow in the Consumable filter with wider fallback fonts at 320 px
+and 200% text. Filter buttons now shrink to available width and wrap their labels/counts while
+retaining minimum touch targets. The regression explicitly exercises DejaVu Sans, full target/text
+containment, corner hit-testing and normal filter/editor clicks. Drawer-width checks allow only
+subpixel rounding (two decimal places), after CI reported 600.000009 px for a 600 px viewport.
+The CI-mode full local suite passes 599 unit, 68 integration and 40 browser tests; build, lint,
+documentation links and whitespace checks pass. Root and the independent reviewer accepted the
+[final inventory evidence](../work/design-review/mobile-workspace/character-actions-a6234a2/manifest.json).
+Earlier manifests retain their original source provenance; this final source adds only the scoped
+inventory-filter wrapping change and test corrections to the previously reviewed character actions.

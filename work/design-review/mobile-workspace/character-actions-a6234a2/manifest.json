@@ -1,0 +1,133 @@
+{
+	"sourceSha": "a6234a258f1a9c840e8fd8ee720a44f73ce5151f",
+	"applicationSha": "a6234a258f1a9c840e8fd8ee720a44f73ce5151f",
+	"command": "CI=1 pnpm test (isolated external-network override)",
+	"fullValidation": "PASS 599 unit, 68 integration, 40 browser tests",
+	"review": "Root and independent visual reviewer: PASS",
+	"nativeDevices": "NOT RUN",
+	"captures": [
+		{
+			"state": "filter-text-200-reachable",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "filter-text-200-reachable-320x844.png",
+			"metadata": "filter-text-200-reachable-320x844.json"
+		},
+		{
+			"state": "filter-text-200-reachable",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "filter-text-200-reachable-390x844.png",
+			"metadata": "filter-text-200-reachable-390x844.json"
+		},
+		{
+			"state": "filter-text-200-reachable-fallback",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "filter-text-200-reachable-fallback-320x844.png",
+			"metadata": "filter-text-200-reachable-fallback-320x844.json"
+		},
+		{
+			"state": "inventory-filters-normal",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "inventory-filters-normal-320x844.png",
+			"metadata": "inventory-filters-normal-320x844.json"
+		},
+		{
+			"state": "inventory-filters-normal",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "inventory-filters-normal-390x844.png",
+			"metadata": "inventory-filters-normal-390x844.json"
+		},
+		{
+			"state": "item-action-text-200-reachable",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "item-action-text-200-reachable-320x844.png",
+			"metadata": "item-action-text-200-reachable-320x844.json"
+		},
+		{
+			"state": "item-action-text-200-reachable",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "item-action-text-200-reachable-390x844.png",
+			"metadata": "item-action-text-200-reachable-390x844.json"
+		},
+		{
+			"state": "item-action-text-200-reachable-fallback",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "item-action-text-200-reachable-fallback-320x844.png",
+			"metadata": "item-action-text-200-reachable-fallback-320x844.json"
+		},
+		{
+			"state": "item-editor-text-200",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "item-editor-text-200-320x844.png",
+			"metadata": "item-editor-text-200-320x844.json"
+		},
+		{
+			"state": "item-editor-text-200",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"image": "item-editor-text-200-390x844.png",
+			"metadata": "item-editor-text-200-390x844.json"
+		},
+		{
+			"state": "item-editor-text-200-fallback",
+			"viewport": {
+				"width": 320,
+				"height": 844
+			},
+			"image": "item-editor-text-200-fallback-320x844.png",
+			"metadata": "item-editor-text-200-fallback-320x844.json"
+		}
+	],
+	"checksums": {
+		"filter-text-200-reachable-320x844.json": "d215eb6522975501ba82115d7c39ffe8d2061516fb6e25e3e22f5125dfbbf5f7",
+		"filter-text-200-reachable-320x844.png": "934f7d3315cb5838b88a344888eb915e15ff550f3b38fb20c7d3687afd1fea35",
+		"filter-text-200-reachable-390x844.json": "35bf265572af565e5e32b1420cf4a742ec9c460770024e0d2c82e82beee04727",
+		"filter-text-200-reachable-390x844.png": "8df5c03fe72faa52ccf5dd78f6a2da12afe77368db7fdea5b81f7d01c15d041f",
+		"filter-text-200-reachable-fallback-320x844.json": "f8f5abd50ea2d51bd02b95f8bfbeb96d505214b8a6058a82bb7c16c5d8cdfc66",
+		"filter-text-200-reachable-fallback-320x844.png": "9ad8c5c66431e2ad01c6b6e1cc1677fb55987f8d4132344ba5d1198c5a0c4b1c",
+		"inventory-filters-normal-320x844.json": "389dd805d1662b57b7fd63d9bee52cdbccdbb0f7c70e13b018c4c1625f1f78fa",
+		"inventory-filters-normal-320x844.png": "bd8dc7e9e95af98a5684e8d3a2d09079aa3d1d0c0f9cf99dc1e6c9651b3010df",
+		"inventory-filters-normal-390x844.json": "0289f581a6d6606827db0a2a16a629b590c89fa8b65cc814ccf81f1bb2385d69",
+		"inventory-filters-normal-390x844.png": "377724a7b2d3c651c650f008d0d99a962d2b093156180400a0f653331c2d1ba6",
+		"item-action-text-200-reachable-320x844.json": "425f855bafb9bb647c492c699e89828c86b65124463f48932f2bdcf284b1cac4",
+		"item-action-text-200-reachable-320x844.png": "d51bc9f760c7c40a77270c6fbbbbb40a12c52ada7aada5b5886c83ed2c7fef6d",
+		"item-action-text-200-reachable-390x844.json": "b5098bada56ba86a597d3ee7298ade59b295320353caa8b2213ac8f596d4670c",
+		"item-action-text-200-reachable-390x844.png": "89b3caf591579226ce2ee8df074f2ebd3a9e01d4bac29f1f03c0e04bd6cd18c5",
+		"item-action-text-200-reachable-fallback-320x844.json": "0b8391a95579fe391f062c914e68a762ffd083152a1c46a754eca660f96f5a8f",
+		"item-action-text-200-reachable-fallback-320x844.png": "902ddced4b947973326ccf18945feaa096540adb99bb9c81c3a7ff9f7400569b",
+		"item-editor-text-200-320x844.json": "405e34d2bcf8d1bc4c5fd8abc441951c78aa3a9d32fe809b1d732b0ed5bf68cd",
+		"item-editor-text-200-320x844.png": "72f20ab050cdf1ddc232402ac69cbbc52daa3eddc69a0954b0ca9d088fea42a0",
+		"item-editor-text-200-390x844.json": "c4f574a25d2a4a216f5e78ab98987d6f59a74a2eed42a042967aedf7915871a3",
+		"item-editor-text-200-390x844.png": "a46c35f395a85b028c9ec9bb3ccf8f81c505ae6f0a13e1e2804d1f9e2d89b1b6",
+		"item-editor-text-200-fallback-320x844.json": "814d34a9470e0d20b158247958866755d7ba5bdefed5ab2e4029d4a9d52db4d5",
+		"item-editor-text-200-fallback-320x844.png": "16d1009bdcac4052b0f36edbcfaec88194d1136b87b1422c54c259c7683f3239"
+	}
+}
