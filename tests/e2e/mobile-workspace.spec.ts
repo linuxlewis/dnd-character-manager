@@ -374,6 +374,18 @@ test("mobile workspace supported numeric extremes do not overflow", async ({ pag
 					await assertTouchTarget(page.getByRole("button", { name, exact: true }), page);
 				await assertTextContained(page.getByRole("button", { name: /^Edit health:/ }));
 				await captureMobileEvidence(page, info, "health-extreme-text-200", ["H2", "V6"]);
+				const restore = page.getByRole("button", { name: "Restore 1st-level", exact: true });
+				await restore.evaluate((element) => {
+					const header = document.querySelector('[aria-label="Character workspace header"]');
+					window.scrollBy(
+						0,
+						element.getBoundingClientRect().top -
+							(header?.getBoundingClientRect().height ?? 0) -
+							16,
+					);
+				});
+				await assertTouchTarget(restore, page);
+				await captureMobileEvidence(page, info, "spell-actions-text-200", ["V6", "S1"]);
 			}
 		}
 	}
