@@ -555,3 +555,34 @@ test("mobile workspace spell configuration error clears persistent actions", asy
 	await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
 	await page.unroute(`**/api/characters/${fixture.id}/spell-slots`);
 });
+
+test("mobile workspace spell actions remain available without player history", async ({
+	page,
+}, info) => {
+	const fixture = await prepareMobileWorkspace(page);
+	for (const width of [320, 390, 1280]) {
+		await page.setViewportSize({ width, height: 844 });
+		await page.goto(`${fixture.path}/spells`);
+		await expect(page.getByRole("button", { name: "Edit spells", exact: true })).toBeVisible();
+		await expect(page.getByRole("button", { name: /Spell history/ })).toHaveCount(0);
+		await assertTouchTarget(
+			page.getByRole("button", { name: "Health history", exact: true }),
+			page,
+		);
+		await captureMobileEvidence(page, info, "spells-history-hidden", ["S1", "S2", "H2"]);
+	}
+	await page.getByRole("button", { name: "Use 1st-level", exact: true }).click();
+	await expect(
+		page.getByRole("progressbar", { name: "1st-level spell slots: 3 of 4 remaining" }),
+	).toBeVisible();
+	await expect(page.getByText("Used 1st-level slot", { exact: true })).toHaveCount(0);
+	const response = await page.request.get(`/api/characters/${fixture.id}/spell-slots`);
+	expect(response.ok()).toBeTruthy();
+	const slots = await response.json();
+	expect(slots.recentSpellSlotChanges[0]).toMatchObject({ action: "used", level: 1 });
+	await captureMobileEvidence(page, info, "spells-after-use-history-hidden", ["S2"]);
+	await page.getByRole("button", { name: "Restore 1st-level", exact: true }).click();
+	await expect(
+		page.getByRole("progressbar", { name: "1st-level spell slots: 4 of 4 remaining" }),
+	).toBeVisible();
+});

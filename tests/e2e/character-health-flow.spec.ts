@@ -127,9 +127,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByRole("button", { name: "View Lay on Hands details" })).toBeVisible();
 	await expect(page.getByText("1st-level feature")).toBeVisible();
 
-	await page.getByRole("button", { name: /Spell history/ }).click();
-	await expect(page.getByText("No spell slot changes yet.")).toBeVisible();
-	await page.getByRole("button", { name: /Spell history/ }).click();
+	await expect(page.getByRole("button", { name: /Spell history/ })).toHaveCount(0);
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
 	await page.getByRole("button", { name: "Configure slots", exact: true }).click();
@@ -141,12 +139,7 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 		page.getByRole("progressbar", { name: "1st-level spell slots: 2 of 2 remaining" }),
 	).toHaveAttribute("aria-valuenow", "100");
 	await expect(page.getByRole("button", { name: "Add spell to 3rd-level" })).toBeHidden();
-	await page.getByRole("button", { name: /Spell history/ }).click();
-	await expect(page.getByText("Configured 1st-level: 2 slots")).toBeVisible();
-	const historyBox = await page.getByText("Configured 1st-level: 2 slots").boundingBox();
-	const firstSlotBox = await page.getByText("2 / 2 remaining").boundingBox();
-	expect(historyBox?.y ?? 0).toBeLessThan(firstSlotBox?.y ?? 0);
-	await page.getByRole("button", { name: /Spell history/ }).click();
+	await expect(page.getByText("Configured 1st-level: 2 slots")).toHaveCount(0);
 
 	await page.getByRole("button", { name: "Edit spells" }).click();
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
@@ -227,15 +220,14 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 		page.getByRole("progressbar", { name: "1st-level spell slots: 1 of 2 remaining" }),
 	).toHaveAttribute("aria-valuenow", "50");
 
-	await page.getByRole("button", { name: /Spell history/ }).click();
-	await expect(page.getByText("Used 1st-level slot")).toBeVisible();
+	await expect(page.getByText("Used 1st-level slot")).toHaveCount(0);
 
 	await page.getByRole("button", { name: "Restore 1st-level" }).click();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
 	await expect(
 		page.getByRole("progressbar", { name: "1st-level spell slots: 2 of 2 remaining" }),
 	).toHaveAttribute("aria-valuenow", "100");
-	await expect(page.getByText("Restored 1st-level slot")).toBeVisible();
+	await expect(page.getByText("Restored 1st-level slot")).toHaveCount(0);
 
 	await page.reload();
 	await expect(page.getByText("2 / 2 remaining")).toBeVisible();
@@ -243,6 +235,5 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByText("Lay on Hands")).toBeVisible();
 	await expect(page.getByText("Divine Smite")).toBeVisible();
 	await expect(page.getByText("Restored 1st-level slot")).toBeHidden();
-	await page.getByRole("button", { name: /Spell history/ }).click();
-	await expect(page.getByText("Restored 1st-level slot")).toBeVisible();
+	await expect(page.getByText("Restored 1st-level slot")).toHaveCount(0);
 });

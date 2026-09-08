@@ -18,7 +18,6 @@ import { CharacterSpellConfiguration } from "./spell-configuration-modal.js";
 import { SpellDetailsModal } from "./spell-details-modal.js";
 import { SpellRemoveModal } from "./spell-remove-modal.js";
 import { SpellSearchModal, type SpellSearchResult } from "./spell-search-modal.js";
-import { SpellSlotHistory } from "./spell-slot-history.js";
 import { SpellSlotList } from "./spell-slot-list.js";
 import { SpellSlotPanelAlerts } from "./spell-slot-panel-alerts.js";
 
@@ -36,7 +35,6 @@ export function CharacterSpellSlotsPanel({
 }) {
 	const spellSlotsQuery = useQuery(apiQueries.getCharacterSpellSlots({ characterId }));
 	const characterSpellsQuery = useQuery(apiQueries.listCharacterSpells({ characterId }));
-	const [historyOpen, setHistoryOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [configurationOpen, setConfigurationOpen] = useState(false);
 	const [spellSearch, setSpellSearch] = useState<SpellSearchState | null>(null);
@@ -163,21 +161,9 @@ export function CharacterSpellSlotsPanel({
 				<Title order={2} size={18}>
 					Spells &amp; Abilities
 				</Title>
-				<Group gap={4}>
-					<Button
-						mih={44}
-						variant="subtle"
-						color="gray"
-						aria-expanded={historyOpen}
-						aria-label={`Spell history (${spellSlotsQuery.data?.recentSpellSlotChanges.length ?? 0})`}
-						onClick={() => setHistoryOpen((opened) => !opened)}
-					>
-						History
-					</Button>
-					<Button mih={44} variant="subtle" onClick={toggleEditing}>
-						{isEditing ? "Done" : "Edit spells"}
-					</Button>
-				</Group>
+				<Button mih={44} variant="subtle" onClick={toggleEditing}>
+					{isEditing ? "Done" : "Edit spells"}
+				</Button>
 			</Group>
 			{isEditing && (
 				<Button
@@ -192,11 +178,6 @@ export function CharacterSpellSlotsPanel({
 			)}
 
 			{spellSlotsQuery.isLoading && <Text c="dimmed">Loading spell slots...</Text>}
-
-			<SpellSlotHistory
-				changes={spellSlotsQuery.data?.recentSpellSlotChanges ?? []}
-				opened={historyOpen}
-			/>
 
 			<NonSlotSpellList
 				characterSpells={nonSlotSpells}

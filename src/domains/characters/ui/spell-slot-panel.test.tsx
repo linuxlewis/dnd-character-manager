@@ -6,7 +6,7 @@ import { apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
 
 describe("CharacterSpellSlotsPanel", () => {
-	it("renders editable spell slot totals, usage controls, and collapsed history", () => {
+	it("renders editable spell slot totals, usage controls, without player-facing history", () => {
 		const characterId = "00000000-0000-4000-8000-000000000020";
 		const queryClient = new QueryClient();
 		queryClient.setQueryData(apiQueryKeys.getCharacterSpellSlots({ characterId }), {
@@ -80,7 +80,8 @@ describe("CharacterSpellSlotsPanel", () => {
 		expect(readableHtml).toMatch(/>Use<\/span>/);
 		expect(html).toContain('aria-label="Restore 1st-level"');
 		expect(readableHtml).toMatch(/>Restore<\/span>/);
-		expect(readableHtml).toContain("Spell history (1)");
+		expect(readableHtml).not.toContain("Spell history");
+		expect(readableHtml).not.toContain("History");
 		expect(readableHtml).not.toContain("Used level 1 slot");
 	});
 });
