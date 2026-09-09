@@ -31,9 +31,9 @@ export function HealthAmountModal({
 		<Modal
 			withinPortal={withinPortal}
 			classNames={{
-				inner: "workspace-sheet-sheet-inner",
-				content: "workspace-sheet-sheet-content",
-				body: "workspace-sheet-sheet-body",
+				inner: "workspace-sheet-inner",
+				content: "workspace-sheet-content",
+				body: "workspace-sheet-body",
 			}}
 			onClose={onClose}
 			opened={opened}
@@ -73,7 +73,7 @@ export function HealthAmountModal({
 							Your amount is kept. Try again.
 						</Alert>
 					)}
-					<Group className={"workspace-sheet-actions"} justify="flex-end">
+					<Group className="workspace-sheet-actions" justify="flex-end">
 						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
@@ -121,9 +121,9 @@ export function HealthEditModal({
 		<Modal
 			withinPortal={withinPortal}
 			classNames={{
-				inner: "workspace-sheet-sheet-inner",
-				content: "workspace-sheet-sheet-content",
-				body: "workspace-sheet-sheet-body",
+				inner: "workspace-sheet-inner",
+				content: "workspace-sheet-content",
+				body: "workspace-sheet-body",
 			}}
 			onClose={onClose}
 			opened={opened}
@@ -168,7 +168,7 @@ export function HealthEditModal({
 							Your changes are kept. Try again.
 						</Alert>
 					)}
-					<Group className={"workspace-sheet-actions"} justify="flex-end">
+					<Group className="workspace-sheet-actions" justify="flex-end">
 						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>

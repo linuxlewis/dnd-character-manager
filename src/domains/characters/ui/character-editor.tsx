@@ -157,9 +157,9 @@ export function CharacterEditor({
 			)}
 			<Modal
 				classNames={{
-					inner: "workspace-sheet-sheet-inner",
-					content: "workspace-sheet-sheet-content",
-					body: "workspace-sheet-sheet-body",
+					inner: "workspace-sheet-inner",
+					content: "workspace-sheet-content",
+					body: "workspace-sheet-body",
 				}}
 				returnFocus={controlledOpened === undefined}
 				onClose={closeEditor}
@@ -210,7 +210,7 @@ export function CharacterEditor({
 							thousandSeparator=","
 							withAsterisk
 						/>
-						<Group className={"workspace-sheet-actions"} justify="flex-end">
+						<Group className="workspace-sheet-actions" justify="flex-end">
 							<Button
 								mih={44}
 								disabled={isSaving}
