@@ -1,13 +1,13 @@
 # Architecture
 
-## Policy And Rollout
+## Active Policy
 
-This is the target architecture for the [domain refactor](./domain-encapsulation-refactor-brief.md).
-The [milestones](./domain-encapsulation-refactor-milestones.md) introduce and verify it incrementally.
-Current `lints/check-deps.ts` checks alias-shaped imports and does not prove compliance for
-relative imports. R1 adds resolution, R2 adds report-only policy checks, and R10 activates
-repository-wide enforcement. Existing checks stay enabled throughout. See the
-[baseline and decisions](./domain-encapsulation-refactor-baseline.md) for migration ownership.
+This is the enforced architecture for the [domain refactor](./domain-encapsulation-refactor-brief.md).
+Normal `pnpm lint` runs Biome, the existing source conventions checker, and the strict
+boundary checker. CI uses that same command. Relative imports, aliases, and public
+entrypoints are checked against resolved targets; the legacy import regex is not the
+enforcement boundary. See the [policy](./domain-boundary-policy.md) for analysis limits
+and the [milestones](./domain-encapsulation-refactor-milestones.md) for delivery evidence.
 
 ## Functionality Ownership
 
@@ -60,7 +60,8 @@ The only lower-layer behavioral collaboration exception is
 schema and database transaction type. Feature repositories may use it to obtain an owned
 identity or lock it within their transaction. It never loads feature aggregates and exports no
 general character repository. It may import its own types/schema and database infrastructure,
-not services, runtime, application, or feature state. R4 implements this boundary.
+not services, runtime, application, or feature state. See the
+[access implementation](./domain-character-access-creation.md).
 
 ## Domain-Owned Persistence
 
@@ -116,7 +117,7 @@ transaction; an earlier owner lookup alone cannot authorize a later write.
 
 ## Enforcement And Browser Safety
 
-R1/R2 resolve relative paths, aliases, `.js` to TypeScript, re-exports, and literal dynamic
+The boundary checker resolves relative paths, aliases, `.js` to TypeScript, re-exports, and literal dynamic
 imports using TypeScript resolution. Type-only imports obey the same ownership matrix; they
 cannot tunnel into private repositories. Browser closures may not depend on schema, repo,
 service, runtime, database assembly, or server providers, including via barrels. Generated

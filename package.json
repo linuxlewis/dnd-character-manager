@@ -22,7 +22,7 @@
 		"test:integration": "tsx scripts/test.ts --integration",
 		"test:e2e": "tsx scripts/test.ts --e2e",
 		"test:watch": "vitest --exclude \"**/*.integration.test.ts\" --exclude \"**/*.integration.test.tsx\"",
-		"lint": "biome check . && tsx lints/check-deps.ts",
+		"lint": "biome check . && tsx lints/check-deps.ts && tsx lints/check-boundaries.ts --strict",
 		"lint:fix": "biome check --fix .",
 		"format": "biome format --write .",
 		"db:generate": "drizzle-kit generate",

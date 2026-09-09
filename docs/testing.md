@@ -44,8 +44,12 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
   suite. Import-graph fixtures create temporary projects and exercise real
   TypeScript resolution; they do not require Docker or installed fixture packages.
   Boundary policy fixtures cover allowed and rejected imports with dependency traces;
-  `pnpm lint:boundaries:report` inventories migration findings while the separate
-  `pnpm lint:boundaries` strict command exits nonzero until they are resolved.
+  `pnpm lint` includes strict enforcement and `pnpm lint:boundaries` runs it alone.
+  Both fail on findings. `pnpm lint:boundaries:report` is a labeled diagnostic only.
+  CLI subprocess tests verify flags and exit codes; an isolated fixture derives
+  the real package lint script and proves relative backward/private imports pass
+  Biome and legacy checks but fail normal lint. Its clean control passes. It uses
+  existing local dependencies and does not install packages or require the network.
 - Test schemas with valid and invalid values.
 - Test row mappers and boundary parsers with realistic external shapes.
 - Test service logic with injected fakes instead of real databases or long-running entrypoints.

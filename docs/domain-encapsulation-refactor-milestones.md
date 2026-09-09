@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5/R6/R7/R8 accepted; R9 submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5/R6/R7/R8/R9 accepted; R10 submitted for review; R11 planned.
 
 ## Purpose And Authority
 
@@ -32,8 +32,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R6 | Health UI ownership and cache coordination | R5 | accepted | Coordinator verified `2d6eb6eb831ef4852e2ae7794f71beb8d5d57c95`; [PR #115](https://github.com/linuxlewis/dnd-character-manager/pull/115); CI `34158961988` passed; [evidence](./domain-health-ui.md) |
 | R7 | Spellcasting backend and relationships | R6 | accepted | Coordinator verified `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`; [PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116); CI `34175991433` passed; [evidence](./domain-spellcasting-backend.md) |
 | R8 | Spellcasting UI ownership | R7 | accepted | Coordinator verified `624c89b38369cc1fa26ab4092537bf2917dea713`; [PR #117](https://github.com/linuxlewis/dnd-character-manager/pull/117); CI `34176310606` passed; [evidence](./domain-spellcasting-ui.md) |
-| R9 | Spell workflow simplification | R8 | review | R9 agent; full Gate B passed; [implementation/evidence](./domain-spell-workflows.md) |
-| R10 | Repository-wide enforcement and bridge removal | R9 | planned | Unassigned |
+| R9 | Spell workflow simplification | R8 | accepted | Coordinator verified `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a`; [PR #118](https://github.com/linuxlewis/dnd-character-manager/pull/118); CI `34177152588` passed; full Gate B passed; [implementation/evidence](./domain-spell-workflows.md) |
+| R10 | Repository-wide enforcement and bridge removal | R9 | review | R10 agent; full Gate B passed; [implementation/evidence](./domain-strict-enforcement.md) |
 | R11 | Integrated acceptance and attributes handoff | R10 | planned | Unassigned |
 
 ## Orchestration And Review Rules
@@ -418,13 +418,13 @@ prerequisite milestone instead of bypassing the rule or expanding this PR silent
 
 **Acceptance:**
 
-- [ ] Normal `pnpm lint` fails on the known relative-import bypass and other
+- [x] Normal `pnpm lint` fails on the known relative-import bypass and other
   illegal fixture cases; new enforcement is no longer report-only.
-- [ ] The actual application passes without broad exemptions or ignored domains.
-- [ ] Temporary backward-compatible paths are removed after updating their last
+- [x] The actual application passes without broad exemptions or ignored domains.
+- [x] Temporary backward-compatible paths are removed after updating their last
   consumers; remaining intentional public APIs are documented.
-- [ ] Guidance, checker behavior, public exports, and actual module ownership agree.
-- [ ] No domain reaches another domain's private repositories through a barrel;
+- [x] Guidance, checker behavior, public exports, and actual module ownership agree.
+- [x] No domain reaches another domain's private repositories through a barrel;
   any non-mechanically-enforced database access restrictions have named review checks.
 
 ### R11: Integrated Acceptance And Attributes Handoff

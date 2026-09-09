@@ -105,11 +105,13 @@ R2a moves XP and currency operations into client-safe owning config modules,
 retains history schema refinement behavior, and adds explicit XP bound and
 lazy public-contract registration coverage. See [validation evidence](./domain-calculation-refactor.md).
 
-- [ ] The existing dependency checker still misses relative imports. R1 adds
-  [tested import resolution](./domain-import-graph.md) to normal unit validation;
-  R2 adds [tested policy/reporting](./domain-boundary-policy.md), including public
-  entrypoints, barrel forwarding, browser/schema closure checks, and an assigned
-  migration inventory. R10 activates repository-wide enforcement.
+- [x] R10 enables strict resolved-import enforcement in normal lint and CI.
+  Executable fixtures prove the former relative-import bypass passes legacy gates
+  and fails the actual package lint command; the clean control passes. Existing
+  policy fixtures retain public-entrypoint, barrel, browser, and schema coverage.
+  The eight migration findings and temporary export paths are resolved. SQL access
+  through database handles still requires manual review; see
+  [enforcement evidence and review checks](./domain-strict-enforcement.md).
 - [ ] Telemetry does not yet include a metrics/traces backend beyond structured logs and Playwright traces
 - [ ] No production metrics/traces backend
 - [ ] Auth has no anonymous user/session cleanup, account recovery, profile settings, or session management UI yet; the Resend sender domain still needs verification for production email delivery

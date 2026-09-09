@@ -1,11 +1,12 @@
-# Domain Boundary Policy (R2)
+# Domain Boundary Policy
 
-R2 implements the [architecture matrix](./architecture.md) over the
-[R1 import graph](./domain-import-graph.md). The legacy `pnpm lint` gate stays
-mandatory. `pnpm lint:boundaries:report` runs the new rules in visibly labeled
-report-only mode; it exits zero for migration findings, but configuration/read
-errors still fail. `pnpm lint:boundaries` is strict and exits nonzero for findings.
-R10 adds the strict command to normal CI after the migration ledger is cleared.
+Normal `pnpm lint` enforces the [architecture matrix](./architecture.md) over the
+[resolved import graph](./domain-import-graph.md), after Biome and the retained
+legacy source checks. CI invokes the same script. `pnpm lint:boundaries` runs the
+strict boundary gate alone and exits nonzero for findings.
+`pnpm lint:boundaries:report` remains a visibly labeled diagnostic; it exits zero
+for findings, but configuration/read errors still fail. It is not an acceptance gate.
+See [R10 activation evidence](./domain-strict-enforcement.md).
 
 For structured output use
 `pnpm exec tsx lints/check-boundaries.ts --report --json`.
@@ -94,11 +95,14 @@ ban all functions in `types`. R2a performs that reviewed separation explicitly.
 
 ## Migration Findings At R2
 
+This section preserves the original findings. All eight are resolved at R10;
+the [closure record](./domain-strict-enforcement.md) identifies their delivered remedies.
+
 The actual report against R2 application source has eight findings, all
 `dependency-boundary`; zero unknown, unresolved, browser, schema, or cycle findings.
 No application source changes are included in R2. Paths below are relative to `src/`.
 
-| Finding | Current consumer and target | Assigned remedy |
+| Finding | Consumer and target at R2 | Assigned remedy |
 | --- | --- | --- |
 | F1 | `api-contracts.ts:1` -> `catalogue/runtime/contract.ts` | R2a publishes contract through catalogue runtime index; registration uses it |
 | F2 | `api-contracts.ts:2` -> `characters/runtime/contract.ts` | R2a public runtime export; R4a/R5 subsequently relocate composed contracts |
