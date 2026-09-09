@@ -14,8 +14,9 @@ JavaScript dependencies are followed even when not initial config roots.
 - Relative paths, configured `paths` aliases, `.js` references to TypeScript,
   directory barrels, and literal dynamic imports use real module resolution.
 - Every edge carries its absolute source/target, specifier, import kind, type-only
-  flag, and one-based source line/column at the module expression.
-- Static imports, named/star reexports, import-type expressions, and TypeScript
+  flag, and one-based source line/column at the module expression (or local forwarding export).
+- Static imports, named/star reexports, imported bindings forwarded via local export
+  clauses, import-type expressions, plain require calls, and TypeScript
   import-equals declarations are included. Mixed type/value imports are value edges.
 - Missing relative, absolute, or configured-alias imports are `unresolved-local`
   entries in `issues`. Unconfigured bare specifiers are classified as `external`,
@@ -24,11 +25,10 @@ JavaScript dependencies are followed even when not initial config roots.
   are `external`; their internals are not traversed. The graph is project-scoped,
   not a workspace-wide package ownership graph.
 - Nonliteral dynamic imports are `nonliteral` entries in `issues` with source
-  locations and no guessed target. R2 must give those findings an explicit policy.
-  Plain CommonJS `require()` calls are not modeled by this ESM import collector.
+  locations and no guessed target. R2 rejects them in application source.
+  R2 additionally records plain `require()` calls and rejects them in application source.
 - TypeScript-unresolved relative assets are also unresolved-local findings. R2
-  must inventory legitimate asset imports explicitly rather than silently ignoring
-  all unresolved imports.
+  permits only existing relative browser/UI assets with documented extensions.
 
 `findImportPath` returns a shortest module dependency trace, including reexport
 edges and source locations. It follows both type and value edges; the rule engine
@@ -79,3 +79,6 @@ routine, three TypeScript interfaces as dead code despite typed references, and
 the nested AST visitor as duplicate text within its containing function. The
 builder deliberately keeps its TypeScript configuration and resolution cache in
 one scope; no abstraction was added solely to change a metric.
+
+R2 policy, exact public entrypoints, browser/schema closures, and remaining
+analysis limits are documented in [the boundary policy](./domain-boundary-policy.md).

@@ -43,6 +43,9 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 - Architecture tooling fixtures in `lints/**/*.test.ts` run in the normal unit
   suite. Import-graph fixtures create temporary projects and exercise real
   TypeScript resolution; they do not require Docker or installed fixture packages.
+  Boundary policy fixtures cover allowed and rejected imports with dependency traces;
+  `pnpm lint:boundaries:report` inventories migration findings while the separate
+  `pnpm lint:boundaries` strict command exits nonzero until they are resolved.
 - Test schemas with valid and invalid values.
 - Test row mappers and boundary parsers with realistic external shapes.
 - Test service logic with injected fakes instead of real databases or long-running entrypoints.

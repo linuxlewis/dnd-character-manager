@@ -20,9 +20,11 @@ is functionality-owned domains, rather than placing everything associated with a
 character inside `characters`.
 
 Execute the [milestone plan](./domain-encapsulation-refactor-milestones.md), which
-breaks this work into twelve focused updates with dependencies, ownership,
+breaks this work into focused updates with dependencies, ownership,
 acceptance evidence, and integration gates. The broad stages below describe
 design scope; the milestone plan controls assignment and delivery order.
+R2a isolates calculation/public-contract prerequisites; R4a establishes atomic
+creation/access and R4b adopts it for inventory writes before health extraction.
 Use native PR stacks for linear dependencies and keep each delivered update
 green. If stronger enforcement exposes existing violations, resolve them
 deliberately; do not hide them behind broad exemptions. Develop new rules with
