@@ -12,7 +12,7 @@ test("signs in with a magic link and keeps anonymous characters", async ({ page 
 	await page.getByRole("button", { name: "Create character" }).click();
 	await expect(page.getByRole("heading", { name: "Linkward Bard" })).toBeVisible();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await page.getByRole("button", { name: "Sign in" }).click();
 	await page.getByLabel("Email").fill(email);
 	await page.getByRole("button", { name: "Email sign-in link" }).click();
@@ -31,8 +31,9 @@ test("signs in with a magic link and keeps anonymous characters", async ({ page 
 	await page.getByRole("button", { name: "Open account menu" }).click();
 	await page.getByRole("menuitem", { name: "Sign out" }).click();
 
-	await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
-	await page.getByRole("button", { name: "Sign in" }).click();
+	await expect(page.getByText("Character not found")).toBeVisible();
+	await page.getByRole("button", { name: "Open account menu" }).click();
+	await page.getByRole("menuitem", { name: "Sign in" }).click();
 	await expect(page.getByLabel("Email")).toBeVisible();
 	await expect(page.getByText("Character not found")).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Linkward Bard" })).not.toBeVisible();

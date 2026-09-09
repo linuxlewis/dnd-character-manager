@@ -1,0 +1,429 @@
+{
+	"sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3758/characters/df0e92ee-b0c6-4a5c-b6b7-c9dedcc0a166/inventory",
+	"viewport": {
+		"width": 992,
+		"height": 900
+	},
+	"state": "inventory-top",
+	"criteria": ["V3", "V4", "V5", "N1", "H2", "I1"],
+	"geometry": {
+		"scrollY": 0,
+		"scrollWidth": 992,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Character workspace header",
+				"rect": {
+					"x": 32,
+					"y": 10,
+					"width": 928,
+					"height": 106.796875,
+					"top": 10,
+					"right": 960,
+					"bottom": 116.796875,
+					"left": 32
+				}
+			},
+			{
+				"label": "Character details for Mira Thorn",
+				"rect": {
+					"x": 86,
+					"y": 10,
+					"width": 820,
+					"height": 44,
+					"top": 10,
+					"right": 906,
+					"bottom": 54,
+					"left": 86
+				}
+			},
+			{
+				"label": "Open application menu",
+				"rect": {
+					"x": 916,
+					"y": 10,
+					"width": 44,
+					"height": 44,
+					"top": 10,
+					"right": 960,
+					"bottom": 54,
+					"left": 916
+				}
+			},
+			{
+				"label": "Edit health: 18 / 27 HP",
+				"rect": {
+					"x": 32,
+					"y": 72.796875,
+					"width": 779.859375,
+					"height": 44,
+					"top": 72.796875,
+					"right": 811.859375,
+					"bottom": 116.796875,
+					"left": 32
+				}
+			},
+			{
+				"label": "Heal",
+				"rect": {
+					"x": 819.859375,
+					"y": 72.796875,
+					"width": 52.96875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 872.828125,
+					"bottom": 116.796875,
+					"left": 819.859375
+				}
+			},
+			{
+				"label": "Damage",
+				"rect": {
+					"x": 880.828125,
+					"y": 72.796875,
+					"width": 79.171875,
+					"height": 44,
+					"top": 72.796875,
+					"right": 960,
+					"bottom": 116.796875,
+					"left": 880.828125
+				}
+			},
+			{
+				"label": "Character sections",
+				"rect": {
+					"x": 32,
+					"y": 132.796875,
+					"width": 928,
+					"height": 45,
+					"top": 132.796875,
+					"right": 960,
+					"bottom": 177.796875,
+					"left": 32
+				}
+			},
+			{
+				"label": "View inventory activity",
+				"rect": {
+					"x": 852.453125,
+					"y": 193.796875,
+					"width": 107.546875,
+					"height": 44,
+					"top": 193.796875,
+					"right": 960,
+					"bottom": 237.796875,
+					"left": 852.453125
+				}
+			},
+			{
+				"label": "TreasuryAdd fundsSpendPP1GP12SP4CP8",
+				"rect": {
+					"x": 32,
+					"y": 253.796875,
+					"width": 928,
+					"height": 81.578125,
+					"top": 253.796875,
+					"right": 960,
+					"bottom": 335.375,
+					"left": 32
+				}
+			},
+			{
+				"label": "Add funds",
+				"rect": {
+					"x": 788.28125,
+					"y": 253.796875,
+					"width": 95.359375,
+					"height": 44,
+					"top": 253.796875,
+					"right": 883.640625,
+					"bottom": 297.796875,
+					"left": 788.28125
+				}
+			},
+			{
+				"label": "Spend",
+				"rect": {
+					"x": 891.640625,
+					"y": 253.796875,
+					"width": 68.359375,
+					"height": 44,
+					"top": 253.796875,
+					"right": 960,
+					"bottom": 297.796875,
+					"left": 891.640625
+				}
+			},
+			{
+				"label": "Search personal inventory",
+				"rect": {
+					"x": 32,
+					"y": 376.171875,
+					"width": 816.09375,
+					"height": 44,
+					"top": 376.171875,
+					"right": 848.09375,
+					"bottom": 420.171875,
+					"left": 32
+				}
+			},
+			{
+				"label": "Add item",
+				"rect": {
+					"x": 860.09375,
+					"y": 376.171875,
+					"width": 99.90625,
+					"height": 44,
+					"top": 376.171875,
+					"right": 960,
+					"bottom": 420.171875,
+					"left": 860.09375
+				}
+			},
+			{
+				"label": "All 12",
+				"rect": {
+					"x": 32,
+					"y": 436.171875,
+					"width": 89.390625,
+					"height": 44,
+					"top": 436.171875,
+					"right": 121.390625,
+					"bottom": 480.171875,
+					"left": 32
+				}
+			},
+			{
+				"label": "Equipment 6",
+				"rect": {
+					"x": 127.390625,
+					"y": 436.171875,
+					"width": 140.640625,
+					"height": 44,
+					"top": 436.171875,
+					"right": 268.03125,
+					"bottom": 480.171875,
+					"left": 127.390625
+				}
+			},
+			{
+				"label": "Potion 6",
+				"rect": {
+					"x": 274.03125,
+					"y": 436.171875,
+					"width": 110.546875,
+					"height": 44,
+					"top": 436.171875,
+					"right": 384.578125,
+					"bottom": 480.171875,
+					"left": 274.03125
+				}
+			},
+			{
+				"label": "Scroll 0",
+				"rect": {
+					"x": 390.578125,
+					"y": 436.171875,
+					"width": 103.203125,
+					"height": 44,
+					"top": 436.171875,
+					"right": 493.78125,
+					"bottom": 480.171875,
+					"left": 390.578125
+				}
+			},
+			{
+				"label": "Consumable 0",
+				"rect": {
+					"x": 499.78125,
+					"y": 436.171875,
+					"width": 150.953125,
+					"height": 44,
+					"top": 436.171875,
+					"right": 650.734375,
+					"bottom": 480.171875,
+					"left": 499.78125
+				}
+			},
+			{
+				"label": "Misc 0",
+				"rect": {
+					"x": 656.734375,
+					"y": 436.171875,
+					"width": 96.890625,
+					"height": 44,
+					"top": 436.171875,
+					"right": 753.625,
+					"bottom": 480.171875,
+					"left": 656.734375
+				}
+			},
+			{
+				"label": "View Explorer's pack with a remarkably long descriptive name for narrow mobile screens",
+				"rect": {
+					"x": 32,
+					"y": 496.171875,
+					"width": 458,
+					"height": 148.296875,
+					"top": 496.171875,
+					"right": 490,
+					"bottom": 644.46875,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Quarterstaff",
+				"rect": {
+					"x": 502,
+					"y": 496.171875,
+					"width": 458,
+					"height": 148.296875,
+					"top": 496.171875,
+					"right": 960,
+					"bottom": 644.46875,
+					"left": 502
+				}
+			},
+			{
+				"label": "View Travel supply 01",
+				"rect": {
+					"x": 32,
+					"y": 656.46875,
+					"width": 458,
+					"height": 118.296875,
+					"top": 656.46875,
+					"right": 490,
+					"bottom": 774.765625,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Travel supply 02",
+				"rect": {
+					"x": 502,
+					"y": 656.46875,
+					"width": 458,
+					"height": 118.296875,
+					"top": 656.46875,
+					"right": 960,
+					"bottom": 774.765625,
+					"left": 502
+				}
+			},
+			{
+				"label": "View Travel supply 03",
+				"rect": {
+					"x": 32,
+					"y": 786.765625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 786.765625,
+					"right": 490,
+					"bottom": 905.0625,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Travel supply 04",
+				"rect": {
+					"x": 502,
+					"y": 786.765625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 786.765625,
+					"right": 960,
+					"bottom": 905.0625,
+					"left": 502
+				}
+			},
+			{
+				"label": "View Travel supply 05",
+				"rect": {
+					"x": 32,
+					"y": 917.0625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 917.0625,
+					"right": 490,
+					"bottom": 1035.359375,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Travel supply 06",
+				"rect": {
+					"x": 502,
+					"y": 917.0625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 917.0625,
+					"right": 960,
+					"bottom": 1035.359375,
+					"left": 502
+				}
+			},
+			{
+				"label": "View Travel supply 07",
+				"rect": {
+					"x": 32,
+					"y": 1047.359375,
+					"width": 458,
+					"height": 118.296875,
+					"top": 1047.359375,
+					"right": 490,
+					"bottom": 1165.65625,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Travel supply 08",
+				"rect": {
+					"x": 502,
+					"y": 1047.359375,
+					"width": 458,
+					"height": 118.296875,
+					"top": 1047.359375,
+					"right": 960,
+					"bottom": 1165.65625,
+					"left": 502
+				}
+			},
+			{
+				"label": "View Travel supply 09",
+				"rect": {
+					"x": 32,
+					"y": 1177.65625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 1177.65625,
+					"right": 490,
+					"bottom": 1295.953125,
+					"left": 32
+				}
+			},
+			{
+				"label": "View Travel supply 10",
+				"rect": {
+					"x": 502,
+					"y": 1177.65625,
+					"width": 458,
+					"height": 118.296875,
+					"top": 1177.65625,
+					"right": 960,
+					"bottom": 1295.953125,
+					"left": 502
+				}
+			}
+		]
+	},
+	"browser": "147.0.7727.15",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
+}

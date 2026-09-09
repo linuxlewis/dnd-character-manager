@@ -43,7 +43,7 @@ test("recovers a failed reconciliation without replaying the mutation", async ({
 	allowReconciliation = true;
 	await dialog.getByRole("button", { name: "Retry treasury reconciliation" }).click();
 	await expect(dialog).toBeHidden();
-	await expect(page.getByTestId("treasury-total")).toContainText("1.00 GP");
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^1$/)).toBeVisible();
 	expect(mutationCount).toBe(1);
 	expect(treasuryGets).toBeGreaterThan(2);
 });
@@ -73,13 +73,13 @@ test("rejects a stale add mutation and allows a fresh one-step submit", async ({
 	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(dialog.getByText("Treasury changed before save")).toBeVisible();
 	await expect(dialog.getByRole("button", { name: "Add funds", exact: true })).toBeEnabled();
-	await expect(page.getByTestId("treasury-total")).toContainText("2.00 GP");
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^2$/)).toBeVisible();
 	expect(addMutations).toBe(2);
 	expect(previewAttempts).toBe(0);
 
 	await dialog.getByRole("button", { name: "Add funds", exact: true }).click();
 	await expect(dialog).toBeHidden();
-	await expect(page.getByTestId("treasury-total")).toContainText("3.00 GP");
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^3$/)).toBeVisible();
 	expect(addMutations).toBe(3);
 });
 
@@ -115,13 +115,13 @@ test("rejects a stale spend mutation and allows a fresh one-step submit", async 
 	await dialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(dialog.getByText("Treasury changed before save")).toBeVisible();
 	await expect(dialog.getByRole("button", { name: "Spend", exact: true })).toBeEnabled();
-	await expect(page.getByTestId("treasury-total")).toContainText("7.00 GP");
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^7$/)).toBeVisible();
 	expect(spendMutations).toBe(1);
 	expect(previewAttempts).toBe(0);
 
 	await dialog.getByRole("button", { name: "Spend", exact: true }).click();
 	await expect(dialog).toBeHidden();
-	await expect(page.getByTestId("treasury-total")).toContainText("6.00 GP");
+	await expect(page.getByTestId("treasury-gp-balance").getByText(/^6$/)).toBeVisible();
 	expect(addMutations).toBe(2);
 	expect(spendMutations).toBe(2);
 });
@@ -164,5 +164,5 @@ async function externalAdd(page: Page, characterId: string, amount: number) {
 }
 
 function characterIdFromPage(page: Page) {
-	return new URL(page.url()).pathname.split("/").at(-1) ?? "";
+	return new URL(page.url()).pathname.split("/")[2] ?? "";
 }

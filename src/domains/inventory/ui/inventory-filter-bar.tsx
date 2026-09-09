@@ -4,6 +4,11 @@ import { INVENTORY_ITEM_TYPES, ITEM_TYPE_LABELS } from "./item-presentation.js";
 
 export type InventoryFilter = "all" | InventoryItemType;
 
+export interface InventoryViewState {
+	searchInput: string;
+	activeType: InventoryFilter;
+}
+
 export function InventoryFilterBar({
 	activeType,
 	countItems,
@@ -20,8 +25,8 @@ export function InventoryFilterBar({
 			aria-label="Inventory type filters"
 			gap={6}
 			role="group"
-			style={{ overflowX: "auto", paddingBottom: 2 }}
-			wrap="nowrap"
+			className="inventory-filters"
+			wrap="wrap"
 		>
 			<FilterButton
 				active={activeType === "all"}
@@ -55,15 +60,27 @@ function FilterButton({
 }) {
 	return (
 		<Button
+			classNames={{
+				root: "inventory-filter",
+				inner: "inventory-filter-inner",
+				label: "inventory-filter-label",
+			}}
 			aria-label={count === null ? `${label}, count unavailable` : undefined}
 			aria-pressed={active}
 			onClick={onClick}
 			size="sm"
-			style={{ flex: "0 0 auto" }}
+			mih={44}
 			variant={active ? "light" : "default"}
 		>
 			{label}{" "}
-			<Badge color={active ? "candle" : "gray"} ml={4} size="sm" variant="filled">
+			<Badge
+				autoContrast
+				c={active ? undefined : "black"}
+				color={active ? "candle" : "gray"}
+				ml={4}
+				size="sm"
+				variant="filled"
+			>
 				{count === null ? "-" : count}
 			</Badge>
 		</Button>

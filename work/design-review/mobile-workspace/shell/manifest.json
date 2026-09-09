@@ -1,0 +1,86 @@
+{
+	"sourceCommit": "73a545e",
+	"fixture": "Mira Navigation, new anonymous Wizard, default level1/XP0/HP10; no saved spells or inventory",
+	"capture": "Playwright real owned application at http://127.0.0.1:3775 via mobile-workspace-navigation.spec.ts in canonical pnpm test; capture step passed",
+	"scope": "M1 shell foundation only; identity/HP density and section priorities remain intentionally unfinished until dependent layers",
+	"checks": [
+		"one navigation tree with two real links",
+		"320/390 bottom navigation56-66px includes1px border and zero emulated safe area",
+		"back/forward restores inventory search",
+		"reload retains explicit spells path",
+		"app menu About attribution and anonymous signin",
+		"not-found retains roster/menu"
+	],
+	"screenshots": [
+		{
+			"file": "shell-1280-scrolled.png",
+			"sha256": "20e3c15c5dcd9d33b6186e215ffaa8bd151084bf3a32132d2a74b9b1cfce5baf",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"state": "scrolled",
+			"route": "/characters/<fixture-id>/spells"
+		},
+		{
+			"file": "shell-320-top.png",
+			"sha256": "28d2c3a5911ae4b8ae2e142302f63ba321c0bbf0d013a9f90b180b0895e47dc7",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"state": "top",
+			"route": "/characters/<fixture-id>/spells"
+		},
+		{
+			"file": "shell-320-scrolled.png",
+			"sha256": "28d2c3a5911ae4b8ae2e142302f63ba321c0bbf0d013a9f90b180b0895e47dc7",
+			"viewport": {
+				"width": 320,
+				"height": 740
+			},
+			"state": "scrolled",
+			"route": "/characters/<fixture-id>/spells"
+		},
+		{
+			"file": "shell-not-found.png",
+			"sha256": "38faca02a0f33edddef4964065c130dac8c0e0fbd41b3f0ddf28a085bb1893c4",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"state": "not found",
+			"route": "/characters/00000000-0000-4000-8000-000000000000/inventory"
+		},
+		{
+			"file": "shell-390-scrolled.png",
+			"sha256": "5c6d74148e2d1985d4acb365d5dcc266dca0c9f65992c718e2771bd6be5a704c",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"state": "scrolled",
+			"route": "/characters/<fixture-id>/spells"
+		},
+		{
+			"file": "shell-1280-top.png",
+			"sha256": "20e3c15c5dcd9d33b6186e215ffaa8bd151084bf3a32132d2a74b9b1cfce5baf",
+			"viewport": {
+				"width": 1280,
+				"height": 900
+			},
+			"state": "top",
+			"route": "/characters/<fixture-id>/spells"
+		},
+		{
+			"file": "shell-390-top.png",
+			"sha256": "5c6d74148e2d1985d4acb365d5dcc266dca0c9f65992c718e2771bd6be5a704c",
+			"viewport": {
+				"width": 390,
+				"height": 844
+			},
+			"state": "top",
+			"route": "/characters/<fixture-id>/spells"
+		}
+	]
+}

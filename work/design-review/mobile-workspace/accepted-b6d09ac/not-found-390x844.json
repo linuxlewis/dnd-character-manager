@@ -1,0 +1,39 @@
+{
+	"sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3758/characters/00000000-0000-4000-8000-000000000000/inventory",
+	"viewport": {
+		"width": 390,
+		"height": 844
+	},
+	"state": "not-found",
+	"criteria": ["H7", "N2"],
+	"geometry": {
+		"scrollY": 0,
+		"scrollWidth": 390,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Open application menu",
+				"rect": {
+					"x": 334,
+					"y": 10,
+					"width": 44,
+					"height": 44,
+					"top": 10,
+					"right": 378,
+					"bottom": 54,
+					"left": 334
+				}
+			}
+		]
+	},
+	"browser": "147.0.7727.15",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
+}

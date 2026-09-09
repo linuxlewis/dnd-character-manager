@@ -4,6 +4,8 @@ dist/
 plans/
 playwright-report/
 test-results/
+# Generated visual review evidence belongs in local output or CI artifacts.
+work/design-review/
 .env
 .env.local
 .env.production

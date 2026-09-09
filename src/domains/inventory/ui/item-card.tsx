@@ -1,5 +1,5 @@
 import { Badge, Card, Group, Image, Stack, Text } from "@mantine/core";
-import { useState } from "react";
+import { type MouseEventHandler, useState } from "react";
 import type { InventoryItem } from "../types/index.js";
 import {
 	formatItemNumber,
@@ -10,7 +10,13 @@ import {
 	getItemTypeLabel,
 } from "./item-presentation.js";
 
-export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () => void }) {
+export function ItemCard({
+	item,
+	onClick,
+}: {
+	item: InventoryItem;
+	onClick: MouseEventHandler<HTMLButtonElement>;
+}) {
 	const rarityStyle = getItemRarityStyle(item.rarity);
 	const stats = getItemStatEntries(item).slice(0, 3);
 	const TypeIcon = getItemTypeIcon(item.type);
@@ -50,13 +56,13 @@ export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () =
 						</Stack>
 					</Group>
 					<Group gap="xs" justify="space-between" wrap="wrap">
-						<Group c="dimmed" gap={5} wrap="nowrap">
+						<Group c="dark.1" gap={5} wrap="nowrap">
 							<TypeIcon aria-hidden="true" size={15} />
 							<Text size="sm">{getItemTypeLabel(item.type)}</Text>
 							<Text size="sm">·</Text>
 							<Text size="sm">{item.category}</Text>
 						</Group>
-						<Group c="dimmed" gap="xs">
+						<Group c="dark.1" gap="xs">
 							{formatItemNumber(item.weight, "lb") && (
 								<Text size="xs">{formatItemNumber(item.weight, "lb")}</Text>
 							)}
@@ -68,7 +74,7 @@ export function ItemCard({ item, onClick }: { item: InventoryItem; onClick: () =
 					{stats.length > 0 && (
 						<Group gap="xs" wrap="wrap">
 							{stats.map((stat) => (
-								<Text c="dimmed" key={stat.label} size="xs">
+								<Text c="dark.1" key={stat.label} size="xs">
 									<Text fw={600} span>
 										{stat.label}:
 									</Text>{" "}

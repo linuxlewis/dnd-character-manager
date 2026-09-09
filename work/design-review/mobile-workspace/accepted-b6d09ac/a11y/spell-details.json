@@ -1,0 +1,56 @@
+{
+	"success": true,
+	"data": {
+		"axeVersion": "4.12.1",
+		"counts": {
+			"inapplicable": 39,
+			"incomplete": 1,
+			"passes": 21,
+			"violations": 0
+		},
+		"incomplete": [
+			{
+				"help": "Elements must meet minimum color contrast ratio thresholds",
+				"helpUrl": "https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axeAPI",
+				"id": "color-contrast",
+				"impact": "serious",
+				"nodeCount": 1,
+				"nodes": [
+					{
+						"failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it partially overlaps other elements",
+						"html": "<p class=\"mantine-focus-auto m_b6d8b162 mantine-Text-root\" data-size=\"sm\" style=\"--text-fz: var(--mantine-font-size-sm); --text-lh: var(--mantine-line-height-sm);\">You touch one object that is no larger than 10 feet in any dimension.</p>",
+						"target": [".m_6d731127.mantine-Stack-root:nth-child(4) > p[data-size=\"sm\"]"]
+					}
+				],
+				"tags": [
+					"cat.color",
+					"wcag2aa",
+					"wcag143",
+					"TTv5",
+					"TT13.c",
+					"EN-301-549",
+					"EN-9.1.4.3",
+					"ACT",
+					"RGAAv4",
+					"RGAA-3.2.1"
+				]
+			}
+		],
+		"lifecycle": {
+			"effectiveLaunch": {
+				"browserLaunched": true,
+				"engine": "chrome",
+				"launchHash": 7707568497978554591
+			},
+			"launched": false,
+			"relaunchedBrowser": false,
+			"restartedBackground": false,
+			"restoreStatus": "not_configured",
+			"reused": true,
+			"saveStatus": "not_attempted"
+		},
+		"url": "http://127.0.0.1:3758/characters/ae6e5374-2a62-4a7d-b84d-317a568e3a1d/spells",
+		"violations": []
+	},
+	"error": null
+}

@@ -144,7 +144,6 @@ export function CharacterActivityDrawer({
 
 	return (
 		<Drawer
-			aria-label="Inventory activity"
 			closeButtonProps={{
 				"aria-label": "Close inventory activity",
 				size: "lg",
@@ -154,7 +153,7 @@ export function CharacterActivityDrawer({
 			opened={opened}
 			position="right"
 			size={480}
-			classNames={{ content: "character-activity-drawer-content" }}
+			classNames={{ content: "character-activity-drawer-content", body: "workspace-inputs" }}
 			styles={{
 				body: {
 					display: "flex",

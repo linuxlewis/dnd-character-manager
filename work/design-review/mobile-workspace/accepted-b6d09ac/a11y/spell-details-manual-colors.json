@@ -1,0 +1,43 @@
+[
+	{
+		"ancestors": [
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "mantine-focus-auto m_b6d8b162 mantine-Text-root",
+				"tag": "P"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "m_6d731127 mantine-Stack-root",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "m_6d731127 mantine-Stack-root",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "m_5df29311 workspace-inputs mantine-Modal-body",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgb(36, 36, 36)",
+				"class": "m_fd1ab0aa m_54c44539 mantine-Modal-content m_1b7284a3 mantine-Paper-root",
+				"tag": "SECTION"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "m_60c222c7 m_1f958f16 mantine-Modal-inner",
+				"tag": "DIV"
+			},
+			{
+				"bg": "rgba(0, 0, 0, 0)",
+				"class": "m_9df02822 mantine-Modal-root",
+				"tag": "DIV"
+			}
+		],
+		"color": "rgb(201, 201, 201)",
+		"text": "You touch one object that is no larger than 10 feet in any dimension."
+	}
+]

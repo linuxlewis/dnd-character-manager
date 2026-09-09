@@ -1,0 +1,97 @@
+{
+	"kind": "diagnostic-a11y",
+	"files": [
+		{
+			"path": "README.md",
+			"sha256": "fe346e6730657d5855dc08b30209f5a944cda6078ddecba4f8c4cf838721f6b3"
+		},
+		{
+			"path": "about-manual-colors.json",
+			"sha256": "e460d90ce907528a3457ed9ce5602cea822928f3d7045341133f16000a8f7007"
+		},
+		{
+			"path": "about.json",
+			"sha256": "95d4ef2af48e8af6ed9da5e77f355657fb660aa32ef80e5a51491592bee6d69f"
+		},
+		{
+			"path": "badge-colors-fixed.json",
+			"sha256": "9a2fe29d39bc5f346b9418be1d2c9af6d7721f8ad7dc6757de4b1333693791af"
+		},
+		{
+			"path": "badge-colors.json",
+			"sha256": "a07317726a9fa0ea5f38b56e7c10f566dcb01fbbe62a1f45de61e97e07278573"
+		},
+		{
+			"path": "badge-contrast-fixed.json",
+			"sha256": "8caa2d124e96d0f4ead26d523c6cd5ad55cbbefb0ebfc48488c25b572efa686f"
+		},
+		{
+			"path": "character-editor.json",
+			"sha256": "a0cb86e5db2ef886ceabe17609b0545e67693fd0fdace6d4027ac08f8d385d0c"
+		},
+		{
+			"path": "damage.json",
+			"sha256": "a0cb86e5db2ef886ceabe17609b0545e67693fd0fdace6d4027ac08f8d385d0c"
+		},
+		{
+			"path": "field-colors.json",
+			"sha256": "a717cd53deb20db3cad339bbf6f248bb690d6376e7e55e2acddc01696016f8d6"
+		},
+		{
+			"path": "health-history.json",
+			"sha256": "a0cb86e5db2ef886ceabe17609b0545e67693fd0fdace6d4027ac08f8d385d0c"
+		},
+		{
+			"path": "inventory-history-f675112.png",
+			"sha256": "1e668d6eb4775732eb48ab3c9ed9e5407dbd3aed88b6714ad0d0e0d92b4df631"
+		},
+		{
+			"path": "inventory-history.json",
+			"sha256": "1c2d39eae4f78689d5a6e869c694933e72b9c0b2cf4a2d7e400c9231a309151a"
+		},
+		{
+			"path": "inventory.json",
+			"sha256": "a0cb86e5db2ef886ceabe17609b0545e67693fd0fdace6d4027ac08f8d385d0c"
+		},
+		{
+			"path": "item-editor.json",
+			"sha256": "de8b751d7af9c0f671a12083d1551bdc3434356ae23772a07f5037540736fec7"
+		},
+		{
+			"path": "spell-config.json",
+			"sha256": "05a09d96977a09b06e8f7fa2092ee3c5f8b75262b8155a56d9b14daea03f3896"
+		},
+		{
+			"path": "spell-details-manual-colors.json",
+			"sha256": "7f3b1f5014ead407b6d76f40a958f03a73bc2c9e2d49adbbfd9c91e6c88f255a"
+		},
+		{
+			"path": "spell-details.json",
+			"sha256": "93c73a88cd87c97dff805fd07455134c5344c8bd191466faaff217f831ce1bd4"
+		},
+		{
+			"path": "spell-remove-manual-colors.json",
+			"sha256": "06575ae8099e405da6f7c12ec2ec3c8b71538f74ce57d23fe15518843d9d331a"
+		},
+		{
+			"path": "spell-remove.json",
+			"sha256": "cd755075e98c851446377c1464b1d3578255d9020460fbcdf5830336cb0bb762"
+		},
+		{
+			"path": "spell-search.json",
+			"sha256": "9b798de97266068f337e85b570d5ee4eb7ad2ffb0b8e0a8d96bb483896d85ff4"
+		},
+		{
+			"path": "spells.json",
+			"sha256": "31de1aa4ae448459b0d553333f611ddc716b066f8e8ca1fb65c3016489485a90"
+		},
+		{
+			"path": "treasury-add.json",
+			"sha256": "de8b751d7af9c0f671a12083d1551bdc3434356ae23772a07f5037540736fec7"
+		},
+		{
+			"path": "treasury-spend.json",
+			"sha256": "de8b751d7af9c0f671a12083d1551bdc3434356ae23772a07f5037540736fec7"
+		}
+	]
+}

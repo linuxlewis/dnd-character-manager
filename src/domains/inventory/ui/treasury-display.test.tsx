@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { TreasuryDisplay } from "./treasury-display.js";
 
 describe("TreasuryDisplay", () => {
-	it("renders colored denomination cards and total value without a scope badge", () => {
+	it("renders the four denomination balances and direct actions without a combined balance", () => {
 		const html = renderToString(
 			<MantineProvider>
 				<TreasuryDisplay
@@ -20,7 +20,8 @@ describe("TreasuryDisplay", () => {
 		expect(readableHtml).toContain("Spend");
 		expect(readableHtml).toContain("Platinum pieces");
 		expect(readableHtml).toContain("1");
-		expect(readableHtml).toContain("13.45 GP");
+		expect(readableHtml).not.toContain("Total GP value");
+		expect(readableHtml).toContain("treasury-summary");
 		expect(readableHtml).not.toContain("Personal Treasury");
 		expect(readableHtml).not.toContain("Spend only after checking");
 	});
@@ -36,7 +37,10 @@ describe("TreasuryDisplay", () => {
 			</MantineProvider>,
 		);
 
-		expect(html.replaceAll("<!-- -->", "")).toContain("0.00 GP");
+		for (const denomination of ["cp", "sp", "gp", "pp"]) {
+			expect(html).toContain(`treasury-${denomination}-balance`);
+		}
+		expect(html).toContain("Gold pieces: 0");
 	});
 });
 

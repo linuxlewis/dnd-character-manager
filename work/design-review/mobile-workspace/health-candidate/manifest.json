@@ -1,0 +1,98 @@
+{
+	"candidateSha": "a5d4ee9237186072acd148f74c99f597a1095419",
+	"applicationSourceSha": "0ae2b18add587865b512925592f7b6e0e8231874",
+	"dirtyApplication": false,
+	"browser": "agent-browser Chromium",
+	"os": "Linux",
+	"deviceScale": 1,
+	"textScale": 1,
+	"route": "/characters/fd172e2c-3f1e-4b3a-b247-c4ec8433cf69/spells",
+	"fixture": {
+		"name": "Mira Thorn",
+		"className": "Wizard",
+		"level": 3,
+		"experiencePoints": 2196,
+		"health": {
+			"currentHp": 18,
+			"maxHp": 24,
+			"effectiveMaxHp": 27,
+			"temporaryHp": 3
+		},
+		"spells": "empty: these are M2/M5 identity/health evidence only, not populated F1 content-density acceptance"
+	},
+	"captures": [
+		{
+			"file": "M2-F1-1280x900.png",
+			"sha256": "9d0cb2c7502f3ac247d3c98c713f4090ef3bee757a70cc8200b1327ff82ba3de",
+			"state": "standard identity",
+			"viewport": "1280x900"
+		},
+		{
+			"file": "M2-F1-320x740.png",
+			"sha256": "8df6f705877e1964894b008fbf10490abeb4f7188088b207c5d0fdb750855f48",
+			"state": "standard identity",
+			"viewport": "320x740"
+		},
+		{
+			"file": "M2-F1-390x844.png",
+			"sha256": "1fb86ba73376bdddc304889a3f4c299c0a4dec671d18cea86dacbb9c96d630d1",
+			"state": "standard identity",
+			"viewport": "390x844"
+		},
+		{
+			"file": "M2-available-320x740.png",
+			"sha256": "45c98fa0b6c1e4a16ee2884432f46f9f946f393e35347f2f0051dc368cbd48df",
+			"state": "available XP2700",
+			"viewport": "320x740"
+		},
+		{
+			"file": "M2-max-long-name-320x740.png",
+			"sha256": "d94fc207c88f10c7f06429405e19f2051ad73406dd1d9480a759a820bdb0d0a4",
+			"state": "max+long name",
+			"viewport": "320x740"
+		},
+		{
+			"file": "M5-damage-preview-1280x900.png",
+			"sha256": "a145cb3d320914f4604ad1ad2c30c0411f4d75734f7373f4a2bce47a118c072c",
+			"state": "damage preview9",
+			"viewport": "1280x900"
+		},
+		{
+			"file": "M5-damage-preview-320x740.png",
+			"sha256": "310feb4c7dbe69cd7f3dc2ed2cc706e677d6b0e5a2464a65a32f91fee5b8dd65",
+			"state": "damage preview9",
+			"viewport": "320x740"
+		},
+		{
+			"file": "M5-damage-preview-390x844.png",
+			"sha256": "2230da6491a2832fea9d6c42afd5c61709020ca7acb831efdf83afe8507f6b1c",
+			"state": "damage preview9",
+			"viewport": "390x844"
+		}
+	],
+	"geometry": {
+		"headerHeight": 106.796875,
+		"nameFontSize": 20,
+		"healthActionsHeight": 44,
+		"mobileSheet320": {
+			"x": 0,
+			"width": 320,
+			"bottom": 740
+		},
+		"horizontalOverflow": 0
+	},
+	"validation": {
+		"nativeIOSAndroid": "NOT RUN: physical-device follow-up required",
+		"focusedBrowser": "5 passed (3 viewport health+partial save journeys, creation, not-found) after fresh own stack; legacy health journey 1 passed in /tmp/health-legacy-final.log.",
+		"unit": "595 passed before shell rebase; final unit log to accompany",
+		"rules": "returned HP18/27 temp3 without double counting, damage9 previews9; boundary available2700 at saved level3; max355000 at savedlevel20"
+	},
+	"command": "agent-browser --session mobile-health screenshot <absolute capture path>; fresh owned pnpm start after rebase; readiness via wait --text and snapshots",
+	"notes": [
+		"All images refreshed after owned Vite restart; old pre-rebase cached captures overwritten.",
+		"M2-max-long-name has saved level20 XP355000 and a 117-character name.",
+		"M5 screenshots reset name/level/XP to standard fixture before opening Damage and entering9.",
+		"Final source includes shell8b34882 bottom bar1px correction and1cbc546 dark button foreground / extreme HP wrapping. Captures precede those refinements; integrated QA must refresh rather than treat these as final regression baselines."
+	],
+	"reviewedSourceSha": "1cbc546"
+}

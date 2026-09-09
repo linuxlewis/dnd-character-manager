@@ -25,6 +25,14 @@ The original name/class/level character slice is the pre-inventory foundation. T
 implementation baseline is M1 Personal Treasury followed by M2 Personal Inventory; later party
 milestones remain a roadmap after those character workflows are complete.
 
+## Mobile Workspace Direction
+
+The phone-first refactor targets current main Spells & Abilities and Inventory, with compact
+identity/XP/health, bottom navigation and reachable editor actions. Attributes & Rolls is deferred;
+no unmerged feature is required. See the [spec](./mobile-character-workspace-spec.md),
+[dispatch plan](./mobile-character-workspace-plan.md), and [UI design contract](./ui-design.md).
+These are target requirements until implementation evidence is recorded.
+
 ## Feature Specifications
 
 - [Character creation MVP product spec](./character-creation-mvp-spec.md)

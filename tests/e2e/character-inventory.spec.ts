@@ -12,6 +12,8 @@ const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
 let catalogueFixture: CatalogueJourneyFixture | null = null;
 
 test.beforeAll(async () => {
+	// The shared catalogue fixture holds its advisory lock for the other inventory journey.
+	test.setTimeout(120_000);
 	if (!sql) throw new Error("DATABASE_URL is required for character inventory e2e tests.");
 	catalogueFixture = await prepareCatalogueJourneyFixture(sql);
 });
@@ -33,9 +35,13 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	const firstCharacterUrl = page.url();
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: firstCharacterName })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Health" })).toBeVisible();
-	await expect(page.getByTestId("treasury-total")).toBeVisible();
+	await expect(page.getByText("0% to Lv 2", { exact: true })).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
+	).toBeVisible();
+
+	await expect(page.getByTestId("treasury-summary")).toBeVisible();
+
 	const inventory = page.getByTestId("personal-inventory");
 
 	await expect(page.getByText("No personal items yet")).toBeVisible();
@@ -72,7 +78,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await customDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(page.getByRole("button", { name: "View Sage's Elixir" })).toBeVisible();
 
-	await expect(page.getByText("2 items")).toBeVisible();
+	await expect(page.getByRole("button", { name: "All 2", exact: true })).toBeVisible();
 	await expect(page.getByRole("button", { name: /Equipment/ })).toContainText("1");
 	await expect(page.getByRole("button", { name: /Potion/ })).toContainText("1");
 	await expect(page.getByRole("button", { name: /All/ })).toHaveAttribute("aria-pressed", "true");
@@ -80,7 +86,9 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		"aria-pressed",
 		"false",
 	);
-	await expect(page.getByRole("tab")).toHaveCount(2);
+	await expect(
+		page.getByRole("navigation", { name: "Character sections" }).getByRole("link"),
+	).toHaveCount(2);
 	await expect(
 		page
 			.getByTestId(/inventory-item-/)
@@ -197,7 +205,7 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 		.click();
 	await expect(page.getByRole("button", { name: `View ${fixture.mundaneName}` })).toBeHidden();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	const secondCharacterName = `A7 Inventory Second ${Date.now()}`;
 	await createCharacter(page, secondCharacterName, "Wizard");
 	await openInventoryTab(page);
@@ -229,9 +237,11 @@ test("keeps character details visible when personal inventory fails", async ({ p
 	await createCharacter(page, `A7 Inventory Failure ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await expect(page.getByText("Personal inventory unavailable")).toBeVisible();
-	await expect(page.getByTestId("treasury-total")).toBeVisible();
+	await expect(page.getByTestId("treasury-summary")).toBeVisible();
 	await openSpellsAndAbilitiesTab(page);
-	await expect(page.getByText(/10 \/ 10 HP/)).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Edit health: 10 / 10 HP", exact: true }),
+	).toBeVisible();
 });
 
 function requireCatalogueFixture() {

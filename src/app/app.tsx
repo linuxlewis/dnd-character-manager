@@ -22,13 +22,15 @@ import {
 } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
-import { CharacterWorkspace } from "../domains/characters/ui/index.js";
+import { CharacterWorkspace, parseCharacterRoute } from "../domains/characters/ui/index.js";
 import {
 	apiMutations,
 	apiQueries,
 	type CurrentUserResponse,
 } from "../generated/api-client.generated.js";
+import { useBrowserPathname } from "../providers/navigation/index.js";
 import { parseAppRoute } from "./app-route.js";
+import { ApplicationMenu } from "./application-menu.js";
 import { CurrentUserProvider, useCurrentUser } from "./current-user-provider.js";
 import { MagicLinkLoginForm } from "./magic-link-login.js";
 import { PrivacyPolicy } from "./privacy-policy.js";
@@ -38,8 +40,10 @@ interface AppProps {
 	pathname?: string;
 }
 
-export function App({ pathname = getCurrentPathname() }: AppProps) {
-	const route = parseAppRoute(pathname);
+export function App({ pathname }: AppProps) {
+	const browserPathname = useBrowserPathname();
+	const currentPathname = pathname ?? browserPathname;
+	const route = parseAppRoute(currentPathname);
 
 	if (route.screen === "privacy") {
 		return (
@@ -53,18 +57,29 @@ export function App({ pathname = getCurrentPathname() }: AppProps) {
 
 	return (
 		<CurrentUserProvider>
-			<CharacterApplication />
+			<CharacterApplication pathname={currentPathname} />
 		</CurrentUserProvider>
 	);
 }
 
-function CharacterApplication() {
+function CharacterApplication({ pathname }: { pathname: string }) {
+	const characterDetail = parseCharacterRoute(pathname).screen === "detail";
 	const { currentUser, error, isLoading } = useCurrentUser();
 
 	return (
-		<AppLayout>
-			<SiteHeader currentUser={currentUser} isLoading={isLoading} />
-			<Divider />
+		<AppLayout characterDetail={characterDetail}>
+			{!characterDetail && (
+				<>
+					<SiteHeader currentUser={currentUser} isLoading={isLoading} />
+					<Divider />
+				</>
+			)}
+			{characterDetail && !currentUser && (
+				<Group justify="space-between">
+					<Anchor href="/characters">Back to characters</Anchor>
+					<ApplicationMenu currentUser={currentUser} />
+				</Group>
+			)}
 			{error ? (
 				<Alert color="red" title="Session unavailable" variant="light">
 					Refresh the page to try again.
@@ -75,25 +90,39 @@ function CharacterApplication() {
 				</Paper>
 			) : (
 				<Stack gap="md">
-					<CharacterWorkspace />
+					<CharacterWorkspace
+						pathname={pathname}
+						renderApplicationMenu={() => <ApplicationMenu currentUser={currentUser} />}
+					/>
 				</Stack>
 			)}
 		</AppLayout>
 	);
 }
 
-function AppLayout({ children }: { children: ReactNode }) {
+function AppLayout({
+	children,
+	characterDetail = false,
+}: {
+	children: ReactNode;
+	characterDetail?: boolean;
+}) {
 	return (
-		<Box className="app-shell">
+		<Box className={characterDetail ? "app-shell app-shell-character" : "app-shell"}>
 			<Container
 				component="main"
 				className="app-main"
 				size="md"
-				py={{ base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }}
+				pt={characterDetail ? "xs" : { base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }}
+				pb={
+					characterDetail
+						? { base: "calc(80px + env(safe-area-inset-bottom, 0px))", sm: "xs" }
+						: { base: "xl", sm: "calc(var(--mantine-spacing-xl) * 2)" }
+				}
 			>
 				<Stack gap="xl">{children}</Stack>
 			</Container>
-			<SiteFooter />
+			{!characterDetail && <SiteFooter />}
 		</Box>
 	);
 }
@@ -171,9 +200,4 @@ function AccountMenu({ currentUser }: { currentUser: CurrentUserResponse["user"]
 			</Menu.Dropdown>
 		</Menu>
 	);
-}
-
-function getCurrentPathname() {
-	if (typeof window === "undefined") return "/";
-	return window.location.pathname;
 }

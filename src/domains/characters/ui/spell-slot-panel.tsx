@@ -1,4 +1,4 @@
-import { Anchor, Button, Divider, Group, Stack, Text, Title } from "@mantine/core";
+import { Button, Group, Stack, Text, Title } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -13,13 +13,11 @@ import {
 	apiQueryKeys,
 } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
-import type { NumberDraft } from "./health-dialogs.js";
 import { NonSlotSpellList } from "./non-slot-spell-list.js";
+import { CharacterSpellConfiguration } from "./spell-configuration-modal.js";
 import { SpellDetailsModal } from "./spell-details-modal.js";
 import { SpellRemoveModal } from "./spell-remove-modal.js";
 import { SpellSearchModal, type SpellSearchResult } from "./spell-search-modal.js";
-import { SpellSlotEditActions } from "./spell-slot-edit-actions.js";
-import { SpellSlotHistory } from "./spell-slot-history.js";
 import { SpellSlotList } from "./spell-slot-list.js";
 import { SpellSlotPanelAlerts } from "./spell-slot-panel-alerts.js";
 
@@ -37,9 +35,8 @@ export function CharacterSpellSlotsPanel({
 }) {
 	const spellSlotsQuery = useQuery(apiQueries.getCharacterSpellSlots({ characterId }));
 	const characterSpellsQuery = useQuery(apiQueries.listCharacterSpells({ characterId }));
-	const [draftTotals, setDraftTotals] = useState<Record<number, NumberDraft>>({});
-	const [historyOpen, setHistoryOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
+	const [configurationOpen, setConfigurationOpen] = useState(false);
 	const [spellSearch, setSpellSearch] = useState<SpellSearchState | null>(null);
 	const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
 	const [spellToRemove, setSpellToRemove] = useState<
@@ -72,8 +69,8 @@ export function CharacterSpellSlotsPanel({
 	});
 
 	function updateCachedSpellSlots(response: CharacterSpellSlotsResponse) {
-		setDraftTotals({});
 		setIsEditing(false);
+		setConfigurationOpen(false);
 		queryClient.setQueryData(apiQueryKeys.getCharacterSpellSlots({ characterId }), response);
 	}
 
@@ -81,20 +78,12 @@ export function CharacterSpellSlotsPanel({
 		queryClient.setQueryData(apiQueryKeys.listCharacterSpells({ characterId }), response);
 	}
 
-	const updateMutation = useMutation({
-		...apiMutations.updateCharacterSpellSlots(),
-		onSuccess: updateCachedSpellSlots,
-	});
 	const expendMutation = useMutation({
 		...apiMutations.useCharacterSpellSlot(),
 		onSuccess: updateCachedSpellSlots,
 	});
 	const restoreMutation = useMutation({
 		...apiMutations.restoreCharacterSpellSlot(),
-		onSuccess: updateCachedSpellSlots,
-	});
-	const defaultsMutation = useMutation({
-		...apiMutations.applyCharacterSpellSlotDefaults(),
 		onSuccess: updateCachedSpellSlots,
 	});
 	const saveSpellMutation = useMutation({
@@ -112,11 +101,7 @@ export function CharacterSpellSlotsPanel({
 		},
 	});
 	const spellSlotsUnavailable = Boolean(
-		spellSlotsQuery.error ||
-			updateMutation.error ||
-			expendMutation.error ||
-			restoreMutation.error ||
-			defaultsMutation.error,
+		spellSlotsQuery.error || expendMutation.error || restoreMutation.error,
 	);
 	const spellsUnavailable = Boolean(
 		characterSpellsQuery.error ||
@@ -126,23 +111,6 @@ export function CharacterSpellSlotsPanel({
 			saveSpellMutation.error,
 	);
 
-	function setDraftTotal(slotLevel: number, value: NumberDraft) {
-		setDraftTotals((current) => ({ ...current, [slotLevel]: value }));
-	}
-
-	function saveConfiguration() {
-		if (spellSlots.length === 0) return;
-		updateMutation.mutate({
-			params: { characterId },
-			body: {
-				slots: spellSlots.map((slot) => ({
-					level: slot.level,
-					total: toSlotTotal(draftTotals[slot.level] ?? slot.total, slot.total),
-				})),
-			},
-		});
-	}
-
 	function expendSlot(slot: CharacterSpellSlot) {
 		expendMutation.mutate({ params: { characterId }, body: { level: slot.level } });
 	}
@@ -151,16 +119,13 @@ export function CharacterSpellSlotsPanel({
 		restoreMutation.mutate({ params: { characterId }, body: { level: slot.level } });
 	}
 
-	function applyDefaults() {
-		defaultsMutation.mutate({ characterId });
-	}
-
 	function toggleEditing() {
-		setDraftTotals({});
 		setIsEditing((editing) => !editing);
 	}
 
 	function openSpellSearch(slotLevel: number) {
+		if (saveSpellMutation.isPending) return;
+		saveSpellMutation.reset();
 		const nextSearch = { slotLevel, query: "" };
 		setSpellSearch(nextSearch);
 	}
@@ -178,7 +143,7 @@ export function CharacterSpellSlotsPanel({
 	}
 
 	function saveSpell(spell: SpellSearchResult) {
-		if (!spellSearch) return;
+		if (!spellSearch || saveSpellMutation.isPending) return;
 		saveSpellMutation.mutate({
 			params: { characterId },
 			body: { slotLevel: spellSearch.slotLevel, spellIndex: spell.index, source: spell.source },
@@ -186,73 +151,55 @@ export function CharacterSpellSlotsPanel({
 	}
 
 	function removeSpell() {
-		if (!spellToRemove) return;
+		if (!spellToRemove || removeSpellMutation.isPending) return;
 		removeSpellMutation.mutate({ characterId, spellId: spellToRemove.id });
 	}
 
 	return (
 		<Stack gap="md">
-			<Divider />
-			<Stack gap="xs">
-				<Group justify="space-between" align="flex-start" gap="xs" wrap="wrap">
-					<Stack gap={0} style={{ flex: "1 1 12rem" }}>
-						<Title order={3} size="h5">
-							Spell slots
-						</Title>
-						<Text c="dimmed" size="sm">
-							Default profile: tier {level}
-						</Text>
-					</Stack>
-					<Group gap="xs" justify="flex-end" style={{ flex: "1 1 12rem" }} wrap="wrap">
-						<Button
-							aria-expanded={historyOpen}
-							color="gray"
-							onClick={() => setHistoryOpen((opened) => !opened)}
-							size="xs"
-							variant="subtle"
-							w={{ base: "100%", xs: "auto" }}
-						>
-							Spell history ({spellSlotsQuery.data?.recentSpellSlotChanges.length ?? 0})
-						</Button>
-						<Anchor color="gray" component="button" onClick={toggleEditing} size="sm" type="button">
-							{isEditing ? "Done" : "Edit spells"}
-						</Anchor>
-					</Group>
-				</Group>
-			</Stack>
+			<Group justify="space-between" gap="xs" wrap="wrap">
+				<Title order={2} size={18}>
+					Spells &amp; Abilities
+				</Title>
+				<Button mih={44} variant="subtle" onClick={toggleEditing}>
+					{isEditing ? "Done" : "Edit spells"}
+				</Button>
+			</Group>
+			{isEditing && (
+				<Button
+					mih={44}
+					variant="default"
+					onClick={() => {
+						setConfigurationOpen(true);
+					}}
+				>
+					Configure slots
+				</Button>
+			)}
 
 			{spellSlotsQuery.isLoading && <Text c="dimmed">Loading spell slots...</Text>}
-
-			<SpellSlotHistory
-				changes={spellSlotsQuery.data?.recentSpellSlotChanges ?? []}
-				opened={historyOpen}
-			/>
-
-			<SpellSlotEditActions
-				defaultsPending={defaultsMutation.isPending}
-				disabled={spellSlots.length === 0}
-				isEditing={isEditing}
-				onApplyDefaults={applyDefaults}
-				onSaveConfiguration={saveConfiguration}
-				updatePending={updateMutation.isPending}
-			/>
 
 			<NonSlotSpellList
 				characterSpells={nonSlotSpells}
 				isEditing={isEditing}
 				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
 				onOpenSpellSearch={() => openSpellSearch(0)}
-				onRemoveSpell={setSpellToRemove}
+				onRemoveSpell={(spell) => {
+					removeSpellMutation.reset();
+					setSpellToRemove(spell);
+				}}
 			/>
 
 			<SpellSlotList
+				pending={expendMutation.isPending || restoreMutation.isPending}
 				characterSpells={numberedSpells}
-				draftTotals={draftTotals}
 				isEditing={isEditing}
-				onDraftTotalChange={setDraftTotal}
 				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
 				onOpenSpellSearch={openSpellSearch}
-				onRemoveSpell={setSpellToRemove}
+				onRemoveSpell={(spell) => {
+					removeSpellMutation.reset();
+					setSpellToRemove(spell);
+				}}
 				onRestoreSlot={restoreSlot}
 				onUseSlot={expendSlot}
 				spellSlots={spellSlots}
@@ -263,24 +210,40 @@ export function CharacterSpellSlotsPanel({
 				spellsUnavailable={spellsUnavailable}
 			/>
 
+			{configurationOpen && (
+				<CharacterSpellConfiguration
+					characterId={characterId}
+					level={level}
+					slots={spellSlots}
+					onClose={() => setConfigurationOpen(false)}
+					onSaved={updateCachedSpellSlots}
+				/>
+			)}
+
 			<SpellSearchModal
+				error={spellSearchQuery.error || saveSpellMutation.error}
 				onChangeQuery={updateSpellSearchQuery}
-				onClose={closeSpellSearch}
+				onClose={() => {
+					if (!saveSpellMutation.isPending) closeSpellSearch();
+				}}
 				onSaveSpell={saveSpell}
 				opened={spellSearch !== null}
 				pending={spellSearchQuery.isFetching || saveSpellMutation.isPending}
+				saving={saveSpellMutation.isPending}
 				query={spellSearch?.query ?? ""}
 				results={spellSearchQuery.data?.spells ?? []}
 				searched={spellSearchQueryText.length > 0 && !spellSearchQuery.isFetching}
 				slotLevel={spellSearch?.slotLevel ?? 1}
 			/>
 			<SpellDetailsModal
+				error={spellDetailsQuery.error}
 				details={spellDetailsQuery.data?.spell ?? null}
 				onClose={() => setSelectedSpellId(null)}
 				opened={selectedSpellId !== null}
 				pending={spellDetailsQuery.isFetching}
 			/>
 			<SpellRemoveModal
+				error={removeSpellMutation.error}
 				onClose={closeRemoveSpellDialog}
 				onConfirm={removeSpell}
 				pending={removeSpellMutation.isPending}
@@ -288,8 +251,4 @@ export function CharacterSpellSlotsPanel({
 			/>
 		</Stack>
 	);
-}
-
-function toSlotTotal(value: NumberDraft, fallback: number) {
-	return typeof value === "number" && Number.isInteger(value) ? value : fallback;
 }

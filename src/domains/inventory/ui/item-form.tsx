@@ -1,3 +1,4 @@
+import "./inventory.css";
 import {
 	Alert,
 	Box,
@@ -42,6 +43,7 @@ export function ItemForm({
 	error,
 	onClose,
 	onSubmit,
+	onAfterClose,
 }: {
 	mode: "create" | "edit";
 	opened: boolean;
@@ -49,6 +51,7 @@ export function ItemForm({
 	pending: boolean;
 	error: Error | null;
 	onClose: () => void;
+	onAfterClose?: () => void;
 	onSubmit: (request: CreateCharacterItemRequest | UpdateCharacterItemRequest) => void;
 }) {
 	const queryClient = useQueryClient();
@@ -83,32 +86,48 @@ export function ItemForm({
 
 	return (
 		<Modal
+			returnFocus={false}
+			onExitTransitionEnd={onAfterClose}
 			closeButtonProps={{
 				"aria-label": `${mode === "create" ? "Close add" : "Close edit"} item dialog`,
 			}}
 			onClose={onClose}
 			opened={opened}
+			closeOnClickOutside={!pending}
+			closeOnEscape={!pending}
 			size="lg"
-			styles={{
-				content: { maxWidth: "calc(100vw - 2rem)" },
-				inner: { left: 0, padding: 0, right: 0 },
+			className="inventory-editor"
+			classNames={{
+				inner: "inventory-editor-inner",
+				content: "inventory-editor-content",
+				header: "inventory-editor-header",
+				body: "inventory-editor-body",
 			}}
 			title={mode === "create" ? "Add personal item" : "Edit personal item"}
 			withinPortal={false}
 		>
 			<Box
 				component="form"
-				onSubmit={form.onSubmit((values) =>
-					onSubmit(
-						toCharacterItemRequest(
-							values,
-							mode,
-							catalogueItemIdForSubmission(selectedCatalogueId, catalogueDetailError),
-						),
-					),
+				className="inventory-editor-form"
+				onSubmit={form.onSubmit(
+					(values) => {
+						if (pending) return;
+						onSubmit(
+							toCharacterItemRequest(
+								values,
+								mode,
+								catalogueItemIdForSubmission(selectedCatalogueId, catalogueDetailError),
+							),
+						);
+					},
+					(errors) => {
+						const field = form.getInputNode(Object.keys(errors)[0]);
+						field?.focus();
+						field?.scrollIntoView({ block: "center" });
+					},
 				)}
 			>
-				<Stack gap="md">
+				<Stack className="inventory-editor-scroll" gap="md">
 					{mode === "create" && (
 						<CatalogueItemSearch
 							detailError={catalogueDetailError}
@@ -125,7 +144,7 @@ export function ItemForm({
 							{error.message}
 						</Alert>
 					)}
-					<TextInput {...form.getInputProps("name")} label="Name" required />
+					<TextInput {...form.getInputProps("name")} label="Name" data-autofocus required />
 					<Group align="flex-start" grow wrap="wrap">
 						<Select
 							{...form.getInputProps("type")}
@@ -139,6 +158,7 @@ export function ItemForm({
 						/>
 						<Select
 							{...form.getInputProps("rarity")}
+							rightSectionWidth={44}
 							clearable
 							data={Object.entries(ITEM_RARITY_LABELS).map(([value, label]) => ({ value, label }))}
 							label="Rarity"
@@ -148,6 +168,7 @@ export function ItemForm({
 					<TextInput {...form.getInputProps("category")} label="Category" required />
 					<Group align="flex-start" grow wrap="wrap">
 						<NumberInput
+							hideControls
 							{...form.getInputProps("quantity")}
 							allowDecimal={false}
 							allowNegative={false}
@@ -156,6 +177,7 @@ export function ItemForm({
 							required
 						/>
 						<NumberInput
+							hideControls
 							{...form.getInputProps("weight")}
 							allowDecimal
 							allowNegative={false}
@@ -163,6 +185,7 @@ export function ItemForm({
 							min={0}
 						/>
 						<NumberInput
+							hideControls
 							{...form.getInputProps("estimatedValue")}
 							allowDecimal
 							allowNegative={false}
@@ -194,15 +217,15 @@ export function ItemForm({
 							rules version.
 						</Text>
 					)}
-					<Group justify="flex-end">
-						<Button disabled={pending} onClick={onClose} type="button" variant="default">
-							Cancel
-						</Button>
-						<Button loading={pending} type="submit">
-							{mode === "create" ? "Add item" : "Save item"}
-						</Button>
-					</Group>
 				</Stack>
+				<Group className="inventory-editor-actions" justify="flex-end">
+					<Button disabled={pending} onClick={onClose} type="button" variant="default">
+						Cancel
+					</Button>
+					<Button className="workspace-primary-action" c="black" loading={pending} type="submit">
+						{mode === "create" ? "Add item" : "Save item"}
+					</Button>
+				</Group>
 			</Box>
 		</Modal>
 	);

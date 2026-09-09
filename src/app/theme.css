@@ -31,3 +31,118 @@ body {
 	background: var(--mantine-color-bloodstone-7);
 	color: var(--mantine-color-white);
 }
+
+.app-shell-character {
+	padding-bottom: 0;
+}
+
+.character-sticky-header {
+	position: sticky;
+	top: env(safe-area-inset-top, 0px);
+	z-index: 20;
+	background: var(--mantine-color-dark-9);
+}
+
+.character-identity {
+	flex: 1;
+	min-width: 0;
+}
+
+.character-back {
+	width: 44px;
+	min-width: 44px;
+	height: 44px;
+	padding: 0;
+}
+
+.character-section-navigation {
+	display: flex;
+	border-bottom: 1px solid var(--mantine-color-dark-4);
+	background: var(--mantine-color-dark-8);
+}
+
+.character-section-link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 8px 20px;
+	color: var(--mantine-color-dark-1);
+	border-bottom: 3px solid transparent;
+	font-weight: 600;
+}
+
+.character-section-link[aria-current="page"] {
+	color: var(--mantine-color-bloodstone-3);
+	border-color: var(--mantine-color-bloodstone-5);
+	background: var(--mantine-color-dark-7);
+}
+
+.character-section-link:focus-visible {
+	outline: 2px solid var(--mantine-color-candle-3);
+	outline-offset: -4px;
+}
+
+.character-section-content {
+	min-width: 0;
+}
+
+@media (max-width: 47.999em) {
+	.app-shell-character .app-main {
+		padding-inline: 12px;
+	}
+
+	.character-section-navigation {
+		position: fixed;
+		inset: auto 0 0;
+		z-index: 30;
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+		border-top: 1px solid var(--mantine-color-dark-4);
+		border-bottom: 0;
+	}
+
+	.character-section-link {
+		flex: 1;
+		min-width: 0;
+		min-height: 63px;
+		flex-direction: column;
+		gap: 2px;
+		padding: 6px;
+		font-size: 0.75rem;
+		border-bottom: 0;
+		border-top: 3px solid transparent;
+	}
+}
+
+@media (max-height: 499px) {
+	.character-sticky-header {
+		position: static;
+	}
+}
+
+/* Opt-in filled actions: black contrast is 5.72:1 normally and 7.80:1 on hover. */
+.workspace-primary-action:not(:disabled):not([data-disabled]) {
+	background-color: var(--mantine-color-bloodstone-5);
+	color: var(--mantine-color-black);
+	border-color: transparent;
+}
+
+.workspace-primary-action:not(:disabled):not([data-disabled]):hover,
+.workspace-primary-action:not(:disabled):not([data-disabled]):active {
+	background-color: var(--mantine-color-bloodstone-4);
+	color: var(--mantine-color-black);
+}
+
+/* A visible field boundary on workspace surfaces; Mantine retains error/focus colors. */
+:is(.character-workspace, .workspace-inputs, .inventory-editor-form, .spell-editor-form) {
+	--mantine-color-dimmed: var(--mantine-color-dark-1);
+	--mantine-color-placeholder: var(--mantine-color-dark-1);
+}
+
+:is(.character-workspace, .workspace-inputs, .inventory-editor-form, .spell-editor-form)
+	.mantine-Input-input:not([data-error]):not([data-error] *):not(:disabled):not(
+		[data-disabled]
+	):not(:focus):not(:focus-within) {
+	border-color: #858585;
+}

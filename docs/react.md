@@ -80,3 +80,11 @@ Common replacements:
 | Watching state to call another setter | A single event handler that updates both states |
 
 If behavior appears to require `useEffect`, move the side effect to a clearer boundary first: a query, mutation, event handler, provider, or server route.
+
+## Mobile Workspace Design
+
+For character UI changes, read the [UI design contract](./ui-design.md) and
+[mobile workspace specification](./mobile-character-workspace-spec.md). Follow the
+[dispatch and visual validation plan](./mobile-character-workspace-plan.md) for geometry,
+interaction and screenshot evidence. Target requirements and verified implementation status must
+remain distinct; future agents must not import deferred Attributes & Rolls functionality.

@@ -1,4 +1,6 @@
-import { Box, Button, Group, Modal, NumberInput, Stack } from "@mantine/core";
+import { Alert, Box, Button, Group, Modal, NumberInput, Stack, Text } from "@mantine/core";
+
+import classes from "./health-workspace.module.css";
 
 export type NumberDraft = "" | number;
 
@@ -11,6 +13,9 @@ export function HealthAmountModal({
 	opened,
 	pending,
 	title,
+	preview,
+	error,
+	withinPortal = true,
 }: {
 	amountDraft: NumberDraft;
 	color: "green" | "red";
@@ -20,14 +25,31 @@ export function HealthAmountModal({
 	opened: boolean;
 	pending: boolean;
 	title: string;
+	preview: number | null;
+	error?: boolean;
+	withinPortal?: boolean;
 }) {
 	return (
-		<Modal onClose={onClose} opened={opened} title={title} withinPortal={false}>
+		<Modal
+			withinPortal={withinPortal}
+			classNames={{
+				inner: classes.sheetInner,
+				content: classes.sheetContent,
+				body: classes.sheetBody,
+			}}
+			onClose={onClose}
+			opened={opened}
+			title={title}
+			closeOnClickOutside={!pending}
+			closeOnEscape={!pending}
+			closeButtonProps={{ "aria-label": "Close", size: 44, disabled: pending }}
+		>
 			<Box
 				component="form"
+				className="workspace-inputs"
 				onSubmit={(event) => {
 					event.preventDefault();
-					onSubmit();
+					if (!pending) onSubmit();
 				}}
 			>
 				<Stack gap="md">
@@ -38,15 +60,34 @@ export function HealthAmountModal({
 						hideControls
 						label="Amount"
 						min={1}
+						required
+						size="md"
 						onChange={(value) => onChangeAmount(toDraft(value))}
 						value={amountDraft}
 					/>
-					<Group justify="flex-end">
-						<Button onClick={onClose} type="button" variant="default">
+					<Text role="status">
+						{preview === null
+							? "Enter an amount to preview HP."
+							: `Resulting HP: ${preview} (preview)`}
+					</Text>
+					{error && (
+						<Alert color="red" title="Health update failed">
+							Your amount is kept. Try again.
+						</Alert>
+					)}
+					<Group className={classes.actions} justify="flex-end">
+						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button color={color} loading={pending} type="submit">
-							Save
+						<Button
+							c="black"
+							mih={44}
+							color={color}
+							disabled={preview === null}
+							loading={pending}
+							type="submit"
+						>
+							{title === "Heal" ? "Apply healing" : "Apply damage"}
 						</Button>
 					</Group>
 				</Stack>
@@ -64,6 +105,8 @@ export function HealthEditModal({
 	opened,
 	pending,
 	temporaryDraft,
+	error,
+	withinPortal = true,
 }: {
 	maxDraft: NumberDraft;
 	onChangeMax: (value: NumberDraft) => void;
@@ -73,14 +116,30 @@ export function HealthEditModal({
 	opened: boolean;
 	pending: boolean;
 	temporaryDraft: NumberDraft;
+	error?: boolean;
+	withinPortal?: boolean;
 }) {
 	return (
-		<Modal onClose={onClose} opened={opened} title="Edit health" withinPortal={false}>
+		<Modal
+			withinPortal={withinPortal}
+			classNames={{
+				inner: classes.sheetInner,
+				content: classes.sheetContent,
+				body: classes.sheetBody,
+			}}
+			onClose={onClose}
+			opened={opened}
+			title="Edit health"
+			closeOnClickOutside={!pending}
+			closeOnEscape={!pending}
+			closeButtonProps={{ "aria-label": "Close", size: 44, disabled: pending }}
+		>
 			<Box
 				component="form"
+				className="workspace-inputs"
 				onSubmit={(event) => {
 					event.preventDefault();
-					onSubmit();
+					if (!pending) onSubmit();
 				}}
 			>
 				<Stack gap="md">
@@ -90,6 +149,8 @@ export function HealthEditModal({
 						hideControls
 						label="Max HP"
 						min={1}
+						required
+						size="md"
 						onChange={(value) => onChangeMax(toDraft(value))}
 						value={maxDraft}
 					/>
@@ -99,14 +160,27 @@ export function HealthEditModal({
 						hideControls
 						label="Temp HP"
 						min={0}
+						required
+						size="md"
 						onChange={(value) => onChangeTemporary(toDraft(value))}
 						value={temporaryDraft}
 					/>
-					<Group justify="flex-end">
-						<Button onClick={onClose} type="button" variant="default">
+					{error && (
+						<Alert color="red" title="Health update failed">
+							Your changes are kept. Try again.
+						</Alert>
+					)}
+					<Group className={classes.actions} justify="flex-end">
+						<Button mih={44} disabled={pending} onClick={onClose} type="button" variant="default">
 							Cancel
 						</Button>
-						<Button loading={pending} type="submit">
+						<Button
+							className="workspace-primary-action"
+							c="black"
+							mih={44}
+							loading={pending}
+							type="submit"
+						>
 							Save
 						</Button>
 					</Group>

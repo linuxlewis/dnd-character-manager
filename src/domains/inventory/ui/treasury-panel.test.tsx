@@ -34,7 +34,7 @@ describe("TreasuryPanel", () => {
 		});
 
 		expect(html).not.toContain("Personal Treasury</span>");
-		expect(toReadableText(html)).toContain("2.00 GP");
+		expect(html).toContain("Gold pieces: 2");
 		expect(toReadableText(html)).toContain("Add funds");
 	});
 

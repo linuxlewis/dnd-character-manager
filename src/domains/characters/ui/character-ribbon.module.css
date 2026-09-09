@@ -1,0 +1,25 @@
+.identity {
+	flex: 1;
+	min-width: 0;
+	min-height: 44px;
+}
+.identity:focus-visible {
+	outline: 2px solid var(--mantine-color-candle-4);
+	outline-offset: 2px;
+}
+.name.name {
+	min-width: 0;
+	font-size: 1.25rem;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.identity:hover,
+.identity:active {
+	background: var(--mantine-color-dark-6);
+}
+.chevron {
+	flex-shrink: 0;
+}

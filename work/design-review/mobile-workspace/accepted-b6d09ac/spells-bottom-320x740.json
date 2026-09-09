@@ -1,0 +1,273 @@
+{
+	"sha": "b6d09ac6ef5099da5c6c02e0c28e3fdb0e3e07ad",
+	"dirty": false,
+	"patchHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	"fixture": "F2-main-v1",
+	"route": "http://127.0.0.1:3758/characters/df0e92ee-b0c6-4a5c-b6b7-c9dedcc0a166/spells",
+	"viewport": {
+		"width": 320,
+		"height": 740
+	},
+	"state": "spells-bottom",
+	"criteria": ["V6", "N6"],
+	"geometry": {
+		"scrollY": 113,
+		"scrollWidth": 320,
+		"deviceScale": 1,
+		"elements": [
+			{
+				"label": "Character workspace header",
+				"rect": {
+					"x": 12,
+					"y": 0,
+					"width": 296,
+					"height": 106.796875,
+					"top": 0,
+					"right": 308,
+					"bottom": 106.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Character details for Mira Thorn",
+				"rect": {
+					"x": 66,
+					"y": 0,
+					"width": 188,
+					"height": 44,
+					"top": 0,
+					"right": 254,
+					"bottom": 44,
+					"left": 66
+				}
+			},
+			{
+				"label": "Open application menu",
+				"rect": {
+					"x": 264,
+					"y": 0,
+					"width": 44,
+					"height": 44,
+					"top": 0,
+					"right": 308,
+					"bottom": 44,
+					"left": 264
+				}
+			},
+			{
+				"label": "Edit health: 18 / 27 HP",
+				"rect": {
+					"x": 12,
+					"y": 62.796875,
+					"width": 147.859375,
+					"height": 44,
+					"top": 62.796875,
+					"right": 159.859375,
+					"bottom": 106.796875,
+					"left": 12
+				}
+			},
+			{
+				"label": "Heal",
+				"rect": {
+					"x": 167.859375,
+					"y": 62.796875,
+					"width": 52.96875,
+					"height": 44,
+					"top": 62.796875,
+					"right": 220.828125,
+					"bottom": 106.796875,
+					"left": 167.859375
+				}
+			},
+			{
+				"label": "Damage",
+				"rect": {
+					"x": 228.828125,
+					"y": 62.796875,
+					"width": 79.171875,
+					"height": 44,
+					"top": 62.796875,
+					"right": 308,
+					"bottom": 106.796875,
+					"left": 228.828125
+				}
+			},
+			{
+				"label": "Character sections",
+				"rect": {
+					"x": 0,
+					"y": 676,
+					"width": 320,
+					"height": 64,
+					"top": 676,
+					"right": 320,
+					"bottom": 740,
+					"left": 0
+				}
+			},
+			{
+				"label": "Spell history (2)",
+				"rect": {
+					"x": 12,
+					"y": 54.09375,
+					"width": 87.546875,
+					"height": 44,
+					"top": 54.09375,
+					"right": 99.546875,
+					"bottom": 98.09375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Edit spells",
+				"rect": {
+					"x": 103.546875,
+					"y": 54.09375,
+					"width": 106.578125,
+					"height": 44,
+					"top": 54.09375,
+					"right": 210.125,
+					"bottom": 98.09375,
+					"left": 103.546875
+				}
+			},
+			{
+				"label": "Add cantrip or feature",
+				"rect": {
+					"x": 261.984375,
+					"y": 114.09375,
+					"width": 46.015625,
+					"height": 44,
+					"top": 114.09375,
+					"right": 308,
+					"bottom": 158.09375,
+					"left": 261.984375
+				}
+			},
+			{
+				"label": "View Light details",
+				"rect": {
+					"x": 12,
+					"y": 168.09375,
+					"width": 296,
+					"height": 44,
+					"top": 168.09375,
+					"right": 308,
+					"bottom": 212.09375,
+					"left": 12
+				}
+			},
+			{
+				"label": "View Lay on Hands details",
+				"rect": {
+					"x": 12,
+					"y": 230.890625,
+					"width": 296,
+					"height": 44,
+					"top": 230.890625,
+					"right": 308,
+					"bottom": 274.890625,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add spell to 1st-level",
+				"rect": {
+					"x": 78.734375,
+					"y": 341.6875,
+					"width": 46.015625,
+					"height": 44,
+					"top": 341.6875,
+					"right": 124.75,
+					"bottom": 385.6875,
+					"left": 78.734375
+				}
+			},
+			{
+				"label": "Use 1st-level",
+				"rect": {
+					"x": 12,
+					"y": 419.484375,
+					"width": 63.453125,
+					"height": 44,
+					"top": 419.484375,
+					"right": 75.453125,
+					"bottom": 463.484375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 1st-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 419.484375,
+					"width": 90.328125,
+					"height": 44,
+					"top": 419.484375,
+					"right": 175.78125,
+					"bottom": 463.484375,
+					"left": 85.453125
+				}
+			},
+			{
+				"label": "View Divine Smite details",
+				"rect": {
+					"x": 12,
+					"y": 467.484375,
+					"width": 296,
+					"height": 44,
+					"top": 467.484375,
+					"right": 308,
+					"bottom": 511.484375,
+					"left": 12
+				}
+			},
+			{
+				"label": "Add spell to 2nd-level",
+				"rect": {
+					"x": 83.9375,
+					"y": 538.28125,
+					"width": 46.015625,
+					"height": 44,
+					"top": 538.28125,
+					"right": 129.953125,
+					"bottom": 582.28125,
+					"left": 83.9375
+				}
+			},
+			{
+				"label": "Use 2nd-level",
+				"rect": {
+					"x": 12,
+					"y": 616.078125,
+					"width": 63.453125,
+					"height": 44,
+					"top": 616.078125,
+					"right": 75.453125,
+					"bottom": 660.078125,
+					"left": 12
+				}
+			},
+			{
+				"label": "Restore 2nd-level",
+				"rect": {
+					"x": 85.453125,
+					"y": 616.078125,
+					"width": 90.328125,
+					"height": 44,
+					"top": 616.078125,
+					"right": 175.78125,
+					"bottom": 660.078125,
+					"left": 85.453125
+				}
+			}
+		]
+	},
+	"browser": "147.0.7727.15",
+	"platform": "linux",
+	"locale": "en-US",
+	"timezone": "UTC",
+	"nativeDevice": "NOT RUN",
+	"command": "pnpm test:e2e"
+}

@@ -94,3 +94,11 @@ Use `pnpm start`, `pnpm seed`, `pnpm health`, `pnpm logs`, and `pnpm stop` when 
 - Update [quality.md](./quality.md) when you improve coverage or identify a durable gap.
 - Update [architecture.md](./architecture.md) only when the layer model or dependency rules change.
 - Add a focused design note only for decisions that future agents must understand to modify the feature safely.
+
+## Mobile Workspace Design
+
+For character UI changes, read the [UI design contract](./ui-design.md) and
+[mobile workspace specification](./mobile-character-workspace-spec.md). Follow the
+[dispatch and visual validation plan](./mobile-character-workspace-plan.md) for geometry,
+interaction and screenshot evidence. Target requirements and verified implementation status must
+remain distinct; future agents must not import deferred Attributes & Rolls functionality.

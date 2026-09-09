@@ -2,7 +2,7 @@ import { MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { CharacterHealthPanel } from "./health-panel.js";
+import { CharacterHealthPanel, previewHealthAmount } from "./health-panel.js";
 
 describe("CharacterHealthPanel", () => {
 	it("renders compact health actions with collapsed recent health changes", () => {
@@ -30,10 +30,11 @@ describe("CharacterHealthPanel", () => {
 		);
 
 		const readableHtml = toReadableText(html);
-		expect(readableHtml).toContain("15 / 25 HP (Temp HP +5)");
+		expect(readableHtml).toContain("HP 15/25");
+		expect(html).toContain('aria-label="Health history"');
 		expect(readableHtml).toContain("Heal");
 		expect(readableHtml).toContain("Damage");
-		expect(readableHtml).toContain("History (1)");
+		expect(readableHtml).toContain("Temp HP +5");
 		expect(readableHtml).not.toContain("HP +5, Temp HP +5");
 	});
 });
@@ -41,3 +42,18 @@ describe("CharacterHealthPanel", () => {
 function toReadableText(html: string) {
 	return html.replaceAll("<!-- -->", "");
 }
+
+describe("health preview", () => {
+	const health = { currentHp: 18, maxHp: 24, temporaryHp: 3, effectiveMaxHp: 27 };
+	it.each([
+		[5, "heal", 23],
+		[99, "heal", 27],
+		[5, "damage", 13],
+		[99, "damage", 0],
+		[0, "heal", null],
+		["", "damage", null],
+		[1.5, "heal", null],
+	] as const)("amount %s %s previews %s", (amount, direction, result) => {
+		expect(previewHealthAmount(health, amount, direction)).toBe(result);
+	});
+});

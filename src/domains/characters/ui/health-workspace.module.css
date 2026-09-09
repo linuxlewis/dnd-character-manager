@@ -1,0 +1,57 @@
+.healthRow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+.readout {
+	flex: 1;
+	min-width: 4.5rem;
+	min-height: 44px;
+	font-variant-numeric: tabular-nums;
+}
+.readout:focus-visible {
+	outline: 2px solid var(--mantine-color-candle-4);
+	outline-offset: 2px;
+}
+.amount {
+	overflow-wrap: anywhere;
+	font-size: 1rem;
+	font-weight: 700;
+}
+.temporary {
+	font-size: 0.75rem;
+}
+.actions {
+	position: sticky;
+	bottom: 0;
+	background: var(--mantine-color-body);
+	padding-block: 12px;
+	z-index: 1;
+}
+@media (max-width: 47.99em) {
+	.sheetInner.sheetInner {
+		align-items: flex-end;
+		padding: 0;
+	}
+	.sheetContent.sheetContent {
+		width: 100%;
+		max-width: 100%;
+		flex: 0 0 100%;
+		max-height: 100dvh;
+		border-radius: var(--mantine-radius-sm) var(--mantine-radius-sm) 0 0;
+	}
+	.sheetBody.sheetBody {
+		padding-bottom: max(16px, env(safe-area-inset-bottom));
+	}
+}
+
+.historyLabel {
+	display: none;
+	margin-left: 6px;
+}
+@media (min-width: 30em) {
+	.historyLabel {
+		display: inline;
+	}
+}

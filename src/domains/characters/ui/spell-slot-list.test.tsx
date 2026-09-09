@@ -28,9 +28,7 @@ describe("SpellSlotList", () => {
 							source: "spell",
 						},
 					]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -53,7 +51,7 @@ describe("SpellSlotList", () => {
 		expect(readableHtml).toContain("Magic Missile");
 		expect(readableHtml).toContain("1st-level spell");
 		expect(readableHtml).not.toContain("Light");
-		expect(readableHtml).toContain("Total 2");
+		expect(readableHtml).toContain("1 / 2 remaining");
 	});
 
 	it("renders a compact usage bar for each visible spell slot level", () => {
@@ -61,9 +59,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -88,9 +84,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -117,9 +111,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -140,9 +132,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[]}
-					draftTotals={{}}
 					isEditing={true}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -158,8 +148,8 @@ describe("SpellSlotList", () => {
 
 		expect(html).toContain('aria-label="Add spell to 3rd-level"');
 		expect(html).toContain('aria-label="Add spell to 4th-level"');
-		expect(html).toContain("3rd-level slot total");
-		expect(html).toContain("4th-level slot total");
+		expect(html).not.toContain("3rd-level slot total");
+		expect(html).not.toContain("4th-level slot total");
 	});
 
 	it("keeps a zero-total slot level visible when it has saved spells", () => {
@@ -177,9 +167,7 @@ describe("SpellSlotList", () => {
 							source: "feature",
 						},
 					]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -214,9 +202,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[spell]}
-					draftTotals={{}}
 					isEditing={false}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}
@@ -230,9 +216,7 @@ describe("SpellSlotList", () => {
 			<MantineProvider>
 				<SpellSlotList
 					characterSpells={[spell]}
-					draftTotals={{}}
 					isEditing={true}
-					onDraftTotalChange={vi.fn()}
 					onOpenSpellDetails={vi.fn()}
 					onOpenSpellSearch={vi.fn()}
 					onRemoveSpell={vi.fn()}

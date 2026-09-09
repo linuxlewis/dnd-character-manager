@@ -65,7 +65,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	await openInventoryTab(page);
 	const preview = page.getByRole("button", { name: "View inventory activity" });
 	await expect(preview).toBeVisible();
-	await expect(preview.getByText("Added Ledger Item 00", { exact: true })).toBeVisible();
+	expect(historyRequests).toEqual([]);
 	const previewTabStops = await preview.evaluate(
 		(element) =>
 			[...element.querySelectorAll<HTMLElement>("*")].filter((child) => child.tabIndex >= 0).length,
@@ -179,7 +179,6 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 
-	await expect(preview.getByText("Added Mutation trigger", { exact: true })).toBeVisible();
 	await preview.click();
 	await expect.poll(() => refreshedFirstPageResolved).toBe(true);
 	await expect(drawer.getByText("Added Mutation trigger", { exact: true })).toHaveCount(0);
@@ -203,7 +202,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	expect(intermediateDrawer).not.toBeNull();
 	expect(intermediateViewport).not.toBeNull();
 	if (intermediateDrawer && intermediateViewport) {
-		expect(intermediateDrawer.width).toBe(intermediateViewport.width);
+		expect(intermediateDrawer.width).toBeCloseTo(intermediateViewport.width, 2);
 	}
 
 	await page.setViewportSize({ width: 390, height: 844 });
@@ -211,7 +210,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 	const viewport = page.viewportSize();
 	expect(mobileDrawer).not.toBeNull();
 	expect(viewport).not.toBeNull();
-	if (mobileDrawer && viewport) expect(mobileDrawer.width).toBe(viewport.width);
+	if (mobileDrawer && viewport) expect(mobileDrawer.width).toBeCloseTo(viewport.width, 2);
 	await expect(drawer.locator(".character-activity-entry").first()).toHaveCSS(
 		"grid-template-columns",
 		/^28px /,
@@ -296,7 +295,6 @@ test("retains the ledger and retries a failed loaded page refresh", async ({ pag
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
 
-	await expect(preview.getByText("Added Refresh error trigger", { exact: true })).toBeVisible();
 	await preview.click();
 	await expect.poll(() => failedPageRequest).not.toBeNull();
 	const failedUrl = new URL(failedPageRequest ?? "http://127.0.0.1/");
@@ -396,7 +394,6 @@ test("shows an activity retry when a previously empty history refetch fails", as
 	await addDialog.getByLabel("Category").fill("Testing");
 	await addDialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(addDialog).toBeHidden();
-	await expect(preview.getByText("Added Empty refresh recovery", { exact: true })).toBeVisible();
 
 	await preview.click();
 	await expect.poll(() => failedPageRequest).not.toBeNull();
@@ -454,12 +451,12 @@ test("keeps loaded activity during a failed page and retries the page boundary",
 	await expect(drawer.getByText("Added Ledger Item 20", { exact: true })).toBeVisible();
 });
 
-test("retries the preview and resets the filter for another character", async ({ page }) => {
+test("retries on-demand history and resets the filter for another character", async ({ page }) => {
 	let previewFailed = true;
 	await page.route("**/api/characters/*/history**", async (route) => {
 		const requestUrl = new URL(route.request().url());
 		const limit = Number(requestUrl.searchParams.get("limit") ?? 20);
-		if (limit === 1 && previewFailed) {
+		if (previewFailed) {
 			previewFailed = false;
 			return route.fulfill({
 				status: 503,
@@ -473,17 +470,17 @@ test("retries the preview and resets the filter for another character", async ({
 	await page.goto("/");
 	await createCharacter(page, `Activity First ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
+	await page.getByRole("button", { name: "View inventory activity" }).click();
 	await expect(page.getByText("Activity unavailable", { exact: true })).toBeVisible();
 	await page.getByRole("button", { name: "Retry activity", exact: true }).click();
 	const firstPreview = page.getByRole("button", { name: "View inventory activity" });
 	await expect(firstPreview).toBeVisible();
-	await firstPreview.click();
 	const firstDrawer = page.getByRole("dialog", { name: "Inventory activity" });
 	await firstDrawer.getByText("Treasury", { exact: true }).click();
 	await expect(firstDrawer.getByRole("radio", { name: "Treasury", exact: true })).toBeChecked();
 	await firstDrawer.getByRole("button", { name: "Close inventory activity", exact: true }).click();
 
-	await page.getByText("Back to characters").click();
+	await page.getByRole("link", { name: "Back to characters", exact: true }).click();
 	await createCharacter(page, `Activity Second ${Date.now()}`, "Wizard");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "View inventory activity" }).click();

@@ -9,6 +9,8 @@ describe("health dialogs", () => {
 			<MantineProvider>
 				<HealthAmountModal
 					amountDraft=""
+					preview={null}
+					withinPortal={false}
 					color="green"
 					onChangeAmount={vi.fn()}
 					onClose={vi.fn()}
@@ -23,6 +25,7 @@ describe("health dialogs", () => {
 			<MantineProvider>
 				<HealthEditModal
 					maxDraft={20}
+					withinPortal={false}
 					onChangeMax={vi.fn()}
 					onChangeTemporary={vi.fn()}
 					onClose={vi.fn()}

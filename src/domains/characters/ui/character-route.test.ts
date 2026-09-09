@@ -15,6 +15,14 @@ describe("parseCharacterRoute", () => {
 
 	it("falls back to the list for unknown routes", () => {
 		expect(parseCharacterRoute("/missing")).toEqual({ screen: "list" });
+		expect(parseCharacterRoute("/characters/abc/rolls")).toEqual({ screen: "list" });
+	});
+	it("round-trips explicit destinations without changing the legacy alias", () => {
+		for (const section of ["spells", "inventory"] as const) {
+			const route = { screen: "detail", id: "Mira & friends", section } as const;
+			expect(parseCharacterRoute(characterRoutePath(route))).toEqual(route);
+		}
+		expect(parseCharacterRoute("/characters/abc")).toEqual({ screen: "detail", id: "abc" });
 	});
 
 	it("falls back to the list for malformed detail route URI components", () => {

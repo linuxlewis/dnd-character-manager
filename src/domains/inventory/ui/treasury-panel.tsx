@@ -1,5 +1,5 @@
 import { Alert, Button, Paper, Stack, Text } from "@mantine/core";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TreasuryAddModal } from "./treasury-add-modal.js";
 import { TreasuryDisplay } from "./treasury-display.js";
 import { getTreasuryErrorMessage } from "./treasury-format.js";
@@ -62,6 +62,7 @@ export function TreasuryPanel({
 	add,
 	spend,
 }: TreasuryPanelProps) {
+	const dialogTrigger = useRef<HTMLButtonElement | null>(null);
 	const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
 	const [dialogVersion, setDialogVersion] = useState(0);
 	const treasury = query.data;
@@ -70,7 +71,8 @@ export function TreasuryPanel({
 	const allActionsDisabled =
 		actionsDisabled || reconciliationBlocked || indeterminateOutcome !== null;
 
-	function openDialog(dialog: Exclude<ActiveDialog, null>) {
+	function openDialog(dialog: Exclude<ActiveDialog, null>, trigger: HTMLButtonElement) {
+		dialogTrigger.current = trigger;
 		if (dialog === "add") add.onReset();
 		if (dialog === "spend") spend.onReset();
 		setDialogVersion((version) => version + 1);
@@ -81,72 +83,79 @@ export function TreasuryPanel({
 		if (activeDialog === "add" && (add.mutationPending || add.reconciliationError)) return;
 		if (activeDialog === "spend" && (spend.mutationPending || spend.reconciliationError)) return;
 		setActiveDialog(null);
+		requestAnimationFrame(() => dialogTrigger.current?.focus());
 	}
 
 	function completeDialog() {
 		setActiveDialog(null);
+		requestAnimationFrame(() => dialogTrigger.current?.focus());
 	}
 
 	return (
-		<Stack gap="md">
-			{query.isLoading && (
-				<Paper withBorder p="sm">
-					<Text c="dimmed">Loading {scopeLabel.toLowerCase()}...</Text>
-				</Paper>
-			)}
-			{query.error && (
-				<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
-					{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
-				</Alert>
-			)}
-			{indeterminateOutcome && (
-				<Alert color="orange" title="Treasury confirmation could not be verified" variant="light">
-					<Stack align="flex-start" gap="sm">
-						<Text size="sm">{indeterminateOutcome.message}</Text>
-						<Button onClick={indeterminateOutcome.onAcknowledge} size="sm" type="button">
-							I reviewed the balance
-						</Button>
-					</Stack>
-				</Alert>
-			)}
-			{treasury && (
-				<TreasuryDisplay
+		<>
+			<Stack gap="md">
+				{query.isLoading && (
+					<Paper withBorder p="sm">
+						<Text c="dimmed">Loading {scopeLabel.toLowerCase()}...</Text>
+					</Paper>
+				)}
+				{query.error && (
+					<Alert color="red" title={`${scopeLabel} unavailable`} variant="light">
+						{getTreasuryErrorMessage(query.error, "Refresh the page to try again.")}
+					</Alert>
+				)}
+				{indeterminateOutcome && (
+					<Alert color="orange" title="Treasury confirmation could not be verified" variant="light">
+						<Stack align="flex-start" gap="sm">
+							<Text size="sm">{indeterminateOutcome.message}</Text>
+							<Button onClick={indeterminateOutcome.onAcknowledge} size="sm" type="button">
+								I reviewed the balance
+							</Button>
+						</Stack>
+					</Alert>
+				)}
+				{treasury && (
+					<TreasuryDisplay
+						actionsDisabled={allActionsDisabled}
+						onAddFunds={(event) => openDialog("add", event.currentTarget)}
+						onSpendFunds={(event) => openDialog("spend", event.currentTarget)}
+						scopeLabel={scopeLabel}
+						treasury={treasury}
+					/>
+				)}
+			</Stack>
+			{activeDialog === "add" && (
+				<TreasuryAddModal
+					key={`add-${dialogVersion}`}
+					mutationPending={add.mutationPending}
 					actionsDisabled={allActionsDisabled}
-					onAddFunds={() => openDialog("add")}
-					onSpendFunds={() => openDialog("spend")}
-					scopeLabel={scopeLabel}
+					mutationError={add.mutationError}
 					treasury={treasury}
+					onRetryReconciliation={add.onRetryReconciliation}
+					onClose={closeDialog}
+					onSubmit={(request, preview) => add.onConfirm(request, preview, completeDialog)}
+					opened={activeDialog === "add"}
+					reconciliationError={add.reconciliationError}
+					reconciliationPending={add.reconciliationPending}
+					stalePreviewError={add.stalePreviewError}
 				/>
 			)}
-
-			<TreasuryAddModal
-				key={`add-${dialogVersion}`}
-				mutationPending={add.mutationPending}
-				actionsDisabled={allActionsDisabled}
-				mutationError={add.mutationError}
-				treasury={treasury}
-				onRetryReconciliation={add.onRetryReconciliation}
-				onClose={closeDialog}
-				onSubmit={(request, preview) => add.onConfirm(request, preview, completeDialog)}
-				opened={activeDialog === "add"}
-				reconciliationError={add.reconciliationError}
-				reconciliationPending={add.reconciliationPending}
-				stalePreviewError={add.stalePreviewError}
-			/>
-			<TreasurySpendModal
-				key={`spend-${dialogVersion}`}
-				mutationPending={spend.mutationPending}
-				actionsDisabled={allActionsDisabled}
-				mutationError={spend.mutationError}
-				treasury={treasury}
-				onRetryReconciliation={spend.onRetryReconciliation}
-				onClose={closeDialog}
-				onSubmit={(request, preview) => spend.onConfirm(request, preview, completeDialog)}
-				opened={activeDialog === "spend"}
-				reconciliationError={spend.reconciliationError}
-				reconciliationPending={spend.reconciliationPending}
-				stalePreviewError={spend.stalePreviewError}
-			/>
-		</Stack>
+			{activeDialog === "spend" && (
+				<TreasurySpendModal
+					key={`spend-${dialogVersion}`}
+					mutationPending={spend.mutationPending}
+					actionsDisabled={allActionsDisabled}
+					mutationError={spend.mutationError}
+					treasury={treasury}
+					onRetryReconciliation={spend.onRetryReconciliation}
+					onClose={closeDialog}
+					onSubmit={(request, preview) => spend.onConfirm(request, preview, completeDialog)}
+					opened={activeDialog === "spend"}
+					reconciliationError={spend.reconciliationError}
+					reconciliationPending={spend.reconciliationPending}
+					stalePreviewError={spend.stalePreviewError}
+				/>
+			)}
+		</>
 	);
 }

@@ -1,6 +1,5 @@
 import {
 	Alert,
-	Badge,
 	Button,
 	Group,
 	Loader,
@@ -12,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useDeferredValue, useState } from "react";
+import { type MouseEvent, useDeferredValue, useRef, useState } from "react";
 import {
 	apiMutations,
 	apiQueries,
@@ -25,15 +24,28 @@ import { invalidateCharacterHistory } from "./activity-cache.js";
 import { characterItemsQueryPrefix, reconcileItem } from "./inventory-cache.js";
 import { InventoryCountsAlert } from "./inventory-counts-alert.js";
 import { getInventoryErrorMessage, toInventoryError } from "./inventory-errors.js";
-import { type InventoryFilter, InventoryFilterBar } from "./inventory-filter-bar.js";
+import { InventoryFilterBar, type InventoryViewState } from "./inventory-filter-bar.js";
 import { ItemCard } from "./item-card.js";
 import { ItemDetailDrawer } from "./item-detail-drawer.js";
 import { ItemForm } from "./item-form.js";
-
-export function CharacterInventory({ characterId }: { characterId: string }) {
+export function CharacterInventory({
+	characterId,
+	viewState,
+	onViewStateChange,
+}: {
+	characterId: string;
+	viewState?: InventoryViewState;
+	onViewStateChange?: (state: InventoryViewState) => void;
+}) {
 	const queryClient = useQueryClient();
-	const [searchInput, setSearchInput] = useState("");
-	const [activeType, setActiveType] = useState<InventoryFilter>("all");
+	const formTrigger = useRef<HTMLButtonElement | null>(null);
+	const [localView, setLocalView] = useState<InventoryViewState>({
+		searchInput: "",
+		activeType: "all",
+	});
+	const { searchInput, activeType } = viewState ?? localView;
+	const updateView = onViewStateChange ?? setLocalView;
+	const setSearchInput = (searchInput: string) => updateView({ searchInput, activeType });
 	const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 	const [formItem, setFormItem] = useState<InventoryItem | undefined>();
 	const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -47,7 +59,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		type: activeType === "all" ? undefined : activeType,
 	};
 	const countFilter = { search: search || undefined };
-
 	const inventoryQuery = useQuery({
 		...apiQueries.listCharacterItems({ characterId }, activeFilter),
 		retry: false,
@@ -74,7 +85,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 	const items = inventoryQuery.data?.items ?? [];
 	const countItems = countsQuery.error ? null : (countsQuery.data?.items ?? null);
 	const totalCount = countsQuery.error ? null : (countsQuery.data?.total ?? null);
-
 	const createMutation = useMutation({
 		...apiMutations.createCharacterItem(),
 		onError: (error) => setMutationError(toInventoryError(error)),
@@ -133,15 +143,14 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		equipMutation.isPending ||
 		unequipMutation.isPending ||
 		deleteMutation.isPending;
-
-	function openCreateForm() {
+	function openCreateForm(event: MouseEvent<HTMLButtonElement>) {
+		formTrigger.current = event.currentTarget;
 		setMutationError(null);
 		setFormItem(undefined);
 		setFormMode("create");
 		setFormVersion((version) => version + 1);
 		setFormOpen(true);
 	}
-
 	function openEditForm() {
 		if (!detailItem) return;
 		setMutationError(null);
@@ -151,7 +160,6 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 		setSelectedItem(null);
 		setFormOpen(true);
 	}
-
 	function submitForm(request: CreateCharacterItemRequest | UpdateCharacterItemRequest) {
 		if (formMode === "create") {
 			createMutation.mutate({
@@ -167,64 +175,41 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 			});
 		}
 	}
-
 	function performEquip() {
 		if (!detailItem) return;
 		equipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performUnequip() {
 		if (!detailItem) return;
 		unequipMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	function performDelete() {
 		if (!detailItem) return;
 		deleteMutation.mutate({ characterId, itemId: detailItem.id });
 	}
-
 	return (
-		<Paper data-testid="personal-inventory" p={{ base: "md", sm: "lg" }} withBorder>
+		<Paper className="inventory-items" data-testid="personal-inventory" p={0}>
 			<Stack gap="md">
-				<Group align="flex-start" justify="space-between" wrap="wrap">
-					<Stack gap={2}>
-						<Group gap="xs">
-							<Text fw={700} size="lg">
-								Personal inventory
-							</Text>
-							<Badge color="candle" variant="light">
-								{totalCount === null ? "Item count unavailable" : `${totalCount} items`}
-							</Badge>
-						</Group>
-						<Text c="dimmed" size="sm">
-							Your character's carried gear, equipment, and magical finds.
-						</Text>
-					</Stack>
-					<Button onClick={openCreateForm}>Add item</Button>
-				</Group>
-
-				<Group align="flex-end" gap="sm" grow wrap="wrap">
+				<Group align="flex-end" gap="sm" wrap="wrap">
 					<TextInput
+						className="inventory-search"
 						aria-label="Search personal inventory"
 						label="Search items"
 						placeholder="Search by item name"
 						value={searchInput}
 						onChange={(event) => setSearchInput(event.currentTarget.value)}
 					/>
-					<Text c="dimmed" size="sm" pb={8}>
-						{inventoryQuery.data ? `${inventoryQuery.data.total} matching` : ""}
-					</Text>
+					<Button className="workspace-primary-action" c="black" mih={44} onClick={openCreateForm}>
+						Add item
+					</Button>
 				</Group>
-
 				{countsQuery.error && <InventoryCountsAlert onRetry={() => void countsQuery.refetch()} />}
-
 				<InventoryFilterBar
 					activeType={activeType}
 					countItems={countItems}
-					onChange={setActiveType}
+					onChange={(activeType) => updateView({ searchInput, activeType })}
 					totalCount={totalCount}
 				/>
-
 				{inventoryQuery.isLoading && (
 					<Group justify="center" py="xl">
 						<Loader size="sm" />
@@ -261,19 +246,27 @@ export function CharacterInventory({ characterId }: { characterId: string }) {
 				{!inventoryQuery.isLoading && !inventoryQuery.error && items.length > 0 && (
 					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
 						{items.map((item) => (
-							<ItemCard item={item} key={item.id} onClick={() => setSelectedItem(item)} />
+							<ItemCard
+								item={item}
+								key={item.id}
+								onClick={(event) => {
+									formTrigger.current = event.currentTarget;
+									setSelectedItem(item);
+								}}
+							/>
 						))}
 					</SimpleGrid>
 				)}
-
 				{mutationError && !formOpen && (
 					<Alert color="red" title="Inventory action failed" variant="light">
 						{mutationError.message}
 					</Alert>
 				)}
 			</Stack>
-
 			<ItemForm
+				onAfterClose={() => {
+					if (!selectedItem) formTrigger.current?.focus();
+				}}
 				error={mutationError}
 				initialItem={formItem}
 				key={`${formMode}-${formVersion}-${formItem?.id ?? "new"}`}

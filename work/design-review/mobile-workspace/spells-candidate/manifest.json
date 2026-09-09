@@ -1,0 +1,66 @@
+{
+	"capturedSourceCommit": "277e4b7",
+	"rebasedEquivalentSourceCommit": "9bacbcabfa7d13fed24f1b0a2236017f815c71f4",
+	"ancestor": "28e23eb",
+	"captureCommand": "pnpm test:e2e",
+	"result": "31 passed (42.9s)",
+	"fixture": {
+		"name": "Mira Thorn",
+		"class": "Wizard",
+		"level": 3,
+		"xp": 2196,
+		"currentHp": 18,
+		"maxHp": 24,
+		"temporaryHp": 3,
+		"effectiveMaxHp": 27,
+		"slots": {
+			"1": {
+				"remaining": 3,
+				"total": 4
+			},
+			"2": {
+				"remaining": 2,
+				"total": 2
+			}
+		},
+		"spells": ["Light", "Divine Smite"],
+		"notes": "Deterministic catalogue variant of F1. Two identical health writes yield authoritative current HP 18 with temporary HP 3; response asserted."
+	},
+	"routes": ["/characters/:id/spells"],
+	"viewports": [
+		{
+			"width": 320,
+			"height": 740
+		},
+		{
+			"width": 390,
+			"height": 844
+		},
+		{
+			"width": 1280,
+			"height": 900
+		}
+	],
+	"screenshots": [
+		"spells-1280-configuration-bottom.png",
+		"spells-1280-configuration-top.png",
+		"spells-1280-populated.png",
+		"spells-320-configuration-bottom.png",
+		"spells-320-configuration-top.png",
+		"spells-320-populated.png",
+		"spells-390-configuration-bottom.png",
+		"spells-390-configuration-error.png",
+		"spells-390-configuration-top.png",
+		"spells-390-populated.png"
+	],
+	"review": {
+		"accepted": "Root inspected populated mobile and desktop/configuration top/bottom. Full Restore label, first saved spell and first usable numbered group visible at390; last field clears persistent footer at320.",
+		"pending": "Configuration failure screenshot clips recovery description; final QA must verify complete alert reachability and capture bounds/hit testing. These images are candidate evidence, not final approved baselines."
+	},
+	"validation": {
+		"unit": "599 passed at pre-CSS source; final integrated gate owned by QA",
+		"integration": "68 passed at pre-CSS source; final integrated gate owned by QA",
+		"e2e": "31 passed at277e4b7, including draft retention after failed PUT and successful retry",
+		"log": "/tmp/mobile-spells-e2e3.log"
+	}
+}

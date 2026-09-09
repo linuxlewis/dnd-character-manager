@@ -1,0 +1,5 @@
+
+> dnd-character-manager@ check:docs /home/sbolgert/workspace/dnd-mobile-ux-qa
+> tsx scripts/check-doc-freshness.ts
+
+Checked 28 Markdown files. Local links are valid.
