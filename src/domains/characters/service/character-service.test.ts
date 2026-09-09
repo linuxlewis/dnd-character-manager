@@ -1,168 +1,51 @@
-import { describe, expect, it, vi } from "vitest";
+import { expect, it, vi } from "vitest";
 import type { CharacterRepository } from "../repo/index.js";
 import { CharacterNotFoundError } from "./character-errors.js";
 import { createCharacterService } from "./character-service.js";
 
-describe("createCharacterService", () => {
-	it("delegates anonymous character transfer for linked accounts", async () => {
-		const repository = {
-			transferCharactersToUser: vi.fn(async () => 2),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).transferCharactersToUser("anonymous-user", "linked-user"),
-		).resolves.toBe(2);
-
-		expect(repository.transferCharactersToUser).toHaveBeenCalledWith(
-			"anonymous-user",
-			"linked-user",
-		);
-	});
-
-	it("skips transfer when the anonymous and linked account ids match", async () => {
-		const repository = {
-			transferCharactersToUser: vi.fn(async () => 1),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).transferCharactersToUser("same-user", "same-user"),
-		).resolves.toBe(0);
-
-		expect(repository.transferCharactersToUser).not.toHaveBeenCalled();
-	});
-
-	it("updates a character level through the repository", async () => {
-		const repository = {
-			updateCharacterLevel: vi.fn(async () => ({
-				id: "00000000-0000-4000-8000-000000000001",
-				name: "Mira",
-				className: "Fighter",
-				level: 8,
-				health: {
-					currentHp: 18,
-					maxHp: 18,
-					temporaryHp: 0,
-					effectiveMaxHp: 18,
-				},
-				recentHealthChanges: [],
-			})),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterLevel("user-1", "character-1", {
-				level: 8,
-			}),
-		).resolves.toMatchObject({ level: 8 });
-
-		expect(repository.updateCharacterLevel).toHaveBeenCalledWith("user-1", "character-1", 8);
-	});
-
-	it("trims and updates a character name through the repository", async () => {
-		const repository = {
-			updateCharacterName: vi.fn(async (_userId, _characterId, name) => ({
-				id: "00000000-0000-4000-8000-000000000001",
-				name,
-				className: "Fighter",
-				level: 8,
-				health: {
-					currentHp: 18,
-					maxHp: 18,
-					temporaryHp: 0,
-					effectiveMaxHp: 18,
-				},
-				recentHealthChanges: [],
-			})),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterName("user-1", "character-1", {
-				name: " Mira Dawn ",
-			}),
-		).resolves.toMatchObject({ name: "Mira Dawn" });
-
-		expect(repository.updateCharacterName).toHaveBeenCalledWith(
-			"user-1",
-			"character-1",
-			"Mira Dawn",
-		);
-	});
-
-	it("updates character experience through the repository", async () => {
-		const repository = {
-			updateCharacterExperience: vi.fn(async (_userId, _characterId, experiencePoints) => ({
-				id: "00000000-0000-4000-8000-000000000001",
-				name: "Mira",
-				className: "Fighter",
-				level: 7,
-				experiencePoints,
-				experience: {
-					level: 7,
-					experiencePoints,
-					currentLevelMinimum: 23_000,
-					nextLevel: 8,
-					nextLevelMinimum: 34_000,
-					experienceIntoLevel: 4_000,
-					experienceForNextLevel: 11_000,
-					experienceRemaining: 7_000,
-					progressPercent: 36,
-					isMaxLevel: false,
-				},
-				health: {
-					currentHp: 18,
-					maxHp: 18,
-					temporaryHp: 0,
-					effectiveMaxHp: 18,
-				},
-				recentHealthChanges: [],
-			})),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterExperience("user-1", "character-1", {
-				experiencePoints: 27_000,
-			}),
-		).resolves.toMatchObject({ experiencePoints: 27_000 });
-
-		expect(repository.updateCharacterExperience).toHaveBeenCalledWith(
-			"user-1",
-			"character-1",
-			27_000,
-		);
-	});
-
-	it("throws not found when a character level cannot be updated", async () => {
-		const repository = {
-			updateCharacterLevel: vi.fn(async () => null),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterLevel("user-1", "missing", {
-				level: 8,
-			}),
-		).rejects.toThrow(CharacterNotFoundError);
-	});
-
-	it("throws not found when character experience cannot be updated", async () => {
-		const repository = {
-			updateCharacterExperience: vi.fn(async () => null),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterExperience("user-1", "missing", {
-				experiencePoints: 27_000,
-			}),
-		).rejects.toThrow(CharacterNotFoundError);
-	});
-
-	it("throws not found when a character name cannot be updated", async () => {
-		const repository = {
-			updateCharacterName: vi.fn(async () => null),
-		} as unknown as CharacterRepository;
-
-		await expect(
-			createCharacterService(repository).updateCharacterName("user-1", "missing", {
-				name: "Mira Dawn",
-			}),
-		).rejects.toThrow(CharacterNotFoundError);
-	});
+function repository() {
+	return {
+		listCharacters: vi.fn(async () => []),
+		transferCharactersToUser: vi.fn(async () => 2),
+		updateCharacterLevel: vi.fn(async () => "id" as string | null),
+		updateCharacterName: vi.fn(async () => "id" as string | null),
+		updateCharacterExperience: vi.fn(async () => "id" as string | null),
+	} satisfies CharacterRepository;
+}
+it("delegates transfer and skips same-owner transfers", async () => {
+	const repo = repository();
+	const service = createCharacterService(repo);
+	expect(await service.transferCharactersToUser("a", "b")).toBe(2);
+	expect(repo.transferCharactersToUser).toHaveBeenCalledWith("a", "b");
+	repo.transferCharactersToUser.mockClear();
+	expect(await service.transferCharactersToUser("a", "a")).toBe(0);
+	expect(repo.transferCharactersToUser).not.toHaveBeenCalled();
+});
+it("returns narrow identity mutation results and trims names", async () => {
+	const repo = repository();
+	const service = createCharacterService(repo);
+	expect(await service.updateCharacterName("owner", "id", { name: " Mira Dawn " })).toBe("id");
+	expect(repo.updateCharacterName).toHaveBeenCalledWith("owner", "id", "Mira Dawn");
+	expect(await service.updateCharacterLevel("owner", "id", { level: 8 })).toBe("id");
+	expect(repo.updateCharacterLevel).toHaveBeenCalledWith("owner", "id", 8);
+	expect(await service.updateCharacterExperience("owner", "id", { experiencePoints: 27000 })).toBe(
+		"id",
+	);
+	expect(repo.updateCharacterExperience).toHaveBeenCalledWith("owner", "id", 27000);
+});
+it("maps all denied mutations to character not found", async () => {
+	const repo = repository();
+	const service = createCharacterService(repo);
+	repo.updateCharacterName.mockResolvedValue(null);
+	repo.updateCharacterLevel.mockResolvedValue(null);
+	repo.updateCharacterExperience.mockResolvedValue(null);
+	await expect(service.updateCharacterName("owner", "id", { name: "Mira" })).rejects.toThrow(
+		CharacterNotFoundError,
+	);
+	await expect(service.updateCharacterLevel("owner", "id", { level: 8 })).rejects.toThrow(
+		CharacterNotFoundError,
+	);
+	await expect(
+		service.updateCharacterExperience("owner", "id", { experiencePoints: 27000 }),
+	).rejects.toThrow(CharacterNotFoundError);
 });

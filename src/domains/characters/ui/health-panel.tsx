@@ -4,7 +4,8 @@ import { History } from "lucide-react";
 import { useRef, useState } from "react";
 import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
 import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
-import type { CharacterHealth, HealthChangeResponse } from "../types/index.js";
+
+import type { CharacterHealth, HealthChangeResponse } from "../../health/types/index.js";
 import { HealthAmountModal, HealthEditModal, type NumberDraft } from "./health-dialogs.js";
 import { formatHealthChange } from "./health-display.js";
 

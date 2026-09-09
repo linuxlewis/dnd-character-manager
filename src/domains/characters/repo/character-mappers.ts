@@ -1,21 +1,14 @@
 import { z } from "zod";
-import { getCharacterExperienceProgress } from "../config/index.js";
 import type {
-	CharacterDetail,
-	CharacterHealth,
 	CharacterSpell,
 	CharacterSpellSlot,
 	CharacterSummary,
-	HealthChangeResponse,
 	SpellSlotChangeResponse,
 } from "../types/index.js";
 import {
-	CharacterDetailSchema,
-	CharacterHealthSchema,
 	CharacterSpellSchema,
 	CharacterSpellSlotSchema,
 	CharacterSummarySchema,
-	HealthChangeResponseSchema,
 	SpellSlotActionSchema,
 	SpellSlotChangeResponseSchema,
 } from "../types/index.js";
@@ -25,30 +18,6 @@ const CharacterSummaryRowSchema = z.object({
 	name: z.string(),
 	className: z.string(),
 	level: z.number().int(),
-});
-
-const CharacterDetailRowSchema = CharacterSummaryRowSchema.extend({
-	experiencePoints: z.number().int(),
-});
-
-const HealthRowSchema = z.object({
-	currentHp: z.number().int(),
-	maxHp: z.number().int(),
-	temporaryHp: z.number().int(),
-});
-
-const HealthChangeRowSchema = z.object({
-	id: z.string().uuid(),
-	previousCurrentHp: z.number().int(),
-	nextCurrentHp: z.number().int(),
-	previousMaxHp: z.number().int(),
-	nextMaxHp: z.number().int(),
-	previousTemporaryHp: z.number().int(),
-	nextTemporaryHp: z.number().int(),
-	currentHpDelta: z.number().int(),
-	maxHpDelta: z.number().int(),
-	temporaryHpDelta: z.number().int(),
-	createdAt: z.union([z.date(), z.string()]),
 });
 
 const SpellSlotRowSchema = z.object({
@@ -82,54 +51,6 @@ const CharacterSpellRowSchema = z.object({
 
 export function toCharacterSummary(row: unknown): CharacterSummary {
 	return CharacterSummarySchema.parse(CharacterSummaryRowSchema.parse(row));
-}
-
-export function toCharacterDetail(
-	row: unknown,
-	recentHealthChanges: HealthChangeResponse[],
-): CharacterDetail {
-	const character = CharacterDetailRowSchema.merge(HealthRowSchema).parse(row);
-	return CharacterDetailSchema.parse({
-		id: character.id,
-		name: character.name,
-		className: character.className,
-		level: character.level,
-		experiencePoints: character.experiencePoints,
-		experience: getCharacterExperienceProgress(character.level, character.experiencePoints),
-		health: toCharacterHealth(character),
-		recentHealthChanges,
-	});
-}
-
-export function toCharacterHealth(row: unknown): CharacterHealth {
-	const health = HealthRowSchema.parse(row);
-	return CharacterHealthSchema.parse({
-		...health,
-		effectiveMaxHp: health.maxHp + health.temporaryHp,
-	});
-}
-
-export function toHealthChange(row: unknown): HealthChangeResponse {
-	const change = HealthChangeRowSchema.parse(row);
-	return HealthChangeResponseSchema.parse({
-		id: change.id,
-		previous: {
-			currentHp: change.previousCurrentHp,
-			maxHp: change.previousMaxHp,
-			temporaryHp: change.previousTemporaryHp,
-			effectiveMaxHp: change.previousMaxHp + change.previousTemporaryHp,
-		},
-		next: {
-			currentHp: change.nextCurrentHp,
-			maxHp: change.nextMaxHp,
-			temporaryHp: change.nextTemporaryHp,
-			effectiveMaxHp: change.nextMaxHp + change.nextTemporaryHp,
-		},
-		currentHpDelta: change.currentHpDelta,
-		maxHpDelta: change.maxHpDelta,
-		temporaryHpDelta: change.temporaryHpDelta,
-		createdAt: toIsoString(change.createdAt),
-	});
 }
 
 export function toSpellSlotState(row: unknown): CharacterSpellSlot {

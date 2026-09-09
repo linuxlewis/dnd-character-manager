@@ -5,11 +5,6 @@ describe("characterRouteContracts", () => {
 	it("declares stable operation ids and generated client names", () => {
 		expect(characterRouteContracts.map((route) => route.operationId)).toEqual([
 			"listCharacters",
-			"getCharacter",
-			"updateCharacterLevel",
-			"updateCharacterName",
-			"updateCharacterExperience",
-			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
 			"useCharacterSpellSlot",
@@ -23,11 +18,6 @@ describe("characterRouteContracts", () => {
 		]);
 		expect(characterRouteContracts.map((route) => route.client?.functionName)).toEqual([
 			"listCharacters",
-			"getCharacter",
-			"updateCharacterLevel",
-			"updateCharacterName",
-			"updateCharacterExperience",
-			"updateCharacterHealth",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
 			"useCharacterSpellSlot",
@@ -44,7 +34,7 @@ describe("characterRouteContracts", () => {
 	it("uses path params for character detail and update routes", () => {
 		const routeWithParams = characterRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(15);
+		expect(routeWithParams).toHaveLength(10);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

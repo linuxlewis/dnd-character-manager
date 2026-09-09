@@ -2,8 +2,10 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, expect, it } from "vitest";
-import { characterHealthTable, charactersTable } from "../../../domains/characters/schema/index.js";
-import { initializeCharacterHealth } from "../../../domains/characters/service/index.js";
+import { charactersTable } from "../../../domains/characters/schema/index.js";
+import { characterHealthTable } from "../../../domains/health/schema/index.js";
+
+import { initializeCharacterHealth } from "../../../domains/health/service/index.js";
 import { createCharacter } from "./create-character.js";
 
 const userIds: string[] = [];

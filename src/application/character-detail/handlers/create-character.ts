@@ -1,7 +1,8 @@
 import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { CreateCharacterRequestSchema } from "../../../domains/characters/types/index.js";
+
+import { CreateCharacterRequestSchema } from "../types/index.js";
 import { createCharacter } from "../workflows/create-character.js";
 
 export async function registerCharacterCreationRoute(

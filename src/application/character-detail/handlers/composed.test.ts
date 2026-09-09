@@ -1,15 +1,16 @@
 import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
+import { registerCharacterRoutes } from "../../../domains/characters/runtime/routes.js";
 import {
-	type CharacterHealthService,
 	CharacterNotFoundError,
-	type CharacterService,
 	type CharacterSpellService,
 	type CharacterSpellSlotService,
 	SpellSlotDefaultsUnavailableError,
 	SpellSlotUnavailableError,
-} from "../service/index.js";
-import { registerCharacterRoutes } from "./routes.js";
+} from "../../../domains/characters/service/index.js";
+import { registerHealthRoutes } from "../../../domains/health/runtime/index.js";
+import type { CharacterHealthService } from "../../../domains/health/service/index.js";
+import { registerCharacterDetailRoutes } from "./detail.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
 const character = {
@@ -198,7 +199,6 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
 	await registerCharacterRoutes(app, {
 		characterService: services.characterService,
-		characterHealthService: services.characterHealthService,
 		characterSpellService: services.characterSpellService,
 		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({
@@ -209,6 +209,15 @@ async function buildApp(services: ReturnType<typeof fakeServices>) {
 			},
 		}),
 	});
+	await registerCharacterDetailRoutes(app, {
+		characterService: services.characterService,
+		getCurrentUser: async () => ({ user: { id: userId, isAnonymous: true, name: "Anonymous" } }),
+	});
+	await registerHealthRoutes(app, {
+		characterHealthService: services.characterHealthService,
+		getCurrentUser: async () => ({ user: { id: userId, isAnonymous: true, name: "Anonymous" } }),
+	});
+
 	return app;
 }
 
@@ -229,7 +238,7 @@ function fakeService() {
 		updateCharacterExperience: vi.fn(),
 		updateCharacterLevel: vi.fn(),
 		updateCharacterName: vi.fn(),
-	} satisfies CharacterService;
+	};
 }
 const fakeHealthService = () =>
 	({ updateCharacterHealth: vi.fn() }) satisfies CharacterHealthService;

@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import { expect, it, vi } from "vitest";
-import type { CharacterDetail } from "../../../domains/characters/types/index.js";
+
+import type { CharacterDetail } from "../types/index.js";
 import { registerCharacterCreationRoute } from "./create-character.js";
 
 it("returns the creation result and associates the current session owner", async () => {

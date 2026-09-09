@@ -1,8 +1,7 @@
 import { Group, Progress, Stack, Text, Title } from "@mantine/core";
-import type { CharacterDetailResponse } from "../../../generated/api-client.generated.js";
 import type { CharacterExperienceProgress } from "../types/index.js";
 
-type CharacterDetailData = CharacterDetailResponse["character"];
+type CharacterDetailData = { experiencePoints: number; experience: CharacterExperienceProgress };
 
 export function experienceLabel(experience: CharacterExperienceProgress) {
 	if (experience.isMaxLevel) return "Max level";

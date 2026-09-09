@@ -1,10 +1,9 @@
 import { getDb } from "@providers/database/index.js";
-import {
-	createCharacterService,
-	initializeCharacterHealth,
-	initializeCharacterIdentity,
-} from "../../../domains/characters/service/index.js";
-import type { CreateCharacterRequest } from "../../../domains/characters/types/index.js";
+import { initializeCharacterIdentity } from "../../../domains/characters/service/index.js";
+import { initializeCharacterHealth } from "../../../domains/health/service/index.js";
+import { getCharacter } from "../query.js";
+
+import type { CreateCharacterRequest } from "../types/index.js";
 
 export async function createCharacter(
 	input: CreateCharacterRequest & { userId: string },
@@ -15,5 +14,5 @@ export async function createCharacter(
 		await initializeHealth(id, input.maxHp, transaction);
 		return id;
 	});
-	return createCharacterService().getCharacter(input.userId, characterId);
+	return getCharacter(input.userId, characterId);
 }

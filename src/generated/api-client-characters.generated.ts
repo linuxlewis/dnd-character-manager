@@ -2,24 +2,28 @@
 
 import type {
 	CharacterDetailResponse,
-	CharacterSpellSlotsResponse,
 	CreateCharacterRequest,
+} from "../application/character-detail/types/index.js";
+import { CharacterDetailResponseSchema } from "../application/character-detail/types/index.js";
+import type {
+	CharacterSpellSlotsResponse,
 	ListCharactersResponse,
 	RestoreCharacterSpellSlotRequest,
 	UpdateCharacterExperienceRequest,
-	UpdateCharacterHealthRequest,
-	UpdateCharacterHealthResponse,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
 	UpdateCharacterSpellSlotsRequest,
 	UseCharacterSpellSlotRequest,
 } from "../domains/characters/types/index.js";
 import {
-	CharacterDetailResponseSchema,
 	CharacterSpellSlotsResponseSchema,
 	ListCharactersResponseSchema,
-	UpdateCharacterHealthResponseSchema,
 } from "../domains/characters/types/index.js";
+import type {
+	UpdateCharacterHealthRequest,
+	UpdateCharacterHealthResponse,
+} from "../domains/health/types/index.js";
+import { UpdateCharacterHealthResponseSchema } from "../domains/health/types/index.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
 
 export function createCharactersApiClient(runtime: ApiClientRuntime) {
@@ -34,16 +38,6 @@ export function createCharactersApiClient(runtime: ApiClientRuntime) {
 				options,
 				body,
 				(body: unknown) => CharacterDetailResponseSchema.parse(body),
-			);
-		},
-
-		listCharacters(options: ApiRequestOptions = {}): Promise<ListCharactersResponse> {
-			return runtime.request<ListCharactersResponse>(
-				"GET",
-				"/api/characters",
-				options,
-				undefined,
-				(body: unknown) => ListCharactersResponseSchema.parse(body),
 			);
 		},
 
@@ -113,6 +107,16 @@ export function createCharactersApiClient(runtime: ApiClientRuntime) {
 				options,
 				body,
 				(body: unknown) => UpdateCharacterHealthResponseSchema.parse(body),
+			);
+		},
+
+		listCharacters(options: ApiRequestOptions = {}): Promise<ListCharactersResponse> {
+			return runtime.request<ListCharactersResponse>(
+				"GET",
+				"/api/characters",
+				options,
+				undefined,
+				(body: unknown) => ListCharactersResponseSchema.parse(body),
 			);
 		},
 
