@@ -1,6 +1,6 @@
 # Feature Implementation Process
 
-Last verified: 2026-06-02
+Architecture guidance updated: 2026-09-07 (target rollout described in architecture.md)
 
 Use this process when adding or changing application behavior. Keep changes small, preserve the layered architecture, and let tests follow the testing pyramid.
 
@@ -15,29 +15,34 @@ Use this process when adding or changing application behavior. Keep changes smal
 
 ## 2. Design The Change By Layer
 
-Domain dependencies flow forward:
+Use the dependency matrix in [architecture.md](./architecture.md). Choose the functionality
+owner before choosing folders: identity, health, spellcasting, and inventory are distinct.
 
-```text
-Types -> Config -> Repo -> Service -> Runtime -> UI
-```
+1. `types/`: define client-safe Zod value contracts and inferred types.
+2. `config/`: pure calculations/defaults over those types; isolate server environment config.
+3. `schema/`: define owned Drizzle tables and relationships; publish a narrow schema entrypoint.
+4. `repo/`: read/write owned data and parse external rows. Use the character access boundary
+   for transaction-bound ownership checks, not aggregate detail loading.
+5. `service/`: implement domain rules; publish only deliberate cross-domain operations.
+6. `runtime/`: expose feature routes/contracts. Combined responses and multi-domain creation
+   belong in `application/<use-case>/`, with client-safe contracts separated from server queries.
+7. `ui/`: implement feature workflows; assemble pages and combined cache coordination in the
+   application. Use generated queries, Mantine, derived state, and handlers; no `useEffect`.
 
-For a new feature, usually work in this order:
+Skip layers that do not apply. Register persistence definitions in `src/database/schema.ts`;
+put reverse cross-domain relationships in database assembly. Preserve SQL identities during
+moves. Keep each relation configuration unique and the schema dependency graph acyclic.
 
-1. `types/`: add or update Zod schemas, inferred types, constants, and boundary-safe value objects.
-2. `config/`: add defaults or environment parsing when behavior needs configuration.
-3. `repo/`: add database or external data access and parse returned rows before leaving the layer.
-4. `service/`: add business rules and orchestration. Keep this testable with injected dependencies.
-5. `runtime/`: add route contracts, routes, handlers, jobs, or adapters. Parse request input at the boundary.
-6. `ui/`: add React components and hooks for browser-visible behavior. Use `useState` for local interaction state and TanStack Query for server state. Use the generated API client for HTTP calls. Do not use `useEffect`.
-
-Skip layers that do not apply. Do not bypass lower layers just to make the change faster.
+Before implementing a composed mutation, identify its shared transaction, owner-row lock,
+feature locks, and rollback scenario. Public initialization services accept the caller's
+transaction and cannot begin independent transactions. No network fetches inside locked work.
 
 ## 3. Keep API Contracts Generated
 
 When a feature adds or changes HTTP behavior:
 
-1. Define request, response, and path parameter schemas in the domain `types/` layer. Response schemas must describe JSON payloads, not internal service objects.
-2. Add or update the domain route contract in `runtime/contract.ts`, including `method`, `operationId`, `path`, `responses`, and `client` metadata for browser-callable routes.
+1. Define request, response, and path parameter schemas in the owning domain `types/` layer, or application `types/` for combined contracts. Response schemas must describe JSON payloads, not internal service objects.
+2. Add or update the domain route contract in `runtime/contract.ts` (or the application contract for a combined use case), including `method`, `operationId`, `path`, `responses`, and `client` metadata for browser-callable routes.
 3. Register the contract from `src/api-contracts.ts`.
 4. Run `pnpm api:generate` to refresh `src/generated/openapi.generated.json` and all generated client modules, keeping `src/generated/api-client.generated.ts` as the compatibility barrel.
 5. Use the generated TanStack Query helpers from UI code instead of hand-written `fetch`, `queryKey`, `queryFn`, or `mutationFn` wrappers.
