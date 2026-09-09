@@ -57,6 +57,44 @@ describe("browser closures and unsupported imports", () => {
 		).toEqual([]);
 	});
 
+	it("permits the public browser navigation provider from app and domain UI", () => {
+		expect(
+			boundaryFixture({
+				"src/app/main.tsx": 'import "../providers/navigation/index.js";',
+				"src/domains/characters/ui/index.ts": 'import "../../../providers/navigation/index.js";',
+				"src/providers/navigation/index.ts": 'export * from "./browser-navigation.js";',
+				"src/providers/navigation/browser-navigation.ts":
+					'import "react"; export const pathname = () => window.location.pathname;',
+			}),
+		).toEqual([]);
+	});
+
+	it("rejects a server dependency hidden behind the allowed navigation provider", () => {
+		const findings = boundaryFixture({
+			"src/app/main.tsx": 'import "../providers/navigation/index.js";',
+			"src/providers/navigation/index.ts": 'export * from "./browser-navigation.js";',
+			"src/providers/navigation/browser-navigation.ts": 'import "node:fs";',
+		});
+		expect(
+			findings
+				.find((finding) => finding.rule === "browser-closure")
+				?.trace.map((edge) => edge.specifier),
+		).toEqual(["../providers/navigation/index.js", "./browser-navigation.js", "node:fs"]);
+	});
+
+	it("does not exempt other files in the navigation provider directory", () => {
+		const findings = boundaryFixture({
+			"src/app/main.tsx": 'import "../providers/navigation/index.js";',
+			"src/providers/navigation/index.ts": 'export * from "./other.js";',
+			"src/providers/navigation/other.ts": "export {};",
+		});
+		expect(
+			findings
+				.find((finding) => finding.rule === "browser-closure")
+				?.trace.map((edge) => edge.specifier),
+		).toEqual(["../providers/navigation/index.js", "./other.js"]);
+	});
+
 	it("rejects mixed auth barrels even for type imports", () => {
 		const findings = boundaryFixture({
 			"src/app/main.tsx": 'import type { Session } from "../providers/auth/index.js";',
