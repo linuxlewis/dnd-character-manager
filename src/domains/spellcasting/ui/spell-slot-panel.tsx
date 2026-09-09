@@ -1,30 +1,25 @@
-import { Button, Group, Stack, Text, Title } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import { Alert, Button, Group, Stack, Text, Title } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type {
 	CharacterSpellSlotsResponse,
 	CharacterSpellsResponse,
 } from "../../../generated/api-client.generated.js";
-import {
-	apiClient,
-	apiMutations,
-	apiQueries,
-	apiQueryKeys,
-} from "../../../generated/api-client.generated.js";
+import { apiMutations, apiQueries, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import type { CharacterSpellSlot } from "../types/index.js";
 import { NonSlotSpellList } from "./non-slot-spell-list.js";
 import { CharacterSpellConfiguration } from "./spell-configuration-modal.js";
 import { SpellDetailsModal } from "./spell-details-modal.js";
 import { SpellRemoveModal } from "./spell-remove-modal.js";
-import { SpellSearchModal, type SpellSearchResult } from "./spell-search-modal.js";
+import { SpellSearchModal } from "./spell-search-modal.js";
 import { SpellSlotList } from "./spell-slot-list.js";
-import { SpellSlotPanelAlerts } from "./spell-slot-panel-alerts.js";
 
-interface SpellSearchState {
-	query: string;
-	slotLevel: number;
-}
+type SpellDialog = { characterId: string } & (
+	| { kind: "configuration" }
+	| { kind: "search"; slotLevel: number }
+	| { kind: "details"; spellId: string }
+	| { kind: "remove"; spell: CharacterSpellsResponse["spells"][number] }
+);
 
 export function CharacterSpellSlotsPanel({
 	characterId,
@@ -36,48 +31,29 @@ export function CharacterSpellSlotsPanel({
 	const spellSlotsQuery = useQuery(apiQueries.getCharacterSpellSlots({ characterId }));
 	const characterSpellsQuery = useQuery(apiQueries.listCharacterSpells({ characterId }));
 	const [isEditing, setIsEditing] = useState(false);
-	const [configurationOpen, setConfigurationOpen] = useState(false);
-	const [spellSearch, setSpellSearch] = useState<SpellSearchState | null>(null);
-	const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
-	const [spellToRemove, setSpellToRemove] = useState<
-		CharacterSpellsResponse["spells"][number] | null
-	>(null);
+	const [dialog, setDialog] = useState<SpellDialog | null>(null);
+	const currentView = useRef({ characterId, dialog });
+	currentView.current = { characterId, dialog };
 	const queryClient = useQueryClient();
 	const spellSlots = spellSlotsQuery.data?.spellSlots ?? [];
 	const characterSpells = characterSpellsQuery.data?.spells ?? [];
 	const nonSlotSpells = characterSpells.filter((spell) => spell.slotLevel === 0);
-	const numberedSpells = characterSpells.filter((spell) => spell.slotLevel > 0);
-	const spellSearchInputText = spellSearch?.query.trim() ?? "";
-	const [debouncedSpellSearchInputText] = useDebouncedValue(spellSearchInputText, 300);
-	const spellSearchQueryText =
-		debouncedSpellSearchInputText === spellSearchInputText ? debouncedSpellSearchInputText : "";
-	const spellSearchQuery = useQuery({
-		enabled: spellSearch !== null && spellSearchQueryText.length > 0,
-		queryKey: ["characterSpellSearch", characterId, spellSearch?.slotLevel, spellSearchQueryText],
-		queryFn: () =>
-			apiClient.searchCharacterSpells(
-				{ characterId },
-				{ slotLevel: spellSearch?.slotLevel ?? 1, query: spellSearchQueryText },
-			),
-	});
-	const spellDetailsQuery = useQuery({
-		...apiQueries.getCharacterSpellDetails({
-			characterId,
-			spellId: selectedSpellId ?? "00000000-0000-4000-8000-000000000000",
-		}),
-		enabled: selectedSpellId !== null,
-	});
 
-	function updateCachedSpellSlots(response: CharacterSpellSlotsResponse) {
-		setIsEditing(false);
-		setConfigurationOpen(false);
-		queryClient.setQueryData(apiQueryKeys.getCharacterSpellSlots({ characterId }), response);
+	function updateCachedSpellSlots(
+		response: CharacterSpellSlotsResponse,
+		variables: { params: { characterId: string } },
+	) {
+		queryClient.setQueryData(
+			apiQueryKeys.getCharacterSpellSlots({ characterId: variables.params.characterId }),
+			response,
+		);
+		if (
+			currentView.current.characterId === variables.params.characterId &&
+			!currentView.current.dialog
+		) {
+			setIsEditing(false);
+		}
 	}
-
-	function updateCachedCharacterSpells(response: CharacterSpellsResponse) {
-		queryClient.setQueryData(apiQueryKeys.listCharacterSpells({ characterId }), response);
-	}
-
 	const expendMutation = useMutation({
 		...apiMutations.useCharacterSpellSlot(),
 		onSuccess: updateCachedSpellSlots,
@@ -86,73 +62,22 @@ export function CharacterSpellSlotsPanel({
 		...apiMutations.restoreCharacterSpellSlot(),
 		onSuccess: updateCachedSpellSlots,
 	});
-	const saveSpellMutation = useMutation({
-		...apiMutations.saveCharacterSpell(),
-		onSuccess: (response) => {
-			updateCachedCharacterSpells(response);
-			closeSpellSearch();
-		},
-	});
-	const removeSpellMutation = useMutation({
-		...apiMutations.removeCharacterSpell(),
-		onSuccess: (response) => {
-			updateCachedCharacterSpells(response);
-			setSpellToRemove(null);
-		},
-	});
+	const pending = expendMutation.isPending || restoreMutation.isPending;
 	const spellSlotsUnavailable = Boolean(
 		spellSlotsQuery.error || expendMutation.error || restoreMutation.error,
 	);
-	const spellsUnavailable = Boolean(
-		characterSpellsQuery.error ||
-			spellSearchQuery.error ||
-			spellDetailsQuery.error ||
-			removeSpellMutation.error ||
-			saveSpellMutation.error,
-	);
 
 	function expendSlot(slot: CharacterSpellSlot) {
-		expendMutation.mutate({ params: { characterId }, body: { level: slot.level } });
+		if (!pending) expendMutation.mutate({ params: { characterId }, body: { level: slot.level } });
 	}
-
 	function restoreSlot(slot: CharacterSpellSlot) {
-		restoreMutation.mutate({ params: { characterId }, body: { level: slot.level } });
+		if (!pending) restoreMutation.mutate({ params: { characterId }, body: { level: slot.level } });
 	}
-
-	function toggleEditing() {
-		setIsEditing((editing) => !editing);
-	}
-
 	function openSpellSearch(slotLevel: number) {
-		if (saveSpellMutation.isPending) return;
-		saveSpellMutation.reset();
-		const nextSearch = { slotLevel, query: "" };
-		setSpellSearch(nextSearch);
+		setDialog({ kind: "search", characterId, slotLevel });
 	}
-
-	function closeSpellSearch() {
-		setSpellSearch(null);
-	}
-
-	function closeRemoveSpellDialog() {
-		if (!removeSpellMutation.isPending) setSpellToRemove(null);
-	}
-
-	function updateSpellSearchQuery(query: string) {
-		setSpellSearch((current) => (current ? { ...current, query } : current));
-	}
-
-	function saveSpell(spell: SpellSearchResult) {
-		if (!spellSearch || saveSpellMutation.isPending) return;
-		saveSpellMutation.mutate({
-			params: { characterId },
-			body: { slotLevel: spellSearch.slotLevel, spellIndex: spell.index, source: spell.source },
-		});
-	}
-
-	function removeSpell() {
-		if (!spellToRemove || removeSpellMutation.isPending) return;
-		removeSpellMutation.mutate({ characterId, spellId: spellToRemove.id });
+	function closeDialog() {
+		setDialog((current) => (current === dialog ? null : current));
 	}
 
 	return (
@@ -161,7 +86,7 @@ export function CharacterSpellSlotsPanel({
 				<Title order={2} size={18}>
 					Spells &amp; Abilities
 				</Title>
-				<Button mih={44} variant="subtle" onClick={toggleEditing}>
+				<Button mih={44} variant="subtle" onClick={() => setIsEditing((editing) => !editing)}>
 					{isEditing ? "Done" : "Edit spells"}
 				</Button>
 			</Group>
@@ -169,86 +94,90 @@ export function CharacterSpellSlotsPanel({
 				<Button
 					mih={44}
 					variant="default"
-					onClick={() => {
-						setConfigurationOpen(true);
-					}}
+					onClick={() => setDialog({ kind: "configuration", characterId })}
 				>
 					Configure slots
 				</Button>
 			)}
-
 			{spellSlotsQuery.isLoading && <Text c="dimmed">Loading spell slots...</Text>}
-
 			<NonSlotSpellList
 				characterSpells={nonSlotSpells}
 				isEditing={isEditing}
-				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
+				onOpenSpellDetails={(spell) =>
+					setDialog({ kind: "details", characterId, spellId: spell.id })
+				}
 				onOpenSpellSearch={() => openSpellSearch(0)}
-				onRemoveSpell={(spell) => {
-					removeSpellMutation.reset();
-					setSpellToRemove(spell);
-				}}
+				onRemoveSpell={(spell) => setDialog({ kind: "remove", characterId, spell })}
 			/>
-
 			<SpellSlotList
-				pending={expendMutation.isPending || restoreMutation.isPending}
-				characterSpells={numberedSpells}
+				pending={pending}
+				characterSpells={characterSpells}
 				isEditing={isEditing}
-				onOpenSpellDetails={(spell) => setSelectedSpellId(spell.id)}
+				onOpenSpellDetails={(spell) =>
+					setDialog({ kind: "details", characterId, spellId: spell.id })
+				}
 				onOpenSpellSearch={openSpellSearch}
-				onRemoveSpell={(spell) => {
-					removeSpellMutation.reset();
-					setSpellToRemove(spell);
-				}}
+				onRemoveSpell={(spell) => setDialog({ kind: "remove", characterId, spell })}
 				onRestoreSlot={restoreSlot}
 				onUseSlot={expendSlot}
 				spellSlots={spellSlots}
 			/>
-
-			<SpellSlotPanelAlerts
-				spellSlotsUnavailable={spellSlotsUnavailable}
-				spellsUnavailable={spellsUnavailable}
-			/>
-
-			{configurationOpen && (
+			{spellSlotsUnavailable && (
+				<Alert color="red" title="Spell slots unavailable" variant="light">
+					Try the spell slot change again.
+				</Alert>
+			)}
+			{characterSpellsQuery.error && (
+				<Alert color="red" title="Spells unavailable" variant="light">
+					Try the spell change again.
+				</Alert>
+			)}
+			{dialog?.characterId === characterId && dialog.kind === "configuration" && (
 				<CharacterSpellConfiguration
+					key={`${characterId}:configuration`}
 					characterId={characterId}
 					level={level}
 					slots={spellSlots}
-					onClose={() => setConfigurationOpen(false)}
-					onSaved={updateCachedSpellSlots}
+					onClose={closeDialog}
+					onSaved={(response, ownerId) => {
+						queryClient.setQueryData(
+							apiQueryKeys.getCharacterSpellSlots({ characterId: ownerId }),
+							response,
+						);
+						if (
+							currentView.current.characterId === ownerId &&
+							currentView.current.dialog === dialog
+						) {
+							setIsEditing(false);
+							closeDialog();
+						}
+					}}
 				/>
 			)}
-
-			<SpellSearchModal
-				error={spellSearchQuery.error || saveSpellMutation.error}
-				onChangeQuery={updateSpellSearchQuery}
-				onClose={() => {
-					if (!saveSpellMutation.isPending) closeSpellSearch();
-				}}
-				onSaveSpell={saveSpell}
-				opened={spellSearch !== null}
-				pending={spellSearchQuery.isFetching || saveSpellMutation.isPending}
-				saving={saveSpellMutation.isPending}
-				query={spellSearch?.query ?? ""}
-				results={spellSearchQuery.data?.spells ?? []}
-				searched={spellSearchQueryText.length > 0 && !spellSearchQuery.isFetching}
-				slotLevel={spellSearch?.slotLevel ?? 1}
-			/>
-			<SpellDetailsModal
-				error={spellDetailsQuery.error}
-				details={spellDetailsQuery.data?.spell ?? null}
-				onClose={() => setSelectedSpellId(null)}
-				opened={selectedSpellId !== null}
-				pending={spellDetailsQuery.isFetching}
-			/>
-			<SpellRemoveModal
-				error={removeSpellMutation.error}
-				onClose={closeRemoveSpellDialog}
-				onConfirm={removeSpell}
-				pending={removeSpellMutation.isPending}
-				spell={spellToRemove}
-			/>
+			{dialog?.characterId === characterId && dialog.kind === "search" && (
+				<SpellSearchModal
+					key={`${characterId}:search:${dialog.slotLevel}`}
+					characterId={characterId}
+					slotLevel={dialog.slotLevel}
+					onClose={closeDialog}
+				/>
+			)}
+			{dialog?.characterId === characterId && dialog.kind === "details" && (
+				<SpellDetailsModal
+					key={`${characterId}:details:${dialog.spellId}`}
+					characterId={characterId}
+					spellId={dialog.spellId}
+					onClose={closeDialog}
+				/>
+			)}
+			{dialog?.characterId === characterId && dialog.kind === "remove" && (
+				<SpellRemoveModal
+					key={`${characterId}:remove:${dialog.spell.id}`}
+					characterId={characterId}
+					spell={dialog.spell}
+					onClose={closeDialog}
+				/>
+			)}
 		</Stack>
 	);
 }

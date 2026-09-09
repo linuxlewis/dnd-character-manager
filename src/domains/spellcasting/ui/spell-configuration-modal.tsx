@@ -24,13 +24,16 @@ export function CharacterSpellConfiguration({
 	level: number;
 	slots: CharacterSpellSlot[];
 	onClose: () => void;
-	onSaved: (response: CharacterSpellSlotsResponse) => void;
+	onSaved: (response: CharacterSpellSlotsResponse, characterId: string) => void;
 }) {
 	const [draftTotals, setDraftTotals] = useState<Record<number, NumberDraft>>({});
-	const update = useMutation({ ...apiMutations.updateCharacterSpellSlots(), onSuccess: onSaved });
+	const update = useMutation({
+		...apiMutations.updateCharacterSpellSlots(),
+		onSuccess: (response, variables) => onSaved(response, variables.params.characterId),
+	});
 	const defaults = useMutation({
 		...apiMutations.applyCharacterSpellSlotDefaults(),
-		onSuccess: onSaved,
+		onSuccess: (response, variables) => onSaved(response, variables.characterId),
 	});
 	return (
 		<SpellConfigurationModal

@@ -2,7 +2,10 @@
 
 Base: locally accepted R7 `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`,
 [PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116).
-Predecessor CI run `34175991433` is pending. R8 coordinator acceptance is pending.
+Predecessor CI run `34175991433` passed. R8 is accepted at
+`624c89b38369cc1fa26ab4092537bf2917dea713`,
+[PR #117](https://github.com/linuxlewis/dnd-character-manager/pull/117), successful
+CI run `34176310606`.
 
 ## Mechanical Scope
 

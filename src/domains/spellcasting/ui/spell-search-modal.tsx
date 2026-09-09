@@ -1,47 +1,61 @@
 import { Alert, Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
-import type { SearchCharacterSpellsResponse } from "../../../generated/api-client.generated.js";
+import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { apiClient, apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
 import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
 
-export type SpellSearchResult = SearchCharacterSpellsResponse["spells"][number];
-
 export function SpellSearchModal({
-	onChangeQuery,
-	onClose,
-	onSaveSpell,
-	opened,
-	pending,
-	saving = false,
-	query,
-	results,
-	searched,
+	characterId,
 	slotLevel,
-	error,
+	onClose,
 	withinPortal = true,
 }: {
-	onChangeQuery: (query: string) => void;
-	onClose: () => void;
-	onSaveSpell: (spell: SpellSearchResult) => void;
-	opened: boolean;
-	pending: boolean;
-	saving?: boolean;
-	query: string;
-	results: SpellSearchResult[];
-	searched: boolean;
+	characterId: string;
 	slotLevel: number;
-	error?: Error | null;
+	onClose: () => void;
 	withinPortal?: boolean;
 }) {
 	const mobile = useMediaQuery("(max-width: 47.999em)");
+	const [query, setQuery] = useState("");
+	const input = query.trim();
+	const [debounced] = useDebouncedValue(input, 300);
+	const queryText = input === debounced ? debounced : "";
+	const search = useQuery({
+		queryKey: ["characterSpellSearch", characterId, slotLevel, queryText],
+		queryFn: () =>
+			apiClient.searchCharacterSpells({ characterId }, { slotLevel, query: queryText }),
+		enabled: queryText.length > 0,
+		retry: false,
+	});
+	const queryClient = useQueryClient();
+	const save = useMutation({
+		...apiMutations.saveCharacterSpell(),
+		onSuccess: (response, variables) => {
+			queryClient.setQueryData(
+				apiQueryKeys.listCharacterSpells({ characterId: variables.params.characterId }),
+				response,
+			);
+			onClose();
+		},
+	});
+	const pending = search.isFetching || save.isPending;
+	const results = queryText ? (search.data?.spells ?? []) : [];
 	return (
 		<Modal
-			closeButtonProps={{ "aria-label": "Close add spell dialog", size: "xl", disabled: saving }}
+			closeButtonProps={{
+				"aria-label": "Close add spell dialog",
+				size: "xl",
+				disabled: save.isPending,
+			}}
 			fullScreen={mobile}
 			size="lg"
 			onClose={() => {
-				if (!saving) onClose();
+				if (!save.isPending) onClose();
 			}}
-			opened={opened}
+			opened
+			closeOnEscape={!save.isPending}
+			closeOnClickOutside={!save.isPending}
 			title={
 				slotLevel === 0 ? "Add cantrip or feature" : `Add spell to ${formatSpellLevel(slotLevel)}`
 			}
@@ -49,27 +63,47 @@ export function SpellSearchModal({
 			withinPortal={withinPortal}
 		>
 			<Stack gap="md" className="workspace-inputs">
-				{error && (
-					<Alert color="red" title="Spell search or save failed">
-						Your search is still here. Retry the selection or change the search to try again.
-					</Alert>
-				)}
 				<TextInput
 					data-autofocus
-					disabled={saving}
+					disabled={save.isPending}
 					label={slotLevel === 0 ? "Search cantrips and features" : "Search spells"}
-					onChange={(event) => onChangeQuery(event.currentTarget.value)}
+					onChange={(event) => setQuery(event.currentTarget.value)}
 					placeholder={slotLevel === 0 ? "Name" : "Spell name"}
 					size="md"
 					value={query}
 				/>
-
+				{search.error && queryText && (
+					<Alert color="red" title="Spell search unavailable" variant="light">
+						<Button
+							mih={44}
+							onClick={() => search.refetch()}
+							loading={search.isFetching}
+							variant="subtle"
+						>
+							Retry search
+						</Button>
+					</Alert>
+				)}
+				{save.error && (
+					<Alert color="red" title="Spell could not be saved" variant="light">
+						<Button
+							onClick={() => {
+								if (save.variables) save.mutate(save.variables);
+							}}
+							mih={44}
+							loading={save.isPending}
+							variant="subtle"
+						>
+							Retry saving spell
+						</Button>
+					</Alert>
+				)}
 				<Stack gap="xs">
 					{pending ? (
 						<Text c="dimmed" size="sm">
-							{saving ? "Adding spell..." : "Searching..."}
+							{save.isPending ? "Adding spell..." : "Searching..."}
 						</Text>
-					) : searched && results.length === 0 ? (
+					) : queryText && !search.error && results.length === 0 ? (
 						<Text c="dimmed" size="sm">
 							No spells found.
 						</Text>
@@ -79,16 +113,21 @@ export function SpellSearchModal({
 								mih={44}
 								h="auto"
 								py="sm"
-								key={spell.index}
+								styles={{ label: { whiteSpace: "normal" } }}
+								key={`${spell.source}:${spell.index}`}
 								color="gray"
 								disabled={pending}
-								onClick={() => onSaveSpell(spell)}
-								styles={{ label: { whiteSpace: "normal" } }}
+								onClick={() =>
+									save.mutate({
+										params: { characterId },
+										body: { slotLevel, spellIndex: spell.index, source: spell.source },
+									})
+								}
 								variant="default"
 							>
 								<Group justify="space-between" wrap="wrap" w="100%">
 									<span>{spell.name}</span>
-									<span>{formatSearchResultDetail(spell)}</span>
+									<span>{formatSpellEntryDetail(spell)}</span>
 								</Group>
 							</Button>
 						))
@@ -97,8 +136,4 @@ export function SpellSearchModal({
 			</Stack>
 		</Modal>
 	);
-}
-
-function formatSearchResultDetail(spell: SpellSearchResult) {
-	return formatSpellEntryDetail(spell);
 }
