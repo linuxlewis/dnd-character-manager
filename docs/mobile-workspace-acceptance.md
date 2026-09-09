@@ -135,61 +135,19 @@ as a production deployment or include unmerged Attributes & Rolls to make a scre
 
 ## Character Action Follow-up
 
-The subsequent character-action adjustment supersedes the original mixed-menu behavior for H1,
-H2, H3, N5 and E5. Earlier screenshots and acceptance results remain historical evidence at their
-recorded source SHA, not proof of the updated controls. The current contract separates account
-actions, provides one-tap Health history beside Heal/Damage, and returns character editing to
-details. Follow-up validation must record exact focus, unchanged section/scroll, 320/390/desktop
-geometry, 200% text, and updated screenshots before independent acceptance. Physical-device
-checks remain NOT RUN.
+PR #120 separates account actions from character editing, places Health history beside Heal/Damage,
+and hides the spell-history interface while preserving Use/Restore and backend records. It also
+keeps spell actions and inventory filters usable at 320 px with enlarged text and fallback fonts.
 
-Follow-up source/browser acceptance: PASS at clean `0fad2dcc4f306834381cd9ec25645a057b286acb`
-(application source `51ec86e`). The full suite passed 599 unit, 68 integration and 40 browser
-tests; lint, API freshness, typecheck/build, documentation links and whitespace checks passed.
-The [focused evidence manifest](../work/design-review/mobile-workspace/character-actions-0fad2dc/manifest.json)
-records 22 real-app screenshots and their formatted metadata/checksums. Root and the independent
-visual reviewer accepted mobile/desktop controls, details/editor/history, maximum HP, 200% text
-and the related Use/Restore wrapping correction. Browser tests cover exact focus after successful,
-partial and cancelled edits, history scroll retention, and complete target/text containment.
-Root also verified history focus return, details-to-editor-to-details cancellation, identity focus
-return, and the signed-in account-only menu on the running Tailscale development instance without
-changing its seeded character data. Current PR-head CI is the final external gate; these results
-do not claim native-device, screen-reader or production deployment acceptance.
+Validation passes at application/test source `aed3e793dd66421650fc0ee2beb52e61150d7ed6`:
+597 unit, 68 integration and 41 browser tests, plus lint, typecheck, build/API freshness and
+documentation checks. [CI run 34182603955](https://github.com/linuxlewis/dnd-character-manager/actions/runs/34182603955)
+passes at packaged revision `c5e5bae`; its downloadable **playwright-report** artifact contains
+screenshots, geometry JSON, browser reports and test output. Artifacts are subject to GitHub's
+retention policy; regenerate them with the documented test commands when unavailable.
 
-CI follow-up at clean `e30f6a88f2bd472af764067df58835234c2cb5c1` corrects the enlarged-text
-test's automatic scroll alignment without changing application source. The first PR run placed
-Add item beneath the enlarged sticky header. The test now scrolls into the measured space between
-header and navigation, checks the entire target, text and corner hit-testing, then clicks normally
-at both 320 and 390 px. The CI-mode full local suite passes 599 unit, 68 integration and 40 browser
-tests. Root and the independent reviewer accepted the four [additional captures](../work/design-review/mobile-workspace/character-actions-e30f6a8/manifest.json).
-Local Chrome keyboard checks also confirm Tab reaches Add item, Enter opens the editor and Escape
-returns focus at both widths with 200% text and the 120-character name. These local checks do not
-replace the outstanding physical-device and screen-reader validation.
-
-Final source/browser acceptance: PASS at clean `a6234a258f1a9c840e8fd8ee720a44f73ce5151f`.
-CI exposed a further 19 px overflow in the Consumable filter with wider fallback fonts at 320 px
-and 200% text. Filter buttons now shrink to available width and wrap their labels/counts while
-retaining minimum touch targets. The regression explicitly exercises DejaVu Sans, full target/text
-containment, corner hit-testing and normal filter/editor clicks. Drawer-width checks allow only
-subpixel rounding (two decimal places), after CI reported 600.000009 px for a 600 px viewport.
-The CI-mode full local suite passes 599 unit, 68 integration and 40 browser tests; build, lint,
-documentation links and whitespace checks pass. Root and the independent reviewer accepted the
-[final inventory evidence](../work/design-review/mobile-workspace/character-actions-a6234a2/manifest.json).
-Earlier manifests retain their original source provenance; this final source adds only the scoped
-inventory-filter wrapping change and test corrections to the previously reviewed character actions.
-
-## Hidden Spell History
-
-The product decision to hide spell history supersedes the original S1/S2 on-demand spell-log
-requirement. At clean `aed3e793dd66421650fc0ee2beb52e61150d7ed6`, the toggle, expandable log and
-unused presentation code are removed. Edit spells, configuration, Use/Restore and backend records
-remain available. Health history and inventory activity are unchanged. No deferred abilities or
-Attributes & Rolls functionality is introduced.
-
-The CI-mode full local suite passes 597 unit, 68 integration and 41 browser tests. Lint,
-build/API freshness, documentation links and whitespace checks pass. Root and an independent
-reviewer accepted the [four focused captures](../work/design-review/mobile-workspace/spell-history-hidden-aed3e79/manifest.json)
-at 320, 390 and 1280 px, including the state after slot use. Browser coverage verifies no spell
-history control or log, retained health-history touch targets, correct Use/Restore counts and
-preserved API usage records. Earlier screenshots remain historical; physical-device and
-screen-reader follow-ups remain outstanding.
+Independent visual review covers 320/390/1280 px layouts, character editing and focus return,
+direct health history, hidden spell history, numeric extremes and 200% text with fallback fonts.
+Physical-device and screen-reader follow-ups remain outstanding. No pixel baselines have been
+adopted; generated captures are review evidence, not test inputs. Keep future captures in ignored
+local output or CI artifacts, and retain only concise acceptance results and CI links in Git.

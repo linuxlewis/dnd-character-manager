@@ -251,10 +251,14 @@ Wait for fonts and expected data/control state; disable animation through test f
 both viewport and full-page images for each section at 320/390/1280, plus the focused states above.
 Full-page images alone cannot demonstrate fixed/sticky behavior; capture scrolled viewport frames.
 
-Use names such as `M3-F1-spells-populated-390x844-scrolled.png`. Store output under
-`work/design-review/mobile-workspace/<candidate-sha>/` or a CI artifact with the same structure.
-Include `manifest.json`, geometry results, test logs, and an acceptance report. Do not commit bulky
-traces/videos unless repository policy calls for it; retain them as linked CI artifacts.
+Use names such as `M3-F1-spells-populated-390x844-scrolled.png`. Keep generated output in ignored
+`test-results/` or `work/design-review/mobile-workspace/<candidate-sha>/`, or in CI artifacts.
+Retain screenshots, metadata, geometry results and test logs there; do not commit generated
+captures, JSON sidecars, manifests, traces or videos. Commit a concise acceptance record linking
+to the CI run and identifying the reviewed source. CI already uploads `playwright-report/` and
+`test-results/` in its **playwright-report** artifact. Artifacts expire according to GitHub retention;
+the test harness must remain sufficient to regenerate them. Existing tracked reference materials
+from earlier stack layers are historical and do not establish a pattern for new generated output.
 
 ### 3. Assert Geometry And Behavior
 
