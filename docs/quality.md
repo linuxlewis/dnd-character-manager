@@ -64,6 +64,13 @@ ownership transfer races, denied-write state/history checks, and identity-only
 authorization without health. Character-facing generic write bypasses are removed.
 See [implementation and evidence](./domain-inventory-ownership.md).
 
+## Health UI Ownership
+
+R6 moves health presentation and application composition to their owners. Real
+QueryClient isolation/no-entry tests and a browser 503/explicit retry/no-replay
+journey cover focused health cache updates without unrelated feature requests.
+The report-only boundary scan now has zero findings. See [evidence](./domain-health-ui.md).
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean

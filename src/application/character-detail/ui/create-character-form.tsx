@@ -11,10 +11,16 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CHARACTER_CLASSES, type CharacterClass } from "../../../domains/characters/types/index.js";
+import {
+	characterRoutePath,
+	type NavigateToCharacterRoute,
+	shouldHandleCharacterLink,
+	validateCharacterClass,
+	validateCharacterLevel,
+	validateCharacterName,
+} from "../../../domains/characters/ui/index.js";
 import { apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
-import { CHARACTER_CLASSES, type CharacterClass } from "../types/index.js";
-import { characterRoutePath, shouldHandleCharacterLink } from "./character-route.js";
-import type { NavigateToCharacterRoute } from "./character-workspace.js";
 
 interface CreateCharacterFormProps {
 	onNavigate: NavigateToCharacterRoute;
@@ -130,24 +136,4 @@ export function CreateCharacterForm({ onNavigate }: CreateCharacterFormProps) {
 			</Box>
 		</Stack>
 	);
-}
-
-export function validateCharacterName(value: string) {
-	const trimmed = value.trim();
-	if (trimmed.length === 0) return "Name is required";
-	if (trimmed.length > 120) return "Name must be 120 characters or fewer";
-	return null;
-}
-
-export function validateCharacterClass(value: CharacterClass | "") {
-	if (!CHARACTER_CLASSES.includes(value as CharacterClass)) return "Class is required";
-	return null;
-}
-
-export function validateCharacterLevel(value: number | string) {
-	const level = Number(value);
-	if (!Number.isInteger(level) || level < 1 || level > 20) {
-		return "Level must be a whole number from 1 to 20";
-	}
-	return null;
 }

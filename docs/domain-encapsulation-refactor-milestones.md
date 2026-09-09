@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a/R3/R4a accepted; R4b submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5 accepted; R6 submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -28,8 +28,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R3 | Public schemas and typed Drizzle registration | R2a | accepted | [PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110), `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`; CI `34155408372` passed; [evidence](./domain-schema-registration.md) |
 | R4a | Character access and atomic creation workflow | R3 | accepted | Coordinator verified `9e9f77ee4fbd33656f14e4085e225255f01808e3`; [PR #111](https://github.com/linuxlewis/dnd-character-manager/pull/111); CI run `34156463773` passed; [evidence](./domain-character-access-creation.md) |
 | R4b | Inventory identity access and transactional ownership | R4a | accepted | Coordinator verified `b94446457a1cf9c812ecd82f1b9341d1d5d5a3e2`; [PR #113](https://github.com/linuxlewis/dnd-character-manager/pull/113); CI run `34157394245` passed; [evidence](./domain-inventory-ownership.md) |
-| R5 | Health backend and composed character-detail API | R4b | review | Codex; full Gate B passed; [implementation/evidence](./domain-health-composition.md) |
-| R6 | Health UI ownership and cache coordination | R5 | planned | Unassigned |
+| R5 | Health backend and composed character-detail API | R4b | accepted | Coordinator verified `4d735cc8d7c792e239e931d2c9c359a7b9d624d9`; [PR #114](https://github.com/linuxlewis/dnd-character-manager/pull/114); CI `34158469787` passed; [evidence](./domain-health-composition.md) |
+| R6 | Health UI ownership and cache coordination | R5 | review | Codex; full Gate B passed; [implementation/evidence](./domain-health-ui.md) |
 | R7 | Spellcasting backend and relationships | R6 | planned | Unassigned |
 | R8 | Spellcasting UI ownership | R7 | planned | Unassigned |
 | R9 | Spell workflow simplification | R8 | planned | Unassigned |
@@ -336,13 +336,13 @@ needed for existing combined responses, using generated keys and callbacks.
 
 **Acceptance:**
 
-- [ ] Heal, damage, editing, history, loading, and failure flows retain behavior.
-- [ ] Successful health updates refresh the existing character detail and any
+- [x] Heal, damage, editing, history, loading, and failure flows retain behavior.
+- [x] Successful health updates refresh the existing character detail and any
   existing health-bearing summaries without refreshing unrelated feature queries.
-- [ ] Cache tests cover the combined response and failed mutations; no synthetic
+- [x] Cache tests cover the combined response and failed mutations; no synthetic
   endpoint is introduced merely to demonstrate invalidation.
-- [ ] A mounted/browser journey proves displayed health changes after a mutation.
-- [ ] Character UI contains composition, not health rules or copied implementations.
+- [x] A mounted/browser journey proves displayed health changes after a mutation.
+- [x] Application UI owns page composition; character UI contains no health rules or copied implementations.
 
 ### R7: Spellcasting Backend And Relationships
 

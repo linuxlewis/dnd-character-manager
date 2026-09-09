@@ -7,9 +7,7 @@ import {
 	apiQueryKeys,
 	type CharacterDetailResponse,
 } from "../../../generated/api-client.generated.js";
-import { validateCharacterLevel, validateCharacterName } from "./create-character-form.js";
-
-import classes from "./health-workspace.module.css";
+import { validateCharacterLevel, validateCharacterName } from "./character-form-validation.js";
 
 export function CharacterEditor({
 	characterId,
@@ -159,9 +157,9 @@ export function CharacterEditor({
 			)}
 			<Modal
 				classNames={{
-					inner: classes.sheetInner,
-					content: classes.sheetContent,
-					body: classes.sheetBody,
+					inner: "workspace-sheet-inner",
+					content: "workspace-sheet-content",
+					body: "workspace-sheet-body",
 				}}
 				returnFocus={controlledOpened === undefined}
 				onClose={closeEditor}
@@ -212,7 +210,7 @@ export function CharacterEditor({
 							thousandSeparator=","
 							withAsterisk
 						/>
-						<Group className={classes.actions} justify="flex-end">
+						<Group className="workspace-sheet-actions" justify="flex-end">
 							<Button
 								mih={44}
 								disabled={isSaving}

@@ -22,7 +22,8 @@ import {
 } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
-import { CharacterWorkspace, parseCharacterRoute } from "../domains/characters/ui/index.js";
+import { CharacterWorkspace } from "../application/character-detail/ui/index.js";
+import { parseCharacterRoute } from "../domains/characters/ui/index.js";
 import {
 	apiMutations,
 	apiQueries,

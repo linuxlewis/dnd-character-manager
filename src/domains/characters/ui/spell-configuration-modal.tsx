@@ -7,7 +7,9 @@ import {
 	type CharacterSpellSlotsResponse,
 } from "../../../generated/api-client.generated.js";
 import { type CharacterSpellSlot, SpellSlotCountSchema } from "../types/index.js";
-import type { NumberDraft } from "./health-dialogs.js";
+
+type NumberDraft = number | "";
+
 import { formatSpellLevel } from "./spell-slot-format.js";
 import "./spell-workspace.css";
 

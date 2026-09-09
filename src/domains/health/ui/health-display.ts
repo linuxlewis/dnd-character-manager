@@ -1,4 +1,4 @@
-import type { CharacterHealth, HealthChangeResponse } from "../../health/types/index.js";
+import type { CharacterHealth, HealthChangeResponse } from "../types/index.js";
 
 export function getHealthColor(health: CharacterHealth) {
 	const ratio = health.currentHp / health.effectiveMaxHp;

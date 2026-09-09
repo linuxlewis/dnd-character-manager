@@ -1,11 +1,11 @@
 import { Anchor, Box } from "@mantine/core";
 import { Backpack, BookOpen } from "lucide-react";
+import type { NavigateToCharacterRoute } from "../../../domains/characters/ui/index.js";
 import {
 	type CharacterSection,
 	characterRoutePath,
 	shouldHandleCharacterLink,
-} from "./character-route.js";
-import type { NavigateToCharacterRoute } from "./character-workspace.js";
+} from "../../../domains/characters/ui/index.js";
 
 const sections = [
 	{ id: "spells", label: "Spells", accessibleLabel: "Spells & Abilities", Icon: BookOpen },
