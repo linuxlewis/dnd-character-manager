@@ -1,38 +1,34 @@
 import { describe, expect, it } from "vitest";
 import {
-	DND_5E_EXPERIENCE_THRESHOLDS,
-	getCharacterExperienceProgress,
+	CharacterExperiencePointsSchema,
+	CharacterExperienceProgressSchema,
 } from "./character-experience.js";
 
-describe("getCharacterExperienceProgress", () => {
-	it("calculates progress toward the next D&D 5e level", () => {
-		expect(DND_5E_EXPERIENCE_THRESHOLDS[7]).toBe(23_000);
-		expect(getCharacterExperienceProgress(7, 27_000)).toEqual({
-			level: 7,
-			experiencePoints: 27_000,
-			currentLevelMinimum: 23_000,
-			nextLevel: 8,
-			nextLevelMinimum: 34_000,
-			experienceIntoLevel: 4_000,
-			experienceForNextLevel: 11_000,
-			experienceRemaining: 7_000,
-			progressPercent: 36,
-			isMaxLevel: false,
-		});
+describe("character experience value contracts", () => {
+	it.each([0, 9_999_999])("accepts the XP boundary %s", (xp) => {
+		expect(CharacterExperiencePointsSchema.parse(xp)).toBe(xp);
 	});
 
-	it("caps max-level progress without a next threshold", () => {
-		expect(getCharacterExperienceProgress(20, 400_000)).toEqual({
+	it.each([-1, 0.5, 10_000_000])("rejects invalid persisted XP %s", (xp) => {
+		expect(CharacterExperiencePointsSchema.safeParse(xp).success).toBe(false);
+	});
+
+	it("accepts nullable max-level fields and rejects out-of-range progress", () => {
+		const progress = {
 			level: 20,
-			experiencePoints: 400_000,
+			experiencePoints: 355_000,
 			currentLevelMinimum: 355_000,
 			nextLevel: null,
 			nextLevelMinimum: null,
-			experienceIntoLevel: 45_000,
+			experienceIntoLevel: 0,
 			experienceForNextLevel: null,
 			experienceRemaining: null,
 			progressPercent: 100,
 			isMaxLevel: true,
-		});
+		};
+		expect(CharacterExperienceProgressSchema.parse(progress)).toEqual(progress);
+		expect(
+			CharacterExperienceProgressSchema.safeParse({ ...progress, progressPercent: 101 }).success,
+		).toBe(false);
 	});
 });

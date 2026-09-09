@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getCharacterExperienceProgress } from "../config/index.js";
 import type {
 	CharacterDetail,
 	CharacterHealth,
@@ -14,7 +15,6 @@ import {
 	CharacterSpellSchema,
 	CharacterSpellSlotSchema,
 	CharacterSummarySchema,
-	getCharacterExperienceProgress,
 	HealthChangeResponseSchema,
 	SpellSlotActionSchema,
 	SpellSlotChangeResponseSchema,

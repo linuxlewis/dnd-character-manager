@@ -1,5 +1,6 @@
 import type { CharacterService } from "../../characters/service/index.js";
 import { createCharacterService } from "../../characters/service/index.js";
+import { getCurrencyTotalValue } from "../config/index.js";
 import {
 	type CharacterTreasuryHistoryInput,
 	CharacterTreasuryPreconditionError,
@@ -23,7 +24,6 @@ import {
 	ConvertCharacterTreasuryResponseSchema,
 	type CurrencyBalance,
 	type CurrencyPlan,
-	getCurrencyTotalValue,
 	type SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryPreviewRequestSchema,
 	type SpendCharacterTreasuryPreviewResponse,

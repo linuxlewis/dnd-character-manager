@@ -44,7 +44,7 @@ describe("CharacterExperiencePanel", () => {
 	});
 });
 
-import { getCharacterExperienceProgress } from "../types/index.js";
+import { getCharacterExperienceProgress } from "../config/index.js";
 import { experienceLabel } from "./character-experience-panel.js";
 
 describe("compact XP states", () => {

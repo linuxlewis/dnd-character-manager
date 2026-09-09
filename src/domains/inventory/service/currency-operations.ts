@@ -1,4 +1,10 @@
 import {
+	CurrencyPlanningOverflowError,
+	calculateSpend,
+	convertDenominationAmount,
+	planAdd as planCurrencyAdd,
+} from "../config/index.js";
+import {
 	type CurrencyAddRequest,
 	type CurrencyBalance,
 	CurrencyBalanceSchema,
@@ -6,11 +12,7 @@ import {
 	CurrencyConversionRequestSchema,
 	type CurrencyDelta,
 	type CurrencyPlan,
-	CurrencyPlanningOverflowError,
 	type CurrencySpendRequest,
-	calculateSpend,
-	convertDenominationAmount,
-	planAdd as planCurrencyAdd,
 	type SpendPlan,
 } from "../types/index.js";
 import {

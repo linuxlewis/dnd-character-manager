@@ -99,6 +99,4 @@ export type { CharacterExperienceProgress } from "./character-experience.js";
 export {
 	CharacterExperiencePointsSchema,
 	CharacterExperienceProgressSchema,
-	DND_5E_EXPERIENCE_THRESHOLDS,
-	getCharacterExperienceProgress,
 } from "./character-experience.js";
