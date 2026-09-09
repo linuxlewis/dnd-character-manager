@@ -1,5 +1,11 @@
 # Integrated Domain Refactor Acceptance (R11)
 
+Current rebase status (2026-09-08): local validation and coordinator review are
+recorded in [the main rebase acceptance note](./domain-refactor-main-rebase.md).
+Earlier acceptance statuses, SHAs, CI runs, and line counts in this document are
+historical pre-rebase evidence. They do not certify the newly rebased PR heads;
+publication and per-layer CI remain coordinator gates.
+
 Implementation verified: `2824232f0b9acd844868025bd747607175042dfd` (R10),
 [PR #119](https://github.com/linuxlewis/dnd-character-manager/pull/119).
 Historical baseline: `faf519271e2b06a825025ba433c38005340b116e`.

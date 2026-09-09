@@ -1,5 +1,11 @@
 # Domain Refactor Module Map
 
+Current rebase status (2026-09-08): local validation and coordinator review are
+recorded in [the main rebase acceptance note](./domain-refactor-main-rebase.md).
+Earlier acceptance statuses, SHAs, CI runs, and line counts in this document are
+historical pre-rebase evidence. They do not certify the newly rebased PR heads;
+publication and per-layer CI remain coordinator gates.
+
 Verified against assembled implementation
 `2824232f0b9acd844868025bd747607175042dfd` (R10), compared with historical baseline
 `faf519271e2b06a825025ba433c38005340b116e`. This is the integration map for later
@@ -100,16 +106,22 @@ Spellcasting UI uses its generated spell/slot query keys; application character 
 
 ## Spell Workflow Owners
 
-Accepted R9 `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a` gives the existing
-search/details/remove modals their own asynchronous queries, mutations, errors,
-and explicit retries. `CharacterSpellSlotsPanel` retains slots, edit drafts, and
-one dialog discriminator carrying the originating character ID. Forwarding-only
-edit-actions/alerts wrappers are deleted; no generic workflow framework replaces them.
+The rebased R9 gives search/details/remove modals their own asynchronous queries,
+mutations, errors, and explicit retries. The mobile configuration modal owns its
+slot drafts, validation, totals/default mutations, and pending/error state.
+`CharacterSpellSlotsPanel` retains slot reads/use/restore, edit mode, and one dialog
+discriminator carrying the originating character ID. Shared sheet geometry lives
+in `src/app/theme.css`; feature-specific health/spell presentation stays with its
+owner. Forwarding-only edit-actions/alerts wrappers remain deleted. Player-facing
+spell history remains removed, while backend event records are preserved.
 
 Generated query keys and mutation-variable IDs target the originating character.
 The object-identity close guard prevents an old completion closing a newer dialog;
 pending guards prevent repeated saves/removals and closing pending dialogs.
-Slot mutation errors survive editing/dialog changes. This is not a deduplication
+Configuration/default completion updates the originating cache and only closes
+the matching current character/dialog. Use/restore exits edit mode on an ordinary
+success, but preserves a newer character or newly opened dialog. Slot mutation
+errors survive editing/dialog changes. This is not a deduplication
 or lost-response reconciliation protocol. Real browser evidence covers failures,
 retry, stale search, unrelated-query avoidance and late A-to-B completion. See
 [workflow implementation and validation](./domain-spell-workflows.md).

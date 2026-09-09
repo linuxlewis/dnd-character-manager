@@ -1,5 +1,11 @@
 # Domain Encapsulation Refactor Milestones
 
+Current rebase status (2026-09-08): local validation and coordinator review are
+recorded in [the main rebase acceptance note](./domain-refactor-main-rebase.md).
+Earlier acceptance statuses, SHAs, CI runs, and line counts in this document are
+historical pre-rebase evidence. They do not certify the newly rebased PR heads;
+publication and per-layer CI remain coordinator gates.
+
 Prepared: 2026-09-07
 
 Status: all milestones R0-R11 (including suffixed milestones) accepted by the coordinator. No merge or deployment performed.
