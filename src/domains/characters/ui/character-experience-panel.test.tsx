@@ -9,10 +9,6 @@ describe("CharacterExperiencePanel", () => {
 			<MantineProvider>
 				<CharacterExperiencePanel
 					character={{
-						id: "00000000-0000-4000-8000-000000000000",
-						name: "Mira",
-						className: "Fighter",
-						level: 7,
 						experiencePoints: 27_000,
 						experience: {
 							level: 7,
@@ -26,13 +22,6 @@ describe("CharacterExperiencePanel", () => {
 							progressPercent: 36,
 							isMaxLevel: false,
 						},
-						health: {
-							currentHp: 28,
-							maxHp: 28,
-							temporaryHp: 0,
-							effectiveMaxHp: 28,
-						},
-						recentHealthChanges: [],
 					}}
 				/>
 			</MantineProvider>,
@@ -63,14 +52,8 @@ describe("compact XP states", () => {
 				<CharacterExperiencePanel
 					compact
 					character={{
-						id: "00000000-0000-4000-8000-000000000000",
-						name: "Mira",
-						className: "Wizard",
-						level,
 						experiencePoints: xp,
 						experience: getCharacterExperienceProgress(level, xp),
-						health: { currentHp: 10, maxHp: 10, temporaryHp: 0, effectiveMaxHp: 10 },
-						recentHealthChanges: [],
 					}}
 				/>
 			</MantineProvider>,

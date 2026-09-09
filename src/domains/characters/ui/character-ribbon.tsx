@@ -1,19 +1,22 @@
 import { Button, Group, Modal, Stack, Text, Title, UnstyledButton } from "@mantine/core";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { type ReactNode, useRef, useState } from "react";
-import type { CharacterDetail } from "../types/index.js";
+import type { CharacterExperienceProgress, CharacterSummary } from "../types/index.js";
 import { CharacterEditor } from "./character-editor.js";
 import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import classes from "./character-ribbon.module.css";
-import { shouldHandleCharacterLink } from "./character-route.js";
 import type { NavigateToCharacterRoute } from "./character-workspace.js";
+import { shouldHandleCharacterLink } from "./character-route.js";
 
 export function CharacterRibbon({
 	character,
 	onNavigate,
 	renderApplicationMenu,
 }: {
-	character: CharacterDetail;
+	character: CharacterSummary & {
+		experiencePoints: number;
+		experience: CharacterExperienceProgress;
+	};
 	onNavigate: NavigateToCharacterRoute;
 	renderApplicationMenu?: () => ReactNode;
 }) {
