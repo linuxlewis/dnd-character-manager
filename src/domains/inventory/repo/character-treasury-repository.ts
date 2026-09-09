@@ -1,5 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { eq } from "drizzle-orm";
+import {
+	inventoryHistoryEntriesTable,
+	inventoryScopesTable,
+	inventoryTreasuriesTable,
+} from "../schema/index.js";
 import type {
 	CharacterTreasury,
 	CurrencyAddRequest,
@@ -18,14 +23,11 @@ import {
 	InventoryHistoryActorUserIdSchema,
 } from "../types/index.js";
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
-import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
 import {
 	toCharacterTreasury,
 	toInventoryScope,
 	zeroCharacterTreasury,
 } from "./inventory-mappers.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
-import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 type DatabaseTransaction = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
 

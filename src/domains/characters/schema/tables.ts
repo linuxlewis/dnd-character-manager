@@ -9,7 +9,8 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import type { CharacterClass, SpellSlotAction } from "../types/index.js";
+import type { SpellSlotAction } from "../types/character.js";
+import type { CharacterClass } from "../types/character-class.js";
 
 export const charactersTable = pgTable(
 	"characters",
@@ -27,8 +28,6 @@ export const charactersTable = pgTable(
 	},
 	(table) => [index("characters_user_created_at_idx").on(table.userId, table.createdAt.desc())],
 );
-
-export const characterTable = charactersTable;
 
 export const characterHealthTable = pgTable("character_health", {
 	characterId: uuid("character_id")

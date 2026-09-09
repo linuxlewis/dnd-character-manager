@@ -1,10 +1,10 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, eq } from "drizzle-orm";
+import { characterHealthTable, charactersTable } from "../schema/index.js";
 import type { CharacterDetail, CharacterSummary, CreateCharacterRequest } from "../types/index.js";
 import type { CharacterHealthRepository } from "./character-health-repository.js";
 import { createCharacterHealthRepository } from "./character-health-repository.js";
 import { toCharacterDetail, toCharacterSummary } from "./character-mappers.js";
-import { characterHealthTable, charactersTable } from "./character-table.js";
 
 export interface CreateCharacterRecord extends CreateCharacterRequest {
 	userId: string;

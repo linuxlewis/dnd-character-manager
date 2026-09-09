@@ -64,6 +64,11 @@ The character-action follow-up passed 599 unit, 68 integration and 40 browser te
 focus restoration, successful and partial saves, and 320 px enlarged-text action containment.
 Independent screenshot and live development review are recorded in the
 [acceptance record](./mobile-workspace-acceptance.md#character-action-follow-up).
+R3 adds public schema registration checks, relation metadata tests, typed real
+database/transaction related reads, populated-owner isolation, and lazy client
+lifecycle coverage. Only the planned character-to-inventory UI finding remains in
+the boundary report. See [validation evidence](./domain-schema-registration.md).
+
 R2a moves XP and currency operations into client-safe owning config modules,
 retains history schema refinement behavior, and adds explicit XP bound and
 lazy public-contract registration coverage. See [validation evidence](./domain-calculation-refactor.md).

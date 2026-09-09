@@ -1,8 +1,8 @@
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterEach, describe, expect, it } from "vitest";
+import { catalogueSpellsTable } from "../schema/index.js";
 import { createCatalogueSpellRepository } from "./catalogue-spell-repository.js";
-import { catalogueSpellsTable } from "./catalogue-spell-table.js";
 
 const spellIndexes = ["divine-smite-test", "ice-knife-test", "light-test", "searing-smite-test"];
 

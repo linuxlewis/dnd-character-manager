@@ -16,6 +16,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, sep } from "node:path";
 
 const LAYER_ORDER = ["types", "config", "repo", "service", "runtime", "ui"] as const;
+const DOMAIN_LAYERS = new Set([...LAYER_ORDER, "schema", "access"]);
 type Layer = (typeof LAYER_ORDER)[number];
 
 const LAYER_INDEX = Object.fromEntries(LAYER_ORDER.map((l, i) => [l, i])) as Record<Layer, number>;
@@ -226,15 +227,14 @@ function checkDomainShape(srcDir: string) {
 
 	for (const entry of readdirSync(domainsDir, { withFileTypes: true })) {
 		if (!entry.isDirectory()) continue;
-		for (const layer of LAYER_ORDER) {
-			const layerDir = join(domainsDir, entry.name, layer);
-			if (!existsSync(layerDir)) {
+		for (const layer of readdirSync(join(domainsDir, entry.name), { withFileTypes: true })) {
+			if (layer.isDirectory() && !DOMAIN_LAYERS.has(layer.name)) {
 				violations.push({
 					file: relative(process.cwd(), join(domainsDir, entry.name)),
 					line: 1,
-					rule: "required-domain-layer",
-					message: `Domain '${entry.name}' is missing required '${layer}' layer directory.`,
-					fix: `Create src/domains/${entry.name}/${layer}/ so agents can rely on the standard Types -> Config -> Repo -> Service -> Runtime -> UI shape.`,
+					rule: "unknown-domain-layer",
+					message: `Domain '${entry.name}' has an undeclared '${layer.name}' layer directory.`,
+					fix: "Use a documented domain layer; omit unused layers instead of creating placeholder directories.",
 				});
 			}
 		}

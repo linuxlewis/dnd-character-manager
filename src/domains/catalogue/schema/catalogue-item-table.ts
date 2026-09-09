@@ -10,12 +10,8 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
-import type {
-	CatalogueItemKind,
-	CatalogueItemRarity,
-	CatalogueSource,
-	RulesVersion,
-} from "../types/index.js";
+import type { CatalogueItemKind, CatalogueItemRarity } from "../types/catalogue-item.js";
+import type { CatalogueSource, RulesVersion } from "../types/provenance.js";
 
 export const catalogueItemsTable = pgTable(
 	"catalogue_items",

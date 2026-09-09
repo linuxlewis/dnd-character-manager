@@ -1,6 +1,7 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, count, eq, gt, ilike, lte, sql } from "drizzle-orm";
 import { z } from "zod";
+import { catalogueSpellsTable } from "../schema/index.js";
 import type {
 	CatalogueSpellDetails,
 	CatalogueSpellSearchResult,
@@ -15,7 +16,6 @@ import {
 	CatalogueSpellSeedSchema,
 	RulesVersionSchema,
 } from "../types/index.js";
-import { catalogueSpellsTable } from "./catalogue-spell-table.js";
 
 const CatalogueSpellRowSchema = z.object({
 	source: CatalogueSourceSchema,

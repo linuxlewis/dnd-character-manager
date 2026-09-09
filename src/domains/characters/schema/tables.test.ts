@@ -7,7 +7,7 @@ import {
 	characterSpellSlotsTable,
 	characterSpellsTable,
 	charactersTable,
-} from "./character-table.js";
+} from "./tables.js";
 
 describe("character tables", () => {
 	it("uses the expected table names for manual migrations", () => {

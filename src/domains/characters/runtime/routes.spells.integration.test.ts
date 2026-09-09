@@ -4,10 +4,9 @@ import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
-import {
-	catalogueSpellsTable,
-	createCatalogueSpellRepository,
-} from "../../catalogue/repo/index.js";
+import { createCatalogueSpellRepository } from "../../catalogue/repo/index.js";
+
+import { catalogueSpellsTable } from "../../catalogue/schema/index.js";
 
 const createdUserIds: string[] = [];
 const seededSpellIndexes = ["staggering-smite-test"];

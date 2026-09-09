@@ -2,11 +2,13 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import {
+	inventoryHistoryEntriesTable,
+	inventoryScopesTable,
+	inventoryTreasuriesTable,
+} from "../schema/index.js";
 import type { CharacterTreasuryHistoryWriter } from "./character-treasury-repository.js";
 import { createCharacterTreasuryRepository } from "./character-treasury-repository.js";
-import { inventoryHistoryEntriesTable } from "./inventory-history-table.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
-import { inventoryTreasuriesTable } from "./inventory-treasury-table.js";
 
 const createdUserIds: string[] = [];
 

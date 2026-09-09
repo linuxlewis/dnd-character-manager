@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
 	boolean,
 	check,
+	foreignKey,
 	index,
 	integer,
 	jsonb,
@@ -11,6 +12,7 @@ import {
 	timestamp,
 	uuid,
 } from "drizzle-orm/pg-core";
+import { catalogueItemsTable } from "../../catalogue/schema/index.js";
 import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 export const inventoryItemsTable = pgTable(
@@ -41,6 +43,11 @@ export const inventoryItemsTable = pgTable(
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => [
+		foreignKey({
+			name: "inventory_items_catalogue_item_id_fkey",
+			columns: [table.catalogueItemId],
+			foreignColumns: [catalogueItemsTable.id],
+		}).onDelete("set null"),
 		check("inventory_items_name_nonempty_check", sql`${table.name} <> ''`),
 		check(
 			"inventory_items_type_check",

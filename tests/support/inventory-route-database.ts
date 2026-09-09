@@ -3,10 +3,12 @@ import { userTable } from "@providers/auth/schema.js";
 import { getDb } from "@providers/database/index.js";
 import { count, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import type { buildServer } from "../../../app-server.js";
-import { charactersTable } from "../../characters/repo/character-table.js";
-import { inventoryScopesTable } from "../repo/inventory-scope-table.js";
-import { inventoryTreasuriesTable } from "../repo/inventory-treasury-table.js";
+import type { buildServer } from "../../src/app-server.js";
+import { charactersTable } from "../../src/domains/characters/schema/index.js";
+import {
+	inventoryScopesTable,
+	inventoryTreasuriesTable,
+} from "../../src/domains/inventory/schema/index.js";
 
 const CountRowSchema = z.object({ count: z.coerce.number().int().nonnegative() }).strict();
 

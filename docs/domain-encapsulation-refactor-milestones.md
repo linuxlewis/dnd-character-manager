@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t locally accepted; R2a submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a accepted; R3 submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -23,9 +23,9 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R0 | Baseline, ownership map, and architecture decisions | None | accepted | [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98); coordinator verified `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`; CI green |
 | R1 | Import resolution and dependency graph | R0 | accepted | Root verified `5ed2f8fc5dc7ac6432618ba40d3c1b9f83d0b747`; [PR #99](https://github.com/linuxlewis/dnd-character-manager/pull/99); CI run `34150837520` passed |
 | R2 | Boundary rules, fixtures, and migration inventory | R1 | accepted | Coordinator verified `091934709c212fd7626c70a091e9063b7d4ecbf0`; [PR #104](https://github.com/linuxlewis/dnd-character-manager/pull/104); CI run `34152214984` passed |
-| R2t | Suite-owned catalogue browser fixture lifecycle | R2 | accepted | Coordinator verified `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`; [PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107); local B passed, CI pending |
-| R2a | Pure calculations and public contract registration | R2t | review | R2a agent; [implementation/evidence](./domain-calculation-refactor.md); full B passed at `2b29a8ece419ea6d0c28edcab0f630e982e9a688`; coordinator verification pending |
-| R3 | Public schemas and typed Drizzle registration | R2a | planned | Unassigned |
+| R2t | Suite-owned catalogue browser fixture lifecycle | R2 | accepted | Coordinator verified `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`; [PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107); local B passed; CI run `34154029019` passed |
+| R2a | Pure calculations and public contract registration | R2t | accepted | Coordinator verified `a345d79ab0786d0fd1357a2309480a339ea88a6d`; [PR #108](https://github.com/linuxlewis/dnd-character-manager/pull/108); CI run `34154355621` passed; [evidence](./domain-calculation-refactor.md) |
+| R3 | Public schemas and typed Drizzle registration | R2a | review | R3 agent; full B passed; [implementation/evidence](./domain-schema-registration.md); base `a345d79ab0786d0fd1357a2309480a339ea88a6d` |
 | R4a | Character access and atomic creation workflow | R3 | planned | Unassigned |
 | R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
 | R5 | Health backend and composed character-detail API | R4b | planned | Unassigned |
@@ -220,21 +220,21 @@ legacy domain-shape check to optional declared layers while retaining its other 
 
 **Acceptance:**
 
-- [ ] Existing repositories use the same physical tables with no schema migration
+- [x] Existing repositories use the same physical tables with no schema migration
   generated solely by a TypeScript file move.
-- [ ] A real related read proves the installed Drizzle API and inferred nested types.
-- [ ] Each table and relation configuration is registered once; imports have no
+- [x] A real related read proves the installed Drizzle API and inferred nested types.
+- [x] Each table and relation configuration is registered once; imports have no
   initialization cycle or dependency on an initialized client.
-- [ ] Client/server builds pass; database shutdown and test isolation still work.
-- [ ] Registry inspection proves all 17 existing physical tables occur once, with
+- [x] Client/server builds pass; database shutdown and test isolation still work.
+- [x] Registry inspection proves all 17 existing physical tables occur once, with
   at most one relation configuration per table and no duplicate character-table alias.
-- [ ] Real `db.query` and `tx.query` related reads compile with inferred nested
+- [x] Real `db.query` and `tx.query` related reads compile with inferred nested
   types; owner/stranger isolation, empty plural collections, and absent health
   (`null` at the ORM boundary) are exercised. R5 preserves HTTP 404 for absence.
-- [ ] Record the measured SQL statement count for the related read and prove
+- [x] Record the measured SQL statement count for the related read and prove
   importing the registry/client without `DATABASE_URL` does not initialize a
   connection; existing lazy lifecycle/shutdown/test isolation behavior passes.
-- [ ] Any compatibility exports are enumerated with removal targets.
+- [x] Any compatibility exports are enumerated with removal targets.
 
 ### R4a: Access And Atomic Creation
 
