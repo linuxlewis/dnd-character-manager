@@ -1,15 +1,15 @@
 import { relations } from "drizzle-orm";
-import {
-	characterSpellSlotEventsTable,
-	characterSpellSlotsTable,
-	characterSpellsTable,
-	charactersTable,
-} from "../domains/characters/schema/index.js";
+import { charactersTable } from "../domains/characters/schema/index.js";
 import {
 	characterHealthEventsTable,
 	characterHealthTable,
 } from "../domains/health/schema/index.js";
 import { inventoryScopesTable } from "../domains/inventory/schema/index.js";
+import {
+	characterSpellSlotEventsTable,
+	characterSpellSlotsTable,
+	characterSpellsTable,
+} from "../domains/spellcasting/schema/index.js";
 import { userTable } from "../providers/auth/schema.js";
 
 export const characterRelations = relations(charactersTable, ({ one, many }) => ({

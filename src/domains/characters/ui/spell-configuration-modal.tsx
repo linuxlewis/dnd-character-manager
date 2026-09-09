@@ -6,7 +6,7 @@ import {
 	apiMutations,
 	type CharacterSpellSlotsResponse,
 } from "../../../generated/api-client.generated.js";
-import { type CharacterSpellSlot, SpellSlotCountSchema } from "../types/index.js";
+import { type CharacterSpellSlot, SpellSlotCountSchema } from "../../spellcasting/types/index.js";
 
 type NumberDraft = number | "";
 

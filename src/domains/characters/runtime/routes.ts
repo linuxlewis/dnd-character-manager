@@ -1,138 +1,17 @@
-import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import {
-	type CharacterService,
-	type CharacterSpellService,
-	type CharacterSpellSlotService,
-	createCharacterService,
-	createCharacterSpellService,
-	createCharacterSpellSlotService,
-} from "../service/index.js";
-import {
-	RestoreCharacterSpellSlotRequestSchema,
-	UpdateCharacterSpellSlotsRequestSchema,
-	UseCharacterSpellSlotRequestSchema,
-} from "../types/index.js";
-import { parseBody, parseParams, sendSpellSlotError } from "./route-helpers.js";
-import { registerCharacterSpellRoutes } from "./routes.spells.js";
-
-const defaultCharacterService = createCharacterService();
-const defaultCharacterSpellService = createCharacterSpellService();
-const defaultCharacterSpellSlotService = createCharacterSpellSlotService();
-
-export interface RegisterCharacterRoutesOptions {
-	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
-	characterService?: CharacterService;
-	characterSpellService?: CharacterSpellService;
-	characterSpellSlotService?: CharacterSpellSlotService;
-}
-
+import type { FastifyInstance } from "fastify";
+import { type CharacterService, createCharacterService } from "../service/index.js";
 export async function registerCharacterRoutes(
 	app: FastifyInstance,
-	options: RegisterCharacterRoutesOptions = {},
+	options: {
+		characterService?: CharacterService;
+		getCurrentUser?: typeof getOrCreateCurrentUser;
+	} = {},
 ) {
-	const characterService = options.characterService ?? defaultCharacterService;
-	const characterSpellService = options.characterSpellService ?? defaultCharacterSpellService;
-	const characterSpellSlotService =
-		options.characterSpellSlotService ?? defaultCharacterSpellSlotService;
+	const service = options.characterService ?? createCharacterService();
 	const getCurrentUser = options.getCurrentUser ?? getOrCreateCurrentUser;
-
 	app.get("/api/characters", async (request, reply) => {
-		const currentUser = await getCurrentUser(request, reply);
-		const characters = await characterService.listCharacters(currentUser.user.id);
-		return { characters };
-	});
-
-	app.get("/api/characters/:characterId/spell-slots", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellSlotService.getCharacterSpellSlots(
-				currentUser.user.id,
-				params.characterId,
-			);
-		} catch (error) {
-			return sendSpellSlotError(error, reply);
-		}
-	});
-
-	app.put("/api/characters/:characterId/spell-slots", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UpdateCharacterSpellSlotsRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellSlotService.updateCharacterSpellSlots(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			return sendSpellSlotError(error, reply);
-		}
-	});
-
-	app.post("/api/characters/:characterId/spell-slots/use", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(UseCharacterSpellSlotRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellSlotService.expendCharacterSpellSlot(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			return sendSpellSlotError(error, reply);
-		}
-	});
-
-	app.post("/api/characters/:characterId/spell-slots/restore", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const body = parseBody(RestoreCharacterSpellSlotRequestSchema, request.body, reply);
-		if (!body) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellSlotService.restoreCharacterSpellSlot(
-				currentUser.user.id,
-				params.characterId,
-				body,
-			);
-		} catch (error) {
-			return sendSpellSlotError(error, reply);
-		}
-	});
-
-	app.post("/api/characters/:characterId/spell-slots/apply-defaults", async (request, reply) => {
-		const params = parseParams(request, reply);
-		if (!params) return;
-
-		const currentUser = await getCurrentUser(request, reply);
-		try {
-			return await characterSpellSlotService.applyDefaultSpellSlots(
-				currentUser.user.id,
-				params.characterId,
-			);
-		} catch (error) {
-			return sendSpellSlotError(error, reply);
-		}
-	});
-
-	await registerCharacterSpellRoutes(app, {
-		characterSpellService,
-		getCurrentUser,
+		const current = await getCurrentUser(request, reply);
+		return { characters: await service.listCharacters(current.user.id) };
 	});
 }

@@ -11,19 +11,10 @@ export type {
 	CatalogueStatusResponse,
 } from "../domains/catalogue/types/index.js";
 export type {
-	CharacterSpellDetailsResponse,
-	CharacterSpellSlotsResponse,
-	CharacterSpellsResponse,
 	ListCharactersResponse,
-	RestoreCharacterSpellSlotRequest,
-	SaveCharacterSpellRequest,
-	SearchCharacterSpellsRequest,
-	SearchCharacterSpellsResponse,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
-	UpdateCharacterSpellSlotsRequest,
-	UseCharacterSpellSlotRequest,
 } from "../domains/characters/types/index.js";
 export type {
 	UpdateCharacterHealthRequest,
@@ -51,6 +42,17 @@ export type {
 	TreasuryConflictResponse,
 	UpdateCharacterItemRequest,
 } from "../domains/inventory/types/index.js";
+export type {
+	CharacterSpellDetailsResponse,
+	CharacterSpellSlotsResponse,
+	CharacterSpellsResponse,
+	RestoreCharacterSpellSlotRequest,
+	SaveCharacterSpellRequest,
+	SearchCharacterSpellsRequest,
+	SearchCharacterSpellsResponse,
+	UpdateCharacterSpellSlotsRequest,
+	UseCharacterSpellSlotRequest,
+} from "../domains/spellcasting/types/index.js";
 export type { CurrentUserResponse } from "../providers/auth/current-user.js";
 export type {
 	MagicLinkRequest,

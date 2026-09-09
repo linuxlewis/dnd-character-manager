@@ -3,7 +3,7 @@ import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
-import type { CharacterSpellSlot } from "../types/index.js";
+import type { CharacterSpellSlotsResponse } from "../types/index.js";
 import { createCharacterSpellSlotRepository } from "./character-spell-slot-repository.js";
 
 const createdUserIds: string[] = [];
@@ -49,23 +49,18 @@ describe("createCharacterSpellSlotRepository", () => {
 			level: 7,
 		});
 
-		let previous = emptySlots();
-		let result = null;
-		for (let index = 1; index <= 6; index += 1) {
-			const next = previous.map((slot) =>
-				slot.level === 1 ? { ...slot, total: 6, used: index, remaining: 6 - index } : slot,
-			);
-			result = await repository.saveCharacterSpellSlots(userId, character.id, next, [
-				{
-					action: "used",
-					level: 1,
-					previous: previous[0],
-					next: next[0],
-					totalDelta: 0,
-					usedDelta: 1,
-				},
-			]);
-			previous = next;
+		await repository.mutateCharacterSpellSlots(userId, character.id, {
+			action: "configured",
+			input: { slots: [{ level: 1, total: 6 }] },
+		});
+		let result: CharacterSpellSlotsResponse | undefined;
+		for (let index = 1; index <= 6; index++) {
+			const response = await repository.mutateCharacterSpellSlots(userId, character.id, {
+				action: "used",
+				input: { level: 1 },
+			});
+			if (!response || "status" in response) throw new Error("Expected saved slots");
+			result = response;
 			await new Promise((resolve) => setTimeout(resolve, 5));
 		}
 
@@ -75,15 +70,6 @@ describe("createCharacterSpellSlotRepository", () => {
 		]);
 	});
 });
-
-function emptySlots(): CharacterSpellSlot[] {
-	return Array.from({ length: 9 }, (_, index) => ({
-		level: index + 1,
-		total: 0,
-		used: 0,
-		remaining: 0,
-	}));
-}
 
 async function createUser() {
 	const id = crypto.randomUUID();

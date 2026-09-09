@@ -1,35 +1,33 @@
-import { getDb } from "@providers/database/index.js";
-import { and, desc, eq } from "drizzle-orm";
-import { findOwnedCharacter } from "../access/index.js";
-import {
-	characterSpellSlotEventsTable,
-	characterSpellSlotsTable,
-	charactersTable,
-} from "../schema/index.js";
+import { type Database, type DatabaseTransaction, getDb } from "@providers/database/index.js";
+import { desc, eq } from "drizzle-orm";
+import { findOwnedCharacter, lockOwnedCharacter } from "../../characters/access/index.js";
+import { applySpellSlotChange, normalizeSpellSlotConfiguration } from "../config/index.js";
+import { characterSpellSlotEventsTable, characterSpellSlotsTable } from "../schema/index.js";
 import type {
-	CharacterClass,
 	CharacterSpellSlot,
+	CharacterSpellSlotConfiguration,
+	CharacterSpellSlotContext,
 	CharacterSpellSlotsResponse,
-	SpellSlotAction,
+	NewSpellSlotChange,
 	SpellSlotChangeResponse,
+	UpdateCharacterSpellSlotsRequest,
+	UseCharacterSpellSlotRequest,
 } from "../types/index.js";
 import { CharacterSpellSlotsResponseSchema } from "../types/index.js";
 import { toSpellSlotChange, toSpellSlotState } from "./character-mappers.js";
 
-export interface CharacterSpellSlotContext {
-	className: CharacterClass;
-	level: number;
+export type SpellSlotMutation =
+	| { action: "configured"; input: UpdateCharacterSpellSlotsRequest }
+	| { action: "used" | "restored"; input: UseCharacterSpellSlotRequest }
+	| {
+			action: "defaults-applied";
+			input: { slots: CharacterSpellSlotConfiguration[] };
+			context: CharacterSpellSlotContext;
+	  };
+export interface StaleSpellSlotContext {
+	status: "stale-context";
+	context: CharacterSpellSlotContext;
 }
-
-export interface NewSpellSlotChange {
-	action: SpellSlotAction;
-	level: number;
-	previous: CharacterSpellSlot;
-	next: CharacterSpellSlot;
-	totalDelta: number;
-	usedDelta: number;
-}
-
 export interface CharacterSpellSlotRepository {
 	findCharacterSpellSlotContext(
 		userId: string,
@@ -39,19 +37,21 @@ export interface CharacterSpellSlotRepository {
 		userId: string,
 		characterId: string,
 	): Promise<CharacterSpellSlot[] | null>;
-	saveCharacterSpellSlots(
+	mutateCharacterSpellSlots(
 		userId: string,
 		characterId: string,
-		slots: CharacterSpellSlot[],
-		changes: NewSpellSlotChange[],
-	): Promise<CharacterSpellSlotsResponse | null>;
+		mutation: SpellSlotMutation,
+	): Promise<CharacterSpellSlotsResponse | StaleSpellSlotContext | null>;
 	listRecentSpellSlotChanges(characterId: string): Promise<SpellSlotChangeResponse[]>;
 }
 
-export function createCharacterSpellSlotRepository(): CharacterSpellSlotRepository {
+export function createCharacterSpellSlotRepository(
+	database: () => Database = getDb,
+	writeChanges = insertSpellSlotChanges,
+): CharacterSpellSlotRepository {
 	return {
 		async findCharacterSpellSlotContext(userId, characterId) {
-			const identity = await findOwnedCharacter(userId, characterId, getDb());
+			const identity = await findOwnedCharacter(userId, characterId, database());
 			return identity ? { className: identity.className, level: identity.level } : null;
 		},
 
@@ -59,7 +59,7 @@ export function createCharacterSpellSlotRepository(): CharacterSpellSlotReposito
 			const context = await this.findCharacterSpellSlotContext(userId, characterId);
 			if (!context) return null;
 
-			const rows = await getDb()
+			const rows = await database()
 				.select(spellSlotColumns())
 				.from(characterSpellSlotsTable)
 				.where(eq(characterSpellSlotsTable.characterId, characterId));
@@ -67,15 +67,32 @@ export function createCharacterSpellSlotRepository(): CharacterSpellSlotReposito
 			return mergeWithEmptySlots(rows.map(toSpellSlotState));
 		},
 
-		async saveCharacterSpellSlots(userId, characterId, slots, changes) {
-			return getDb().transaction(async (tx) => {
-				const [owned] = await tx
-					.select({ id: charactersTable.id })
-					.from(charactersTable)
-					.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
-					.limit(1);
-
+		async mutateCharacterSpellSlots(userId, characterId, mutation) {
+			return database().transaction(async (tx) => {
+				const owned = await lockOwnedCharacter(userId, characterId, tx);
 				if (!owned) return null;
+				if (
+					mutation.action === "defaults-applied" &&
+					(owned.className !== mutation.context.className || owned.level !== mutation.context.level)
+				)
+					return {
+						status: "stale-context" as const,
+						context: { className: owned.className, level: owned.level },
+					};
+				const rows = await tx
+					.select(spellSlotColumns())
+					.from(characterSpellSlotsTable)
+					.where(eq(characterSpellSlotsTable.characterId, characterId));
+				const previous = mergeWithEmptySlots(rows.map(toSpellSlotState));
+				const update =
+					mutation.action === "configured" || mutation.action === "defaults-applied"
+						? normalizeSpellSlotConfiguration(previous, mutation.input, mutation.action)
+						: (() => {
+								const change = applySpellSlotChange(previous, mutation.input, mutation.action);
+								return { next: change.next, events: [change.event] };
+							})();
+				const slots = update.next;
+				const changes = update.events;
 
 				await tx
 					.delete(characterSpellSlotsTable)
@@ -92,21 +109,7 @@ export function createCharacterSpellSlotRepository(): CharacterSpellSlotReposito
 					);
 				}
 
-				if (changes.length > 0) {
-					await tx.insert(characterSpellSlotEventsTable).values(
-						changes.map((change) => ({
-							characterId,
-							action: change.action,
-							spellLevel: change.level,
-							previousTotalSlots: change.previous.total,
-							nextTotalSlots: change.next.total,
-							previousUsedSlots: change.previous.used,
-							nextUsedSlots: change.next.used,
-							totalSlotsDelta: change.totalDelta,
-							usedSlotsDelta: change.usedDelta,
-						})),
-					);
-				}
+				if (changes.length > 0) await writeChanges(tx, characterId, changes);
 
 				const eventRows = await tx
 					.select(spellSlotChangeColumns())
@@ -123,7 +126,7 @@ export function createCharacterSpellSlotRepository(): CharacterSpellSlotReposito
 		},
 
 		async listRecentSpellSlotChanges(characterId) {
-			const rows = await getDb()
+			const rows = await database()
 				.select(spellSlotChangeColumns())
 				.from(characterSpellSlotEventsTable)
 				.where(eq(characterSpellSlotEventsTable.characterId, characterId))
@@ -170,4 +173,24 @@ function spellSlotChangeColumns() {
 		usedSlotsDelta: characterSpellSlotEventsTable.usedSlotsDelta,
 		createdAt: characterSpellSlotEventsTable.createdAt,
 	};
+}
+
+export async function insertSpellSlotChanges(
+	tx: DatabaseTransaction,
+	characterId: string,
+	changes: NewSpellSlotChange[],
+) {
+	await tx.insert(characterSpellSlotEventsTable).values(
+		changes.map((change) => ({
+			characterId,
+			action: change.action,
+			spellLevel: change.level,
+			previousTotalSlots: change.previous.total,
+			nextTotalSlots: change.next.total,
+			previousUsedSlots: change.previous.used,
+			nextUsedSlots: change.next.used,
+			totalSlotsDelta: change.totalDelta,
+			usedSlotsDelta: change.usedDelta,
+		})),
+	);
 }

@@ -1,6 +1,6 @@
 import { Alert, Divider, Group, Modal, Stack, Text, Title } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import type { CharacterSpellDetails } from "../types/index.js";
+import type { CharacterSpellDetails } from "../../spellcasting/types/index.js";
 import { formatSpellLevel } from "./spell-slot-format.js";
 
 export function SpellDetailsModal({

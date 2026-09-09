@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import { describe, expect, it, vi } from "vitest";
 import type { CharacterSpellService, CharacterSpellSlotService } from "../service/index.js";
 import { SpellSearchUnavailableError } from "../service/index.js";
-import { registerCharacterRoutes } from "./routes.js";
+import { registerSpellcastingRoutes } from "./routes.js";
 
 const userId = "00000000-0000-4000-8000-000000000001";
 const character = {
@@ -19,7 +19,7 @@ const character = {
 	recentHealthChanges: [],
 };
 
-describe("registerCharacterRoutes spell routes", () => {
+describe("registerSpellcastingRoutes spell routes", () => {
 	it("lists, searches, and saves character spells for the current user", async () => {
 		const services = fakeServices();
 		const spells = {
@@ -182,8 +182,7 @@ describe("registerCharacterRoutes spell routes", () => {
 
 async function buildApp(services: ReturnType<typeof fakeServices>) {
 	const app = Fastify();
-	await registerCharacterRoutes(app, {
-		characterService: services.characterService,
+	await registerSpellcastingRoutes(app, {
 		characterSpellService: services.characterSpellService,
 		characterSpellSlotService: services.characterSpellSlotService,
 		getCurrentUser: async () => ({

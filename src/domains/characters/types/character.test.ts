@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
 	CharacterSpellSlotsResponseSchema,
+	UpdateCharacterSpellSlotsRequestSchema,
+	UseCharacterSpellSlotRequestSchema,
+} from "../../spellcasting/types/character.js";
+import {
 	UpdateCharacterExperienceRequestSchema,
 	UpdateCharacterLevelRequestSchema,
 	UpdateCharacterNameRequestSchema,
-	UpdateCharacterSpellSlotsRequestSchema,
-	UseCharacterSpellSlotRequestSchema,
 } from "./character.js";
 
 describe("UpdateCharacterLevelRequestSchema", () => {
