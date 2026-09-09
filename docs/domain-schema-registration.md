@@ -1,7 +1,9 @@
 # R3: Public Schema Registration
 
 Base: accepted R2a `a345d79ab0786d0fd1357a2309480a339ea88a6d`.
-Status: full Gate B passed; coordinator review pending.
+Status: accepted by coordinator at `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`,
+[PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110). GitHub CI run
+`34155408372` passed on that commit, including full tests, build, lint, and docs.
 
 ## Changes
 

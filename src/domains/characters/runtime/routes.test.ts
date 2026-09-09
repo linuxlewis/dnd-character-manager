@@ -27,51 +27,6 @@ const character = {
 };
 
 describe("registerCharacterRoutes", () => {
-	it("creates a character for the current user", async () => {
-		const services = fakeServices();
-		const service = services.characterService;
-		service.createCharacter.mockResolvedValue(character);
-		const app = await buildApp(services);
-
-		try {
-			const response = await app.inject({
-				method: "POST",
-				url: "/api/characters",
-				payload: { name: " Nyx ", className: "Warlock", level: 6, maxHp: 28 },
-			});
-
-			expect(response.statusCode).toBe(201);
-			expect(response.json()).toEqual({ character });
-			expect(service.createCharacter).toHaveBeenCalledWith(userId, {
-				name: " Nyx ",
-				className: "Warlock",
-				level: 6,
-				maxHp: 28,
-			});
-		} finally {
-			await app.close();
-		}
-	});
-
-	it("rejects invalid create payloads before calling the service", async () => {
-		const services = fakeServices();
-		const app = await buildApp(services);
-
-		try {
-			const response = await app.inject({
-				method: "POST",
-				url: "/api/characters",
-				payload: { name: "", className: "", level: 0, maxHp: 0 },
-			});
-
-			expect(response.statusCode).toBe(400);
-			expect(response.json()).toHaveProperty("error");
-			expect(services.characterService.createCharacter).not.toHaveBeenCalled();
-		} finally {
-			await app.close();
-		}
-	});
-
 	it("lists and reads characters for the current user", async () => {
 		const services = fakeServices();
 		const service = services.characterService;
@@ -268,7 +223,6 @@ function fakeServices() {
 
 function fakeService() {
 	return {
-		createCharacter: vi.fn(),
 		getCharacter: vi.fn(),
 		listCharacters: vi.fn(),
 		transferCharactersToUser: vi.fn(),

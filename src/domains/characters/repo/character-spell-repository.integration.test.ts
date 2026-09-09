@@ -2,7 +2,7 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { createCharacterRepository } from "./character-repository.js";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import { createCharacterSpellRepository } from "./character-spell-repository.js";
 
 const createdUserIds: string[] = [];
@@ -23,7 +23,7 @@ afterAll(async () => {
 describe("createCharacterSpellRepository", () => {
 	it("saves and lists owned character spells by slot level", async () => {
 		const userId = await createUser();
-		const character = await createCharacterRepository().createCharacter({
+		const character = await createCharacter({
 			userId,
 			name: "Tamsin",
 			className: "Wizard",
@@ -102,7 +102,7 @@ describe("createCharacterSpellRepository", () => {
 
 	it("persists high-level class features saved in the non-slot bucket", async () => {
 		const userId = await createUser();
-		const character = await createCharacterRepository().createCharacter({
+		const character = await createCharacter({
 			userId,
 			name: "Corren",
 			className: "Paladin",
@@ -133,7 +133,7 @@ describe("createCharacterSpellRepository", () => {
 
 	it("persists cantrips and features in the non-slot bucket before numbered spells", async () => {
 		const userId = await createUser();
-		const character = await createCharacterRepository().createCharacter({
+		const character = await createCharacter({
 			userId,
 			name: "Aurelia",
 			className: "Paladin",

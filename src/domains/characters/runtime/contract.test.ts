@@ -4,7 +4,6 @@ import { characterRouteContracts } from "./contract.js";
 describe("characterRouteContracts", () => {
 	it("declares stable operation ids and generated client names", () => {
 		expect(characterRouteContracts.map((route) => route.operationId)).toEqual([
-			"createCharacter",
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterLevel",
@@ -23,7 +22,6 @@ describe("characterRouteContracts", () => {
 			"removeCharacterSpell",
 		]);
 		expect(characterRouteContracts.map((route) => route.client?.functionName)).toEqual([
-			"createCharacter",
 			"listCharacters",
 			"getCharacter",
 			"updateCharacterLevel",

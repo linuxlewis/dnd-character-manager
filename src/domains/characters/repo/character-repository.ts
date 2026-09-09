@@ -1,17 +1,14 @@
+import type { DatabaseTransaction } from "@providers/database/index.js";
 import { getDb } from "@providers/database/index.js";
 import { and, asc, eq } from "drizzle-orm";
 import { characterHealthTable, charactersTable } from "../schema/index.js";
-import type { CharacterDetail, CharacterSummary, CreateCharacterRequest } from "../types/index.js";
+import type { CharacterDetail, CharacterSummary } from "../types/index.js";
+import { CharacterIdSchema } from "../types/index.js";
 import type { CharacterHealthRepository } from "./character-health-repository.js";
 import { createCharacterHealthRepository } from "./character-health-repository.js";
 import { toCharacterDetail, toCharacterSummary } from "./character-mappers.js";
 
-export interface CreateCharacterRecord extends CreateCharacterRequest {
-	userId: string;
-}
-
 export interface CharacterRepository {
-	createCharacter(input: CreateCharacterRecord): Promise<CharacterDetail>;
 	listCharacters(userId: string): Promise<CharacterSummary[]>;
 	findCharacterDetail(userId: string, characterId: string): Promise<CharacterDetail | null>;
 	transferCharactersToUser(fromUserId: string, toUserId: string): Promise<number>;
@@ -39,37 +36,6 @@ export function createCharacterRepository(
 	> = createCharacterHealthRepository(),
 ): CharacterRepository {
 	return {
-		async createCharacter(input) {
-			const db = getDb();
-			const normalized = {
-				userId: input.userId,
-				name: input.name,
-				className: input.className,
-				level: input.level,
-				maxHp: input.maxHp,
-			};
-
-			const characterId = await db.transaction(async (tx) => {
-				const [created] = await tx
-					.insert(charactersTable)
-					.values(normalized)
-					.returning({ id: charactersTable.id });
-
-				await tx.insert(characterHealthTable).values({
-					characterId: created.id,
-					currentHp: normalized.maxHp,
-					maxHp: normalized.maxHp,
-					temporaryHp: 0,
-				});
-
-				return created.id;
-			});
-
-			const character = await this.findCharacterDetail(input.userId, characterId);
-			if (!character) throw new Error("Created character could not be loaded.");
-			return character;
-		},
-
 		async listCharacters(userId) {
 			const rows = await getDb()
 				.select({
@@ -150,4 +116,16 @@ export function createCharacterRepository(
 			return this.findCharacterDetail(userId, characterId);
 		},
 	};
+}
+
+export async function insertCharacterIdentity(
+	userId: string,
+	input: Omit<CharacterSummary, "id">,
+	transaction: DatabaseTransaction,
+) {
+	const [created] = await transaction
+		.insert(charactersTable)
+		.values({ userId, ...input })
+		.returning({ id: charactersTable.id });
+	return CharacterIdSchema.parse(created?.id);
 }

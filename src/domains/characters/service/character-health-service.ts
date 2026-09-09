@@ -1,3 +1,5 @@
+import type { DatabaseTransaction } from "@providers/database/index.js";
+import { insertInitialCharacterHealth } from "../repo/character-health-repository.js";
 import type { CharacterHealthRepository, NewHealthChange } from "../repo/index.js";
 import { createCharacterHealthRepository } from "../repo/index.js";
 import type {
@@ -5,7 +7,7 @@ import type {
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
 } from "../types/index.js";
-import { CharacterHealthSchema } from "../types/index.js";
+import { CharacterHealthSchema, CharacterIdSchema, MaxHitPointsSchema } from "../types/index.js";
 import { CharacterNotFoundError } from "./character-errors.js";
 
 export interface CharacterHealthService {
@@ -72,4 +74,16 @@ export function toHealthChange(
 
 function clamp(value: number, min: number, max: number) {
 	return Math.min(Math.max(value, min), max);
+}
+
+export function initializeCharacterHealth(
+	characterId: string,
+	maxHp: number,
+	transaction: DatabaseTransaction,
+) {
+	return insertInitialCharacterHealth(
+		CharacterIdSchema.parse(characterId),
+		MaxHitPointsSchema.parse(maxHp),
+		transaction,
+	);
 }

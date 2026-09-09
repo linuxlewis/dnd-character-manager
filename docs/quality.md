@@ -96,3 +96,12 @@ and 41 browser tests pass; the spell journey proves Use/Restore still work and u
 in the API while no history control or log appears. See the acceptance record for visual evidence.
 
 *Last updated: 2026-09-07*
+
+## R4a Character Access And Creation
+
+The [R4a implementation record](./domain-character-access-creation.md) documents
+application-owned atomic creation, narrow character access, and real database
+rollback/locking coverage. The access test observes two independent backend PIDs
+and actual pg_blocking_pids waits in both ownership-transfer orderings. Inventory
+write adoption remains R4b; health and spell state-after-lock guarantees remain
+R5/R7. These primitive tests do not claim those later integrations are complete.

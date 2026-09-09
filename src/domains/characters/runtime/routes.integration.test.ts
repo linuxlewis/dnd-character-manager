@@ -4,7 +4,7 @@ import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildServer } from "../../../app-server.js";
-import { createCharacterRepository } from "../repo/index.js";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 
 const createdUserIds: string[] = [];
 
@@ -145,7 +145,7 @@ describe("character routes", () => {
 		const app = await buildServer();
 		try {
 			const ownerUserId = await createUser();
-			const ownerCharacter = await createCharacterRepository().createCharacter({
+			const ownerCharacter = await createCharacter({
 				userId: ownerUserId,
 				name: "Mira",
 				className: "Fighter",

@@ -2,6 +2,7 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import { createCharacterRepository } from "./character-repository.js";
 
 const createdUserIds: string[] = [];
@@ -24,7 +25,7 @@ describe("createCharacterRepository", () => {
 		const userId = await createUser();
 		const repository = createCharacterRepository();
 
-		const created = await repository.createCharacter({
+		const created = await createCharacter({
 			userId,
 			name: "Mira",
 			className: "Fighter",
@@ -142,14 +143,14 @@ describe("createCharacterRepository", () => {
 		const anonymousUserId = await createUser();
 		const linkedUserId = await createUser();
 		const repository = createCharacterRepository();
-		const firstCharacter = await repository.createCharacter({
+		const firstCharacter = await createCharacter({
 			userId: anonymousUserId,
 			name: "Mira",
 			className: "Fighter",
 			level: 3,
 			maxHp: 28,
 		});
-		const secondCharacter = await repository.createCharacter({
+		const secondCharacter = await createCharacter({
 			userId: anonymousUserId,
 			name: "Nyx",
 			className: "Rogue",

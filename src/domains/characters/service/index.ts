@@ -9,11 +9,16 @@ export {
 export type { CharacterHealthService } from "./character-health-service.js";
 export {
 	createCharacterHealthService,
+	initializeCharacterHealth,
 	normalizeHealthUpdate,
 	toHealthChange,
 } from "./character-health-service.js";
 export type { CharacterService } from "./character-service.js";
-export { createCharacterService } from "./character-service.js";
+export {
+	createCharacterService,
+	initializeCharacterIdentity,
+	requireOwnedCharacter,
+} from "./character-service.js";
 export type { CharacterSpellService } from "./character-spell-service.js";
 export { createCharacterSpellService } from "./character-spell-service.js";
 export type { CharacterSpellSlotService } from "./character-spell-slot-service.js";
