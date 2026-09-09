@@ -50,6 +50,12 @@ These captures are reviewed artifacts, not accepted pixel-comparison baselines. 
 are established by this refactor; future baseline adoption or replacement requires independent
 review. Physical iOS/Android browser, standalone installation, software keyboard, safe-area, and
 rotation checks remain **NOT RUN** and must be recorded separately from Chromium emulation.
+## Browser Fixture Reliability
+
+The catalogue journey fixture now has one Playwright setup/teardown owner instead
+of two per-spec advisory-lock owners. Lifecycle tests cover partial setup failure,
+audit cleanup failure, client closure, and metadata validation; real catalogue
+browser assertions remain unchanged. See [evidence](./catalogue-browser-fixture-lifecycle.md).
 
 ## Known Gaps
 

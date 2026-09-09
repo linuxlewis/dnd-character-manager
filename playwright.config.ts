@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
 	testDir: "./tests/e2e",
 	grep: process.env.PLAYWRIGHT_GREP ? new RegExp(process.env.PLAYWRIGHT_GREP) : undefined,
+	globalSetup: "./scripts/catalogue-journey-setup.ts",
 	outputDir: "test-results",
 	reporter: process.env.CI
 		? [["line"], ["html", { open: "never" }]]

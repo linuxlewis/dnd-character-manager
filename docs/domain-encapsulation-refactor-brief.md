@@ -23,6 +23,8 @@ Execute the [milestone plan](./domain-encapsulation-refactor-milestones.md), whi
 breaks this work into focused updates with dependencies, ownership,
 acceptance evidence, and integration gates. The broad stages below describe
 design scope; the milestone plan controls assignment and delivery order.
+R2t makes the existing catalogue browser fixture suite-owned after validation
+exposed per-spec advisory-lock contention; it preserves real browser assertions.
 R2a isolates calculation/public-contract prerequisites; R4a establishes atomic
 creation/access and R4b adopts it for inventory writes before health extraction.
 Use native PR stacks for linear dependencies and keep each delivered update
