@@ -12,7 +12,7 @@ import {
 	apiQueries,
 	apiQueryKeys,
 } from "../../../generated/api-client.generated.js";
-import type { CharacterSpellSlot } from "../../spellcasting/types/index.js";
+import type { CharacterSpellSlot } from "../types/index.js";
 import { NonSlotSpellList } from "./non-slot-spell-list.js";
 import { CharacterSpellConfiguration } from "./spell-configuration-modal.js";
 import { SpellDetailsModal } from "./spell-details-modal.js";

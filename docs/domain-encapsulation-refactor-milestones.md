@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5/R6 accepted; R7 submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5/R6 accepted; R7 locally accepted; R8 submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -30,8 +30,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R4b | Inventory identity access and transactional ownership | R4a | accepted | Coordinator verified `b94446457a1cf9c812ecd82f1b9341d1d5d5a3e2`; [PR #113](https://github.com/linuxlewis/dnd-character-manager/pull/113); CI run `34157394245` passed; [evidence](./domain-inventory-ownership.md) |
 | R5 | Health backend and composed character-detail API | R4b | accepted | Coordinator verified `4d735cc8d7c792e239e931d2c9c359a7b9d624d9`; [PR #114](https://github.com/linuxlewis/dnd-character-manager/pull/114); CI `34158469787` passed; [evidence](./domain-health-composition.md) |
 | R6 | Health UI ownership and cache coordination | R5 | accepted | Coordinator verified `2d6eb6eb831ef4852e2ae7794f71beb8d5d57c95`; [PR #115](https://github.com/linuxlewis/dnd-character-manager/pull/115); CI `34158961988` passed; [evidence](./domain-health-ui.md) |
-| R7 | Spellcasting backend and relationships | R6 | review | R7 agent; full Gate B passed; [implementation/evidence](./domain-spellcasting-backend.md); base `2d6eb6eb831ef4852e2ae7794f71beb8d5d57c95` |
-| R8 | Spellcasting UI ownership | R7 | planned | Unassigned |
+| R7 | Spellcasting backend and relationships | R6 | accepted locally | Coordinator verified `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`; [PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116); CI `34175991433` pending; [evidence](./domain-spellcasting-backend.md) |
+| R8 | Spellcasting UI ownership | R7 | review | R8 agent; full Gate B passed; [implementation/evidence](./domain-spellcasting-ui.md) |
 | R9 | Spell workflow simplification | R8 | planned | Unassigned |
 | R10 | Repository-wide enforcement and bridge removal | R9 | planned | Unassigned |
 | R11 | Integrated acceptance and attributes handoff | R10 | planned | Unassigned |
@@ -381,10 +381,10 @@ trivial presentation type.
 
 **Acceptance:**
 
-- [ ] Existing spell/slot browser journeys still reach their controls and dialogs.
-- [ ] The moved UI uses generated clients and imports no private backend modules.
-- [ ] Character-page composition renders the public spellcasting entrypoint.
-- [ ] The diff separates mechanical moves from necessary wiring changes so R9
+- [x] Existing spell/slot browser journeys still reach their controls and dialogs.
+- [x] The moved UI uses generated clients and imports no private backend modules.
+- [x] Character-page composition renders the public spellcasting entrypoint.
+- [x] The diff separates mechanical moves from necessary wiring changes so R9
   can be reviewed as a behavioral-preserving simplification.
 
 ### R9: Simplify Spell Workflows

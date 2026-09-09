@@ -71,6 +71,12 @@ QueryClient isolation/no-entry tests and a browser 503/explicit retry/no-replay
 journey cover focused health cache updates without unrelated feature requests.
 The report-only boundary scan now has zero findings. See [evidence](./domain-health-ui.md).
 
+## Spellcasting UI Ownership
+
+R8 relocates spell controls and their existing tests to spellcasting, exposed via
+one public panel entrypoint used by application detail. All workflow bodies remain
+unchanged; boundary reporting stays at zero findings. See [move evidence](./domain-spellcasting-ui.md).
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean

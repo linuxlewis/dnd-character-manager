@@ -15,4 +15,3 @@ export {
 	parseCharacterRoute,
 	shouldHandleCharacterLink,
 } from "./character-route.js";
-export { CharacterSpellSlotsPanel } from "./spell-slot-panel.js";
