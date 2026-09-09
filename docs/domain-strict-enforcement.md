@@ -3,6 +3,11 @@
 Base: accepted R9 `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a`,
 [PR #118](https://github.com/linuxlewis/dnd-character-manager/pull/118).
 
+Accepted by the coordinator at `2824232f0b9acd844868025bd747607175042dfd`,
+[PR #119](https://github.com/linuxlewis/dnd-character-manager/pull/119),
+CI `34178059057` passed. Final integrated verification is recorded in
+[R11 acceptance](./domain-refactor-acceptance.md).
+
 ## Normal Validation
 
 `pnpm lint` now runs Biome, `lints/check-deps.ts`, and
@@ -96,6 +101,5 @@ volume, and network; retained browser artifacts are under `test-results/` and
 The diff adds 125 test lines and changes one package script line. Handwritten
 application source, generated clients, dependencies, and migrations have zero delta;
 this activation does not claim source elimination. Documentation is additional.
-R11 owns the final integrated audit and attributes handoff. The coordinator records
-the delivered commit/PR after review; this milestone does not accept itself or merge.
+R11 owns the final integrated audit and attributes handoff. The coordinator verified the delivered commit/PR recorded above; no merge was performed.
 Rollback is a code revert; no data migration is needed.

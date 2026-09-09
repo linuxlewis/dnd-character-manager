@@ -1,11 +1,12 @@
 # R2a: Calculation Ownership And Contract Registration
 
 Base: locally accepted R2t `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`,
-[PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107), CI pending
-at handoff. R2a's complete B gate passes at
+[PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107), CI was pending
+at the original handoff and subsequently passed (`34154029019`). R2a's complete B gate passes at
 `2b29a8ece419ea6d0c28edcab0f630e982e9a688`; the subsequent commit only records this
-evidence and passes D. Owner: R2a implementation agent. Delivered SHA and PR are
-recorded by the coordinator after verification. No merge or deployment is part
+evidence and passes D. Owner: R2a implementation agent. Accepted handoff
+`a345d79ab0786d0fd1357a2309480a339ea88a6d`, [PR #108](https://github.com/linuxlewis/dnd-character-manager/pull/108),
+CI `34154355621` passed. No merge or deployment is part
 of this delivery.
 
 ## Ownership Changes

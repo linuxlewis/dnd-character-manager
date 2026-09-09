@@ -221,11 +221,16 @@ Use Mantine, generated API/TanStack Query helpers, existing route-link helpers, 
 types. Follow [React conventions](./react.md), [architecture](./architecture.md), and
 [implementation procedure](./implementation.md). No `useEffect` in application source.
 
-The app owns account/about/privacy and route-sensitive site chrome. The characters UI owns loaded
-character context, navigation, and character-scoped ephemeral view state. Inventory UI owns its
-treasury/history/item presentation and mutations, exported through its existing UI boundary.
-Compose them in character detail; do not make inventory import character UI or expose providers to
-domains directly. Section agents consume the orchestrator's agreed controlled view-state contracts.
+Ownership amendment after the domain refactor: the app owns account/about/privacy
+and route-sensitive site chrome. `application/character-detail/ui` owns loaded
+character composition, section navigation, scroll state, and cross-feature cache
+coordination. Characters UI owns identity/XP presentation; health, spellcasting,
+and inventory own their feature controls and workflows, exported through public
+UI entrypoints. Shared sheet geometry lives in the app theme. This changes code
+ownership only; all mobile product behavior and acceptance criteria remain. See
+[the module map](./domain-refactor-module-map.md) and
+[rebase acceptance](./domain-refactor-main-rebase.md). Section agents consume the
+orchestrator's agreed controlled view-state contracts.
 
 Persistence, caches, and view state are distinct: retain view state without keeping every section
 mounted or issuing speculative requests. The implementation owner must document how scroll/focus

@@ -1,8 +1,14 @@
 # Domain Encapsulation Refactor Milestones
 
+Current rebase status (2026-09-08): local validation and coordinator review are
+recorded in [the main rebase acceptance note](./domain-refactor-main-rebase.md).
+Earlier acceptance statuses, SHAs, CI runs, and line counts in this document are
+historical pre-rebase evidence. They do not certify the newly rebased PR heads;
+publication and per-layer CI remain coordinator gates.
+
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a/R3/R4a/R4b/R5/R6/R7/R8/R9 accepted; R10 submitted for review; R11 planned.
+Status: all milestones R0-R11 (including suffixed milestones) accepted by the coordinator. No merge or deployment performed.
 
 ## Purpose And Authority
 
@@ -33,8 +39,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R7 | Spellcasting backend and relationships | R6 | accepted | Coordinator verified `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`; [PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116); CI `34175991433` passed; [evidence](./domain-spellcasting-backend.md) |
 | R8 | Spellcasting UI ownership | R7 | accepted | Coordinator verified `624c89b38369cc1fa26ab4092537bf2917dea713`; [PR #117](https://github.com/linuxlewis/dnd-character-manager/pull/117); CI `34176310606` passed; [evidence](./domain-spellcasting-ui.md) |
 | R9 | Spell workflow simplification | R8 | accepted | Coordinator verified `cc6387549d8bd82295761f7eeb3f6050ddc8ae5a`; [PR #118](https://github.com/linuxlewis/dnd-character-manager/pull/118); CI `34177152588` passed; full Gate B passed; [implementation/evidence](./domain-spell-workflows.md) |
-| R10 | Repository-wide enforcement and bridge removal | R9 | review | R10 agent; full Gate B passed; [implementation/evidence](./domain-strict-enforcement.md) |
-| R11 | Integrated acceptance and attributes handoff | R10 | planned | Unassigned |
+| R10 | Repository-wide enforcement and bridge removal | R9 | accepted | Coordinator verified `2824232f0b9acd844868025bd747607175042dfd`; [PR #119](https://github.com/linuxlewis/dnd-character-manager/pull/119); CI `34178059057` passed; full Gate B passed; [evidence](./domain-strict-enforcement.md) |
+| R11 | Integrated acceptance and attributes handoff | R10 | accepted | Coordinator verified `7be07d94f5efaa35fe107b74a299389455a41545`; [PR #121](https://github.com/linuxlewis/dnd-character-manager/pull/121); CI `34178542117` passed; [acceptance and audit](./domain-refactor-acceptance.md) |
 
 ## Orchestration And Review Rules
 
@@ -80,6 +86,10 @@ or unavailable required check leaves the milestone unaccepted: attach the exact
 command, failure, and any baseline reproduction instead of silently waiving it.
 Documentation-only handoffs do not require rerunning unchanged application tests.
 
+Early R0/R1/R2/R2t/R2a checkboxes were reconciled in R11 against their
+[committed evidence mapping](./domain-refactor-acceptance.md#early-checklist-reconciliation-and-handoff).
+Historical execution and final-head validation remain separately recorded.
+
 ## Milestone Cards
 
 ### R0: Baseline And Decisions
@@ -95,13 +105,13 @@ response ownership. Record current trunk and reviewed attributes SHAs.
 
 **Acceptance:**
 
-- [ ] Every model being extracted has one named owner and a destination path.
-- [ ] Required one-to-one versus optional relations and history limits are recorded.
-- [ ] Character creation, anonymous ownership transfer, and mutation transaction
+- [x] Every model being extracted has one named owner and a destination path.
+- [x] Required one-to-one versus optional relations and history limits are recorded.
+- [x] Character creation, anonymous ownership transfer, and mutation transaction
   guarantees have named verification scenarios based on current behavior.
-- [ ] The public schema/access contracts and location of shared calculations are
+- [x] The public schema/access contracts and location of shared calculations are
   concrete decisions, not a list of unresolved alternatives.
-- [ ] Baseline failures are recorded separately from refactor regressions.
+- [x] Baseline failures are recorded separately from refactor regressions.
 
 ### R1: Resolve Real Import Targets
 
@@ -115,12 +125,12 @@ re-exports, and literal dynamic imports. Include actionable source locations.
 
 **Acceptance:**
 
-- [ ] Equivalent relative and alias imports resolve to the same target.
-- [ ] Re-export chains and cycles terminate deterministically with useful traces.
-- [ ] Unresolved local/domain imports are reported; external packages and
+- [x] Equivalent relative and alias imports resolve to the same target.
+- [x] Re-export chains and cycles terminate deterministically with useful traces.
+- [x] Unresolved local/domain imports are reported; external packages and
   nonliteral dynamic imports receive an explicit documented treatment.
-- [ ] Fixtures exercise actual module resolution, not just mocked graph edges.
-- [ ] Existing lint behavior remains functional while the new graph is introduced.
+- [x] Fixtures exercise actual module resolution, not just mocked graph edges.
+- [x] Existing lint behavior remains functional while the new graph is introduced.
 
 ### R2: Rules And Migration Inventory
 
@@ -134,14 +144,14 @@ fix unrelated violations automatically.
 
 **Acceptance:**
 
-- [ ] Relative `types -> service` imports fail the rule fixture that previously passed.
-- [ ] Illegal private cross-domain imports, schema-to-client imports, and UI
+- [x] Relative `types -> service` imports fail the rule fixture that previously passed.
+- [x] Illegal private cross-domain imports, schema-to-client imports, and UI
   server dependencies through barrels fail with a dependency trace.
-- [ ] Public schema foreign keys, application joins, generated clients, and
+- [x] Public schema foreign keys, application joins, generated clients, and
   legitimate provider usage pass; type-only imports follow the chosen matrix.
-- [ ] Schema cycles are detected and the limits of table-access enforcement
+- [x] Schema cycles are detected and the limits of table-access enforcement
   through `getDb` are stated honestly.
-- [ ] Every current violation has a specific remedy; additional prerequisites
+- [x] Every current violation has a specific remedy; additional prerequisites
   receive suffixed milestone cards if needed, rather than an open-ended R10 cleanup.
 
 ### R2t: Catalogue Browser Fixture Lifecycle
@@ -163,15 +173,15 @@ remain unchanged.
 
 **Acceptance:**
 
-- [ ] Both inventory specs consume the same validated fixture metadata with no
+- [x] Both inventory specs consume the same validated fixture metadata with no
   per-spec catalogue lock acquisition/cleanup and no module-owned worker SQL pool.
-- [ ] Setup failure after partial acquisition runs cleanup before closing the
+- [x] Setup failure after partial acquisition runs cleanup before closing the
   client; cleanup failure still closes it and does not hide the setup error.
-- [ ] Successful suite teardown restores/removes only owned rows/audit and releases
+- [x] Successful suite teardown restores/removes only owned rows/audit and releases
   the reserved connection through the existing lifecycle.
-- [ ] Normal unit validation covers resource lifetime and missing/malformed worker
+- [x] Normal unit validation covers resource lifetime and missing/malformed worker
   metadata; the complete browser suite passes without timeout/worker changes.
-- [ ] Evidence distinguishes observed R2a timeouts from the passing R2 baseline.
+- [x] Evidence distinguishes observed R2a timeouts from the passing R2 baseline.
 
 ### R2a: Calculation Ownership And Public Contract Registration
 
@@ -193,14 +203,14 @@ OpenAPI operation metadata and avoid initializing a database during generation.
 
 **Acceptance:**
 
-- [ ] XP bounds/max-level/rounding, currency precision/overflow/conversion, and
+- [x] XP bounds/max-level/rounding, currency precision/overflow/conversion, and
   spend/change behavior remain covered and unchanged.
-- [ ] No calculation implementation is forwarded back through a types barrel;
+- [x] No calculation implementation is forwarded back through a types barrel;
   types/config remain acyclic and schemas retain the same validation semantics.
-- [ ] F1-F5 in the R2 finding ledger are gone; F6-F8 retain named owners.
-- [ ] Public contract registration and generated API freshness pass without SQL
+- [x] F1-F5 in the R2 finding ledger are gone; F6-F8 retain named owners.
+- [x] Public contract registration and generated API freshness pass without SQL
   connection initialization or changed HTTP metadata.
-- [ ] Record source/test moves separately from eliminated code; no compressed
+- [x] Record source/test moves separately from eliminated code; no compressed
   formatting or compatibility aliases obscure the ownership change.
 
 ### R3: Public Schemas And ORM Registration
@@ -439,15 +449,23 @@ and failure/rollback coverage from earlier milestones without duplicating tests.
 
 **Acceptance:**
 
-- [ ] Required commands pass at the recorded final SHA; each PR links its evidence.
-- [ ] An old-to-new model/type/service/route/UI map identifies how the attributes
+- [x] Required commands pass at the recorded final SHA; each PR links its evidence.
+- [x] An old-to-new model/type/service/route/UI map identifies how the attributes
   stack must adopt public schemas, relations, access contracts, and cache policy.
-- [ ] Likely attributes rebase conflicts and the three previously reported recovery/
+- [x] Likely attributes rebase conflicts and the three previously reported recovery/
   validation issues are classified by current trunk versus unmerged-stack behavior.
-- [ ] Handwritten source/test deltas distinguish code moved from code eliminated;
+- [x] Handwritten source/test deltas distinguish code moved from code eliminated;
   generated artifacts and docs are reported separately.
-- [ ] Every milestone is accepted, all temporary bridges/findings are resolved,
+- [x] Every milestone is accepted, all temporary bridges/findings are resolved,
   and draft PRs are ready for review. No merge or deployment is performed.
+
+The coordinator accepted R11 at the SHA/CI above and verified all 15 stack layers,
+including exact heads, bases, native positions, green CI and commit-pinned evidence
+links on every PR. This subsequent documentation-only closure records that acceptance;
+the current PR head's CI is reported by GitHub. Bridge closure is verified. See
+[integrated evidence](./domain-refactor-acceptance.md),
+[module map](./domain-refactor-module-map.md), and
+[attributes handoff](./domain-attributes-adaptation.md).
 
 ## Required Handoff Record
 

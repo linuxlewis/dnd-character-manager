@@ -2,7 +2,8 @@
 
 Base: accepted R6 `2d6eb6eb831ef4852e2ae7794f71beb8d5d57c95`,
 [PR #115](https://github.com/linuxlewis/dnd-character-manager/pull/115),
-CI run `34158961988` passed. Status: full Gate B passed; coordinator review pending.
+CI run `34158961988` passed. R7 accepted at `0198553fe11ca4a00aaa4816eaba6c6a931b4f0f`,
+[PR #116](https://github.com/linuxlewis/dnd-character-manager/pull/116), CI `34175991433` passed.
 
 ## Ownership
 

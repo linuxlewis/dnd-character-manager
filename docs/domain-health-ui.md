@@ -2,7 +2,8 @@
 
 Base: accepted R5 `4d735cc8d7c792e239e931d2c9c359a7b9d624d9`,
 [PR #114](https://github.com/linuxlewis/dnd-character-manager/pull/114), successful
-CI run `34158469787`. R6 coordinator acceptance is pending.
+CI run `34158469787`. R6 accepted at `2d6eb6eb831ef4852e2ae7794f71beb8d5d57c95`,
+[PR #115](https://github.com/linuxlewis/dnd-character-manager/pull/115), CI `34158961988` passed.
 
 ## Ownership
 
@@ -24,7 +25,8 @@ spell list module; no private health UI import or shared abstraction is introduc
 
 Page order, links, window-location navigation/SSR fallback, default spells tab and
 lazy inventory mounting remain unchanged. Health-only updates do not change
-identity creation/edit list invalidation behavior. Spell extraction remains R7/R8.
+identity creation/edit list invalidation behavior. Spell extraction was assigned to R7/R8 and is complete in the
+[final module map](./domain-refactor-module-map.md).
 
 ## Cache Contract And Evidence
 

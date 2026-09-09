@@ -2,7 +2,8 @@
 
 Base: accepted R4a `9e9f77ee4fbd33656f14e4085e225255f01808e3`,
 [PR #111](https://github.com/linuxlewis/dnd-character-manager/pull/111), successful
-CI run `34156463773`. Coordinator acceptance of R4b is pending.
+CI run `34156463773`. R4b accepted at `b94446457a1cf9c812ecd82f1b9341d1d5d5a3e2`,
+[PR #113](https://github.com/linuxlewis/dnd-character-manager/pull/113), CI `34157394245` passed.
 
 ## Boundaries And Write Ordering
 
