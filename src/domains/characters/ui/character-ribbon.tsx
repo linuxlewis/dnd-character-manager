@@ -5,8 +5,8 @@ import type { CharacterExperienceProgress, CharacterSummary } from "../types/ind
 import { CharacterEditor } from "./character-editor.js";
 import { CharacterExperiencePanel } from "./character-experience-panel.js";
 import classes from "./character-ribbon.module.css";
-import type { NavigateToCharacterRoute } from "./character-workspace.js";
 import { shouldHandleCharacterLink } from "./character-route.js";
+import type { NavigateToCharacterRoute } from "./character-workspace.js";
 
 export function CharacterRibbon({
 	character,
