@@ -1,23 +1,24 @@
 import {
+	type CharacterInventoryOwner,
 	CharacterTreasuryPreconditionError,
 	createCharacterTreasuryRepository,
 } from "@domains/inventory/repo/index.js";
 import type { CurrencyBalance } from "@domains/inventory/types/index.js";
 import { expect, vi } from "vitest";
 
-export async function testConcurrentPrecondition(characterId: string) {
+export async function testConcurrentPrecondition(owner: CharacterInventoryOwner) {
 	const repository = createCharacterTreasuryRepository();
 	const zero = { cp: 0, sp: 0, gp: 0, pp: 0 } satisfies CurrencyBalance;
 	const expectedPrevious = { cp: 10, sp: 0, gp: 0, pp: 0 } satisfies CurrencyBalance;
-	await repository.mutateCharacterTreasury(characterId, () => expectedPrevious, {
+	await repository.mutateCharacterTreasury(owner, () => expectedPrevious, {
 		expectedPrevious: zero,
 	});
 
 	const addTwo = vi.fn((current: CurrencyBalance) => ({ ...current, cp: current.cp + 2 }));
 	const addThree = vi.fn((current: CurrencyBalance) => ({ ...current, cp: current.cp + 3 }));
 	const results = await Promise.allSettled([
-		repository.mutateCharacterTreasury(characterId, addTwo, { expectedPrevious }),
-		repository.mutateCharacterTreasury(characterId, addThree, { expectedPrevious }),
+		repository.mutateCharacterTreasury(owner, addTwo, { expectedPrevious }),
+		repository.mutateCharacterTreasury(owner, addThree, { expectedPrevious }),
 	]);
 
 	expect(results.map((result) => result.status).sort()).toEqual(["fulfilled", "rejected"]);
@@ -36,7 +37,7 @@ export async function testConcurrentPrecondition(characterId: string) {
 	expect(rejectedMutation).not.toHaveBeenCalled();
 	expect(addTwo.mock.calls.length + addThree.mock.calls.length).toBe(1);
 
-	const persisted = await repository.findCharacterTreasury(characterId);
+	const persisted = await repository.findCharacterTreasury(owner.characterId);
 	expect(persisted).toEqual(fulfilled.value);
 	expect([12, 13]).toContain(persisted.balances.cp);
 }

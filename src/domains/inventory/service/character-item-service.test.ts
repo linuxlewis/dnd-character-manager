@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import type { CharacterService } from "../../characters/service/index.js";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
 import type { CharacterInventoryScopeRepository, CharacterItemRepository } from "../repo/index.js";
 import type { InventoryItem } from "../types/index.js";
@@ -38,11 +37,10 @@ describe("CharacterItemService", () => {
 				properties: {},
 			}),
 		).resolves.toEqual({ item: savedItem });
-		expect(fakes.characterService.getCharacter).toHaveBeenCalledWith(userId, characterId);
+		expect(fakes.requireCharacter).toHaveBeenCalledWith(userId, characterId);
 		expect(fakes.repository.createItemForCharacterWithHistory).toHaveBeenCalledWith(
-			characterId,
+			{ userId, characterId },
 			expect.objectContaining({ name: "Rope", quantity: 2, type: "misc" }),
-			userId,
 		);
 	});
 	it("lists only the authorized scope and forwards all A5 filters", async () => {
@@ -81,7 +79,7 @@ describe("CharacterItemService", () => {
 	});
 	it("does not query items for an inaccessible character", async () => {
 		const fakes = makeFakes();
-		fakes.characterService.getCharacter.mockRejectedValue(new CharacterNotFoundError());
+		fakes.requireCharacter.mockRejectedValue(new CharacterNotFoundError());
 		const service = createCharacterItemService(fakes);
 
 		await expect(
@@ -118,7 +116,7 @@ describe("CharacterItemService", () => {
 		});
 
 		expect(fakes.repository.createItemForCharacterWithHistory).toHaveBeenCalledWith(
-			characterId,
+			{ userId, characterId },
 			expect.objectContaining({
 				name: "Longsword",
 				type: "equipment",
@@ -130,7 +128,6 @@ describe("CharacterItemService", () => {
 				catalogueRulesVersion: "2024",
 				estimatedValue: 15,
 			}),
-			userId,
 		);
 	});
 	it("maps missing and unavailable catalogue references explicitly", async () => {
@@ -152,14 +149,11 @@ describe("CharacterItemService", () => {
 });
 function makeFakes() {
 	const repository = {
-		createItem: vi.fn(),
 		createItemForCharacterWithHistory: vi.fn(),
 		updateItemWithHistory: vi.fn(),
 		deleteItemWithHistory: vi.fn(),
 		setEquippedWithHistory: vi.fn(),
 		findItem: vi.fn(),
-		updateItem: vi.fn(),
-		deleteItem: vi.fn(),
 		listItems: vi.fn(),
 	} as unknown as CharacterItemRepository & {
 		createItemForCharacterWithHistory: ReturnType<typeof vi.fn>;
@@ -167,28 +161,20 @@ function makeFakes() {
 		deleteItemWithHistory: ReturnType<typeof vi.fn>;
 		setEquippedWithHistory: ReturnType<typeof vi.fn>;
 		findItem: ReturnType<typeof vi.fn>;
-		updateItem: ReturnType<typeof vi.fn>;
-		deleteItem: ReturnType<typeof vi.fn>;
 		listItems: ReturnType<typeof vi.fn>;
 	};
 	const scopeRepository = {
 		findCharacterScopeId: vi.fn().mockResolvedValue(scopeId),
-		ensureCharacterScopeId: vi.fn().mockResolvedValue(scopeId),
 	} as unknown as CharacterInventoryScopeRepository & {
 		findCharacterScopeId: ReturnType<typeof vi.fn>;
-		ensureCharacterScopeId: ReturnType<typeof vi.fn>;
 	};
-	const characterService = {
-		getCharacter: vi.fn().mockResolvedValue({}),
-	} as unknown as Pick<CharacterService, "getCharacter"> & {
-		getCharacter: ReturnType<typeof vi.fn>;
-	};
+	const requireCharacter = vi.fn().mockResolvedValue({});
 	const catalogueClient = {
 		getItemDetails: vi.fn(),
 	} as unknown as CharacterItemCatalogueClient & {
 		getItemDetails: ReturnType<typeof vi.fn>;
 	};
-	return { repository, scopeRepository, characterService, catalogueClient };
+	return { repository, scopeRepository, requireCharacter, catalogueClient };
 }
 function item(overrides: Partial<InventoryItem> = {}): InventoryItem {
 	return InventoryItemSchema.parse({

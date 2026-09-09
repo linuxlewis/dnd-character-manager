@@ -5,6 +5,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { inventoryHistoryEntriesTable, inventoryScopesTable } from "../schema/index.js";
 import type { InventoryItemHistoryWriter } from "./character-item-repository.js";
 import { createCharacterItemRepository } from "./character-item-repository.js";
+import { createInventoryItemRepository } from "./inventory-item-repository.js";
 
 const createdUserIds: string[] = [];
 
@@ -21,9 +22,9 @@ afterAll(async () => closeDb());
 
 describe("character item persistence", () => {
 	it("rolls back character item mutations when history writing fails", async () => {
-		const { characterId, scopeId } = await createScope();
+		const { characterId, scopeId, userId } = await createScope();
 		const repository = createCharacterItemRepository();
-		const existing = await repository.createItem(scopeId, {
+		const existing = await createInventoryItemRepository().createItem(scopeId, {
 			name: "Atomic Item",
 			type: "equipment",
 			category: "Equipment",
@@ -35,21 +36,26 @@ describe("character item persistence", () => {
 		const failingRepository = createCharacterItemRepository({ historyWriter });
 
 		await expect(
-			failingRepository.createItemForCharacterWithHistory(characterId, {
-				name: "Rolled Back Create",
-				type: "misc",
-				category: "Gear",
-				properties: {},
+			failingRepository.createItemForCharacterWithHistory(
+				{ characterId, userId },
+				{
+					name: "Rolled Back Create",
+					type: "misc",
+					category: "Gear",
+					properties: {},
+				},
+			),
+		).rejects.toThrow("forced history failure");
+		await expect(
+			failingRepository.updateItemWithHistory({ characterId, userId }, existing.id, {
+				quantity: 2,
 			}),
 		).rejects.toThrow("forced history failure");
 		await expect(
-			failingRepository.updateItemWithHistory(scopeId, existing.id, { quantity: 2 }),
+			failingRepository.deleteItemWithHistory({ characterId, userId }, existing.id),
 		).rejects.toThrow("forced history failure");
-		await expect(failingRepository.deleteItemWithHistory(scopeId, existing.id)).rejects.toThrow(
-			"forced history failure",
-		);
 		await expect(
-			failingRepository.setEquippedWithHistory(scopeId, existing.id, true),
+			failingRepository.setEquippedWithHistory({ characterId, userId }, existing.id, true),
 		).rejects.toThrow("forced history failure");
 
 		expect(await repository.findItem(scopeId, existing.id)).toMatchObject({
@@ -60,48 +66,40 @@ describe("character item persistence", () => {
 		expect((await repository.listItems(scopeId)).total).toBe(1);
 		expect(await historyCount(scopeId)).toBe(0);
 
-		await repository.setEquippedWithHistory(scopeId, existing.id, true);
+		await repository.setEquippedWithHistory({ characterId, userId }, existing.id, true);
 		await expect(
-			failingRepository.setEquippedWithHistory(scopeId, existing.id, false),
+			failingRepository.setEquippedWithHistory({ characterId, userId }, existing.id, false),
 		).rejects.toThrow("forced history failure");
 		expect(await repository.findItem(scopeId, existing.id)).toMatchObject({ isEquipped: true });
 		expect(await historyCount(scopeId)).toBe(1);
 	});
 
 	it("writes exactly one deterministic history entry per successful character mutation", async () => {
-		const { characterId, scopeId, userId: actorUserId } = await createScope();
+		const { characterId, scopeId, userId } = await createScope();
 		const repository = createCharacterItemRepository();
 		const created = await repository.createItemForCharacterWithHistory(
-			characterId,
+			{ characterId, userId },
 			{
 				name: "History Item",
 				type: "misc",
 				category: "Gear",
 				properties: { source: "test" },
 			},
-			actorUserId,
 		);
-		const updated = await repository.updateItemWithHistory(
-			scopeId,
-			created.id,
-			{
-				quantity: 2,
-			},
-			actorUserId,
-		);
+		const updated = await repository.updateItemWithHistory({ characterId, userId }, created.id, {
+			quantity: 2,
+		});
 		const equipped = await repository.setEquippedWithHistory(
-			scopeId,
+			{ characterId, userId },
 			created.id,
 			true,
-			actorUserId,
 		);
 		const unequipped = await repository.setEquippedWithHistory(
-			scopeId,
+			{ characterId, userId },
 			created.id,
 			false,
-			actorUserId,
 		);
-		const deleted = await repository.deleteItemWithHistory(scopeId, created.id, actorUserId);
+		const deleted = await repository.deleteItemWithHistory({ characterId, userId }, created.id);
 
 		expect(updated).toMatchObject({ id: created.id, quantity: 2 });
 		expect(equipped).toMatchObject({ id: created.id, isEquipped: true });
@@ -122,7 +120,7 @@ describe("character item persistence", () => {
 			.orderBy(desc(inventoryHistoryEntriesTable.createdAt), desc(inventoryHistoryEntriesTable.id));
 
 		expect(entries).toHaveLength(5);
-		expect(entries.every((entry) => entry.actorUserId === actorUserId)).toBe(true);
+		expect(entries.every((entry) => entry.actorUserId === userId)).toBe(true);
 		expect(entries).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
@@ -147,28 +145,22 @@ describe("character item persistence", () => {
 	});
 
 	it("does not update or write history when submitted fields have not changed", async () => {
-		const { characterId, scopeId, userId: actorUserId } = await createScope();
+		const { characterId, scopeId, userId } = await createScope();
 		const repository = createCharacterItemRepository();
 		const created = await repository.createItemForCharacterWithHistory(
-			characterId,
+			{ characterId, userId },
 			{
 				name: "Unchanged Item",
 				type: "misc",
 				category: "Gear",
 				properties: { nested: { source: "test" } },
 			},
-			actorUserId,
 		);
 
-		const unchanged = await repository.updateItemWithHistory(
-			scopeId,
-			created.id,
-			{
-				name: created.name,
-				properties: { nested: { source: "test" } },
-			},
-			actorUserId,
-		);
+		const unchanged = await repository.updateItemWithHistory({ characterId, userId }, created.id, {
+			name: created.name,
+			properties: { nested: { source: "test" } },
+		});
 
 		expect(unchanged).toEqual(created);
 		expect(await historyCount(scopeId)).toBe(1);

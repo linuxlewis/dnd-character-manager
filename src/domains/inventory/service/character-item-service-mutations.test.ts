@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import type { CharacterService } from "../../characters/service/index.js";
 import type { CharacterInventoryScopeRepository, CharacterItemRepository } from "../repo/index.js";
 import type { InventoryItem } from "../types/index.js";
 import { InventoryItemSchema } from "../types/index.js";
@@ -31,14 +30,13 @@ describe("CharacterItemService mutations", () => {
 
 		await service.updateCharacterItem(userId, characterId, before.id, { catalogueItemId: null });
 		expect(fakes.repository.updateItemWithHistory).toHaveBeenCalledWith(
-			scopeId,
+			{ userId, characterId },
 			before.id,
 			{
 				catalogueItemId: null,
 				catalogueSourceKey: null,
 				catalogueRulesVersion: null,
 			},
-			userId,
 		);
 	});
 
@@ -52,29 +50,26 @@ describe("CharacterItemService mutations", () => {
 			item: equipped,
 		});
 		expect(fakes.repository.setEquippedWithHistory).toHaveBeenCalledWith(
-			scopeId,
+			{ userId, characterId },
 			equipped.id,
 			true,
-			userId,
 		);
 
 		const unequipped = item({ isEquipped: false });
 		fakes.repository.setEquippedWithHistory.mockResolvedValue(equipped);
 		await service.equipCharacterItem(userId, characterId, unequipped.id);
 		expect(fakes.repository.setEquippedWithHistory).toHaveBeenCalledWith(
-			scopeId,
+			{ userId, characterId },
 			unequipped.id,
 			true,
-			userId,
 		);
 
 		fakes.repository.setEquippedWithHistory.mockResolvedValue(unequipped);
 		await service.unequipCharacterItem(userId, characterId, equipped.id);
 		expect(fakes.repository.setEquippedWithHistory).toHaveBeenCalledWith(
-			scopeId,
+			{ userId, characterId },
 			equipped.id,
 			false,
-			userId,
 		);
 	});
 
@@ -88,9 +83,8 @@ describe("CharacterItemService mutations", () => {
 			service.deleteCharacterItem(userId, characterId, removed.id),
 		).resolves.toBeUndefined();
 		expect(fakes.repository.deleteItemWithHistory).toHaveBeenCalledWith(
-			scopeId,
+			{ userId, characterId },
 			removed.id,
-			userId,
 		);
 
 		fakes.repository.findItem.mockRejectedValue(new Error("database offline"));
@@ -102,44 +96,32 @@ describe("CharacterItemService mutations", () => {
 
 function makeFakes() {
 	const repository = {
-		createItem: vi.fn(),
 		createItemForCharacterWithHistory: vi.fn(),
 		updateItemWithHistory: vi.fn(),
 		deleteItemWithHistory: vi.fn(),
 		setEquippedWithHistory: vi.fn(),
 		findItem: vi.fn(),
-		updateItem: vi.fn(),
-		deleteItem: vi.fn(),
 		listItems: vi.fn(),
 	} as unknown as CharacterItemRepository & {
 		createItemForCharacterWithHistory: ReturnType<typeof vi.fn>;
 		updateItemWithHistory: ReturnType<typeof vi.fn>;
 		deleteItemWithHistory: ReturnType<typeof vi.fn>;
 		setEquippedWithHistory: ReturnType<typeof vi.fn>;
-		createItem: ReturnType<typeof vi.fn>;
 		findItem: ReturnType<typeof vi.fn>;
-		updateItem: ReturnType<typeof vi.fn>;
-		deleteItem: ReturnType<typeof vi.fn>;
 		listItems: ReturnType<typeof vi.fn>;
 	};
 	const scopeRepository = {
 		findCharacterScopeId: vi.fn().mockResolvedValue(scopeId),
-		ensureCharacterScopeId: vi.fn().mockResolvedValue(scopeId),
 	} as unknown as CharacterInventoryScopeRepository & {
 		findCharacterScopeId: ReturnType<typeof vi.fn>;
-		ensureCharacterScopeId: ReturnType<typeof vi.fn>;
 	};
-	const characterService = {
-		getCharacter: vi.fn().mockResolvedValue({}),
-	} as unknown as Pick<CharacterService, "getCharacter"> & {
-		getCharacter: ReturnType<typeof vi.fn>;
-	};
+	const requireCharacter = vi.fn().mockResolvedValue({});
 	const catalogueClient = {
 		getItemDetails: vi.fn(),
 	} as unknown as CharacterItemCatalogueClient & {
 		getItemDetails: ReturnType<typeof vi.fn>;
 	};
-	return { repository, scopeRepository, characterService, catalogueClient };
+	return { repository, scopeRepository, requireCharacter, catalogueClient };
 }
 
 function item(overrides: Partial<InventoryItem> = {}): InventoryItem {

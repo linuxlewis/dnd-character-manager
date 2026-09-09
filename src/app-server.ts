@@ -13,11 +13,6 @@ import {
 	registerCharacterItemRoutes,
 	registerCharacterTreasuryRoutes,
 } from "./domains/inventory/runtime/index.js";
-import {
-	createCharacterHistoryService,
-	createCharacterItemService,
-	createCharacterTreasuryService,
-} from "./domains/inventory/service/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -67,18 +62,9 @@ export async function buildServer(options: BuildServerOptions = {}) {
 	await registerAuthRoutes(app);
 	await registerCharacterCreationRoute(app);
 	await registerCharacterRoutes(app, { characterService });
-	await registerCharacterTreasuryRoutes(app, {
-		characterService,
-		characterTreasuryService: createCharacterTreasuryService({ characterService }),
-	});
-	await registerCharacterItemRoutes(app, {
-		characterService,
-		characterItemService: createCharacterItemService({ characterService }),
-	});
-	await registerCharacterHistoryRoutes(app, {
-		characterService,
-		characterHistoryService: createCharacterHistoryService({ characterService }),
-	});
+	await registerCharacterTreasuryRoutes(app);
+	await registerCharacterItemRoutes(app);
+	await registerCharacterHistoryRoutes(app);
 	await registerCatalogueRoutes(app);
 
 	if (options.staticRoot) {

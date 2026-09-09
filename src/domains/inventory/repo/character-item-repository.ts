@@ -1,4 +1,4 @@
-import { getDb } from "@providers/database/index.js";
+import { type DatabaseTransaction, getDb } from "@providers/database/index.js";
 import { and, eq } from "drizzle-orm";
 import {
 	inventoryHistoryEntriesTable,
@@ -6,18 +6,16 @@ import {
 	inventoryScopesTable,
 } from "../schema/index.js";
 import type {
-	InventoryCharacterId,
 	InventoryHistoryActorUserId,
 	InventoryItem,
 	InventoryScopeId,
 } from "../types/index.js";
+import { InventoryItemIdSchema, InventoryItemSchema } from "../types/index.js";
 import {
-	InventoryCharacterIdSchema,
-	InventoryHistoryActorUserIdSchema,
-	InventoryItemIdSchema,
-	InventoryItemSchema,
-	InventoryScopeIdSchema,
-} from "../types/index.js";
+	type CharacterInventoryOwner,
+	lockCharacterInventory,
+	lockCharacterInventoryScope,
+} from "./character-inventory-scope-repository.js";
 import { toInventoryHistoryInsert } from "./inventory-history-mappers.js";
 import {
 	type InventoryItemUpdateInput,
@@ -28,7 +26,6 @@ import {
 import type { InventoryItemRepository } from "./inventory-item-repository.js";
 import { createInventoryItemRepository } from "./inventory-item-repository.js";
 
-type DatabaseTransaction = Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0];
 type ItemHistoryAction = "item_added" | "item_updated" | "item_removed";
 
 export type InventoryItemHistoryWriter = (
@@ -40,28 +37,25 @@ export type InventoryItemHistoryWriter = (
 	actorUserId?: InventoryHistoryActorUserId | null,
 ) => Promise<void>;
 
-export interface CharacterItemRepository extends InventoryItemRepository {
+export interface CharacterItemRepository
+	extends Pick<InventoryItemRepository, "findItem" | "listItems"> {
 	createItemForCharacterWithHistory(
-		characterId: InventoryCharacterId,
+		owner: CharacterInventoryOwner,
 		input: unknown,
-		actorUserId?: string | null,
 	): Promise<InventoryItem>;
 	updateItemWithHistory(
-		scopeId: InventoryScopeId,
+		owner: CharacterInventoryOwner,
 		itemId: string,
 		input: unknown,
-		actorUserId?: string | null,
 	): Promise<InventoryItem | null>;
 	deleteItemWithHistory(
-		scopeId: InventoryScopeId,
+		owner: CharacterInventoryOwner,
 		itemId: string,
-		actorUserId?: string | null,
 	): Promise<InventoryItem | null>;
 	setEquippedWithHistory(
-		scopeId: InventoryScopeId,
+		owner: CharacterInventoryOwner,
 		itemId: string,
 		isEquipped: boolean,
-		actorUserId?: string | null,
 	): Promise<InventoryItem | null>;
 }
 
@@ -77,12 +71,13 @@ export function createCharacterItemRepository(
 	const historyWriter = options.historyWriter ?? appendItemHistory;
 
 	return {
-		...itemRepository,
+		findItem: itemRepository.findItem,
+		listItems: itemRepository.listItems,
 
-		async createItemForCharacterWithHistory(characterId, input, actorUserId) {
-			const parsedCharacterId = InventoryCharacterIdSchema.parse(characterId);
-			const parsedActorUserId = parseActorUserId(actorUserId);
+		async createItemForCharacterWithHistory(owner, input) {
 			return getDb().transaction(async (tx) => {
+				const { characterId: parsedCharacterId, userId: parsedActorUserId } =
+					await lockCharacterInventory(owner, tx);
 				await tx
 					.insert(inventoryScopesTable)
 					.values({ characterId: parsedCharacterId })
@@ -106,11 +101,12 @@ export function createCharacterItemRepository(
 			});
 		},
 
-		async updateItemWithHistory(scopeId, itemId, input, actorUserId) {
-			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
+		async updateItemWithHistory(owner, itemId, input) {
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
-			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
+				const parsedScopeId = await lockCharacterInventoryScope(owner, tx);
+				if (!parsedScopeId) return null;
+				const parsedActorUserId = owner.userId;
 				const [currentRow] = await tx
 					.select(itemColumns())
 					.from(inventoryItemsTable)
@@ -146,11 +142,12 @@ export function createCharacterItemRepository(
 			});
 		},
 
-		async deleteItemWithHistory(scopeId, itemId, actorUserId) {
-			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
+		async deleteItemWithHistory(owner, itemId) {
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
-			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
+				const parsedScopeId = await lockCharacterInventoryScope(owner, tx);
+				if (!parsedScopeId) return null;
+				const parsedActorUserId = owner.userId;
 				const [row] = await tx
 					.delete(inventoryItemsTable)
 					.where(
@@ -168,11 +165,12 @@ export function createCharacterItemRepository(
 			});
 		},
 
-		async setEquippedWithHistory(scopeId, itemId, isEquipped, actorUserId) {
-			const parsedScopeId = InventoryScopeIdSchema.parse(scopeId);
+		async setEquippedWithHistory(owner, itemId, isEquipped) {
 			const parsedItemId = InventoryItemIdSchema.parse(itemId);
-			const parsedActorUserId = parseActorUserId(actorUserId);
 			return getDb().transaction(async (tx) => {
+				const parsedScopeId = await lockCharacterInventoryScope(owner, tx);
+				if (!parsedScopeId) return null;
+				const parsedActorUserId = owner.userId;
 				const [currentRow] = await tx
 					.select(itemColumns())
 					.from(inventoryItemsTable)
@@ -234,10 +232,6 @@ async function appendItemHistory(
 		)
 		.returning({ id: inventoryHistoryEntriesTable.id });
 	if (!row) throw new Error("Inventory item history could not be created.");
-}
-
-function parseActorUserId(value: unknown): InventoryHistoryActorUserId | null {
-	return InventoryHistoryActorUserIdSchema.nullable().optional().default(null).parse(value);
 }
 
 function hasPersistedItemChanges(current: InventoryItem, update: InventoryItemUpdateInput) {

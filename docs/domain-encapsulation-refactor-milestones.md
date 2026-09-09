@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0/R1/R2/R2t/R2a/R3 accepted; R4a submitted for review; later milestones planned.
+Status: R0/R1/R2/R2t/R2a/R3/R4a accepted; R4b submitted for review; later milestones planned.
 
 ## Purpose And Authority
 
@@ -26,8 +26,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 | R2t | Suite-owned catalogue browser fixture lifecycle | R2 | accepted | Coordinator verified `a28b6a9a0f2ad6d74424facacbd39771f1c65bea`; [PR #107](https://github.com/linuxlewis/dnd-character-manager/pull/107); local B passed; CI run `34154029019` passed |
 | R2a | Pure calculations and public contract registration | R2t | accepted | Coordinator verified `a345d79ab0786d0fd1357a2309480a339ea88a6d`; [PR #108](https://github.com/linuxlewis/dnd-character-manager/pull/108); CI run `34154355621` passed; [evidence](./domain-calculation-refactor.md) |
 | R3 | Public schemas and typed Drizzle registration | R2a | accepted | [PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110), `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`; CI `34155408372` passed; [evidence](./domain-schema-registration.md) |
-| R4a | Character access and atomic creation workflow | R3 | review | R4a agent; full Gate B passed; [implementation/evidence](./domain-character-access-creation.md); base `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64` |
-| R4b | Inventory identity access and transactional ownership | R4a | planned | Unassigned |
+| R4a | Character access and atomic creation workflow | R3 | accepted | Coordinator verified `9e9f77ee4fbd33656f14e4085e225255f01808e3`; [PR #111](https://github.com/linuxlewis/dnd-character-manager/pull/111); CI run `34156463773` passed; [evidence](./domain-character-access-creation.md) |
+| R4b | Inventory identity access and transactional ownership | R4a | review | R4b agent; full Gate B passed; [implementation/evidence](./domain-inventory-ownership.md); base `9e9f77ee4fbd33656f14e4085e225255f01808e3` |
 | R5 | Health backend and composed character-detail API | R4b | planned | Unassigned |
 | R6 | Health UI ownership and cache coordination | R5 | planned | Unassigned |
 | R7 | Spellcasting backend and relationships | R6 | planned | Unassigned |
@@ -289,16 +289,16 @@ ownership bypass solely for old test call sites.
 
 **Acceptance:**
 
-- [ ] Item create/update/delete/equip and treasury writes deny strangers without
+- [x] Item create/update/delete/equip and treasury writes deny strangers without
   state/history changes; ownership remains valid at write time.
-- [ ] Transfer between service precheck and real repository mutation rejects
+- [x] Transfer between service precheck and real repository mutation rejects
   the old owner for both item and treasury paths.
-- [ ] An actual production mutation transaction blocks transfer on an independent
+- [x] An actual production mutation transaction blocks transfer on an independent
   connection (verified blocker), then completes state/history consistently before
   transfer. Testing only the access helper is insufficient.
-- [ ] Linked owners can read/mutate inventory; original owners cannot; missing
+- [x] Linked owners can read/mutate inventory; original owners cannot; missing
   required health does not prevent identity authorization.
-- [ ] Existing treasury no-op/conflict/conversion/history rollback, item catalogue,
+- [x] Existing treasury no-op/conflict/conversion/history rollback, item catalogue,
   HTTP status, and browser behavior remain unchanged and pass Gate B.
 
 ### R5: Health Backend And Character-Detail Composition

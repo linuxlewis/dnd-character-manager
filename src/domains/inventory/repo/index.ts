@@ -1,5 +1,11 @@
-export type { CharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
-export { createCharacterInventoryScopeRepository } from "./character-inventory-scope-repository.js";
+export type {
+	CharacterInventoryOwner,
+	CharacterInventoryScopeRepository,
+} from "./character-inventory-scope-repository.js";
+export {
+	CharacterInventoryAccessError,
+	createCharacterInventoryScopeRepository,
+} from "./character-inventory-scope-repository.js";
 export type {
 	CharacterItemRepository,
 	CharacterItemRepositoryOptions,

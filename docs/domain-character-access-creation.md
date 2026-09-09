@@ -2,7 +2,9 @@
 
 Base: accepted R3 `c1d70de3dd45a3906d46a3cbe89f7331c22a4d64`,
 [PR #110](https://github.com/linuxlewis/dnd-character-manager/pull/110), successful
-CI run `34155408372`. R4a full Gate B passed; coordinator acceptance pending.
+CI run `34155408372`. R4a accepted at `9e9f77ee4fbd33656f14e4085e225255f01808e3`,
+[PR #111](https://github.com/linuxlewis/dnd-character-manager/pull/111), with successful
+CI run `34156463773`. Full Gate B passed.
 
 ## Public Boundaries
 

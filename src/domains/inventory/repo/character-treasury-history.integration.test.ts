@@ -26,12 +26,12 @@ afterAll(async () => {
 
 describe("character treasury history persistence", () => {
 	it("writes exact add and making-change spend history with the authenticated actor", async () => {
-		const { characterId, userId: actorUserId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
 		const zero = { cp: 0, sp: 0, gp: 0, pp: 0 };
 
 		const added = await repository.mutateCharacterTreasury(
-			characterId,
+			{ characterId, userId },
 			() => ({ cp: 0, sp: 0, gp: 0, pp: 2 }),
 			{
 				expectedPrevious: zero,
@@ -39,19 +39,23 @@ describe("character treasury history persistence", () => {
 					operation: "add",
 					requested: { delta: { cp: 0, sp: 0, gp: 0, pp: 2 } },
 					note: "  Reward from the guild  ",
-					actorUserId,
+					actorUserId: userId,
 				},
 			},
 		);
-		await repository.mutateCharacterTreasury(characterId, () => ({ cp: 0, sp: 0, gp: 5, pp: 0 }), {
-			expectedPrevious: added.balances,
-			history: {
-				operation: "spend",
-				requested: { amount: { denomination: "gp", amount: 15 } },
-				note: "  Bought climbing gear  ",
-				actorUserId,
+		await repository.mutateCharacterTreasury(
+			{ characterId, userId },
+			() => ({ cp: 0, sp: 0, gp: 5, pp: 0 }),
+			{
+				expectedPrevious: added.balances,
+				history: {
+					operation: "spend",
+					requested: { amount: { denomination: "gp", amount: 15 } },
+					note: "  Bought climbing gear  ",
+					actorUserId: userId,
+				},
 			},
-		});
+		);
 
 		const [scope] = await getDb()
 			.select({ id: inventoryScopesTable.id })
@@ -70,7 +74,7 @@ describe("character treasury history persistence", () => {
 			.where(eq(inventoryHistoryEntriesTable.inventoryScopeId, scope.id));
 
 		expect(entries).toHaveLength(2);
-		expect(entries.every((entry) => entry.actorUserId === actorUserId)).toBe(true);
+		expect(entries.every((entry) => entry.actorUserId === userId)).toBe(true);
 		expect(entries).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
@@ -105,22 +109,26 @@ describe("character treasury history persistence", () => {
 	});
 
 	it("rolls back the treasury mutation when history insertion fails", async () => {
-		const { characterId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const historyWriter: CharacterTreasuryHistoryWriter = async () => {
 			throw new Error("forced treasury history failure");
 		};
 		const repository = createCharacterTreasuryRepository({ historyWriter });
 
 		await expect(
-			repository.mutateCharacterTreasury(characterId, () => ({ cp: 0, sp: 0, gp: 1, pp: 0 }), {
-				expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
-				history: {
-					operation: "add",
-					requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
-					note: null,
-					actorUserId: null,
+			repository.mutateCharacterTreasury(
+				{ characterId, userId },
+				() => ({ cp: 0, sp: 0, gp: 1, pp: 0 }),
+				{
+					expectedPrevious: { cp: 0, sp: 0, gp: 0, pp: 0 },
+					history: {
+						operation: "add",
+						requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
+						note: null,
+						actorUserId: null,
+					},
 				},
-			}),
+			),
 		).rejects.toThrow("forced treasury history failure");
 
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toEqual(
@@ -139,14 +147,14 @@ describe("character treasury history persistence", () => {
 	});
 
 	it("does not append history for a no-op treasury mutation", async () => {
-		const { characterId, userId: actorUserId } = await createCharacter();
+		const { characterId, userId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
-		await repository.mutateCharacterTreasury(characterId, (current) => current, {
+		await repository.mutateCharacterTreasury({ characterId, userId }, (current) => current, {
 			history: {
 				operation: "add",
 				requested: { delta: { cp: 0, sp: 0, gp: 1, pp: 0 } },
 				note: null,
-				actorUserId,
+				actorUserId: userId,
 			},
 		});
 
