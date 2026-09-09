@@ -5,6 +5,7 @@ export default defineConfig({
 	test: {
 		globals: true,
 		include: [
+			"lints/**/*.test.ts",
 			"scripts/**/*.test.ts",
 			"src/**/*.test.ts",
 			"src/**/*.test.tsx",

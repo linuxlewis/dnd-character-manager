@@ -2,7 +2,7 @@
 
 Prepared: 2026-09-07
 
-Status: R0 delivered for review; implementation milestones remain planned.
+Status: R0 accepted; R1 delivered for review; later milestones remain planned.
 
 ## Purpose And Authority
 
@@ -20,8 +20,8 @@ as work proceeds. Record a concrete dependency or failure for blocked work.
 
 | ID | Deliverable | Depends on | Status | Owner / PR / verified SHA |
 | --- | --- | --- | --- | --- |
-| R0 | Baseline, ownership map, and architecture decisions | None | review | R0 agent; [evidence](./domain-encapsulation-refactor-baseline.md); coordinator verification pending |
-| R1 | Import resolution and dependency graph | R0 | planned | Unassigned |
+| R0 | Baseline, ownership map, and architecture decisions | None | accepted | [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98); coordinator verified `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`; CI green |
+| R1 | Import resolution and dependency graph | R0 | review | R1 agent; [delivery evidence](./domain-import-graph.md); coordinator verification pending |
 | R2 | Boundary rules, fixtures, and migration inventory | R1 | planned | Unassigned |
 | R3 | Public schemas and typed Drizzle registration | R2 | planned | Unassigned |
 | R4 | Character access and atomic creation workflow | R3 | planned | Unassigned |
@@ -332,4 +332,10 @@ with its card; it should not need the originating conversation to proceed.
 
 See [baseline and architecture decisions](./domain-encapsulation-refactor-baseline.md) for
 model/API/cache inventories, baseline validation, acceptance coverage, and downstream owners.
-R0 is submitted for review; checkboxes become accepted only after coordinator verification.
+R0 was accepted by the coordinator at `f26b24e93dc6b3c8aa1890a9a36ade7bb5a102d6`
+in [PR #98](https://github.com/linuxlewis/dnd-character-manager/pull/98), with green CI.
+
+## R1 Delivery Record
+
+See [import graph behavior and evidence](./domain-import-graph.md). R1 is submitted
+for review; acceptance remains the coordinator's responsibility.
