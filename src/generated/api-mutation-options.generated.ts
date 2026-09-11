@@ -4,6 +4,7 @@ import { type ApiClient, type ApiRequestOptions, apiClient } from "./api-client-
 import type {
 	AddCharacterTreasuryPreviewRequest,
 	AddCharacterTreasuryRequest,
+	CharacterAttributesUpdateRequest,
 	ConvertCharacterTreasuryRequest,
 	CreateCharacterItemRequest,
 	CreateCharacterRequest,
@@ -75,6 +76,15 @@ export function createApiMutationOptions(client: ApiClient = apiClient) {
 					params: { characterId: string };
 					body: UpdateCharacterHealthRequest;
 				}) => client.updateCharacterHealth(variables.params, variables.body, options),
+			}),
+
+		updateCharacterAttributes: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "updateCharacterAttributes"] as const,
+				mutationFn: (variables: {
+					params: { characterId: string };
+					body: CharacterAttributesUpdateRequest;
+				}) => client.updateCharacterAttributes(variables.params, variables.body, options),
 			}),
 
 		updateCharacterSpellSlots: (options: ApiRequestOptions = {}) =>

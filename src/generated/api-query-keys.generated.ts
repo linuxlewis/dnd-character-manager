@@ -9,6 +9,8 @@ export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
 	listCharacters: () => ["api", "listCharacters"] as const,
 	getCharacter: (params: { characterId: string }) => ["api", "getCharacter", params] as const,
+	getCharacterAttributes: (params: { characterId: string }) =>
+		["api", "getCharacterAttributes", params] as const,
 	getCharacterSpellSlots: (params: { characterId: string }) =>
 		["api", "getCharacterSpellSlots", params] as const,
 	listCharacterSpells: (params: { characterId: string }) =>

@@ -20,10 +20,12 @@ export const characterTypeImports = [
 		module: "../domains/characters/types/index.js",
 		names: [
 			"CharacterDetailResponse",
+			"CharacterAttributesResponse",
 			"CharacterSpellDetailsResponse",
 			"CharacterSpellsResponse",
 			"CharacterSpellSlotsResponse",
 			"CreateCharacterRequest",
+			"CharacterAttributesUpdateRequest",
 			"ListCharactersResponse",
 			"RestoreCharacterSpellSlotRequest",
 			"SaveCharacterSpellRequest",
@@ -46,6 +48,7 @@ export const characterSchemaImports = [
 		module: "../domains/characters/types/index.js",
 		names: [
 			"CharacterDetailResponseSchema",
+			"CharacterAttributesResponseSchema",
 			"CharacterSpellDetailsResponseSchema",
 			"CharacterSpellsResponseSchema",
 			"CharacterSpellSlotsResponseSchema",

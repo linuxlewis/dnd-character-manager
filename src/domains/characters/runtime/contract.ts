@@ -13,6 +13,7 @@ import {
 	UpdateCharacterSpellSlotsRequestSchema,
 	UseCharacterSpellSlotRequestSchema,
 } from "../types/index.js";
+import { characterAttributesRouteContracts } from "./character-attributes-contracts.js";
 import { characterSpellRouteContracts } from "./character-spell-contracts.js";
 import {
 	CharacterPathParamsSchema,
@@ -167,6 +168,7 @@ export const characterRouteContracts = [
 			responseType: "UpdateCharacterHealthResponse",
 		},
 	},
+	...characterAttributesRouteContracts,
 	{
 		method: "get",
 		operationId: "getCharacterSpellSlots",

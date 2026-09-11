@@ -46,6 +46,13 @@ export function sendSpellSlotError(error: unknown, reply: FastifyReply) {
 	throw error;
 }
 
+export function sendCharacterAttributesError(error: unknown, reply: FastifyReply) {
+	if (error instanceof CharacterNotFoundError) {
+		return reply.status(404).send({ error: "Character not found." });
+	}
+	throw error;
+}
+
 export function sendSpellError(error: unknown, reply: FastifyReply) {
 	if (error instanceof CharacterNotFoundError) {
 		return reply.status(404).send({ error: "Character not found." });

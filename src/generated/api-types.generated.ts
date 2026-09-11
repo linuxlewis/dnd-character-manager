@@ -7,6 +7,8 @@ export type {
 	CatalogueStatusResponse,
 } from "../domains/catalogue/types/index.js";
 export type {
+	CharacterAttributesResponse,
+	CharacterAttributesUpdateRequest,
 	CharacterDetailResponse,
 	CharacterSpellDetailsResponse,
 	CharacterSpellSlotsResponse,

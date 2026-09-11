@@ -1,5 +1,10 @@
 export type { CatalogueBackedSpellClientOptions } from "./catalogue-backed-spell-client.js";
 export { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
+export type {
+	CharacterAttributesService,
+	CharacterAttributesServiceOptions,
+} from "./character-attributes-service.js";
+export { createCharacterAttributesService } from "./character-attributes-service.js";
 export {
 	CharacterNotFoundError,
 	SpellSearchUnavailableError,
