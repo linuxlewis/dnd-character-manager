@@ -186,13 +186,17 @@ describe("character treasury persistence", () => {
 	it("serializes concurrent first mutations without lost updates", async () => {
 		const { characterId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
+		const unrelated = await createCharacter();
+		await repository.mutateCharacterTreasury(unrelated.characterId, (current) => ({
+			...current,
+			gp: 1,
+		}));
 		const mutations = Array.from({ length: 12 }, () =>
 			repository.mutateCharacterTreasury(characterId, (current) => ({
 				...current,
 				cp: current.cp + 1,
 			})),
 		);
-
 		await Promise.all(mutations);
 		await expect(repository.findCharacterTreasury(characterId)).resolves.toMatchObject({
 			balances: { cp: 12, sp: 0, gp: 0, pp: 0 },
@@ -203,7 +207,6 @@ describe("character treasury persistence", () => {
 	});
 	it("serializes concurrent confirmations", () =>
 		createCharacter().then(({ characterId }) => testConcurrentPrecondition(characterId)));
-
 	it("keeps characters isolated and rejects invalid persisted balances", async () => {
 		const first = await createCharacter();
 		const second = await createCharacter();
@@ -212,7 +215,6 @@ describe("character treasury persistence", () => {
 			...current,
 			pp: 1,
 		}));
-
 		await expect(repository.findCharacterTreasury(second.characterId)).resolves.toEqual(
 			zeroTreasury(second.characterId),
 		);
@@ -227,18 +229,15 @@ describe("character treasury persistence", () => {
 			balances: { cp: 0, sp: 0, gp: 0, pp: 1 },
 		});
 	});
-
 	it("cascades treasury data when the owning character is deleted", async () => {
 		const { characterId } = await createCharacter();
 		const repository = createCharacterTreasuryRepository();
 		await repository.mutateCharacterTreasury(characterId, (current) => ({ ...current, gp: 1 }));
-
 		await getDb().execute(sql`DELETE FROM characters WHERE id = ${characterId}`);
 		expect(await countRows(inventoryScopesTable, characterId)).toBe(0);
 		expect(await countTreasuryRowsForCharacter(characterId)).toBe(0);
 	});
 });
-
 async function createCharacter() {
 	const userId = crypto.randomUUID();
 	const characterId = crypto.randomUUID();
@@ -278,7 +277,6 @@ async function countTreasuryRowsForCharacter(characterId: string) {
 		.where(eq(inventoryScopesTable.characterId, characterId));
 	return Number(row?.count ?? 0);
 }
-
 function zeroTreasury(characterId: string) {
 	return {
 		characterId,
