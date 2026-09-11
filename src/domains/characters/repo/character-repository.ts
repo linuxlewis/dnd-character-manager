@@ -4,7 +4,11 @@ import type { CharacterDetail, CharacterSummary, CreateCharacterRequest } from "
 import type { CharacterHealthRepository } from "./character-health-repository.js";
 import { createCharacterHealthRepository } from "./character-health-repository.js";
 import { toCharacterDetail, toCharacterSummary } from "./character-mappers.js";
-import { characterHealthTable, charactersTable } from "./character-table.js";
+import {
+	characterAttributesTable,
+	characterHealthTable,
+	charactersTable,
+} from "./character-table.js";
 
 export interface CreateCharacterRecord extends CreateCharacterRequest {
 	userId: string;
@@ -32,15 +36,20 @@ export interface CharacterRepository {
 	): Promise<CharacterDetail | null>;
 }
 
+type Db = ReturnType<typeof getDb>;
+
 export function createCharacterRepository(
 	healthRepository: Pick<
 		CharacterHealthRepository,
 		"listRecentHealthChanges"
 	> = createCharacterHealthRepository(),
+	db?: Db,
 ): CharacterRepository {
+	const getRepositoryDb = () => db ?? getDb();
+
 	return {
 		async createCharacter(input) {
-			const db = getDb();
+			const database = getRepositoryDb();
 			const normalized = {
 				userId: input.userId,
 				name: input.name,
@@ -49,7 +58,7 @@ export function createCharacterRepository(
 				maxHp: input.maxHp,
 			};
 
-			const characterId = await db.transaction(async (tx) => {
+			const characterId = await database.transaction(async (tx) => {
 				const [created] = await tx
 					.insert(charactersTable)
 					.values(normalized)
@@ -61,6 +70,15 @@ export function createCharacterRepository(
 					maxHp: normalized.maxHp,
 					temporaryHp: 0,
 				});
+				await tx.insert(characterAttributesTable).values({
+					characterId: created.id,
+					strength: 10,
+					dexterity: 10,
+					constitution: 10,
+					intelligence: 10,
+					wisdom: 10,
+					charisma: 10,
+				});
 
 				return created.id;
 			});
@@ -71,7 +89,7 @@ export function createCharacterRepository(
 		},
 
 		async listCharacters(userId) {
-			const rows = await getDb()
+			const rows = await getRepositoryDb()
 				.select({
 					id: charactersTable.id,
 					name: charactersTable.name,
@@ -86,7 +104,7 @@ export function createCharacterRepository(
 		},
 
 		async findCharacterDetail(userId, characterId) {
-			const [row] = await getDb()
+			const [row] = await getRepositoryDb()
 				.select({
 					id: charactersTable.id,
 					name: charactersTable.name,
@@ -108,7 +126,7 @@ export function createCharacterRepository(
 		},
 
 		async transferCharactersToUser(fromUserId, toUserId) {
-			const transferred = await getDb()
+			const transferred = await getRepositoryDb()
 				.update(charactersTable)
 				.set({ userId: toUserId, updatedAt: new Date() })
 				.where(eq(charactersTable.userId, fromUserId))
@@ -118,7 +136,7 @@ export function createCharacterRepository(
 		},
 
 		async updateCharacterLevel(userId, characterId, level) {
-			const [updated] = await getDb()
+			const [updated] = await getRepositoryDb()
 				.update(charactersTable)
 				.set({ level, updatedAt: new Date() })
 				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
@@ -129,7 +147,7 @@ export function createCharacterRepository(
 		},
 
 		async updateCharacterName(userId, characterId, name) {
-			const [updated] = await getDb()
+			const [updated] = await getRepositoryDb()
 				.update(charactersTable)
 				.set({ name, updatedAt: new Date() })
 				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))
@@ -140,7 +158,7 @@ export function createCharacterRepository(
 		},
 
 		async updateCharacterExperience(userId, characterId, experiencePoints) {
-			const [updated] = await getDb()
+			const [updated] = await getRepositoryDb()
 				.update(charactersTable)
 				.set({ experiencePoints, updatedAt: new Date() })
 				.where(and(eq(charactersTable.id, characterId), eq(charactersTable.userId, userId)))

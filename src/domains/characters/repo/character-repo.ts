@@ -4,7 +4,11 @@ import type { Character, CreateCharacter } from "../types/index.js";
 import { CharacterClassSchema } from "../types/index.js";
 import type { CharacterRow } from "./character-row.js";
 import { characterFromRow } from "./character-row.js";
-import { characterHealthTable, charactersTable } from "./character-table.js";
+import {
+	characterAttributesTable,
+	characterHealthTable,
+	charactersTable,
+} from "./character-table.js";
 
 type Db = ReturnType<typeof getDb>;
 
@@ -41,6 +45,15 @@ export function createCharacterRepo(db: Db = getDb()): CharacterRepo {
 					currentHp: maxHp,
 					maxHp,
 					temporaryHp: 0,
+				});
+				await tx.insert(characterAttributesTable).values({
+					characterId: created.id,
+					strength: 10,
+					dexterity: 10,
+					constitution: 10,
+					intelligence: 10,
+					wisdom: 10,
+					charisma: 10,
 				});
 
 				return created;

@@ -1,17 +1,30 @@
-import { closeDb, getDatabaseUrl } from "@providers/database/index.js";
+import { closeDb, getDatabaseUrl, getDb } from "@providers/database/index.js";
+import { eq } from "drizzle-orm";
 import postgres from "postgres";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createCharacterRepo } from "./character-repo.js";
+import { characterAttributesTable, characterHealthTable } from "./character-table.js";
 
 const sql = postgres(getDatabaseUrl(), { max: 1 });
 const createdUserIds: string[] = [];
 
-afterEach(async () => {
-	for (const userId of createdUserIds) {
-		await sql`DELETE FROM "user" WHERE id = ${userId}`;
-	}
-	createdUserIds.length = 0;
+beforeEach(async () => {
+	await cleanupCreatedUsers();
 });
+
+afterEach(async () => {
+	await cleanupCreatedUsers();
+});
+
+async function cleanupCreatedUsers() {
+	try {
+		for (const userId of createdUserIds) {
+			await sql`DELETE FROM "user" WHERE id = ${userId}`;
+		}
+	} finally {
+		createdUserIds.length = 0;
+	}
+}
 
 afterAll(async () => {
 	await closeDb();
@@ -37,6 +50,36 @@ describe("createCharacterRepo", () => {
 			class: "Wizard",
 			level: 3,
 		});
+		await expect(
+			getDb()
+				.select({
+					currentHp: characterHealthTable.currentHp,
+					maxHp: characterHealthTable.maxHp,
+					strength: characterAttributesTable.strength,
+					dexterity: characterAttributesTable.dexterity,
+					constitution: characterAttributesTable.constitution,
+					intelligence: characterAttributesTable.intelligence,
+					wisdom: characterAttributesTable.wisdom,
+					charisma: characterAttributesTable.charisma,
+				})
+				.from(characterHealthTable)
+				.innerJoin(
+					characterAttributesTable,
+					eq(characterAttributesTable.characterId, characterHealthTable.characterId),
+				)
+				.where(eq(characterHealthTable.characterId, second.id)),
+		).resolves.toEqual([
+			{
+				currentHp: 1,
+				maxHp: 1,
+				strength: 10,
+				dexterity: 10,
+				constitution: 10,
+				intelligence: 10,
+				wisdom: 10,
+				charisma: 10,
+			},
+		]);
 		await repo.create({
 			userId: otherUserId,
 			name: "Hidden",

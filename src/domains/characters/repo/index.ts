@@ -1,4 +1,12 @@
 export type {
+	CharacterAttributesPersistenceState,
+	CharacterAttributesRepository,
+} from "./character-attributes-repository.js";
+export {
+	CharacterAttributesMissingError,
+	createCharacterAttributesRepository,
+} from "./character-attributes-repository.js";
+export type {
 	CharacterHealthRepository,
 	NewHealthChange,
 } from "./character-health-repository.js";
