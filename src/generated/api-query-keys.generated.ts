@@ -5,12 +5,15 @@ import type {
 	ListCharacterHistoryRequest,
 	ListCharacterItemsRequest,
 } from "../domains/inventory/types/index.js";
+import type { SpellSearchDetailsQuery } from "../domains/spellcasting/types/index.js";
 export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
 	getCharacter: (params: { characterId: string }) => ["api", "getCharacter", params] as const,
 	listCharacters: () => ["api", "listCharacters"] as const,
 	getCharacterSpellSlots: (params: { characterId: string }) =>
 		["api", "getCharacterSpellSlots", params] as const,
+	getSpellSearchDetails: (params: { characterId: string }, query: SpellSearchDetailsQuery) =>
+		["api", "getSpellSearchDetails", params, query] as const,
 	listCharacterSpells: (params: { characterId: string }) =>
 		["api", "listCharacterSpells", params] as const,
 	getCharacterSpellDetails: (params: { characterId: string; spellId: string }) =>

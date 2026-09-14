@@ -19,12 +19,18 @@ import type {
 import { UpdateCharacterHealthResponseSchema } from "../domains/health/types/index.js";
 import type {
 	CharacterSpellSlotsResponse,
+	DndSpellDetails,
 	RestoreCharacterSpellSlotRequest,
+	SpellSearchDetailsQuery,
 	UpdateCharacterSpellSlotsRequest,
 	UseCharacterSpellSlotRequest,
 } from "../domains/spellcasting/types/index.js";
-import { CharacterSpellSlotsResponseSchema } from "../domains/spellcasting/types/index.js";
+import {
+	CharacterSpellSlotsResponseSchema,
+	DndSpellDetailsSchema,
+} from "../domains/spellcasting/types/index.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
+import { appendQuery } from "./api-client-core.generated.js";
 
 export function createCharactersApiClient(runtime: ApiClientRuntime) {
 	return {
@@ -185,6 +191,20 @@ export function createCharactersApiClient(runtime: ApiClientRuntime) {
 				options,
 				undefined,
 				(body: unknown) => CharacterSpellSlotsResponseSchema.parse(body),
+			);
+		},
+
+		getSpellSearchDetails(
+			params: { characterId: string },
+			query: SpellSearchDetailsQuery,
+			options: ApiRequestOptions = {},
+		): Promise<DndSpellDetails> {
+			return runtime.request<DndSpellDetails>(
+				"GET",
+				appendQuery(`/api/characters/${params.characterId}/spell-search-details`, query),
+				options,
+				undefined,
+				(body: unknown) => DndSpellDetailsSchema.parse(body),
 			);
 		},
 	};

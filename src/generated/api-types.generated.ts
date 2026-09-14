@@ -46,10 +46,12 @@ export type {
 	CharacterSpellDetailsResponse,
 	CharacterSpellSlotsResponse,
 	CharacterSpellsResponse,
+	DndSpellDetails,
 	RestoreCharacterSpellSlotRequest,
 	SaveCharacterSpellRequest,
 	SearchCharacterSpellsRequest,
 	SearchCharacterSpellsResponse,
+	SpellSearchDetailsQuery,
 	UpdateCharacterSpellSlotsRequest,
 	UseCharacterSpellSlotRequest,
 } from "../domains/spellcasting/types/index.js";

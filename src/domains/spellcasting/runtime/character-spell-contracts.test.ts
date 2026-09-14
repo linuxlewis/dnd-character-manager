@@ -4,6 +4,7 @@ import { characterSpellRouteContracts } from "./character-spell-contracts.js";
 describe("characterSpellRouteContracts", () => {
 	it("declares the saved spell route client functions", () => {
 		expect(characterSpellRouteContracts.map((route) => route.operationId)).toEqual([
+			"getSpellSearchDetails",
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
@@ -11,6 +12,7 @@ describe("characterSpellRouteContracts", () => {
 			"removeCharacterSpell",
 		]);
 		expect(characterSpellRouteContracts.map((route) => route.client?.functionName)).toEqual([
+			"getSpellSearchDetails",
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",

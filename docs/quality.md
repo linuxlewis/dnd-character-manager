@@ -96,6 +96,35 @@ explicit retries. Real browser scenarios cover pending guards, no automatic repl
 stale search isolation, original-character cache writes, and newer-dialog retention.
 Slot failure survives unrelated view changes. See [evidence](./domain-spell-workflows.md).
 
+## HP And Spell Search Previews (2026-09-14)
+
+Healing and damage now show current/resulting HP, comparable bars, the actual delta,
+the effective maximum including temporary HP, and zero/cap states. Spell search
+results use fixed-height rows with two-line previews. Tapping a row adds the spell;
+An info icon opens a full detail view, and Back restores the query, result scroll and
+focus. Preview descriptions load only for visible rows through an owned-character
+read endpoint. Full spell content is shared with the saved-spell detail view. The
+spell-add flow has no instructional helper text.
+
+Validation on the revised working candidate based on `4b09c36`: 713 unit and 98
+integration tests pass. Browser validation includes the existing 52 journeys plus
+a dedicated fixed-row, scroll-return and tap-to-add journey. Lint (including strict boundaries), generated API
+freshness, build, documentation links and whitespace checks pass. Coverage includes
+preview ownership, invalid queries, no save side effects when opening details,
+keyboard navigation, detail failure/retry, health failure retention and capped healing. Actual healing,
+damage, spell search and full detail screenshots were reviewed at 320, 390 and 1280 px;
+the existing enlarged-text and numeric-extreme journeys also pass. Captures are
+in the ignored `test-results/` outputs of `character-mobile-health.spec.ts` and
+`mobile-spells.spec.ts`; they are review evidence, not pixel baselines.
+
+The host's nearly full `/tmp` caused Chromium resource errors in two mobile tests,
+also reproduced on unchanged `52b6bf3`. The successful full run used
+`TMPDIR=/home/sbolgert/.cache/dnd-hp-preview-tmp pnpm test` after creating that
+directory on disk. Docker also required an unused explicit subnet for the owned
+test network because its default pool was exhausted; normal test cleanup removed
+that network. No shared networks or production services were changed.
+Physical-device keyboard and installed-mode checks remain unverified.
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean

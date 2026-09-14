@@ -6,17 +6,25 @@ import { SpellSearchUnavailableError } from "../types/errors.js";
 import type {
 	CharacterSpellDetailsResponse,
 	CharacterSpellsResponse,
+	DndSpellDetails,
 	SaveCharacterSpellRequest,
 	SearchCharacterSpellsRequest,
 	SearchCharacterSpellsResponse,
+	SpellSearchDetailsQuery,
 } from "../types/index.js";
 import {
 	CharacterSpellDetailsResponseSchema,
+	DndSpellDetailsSchema,
 	SearchCharacterSpellsResponseSchema,
 } from "../types/index.js";
 import { createCatalogueBackedSpellClient } from "./catalogue-backed-spell-client.js";
 
 export interface CharacterSpellService {
+	getSpellSearchDetails(
+		userId: string,
+		characterId: string,
+		input: SpellSearchDetailsQuery,
+	): Promise<DndSpellDetails>;
 	getCharacterSpellDetails(
 		userId: string,
 		characterId: string,
@@ -45,6 +53,18 @@ export function createCharacterSpellService(
 	spellsClient: DndApiSpellClient = createCatalogueBackedSpellClient(),
 ): CharacterSpellService {
 	return {
+		async getSpellSearchDetails(userId, characterId, input) {
+			if (!(await repository.characterExists(userId, characterId)))
+				throw new CharacterNotFoundError();
+			try {
+				return DndSpellDetailsSchema.parse(
+					await spellsClient.getSpellDetails(input.spellIndex, input.source),
+				);
+			} catch (error) {
+				if (error instanceof DndApiSpellClientError) throw new SpellSearchUnavailableError();
+				throw error;
+			}
+		},
 		async getCharacterSpellDetails(userId, characterId, spellId) {
 			const savedSpell = await repository.getCharacterSpell(userId, characterId, spellId);
 			if (!savedSpell) throw new CharacterNotFoundError();

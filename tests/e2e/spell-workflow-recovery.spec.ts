@@ -50,7 +50,7 @@ test("search and save fail locally, retry explicitly, and guard pending dismissa
 	await expect(dialog.getByText("Spell search unavailable")).toBeVisible();
 	expect(searches).toBe(1);
 	await dialog.getByRole("button", { name: "Retry search" }).click();
-	await dialog.getByRole("button", { name: /Light/ }).click();
+	await dialog.getByRole("button", { name: "Add Light", exact: true }).click();
 	await expect(dialog.getByText("Spell could not be saved")).toBeVisible();
 	await expect(dialog.getByLabel("Search cantrips and features")).toHaveValue("light");
 	await expect(page.getByRole("button", { name: "View Light details" })).toHaveCount(0);
@@ -73,7 +73,7 @@ test("search and save fail locally, retry explicitly, and guard pending dismissa
 	expect(searches).toBe(2);
 	expect(saves).toBe(2);
 	await page.waitForLoadState("networkidle");
-	expect(reads).toEqual([]);
+	expect(reads.every((url) => new URL(url).pathname.endsWith("/spell-search-details"))).toBe(true);
 });
 
 test("details retry and remove cancellation, failure and pending confirmation stay in their dialogs", async ({
@@ -190,7 +190,7 @@ test("late search results cannot replace newer matches or a newly opened slot bu
 		await expect.poll(() => oldStarted).toBe(true);
 		await page.getByLabel("Search cantrips and features").fill("new");
 		await expect(
-			page.getByRole("dialog").getByRole("button", { name: /New bucket 0/ }),
+			page.getByRole("dialog").getByRole("button", { name: "Add New bucket 0", exact: true }),
 		).toBeVisible();
 		await page.getByRole("button", { name: "Close add spell dialog" }).click();
 		await page.getByRole("button", { name: "Edit spells", exact: true }).click();
@@ -198,14 +198,14 @@ test("late search results cannot replace newer matches or a newly opened slot bu
 		await expect(page.getByLabel("Search spells")).toHaveValue("");
 		await page.getByLabel("Search spells").fill("new");
 		await expect(
-			page.getByRole("dialog").getByRole("button", { name: /New bucket 1/ }),
+			page.getByRole("dialog").getByRole("button", { name: "Add New bucket 1", exact: true }),
 		).toBeVisible();
 	} finally {
 		release.resolve();
 	}
 	await completed.promise;
 	await expect(
-		page.getByRole("dialog").getByRole("button", { name: /New bucket 1/ }),
+		page.getByRole("dialog").getByRole("button", { name: "Add New bucket 1", exact: true }),
 	).toBeVisible();
 	await expect(page.getByText("Old result", { exact: true })).toHaveCount(0);
 });

@@ -4,6 +4,7 @@ import type { CharacterSpellService } from "../service/index.js";
 import {
 	SaveCharacterSpellRequestSchema,
 	SearchCharacterSpellsRequestSchema,
+	SpellSearchDetailsQuerySchema,
 } from "../types/index.js";
 import { parseBody, parseParams, parseSpellParams, sendSpellError } from "./route-helpers.js";
 
@@ -15,6 +16,23 @@ export async function registerCharacterSpellRoutes(
 	},
 ) {
 	const { characterSpellService, getCurrentUser } = options;
+
+	app.get("/api/characters/:characterId/spell-search-details", async (request, reply) => {
+		const params = parseParams(request, reply);
+		if (!params) return;
+		const query = parseBody(SpellSearchDetailsQuerySchema, request.query, reply);
+		if (!query) return;
+		const currentUser = await getCurrentUser(request, reply);
+		try {
+			return await characterSpellService.getSpellSearchDetails(
+				currentUser.user.id,
+				params.characterId,
+				query,
+			);
+		} catch (error) {
+			return sendSpellError(error, reply);
+		}
+	});
 
 	app.get("/api/characters/:characterId/spells", async (request, reply) => {
 		const params = parseParams(request, reply);

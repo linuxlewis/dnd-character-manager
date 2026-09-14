@@ -2,9 +2,11 @@ import type { ApiRouteContract } from "@providers/openapi/index.js";
 import {
 	CharacterSpellDetailsResponseSchema,
 	CharacterSpellsResponseSchema,
+	DndSpellDetailsSchema,
 	SaveCharacterSpellRequestSchema,
 	SearchCharacterSpellsRequestSchema,
 	SearchCharacterSpellsResponseSchema,
+	SpellSearchDetailsQuerySchema,
 } from "../types/index.js";
 import {
 	CharacterPathParamsSchema,
@@ -15,6 +17,40 @@ import {
 } from "./contract-support.js";
 
 export const characterSpellRouteContracts = [
+	{
+		method: "get",
+		operationId: "getSpellSearchDetails",
+		path: "/api/characters/:characterId/spell-search-details",
+		pathParams: CharacterPathParamsSchema,
+		queryParams: SpellSearchDetailsQuerySchema,
+		responses: {
+			200: { description: "Spell details before adding", schema: DndSpellDetailsSchema },
+			400: { description: "Invalid spell selection", schema: ErrorResponseSchema },
+			404: { description: "Character not found", schema: ErrorResponseSchema },
+			502: { description: "D&D API unavailable", schema: ErrorResponseSchema },
+		},
+		summary: "Preview spell search details",
+		tags: ["characters"],
+		client: {
+			functionName: "getSpellSearchDetails",
+			imports: [
+				{
+					kind: "type",
+					module: "../domains/spellcasting/types/index.js",
+					names: ["DndSpellDetails", "SpellSearchDetailsQuery"],
+				},
+				{
+					kind: "value",
+					module: "../domains/spellcasting/types/index.js",
+					names: ["DndSpellDetailsSchema"],
+				},
+			],
+			pathParamsType: "{ characterId: string }",
+			queryParamsType: "SpellSearchDetailsQuery",
+			responseParser: "DndSpellDetailsSchema",
+			responseType: "DndSpellDetails",
+		},
+	},
 	{
 		method: "get",
 		operationId: "listCharacterSpells",

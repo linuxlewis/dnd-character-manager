@@ -51,8 +51,10 @@ test("late save updates its original character and cannot close a newer characte
 	try {
 		await page.getByRole("button", { name: "Add cantrip or feature", exact: true }).click();
 		await page.getByLabel("Search cantrips and features").fill("light");
-		await expect(page.getByRole("dialog").getByRole("button", { name: /Light/ })).toBeVisible();
-		await page.getByRole("dialog").getByRole("button", { name: /Light/ }).click();
+		await expect(
+			page.getByRole("dialog").getByRole("button", { name: "Add Light", exact: true }),
+		).toBeVisible();
+		await page.getByRole("dialog").getByRole("button", { name: "Add Light", exact: true }).click();
 		await expect.poll(() => saving).toBe(true);
 		await page.evaluate((id) => window.spellFixture.render(id), secondId);
 		await expect(page.getByRole("dialog")).toBeHidden();

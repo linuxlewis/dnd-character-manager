@@ -248,6 +248,7 @@ const fakeHealthService = () =>
 	({ updateCharacterHealth: vi.fn() }) satisfies CharacterHealthService;
 function fakeSpellService() {
 	return {
+		getSpellSearchDetails: vi.fn(),
 		getCharacterSpellDetails: vi.fn(),
 		listCharacterSpells: vi.fn(),
 		removeCharacterSpell: vi.fn(),

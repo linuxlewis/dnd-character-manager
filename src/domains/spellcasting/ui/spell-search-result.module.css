@@ -1,0 +1,34 @@
+.result {
+	position: relative;
+	height: 7.5rem;
+	flex-shrink: 0;
+}
+.result .addTarget {
+	display: flex;
+	align-items: flex-start;
+	width: 100%;
+	height: 100%;
+	padding: 10px 12px;
+	border-radius: inherit;
+	overflow: hidden;
+}
+.addTarget:hover:not(:disabled) {
+	background: var(--mantine-color-default-hover);
+}
+.addTarget:focus-visible {
+	outline: 2px solid var(--mantine-color-candle-4);
+	outline-offset: 2px;
+}
+.result .seeMore {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+.heading {
+	padding-right: 2rem;
+}
+.results {
+	max-height: 60dvh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}

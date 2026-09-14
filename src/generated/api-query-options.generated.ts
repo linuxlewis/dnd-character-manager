@@ -6,6 +6,7 @@ import type {
 	ListCharacterHistoryRequest,
 	ListCharacterItemsRequest,
 } from "../domains/inventory/types/index.js";
+import type { SpellSearchDetailsQuery } from "../domains/spellcasting/types/index.js";
 import { type ApiClient, type ApiRequestOptions, apiClient } from "./api-client-core.generated.js";
 import { apiQueryKeys } from "./api-query-keys.generated.js";
 
@@ -33,6 +34,16 @@ export function createApiQueryOptions(client: ApiClient = apiClient) {
 			queryOptions({
 				queryKey: apiQueryKeys.getCharacterSpellSlots(params),
 				queryFn: () => client.getCharacterSpellSlots(params, options),
+			}),
+
+		getSpellSearchDetails: (
+			params: { characterId: string },
+			query: SpellSearchDetailsQuery,
+			options: ApiRequestOptions = {},
+		) =>
+			queryOptions({
+				queryKey: apiQueryKeys.getSpellSearchDetails(params, query),
+				queryFn: () => client.getSpellSearchDetails(params, query, options),
 			}),
 
 		listCharacterSpells: (params: { characterId: string }, options: ApiRequestOptions = {}) =>

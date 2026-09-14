@@ -166,3 +166,9 @@ export interface CharacterSpellSlotContext {
 	className: CharacterClass;
 	level: number;
 }
+
+export const SpellSearchDetailsQuerySchema = z.object({
+	spellIndex: SpellIndexSchema,
+	source: SpellEntrySourceSchema,
+});
+export type SpellSearchDetailsQuery = z.infer<typeof SpellSearchDetailsQuerySchema>;

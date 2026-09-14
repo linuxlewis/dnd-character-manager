@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 for (const width of [320, 390, 1280]) {
-	test(`compact identity and health recovery at ${width}px`, async ({ page }) => {
+	test(`compact identity and health recovery at ${width}px`, async ({ page }, testInfo) => {
 		await page.setViewportSize({ width, height: width === 320 ? 740 : 900 });
 		await page.goto("/");
 		await page.getByText("Create character").first().click();
@@ -30,7 +30,11 @@ for (const width of [320, 390, 1280]) {
 				})
 				.toEqual({ x: 0, width, bottom: width === 320 ? 740 : 900 });
 		}
-		await expect(page.getByRole("dialog").getByRole("status")).toContainText("Resulting HP: 18");
+		await expect(page.getByRole("dialog").getByRole("status")).toContainText("-9 HP");
+		await page.screenshot({
+			animations: "disabled",
+			path: testInfo.outputPath(`damage-${width}.png`),
+		});
 		await page.route("**/health", (route) =>
 			route.fulfill({
 				status: 500,
@@ -46,7 +50,11 @@ for (const width of [320, 390, 1280]) {
 		await expect(page.getByRole("button", { name: "Edit health: 18 / 27 HP" })).toBeVisible();
 		await page.getByRole("button", { name: "Heal", exact: true }).click();
 		await page.getByLabel("Amount").fill("99");
-		await expect(page.getByRole("dialog").getByRole("status")).toContainText("Resulting HP: 27");
+		await expect(page.getByRole("dialog").getByRole("status")).toContainText("Maximum HP reached.");
+		await page.screenshot({
+			animations: "disabled",
+			path: testInfo.outputPath(`healing-${width}.png`),
+		});
 		await page.getByRole("button", { name: "Cancel", exact: true }).click();
 		await expect(page.getByRole("button", { name: "Heal", exact: true })).toBeFocused();
 		await page.getByRole("button", { name: /^Character details for/ }).click();
