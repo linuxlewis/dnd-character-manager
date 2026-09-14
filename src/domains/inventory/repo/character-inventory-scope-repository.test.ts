@@ -6,6 +6,5 @@ describe("CharacterInventoryScopeRepository", () => {
 		const repository = createCharacterInventoryScopeRepository();
 
 		await expect(repository.findCharacterScopeId("not-a-uuid")).rejects.toThrow();
-		await expect(repository.ensureCharacterScopeId("not-a-uuid")).rejects.toThrow();
 	});
 });

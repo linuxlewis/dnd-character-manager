@@ -2,9 +2,8 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { inventoryItemsTable, inventoryScopesTable } from "../schema/index.js";
 import { createInventoryItemRepository } from "./inventory-item-repository.js";
-import { inventoryItemsTable } from "./inventory-item-table.js";
-import { inventoryScopesTable } from "./inventory-scope-table.js";
 
 const createdUserIds: string[] = [];
 

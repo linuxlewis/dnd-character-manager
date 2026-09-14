@@ -1,7 +1,7 @@
 import { MantineProvider } from "@mantine/core";
+import type { ComponentProps } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import type { CharacterDetail } from "../types/index.js";
 import { CharacterRibbon } from "./character-ribbon.js";
 
 vi.mock("./character-editor.js", () => ({ CharacterEditor: () => null }));
@@ -14,7 +14,7 @@ describe("CharacterRibbon", () => {
 			name: "Mira",
 			className: "Wizard",
 			level: 3,
-		} as CharacterDetail;
+		} as ComponentProps<typeof CharacterRibbon>["character"];
 		const html = renderToString(
 			<MantineProvider>
 				<CharacterRibbon

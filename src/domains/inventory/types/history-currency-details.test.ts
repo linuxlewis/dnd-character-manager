@@ -6,6 +6,37 @@ import {
 } from "./history-currency-details.js";
 
 describe("inventory currency history details", () => {
+	it.each([
+		"spend",
+		"convert",
+	] as const)("preserves %s refinement failures for balances outside persisted bounds", (operation) => {
+		const schema =
+			operation === "spend"
+				? InventoryHistoryCurrencySpendDetailsSchema
+				: InventoryHistoryCurrencyConvertDetailsSchema;
+		const details = {
+			version: 1,
+			operation,
+			previous: { cp: 0, sp: 0, gp: 0, pp: 1 },
+			next: { cp: 0, sp: 0, gp: 10, pp: 0 },
+			delta: { cp: 0, sp: 0, gp: 10, pp: -1 },
+			note: null,
+			requested:
+				operation === "spend"
+					? { amount: { denomination: "gp", amount: 1 } }
+					: { from: "pp", to: "gp", amount: 1 },
+		};
+		for (const key of ["previous", "next"] as const) {
+			for (const cp of [-1, 2_147_483_648]) {
+				// Existing refinements reparse persisted balances, including during safeParse.
+				expect(() => schema.safeParse({ ...details, [key]: { ...details[key], cp } })).toThrow();
+			}
+			expect(schema.safeParse({ ...details, [key]: { ...details[key], cp: 0.5 } }).success).toBe(
+				false,
+			);
+		}
+	});
+
 	it("trims notes and converts blank notes to null", () => {
 		const details = InventoryHistoryCurrencyAddDetailsSchema.parse({
 			version: 1,

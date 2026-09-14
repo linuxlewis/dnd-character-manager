@@ -6,12 +6,12 @@ import type {
 	SaveCharacterSpellRequest,
 	SearchCharacterSpellsRequest,
 	SearchCharacterSpellsResponse,
-} from "../domains/characters/types/index.js";
+} from "../domains/spellcasting/types/index.js";
 import {
 	CharacterSpellDetailsResponseSchema,
 	CharacterSpellsResponseSchema,
 	SearchCharacterSpellsResponseSchema,
-} from "../domains/characters/types/index.js";
+} from "../domains/spellcasting/types/index.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
 
 export function createSpellsApiClient(runtime: ApiClientRuntime) {

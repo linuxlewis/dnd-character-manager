@@ -23,7 +23,6 @@ export {
 	toCatalogueSpellDetails,
 	toCatalogueSpellSearchResult,
 } from "./catalogue-spell-repository.js";
-export { catalogueSpellsTable } from "./catalogue-spell-table.js";
 export type { FoundryItemSourceInput } from "./foundry-item-source.js";
 export { parseFoundryItemSource } from "./foundry-item-source.js";
 export type { FoundrySpellSourceInput } from "./foundry-spell-source.js";

@@ -5,7 +5,6 @@ import {
 	PositivePostgresIntegerSchema,
 	PostgresIntegerSchema,
 	PostgresNonNegativeIntegerSchema,
-	SafeIntegerSchema,
 } from "./numeric.js";
 
 export const CURRENCY_DENOMINATIONS = ["cp", "sp", "gp", "pp"] as const;
@@ -234,43 +233,35 @@ export const CurrencyPreviewSchema = z
 	.strict();
 export type CurrencyPreview = z.infer<typeof CurrencyPreviewSchema>;
 
-export function getCurrencyValueInCopper(balance: CurrencyBalance): number {
-	const parsed = CurrencyBalanceSchema.parse(balance);
-	const copper = CURRENCY_DENOMINATIONS.reduce(
-		(total, denomination) => total + parsed[denomination] * DND_CURRENCY_TO_COPPER[denomination],
-		0,
-	);
-	return SafeIntegerSchema.parse(copper);
-}
-
-export function getCurrencyDeltaValueInCopper(delta: CurrencyDelta): number {
-	const parsed = CurrencyDeltaSchema.parse(delta);
-	const copper = CURRENCY_DENOMINATIONS.reduce(
-		(total, denomination) => total + parsed[denomination] * DND_CURRENCY_TO_COPPER[denomination],
-		0,
-	);
-	return SafeIntegerSchema.parse(copper);
-}
-
-export function getCurrencyTotalValue(balance: CurrencyBalance): CurrencyTotalValue {
-	const copper = getCurrencyValueInCopper(balance);
-	return CurrencyTotalValueSchema.parse({ copper, gp: copper / DND_CURRENCY_TO_COPPER.gp });
-}
-
-export function convertDenominationAmount(
-	amount: number,
-	from: CurrencyDenomination,
-	to: CurrencyDenomination,
-): number {
-	const request = CurrencyConversionRequestSchema.parse({ amount, from, to });
-	const convertedAmount =
-		(request.amount * DND_CURRENCY_TO_COPPER[request.from]) / DND_CURRENCY_TO_COPPER[request.to];
-	return PositivePostgresIntegerSchema.parse(convertedAmount);
-}
-
 function hasAddableDelta(delta: CurrencyDelta) {
 	return (
 		CURRENCY_DENOMINATIONS.every((denomination) => delta[denomination] >= 0) &&
 		CURRENCY_DENOMINATIONS.some((denomination) => delta[denomination] > 0)
 	);
 }
+
+export interface CurrencyPlan {
+	previous: CurrencyBalance;
+	next: CurrencyBalance;
+	delta: CurrencyDelta;
+}
+
+export interface SpendPlan extends CurrencyPlan {
+	change?: CurrencyBalance;
+}
+
+export type SpendPlanResult =
+	| { ok: true; plan: SpendPlan }
+	| {
+			ok: false;
+			previous: CurrencyBalance;
+			next: CurrencyBalance;
+			delta: CurrencyDelta;
+			totalValue: CurrencyTotalValue;
+			error: {
+				code: "INSUFFICIENT_FUNDS";
+				message: string;
+				available: CurrencyTotalValue;
+				requested: CurrencyTotalValue;
+			};
+	  };

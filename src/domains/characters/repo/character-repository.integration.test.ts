@@ -2,6 +2,8 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { getCharacter } from "../../../application/character-detail/query.js";
+import { createCharacter } from "../../../application/character-detail/workflows/create-character.js";
 import { createCharacterRepository } from "./character-repository.js";
 
 const createdUserIds: string[] = [];
@@ -24,7 +26,7 @@ describe("createCharacterRepository", () => {
 		const userId = await createUser();
 		const repository = createCharacterRepository();
 
-		const created = await repository.createCharacter({
+		const created = await createCharacter({
 			userId,
 			name: "Mira",
 			className: "Fighter",
@@ -65,7 +67,7 @@ describe("createCharacterRepository", () => {
 				level: 3,
 			},
 		]);
-		await expect(repository.findCharacterDetail(userId, created.id)).resolves.toMatchObject({
+		await expect(getCharacter(userId, created.id)).resolves.toMatchObject({
 			id: created.id,
 			level: 3,
 			experiencePoints: 0,
@@ -74,7 +76,7 @@ describe("createCharacterRepository", () => {
 
 		const updated = await repository.updateCharacterLevel(userId, created.id, 8);
 
-		expect(updated).toMatchObject({
+		expect(await getCharacter(userId, updated as string)).toMatchObject({
 			id: created.id,
 			name: "Mira",
 			className: "Fighter",
@@ -97,7 +99,7 @@ describe("createCharacterRepository", () => {
 
 		const renamed = await repository.updateCharacterName(userId, created.id, "Mira Dawn");
 
-		expect(renamed).toMatchObject({
+		expect(await getCharacter(userId, renamed as string)).toMatchObject({
 			id: created.id,
 			name: "Mira Dawn",
 			className: "Fighter",
@@ -124,7 +126,7 @@ describe("createCharacterRepository", () => {
 			27_000,
 		);
 
-		expect(updatedExperience).toMatchObject({
+		expect(await getCharacter(userId, updatedExperience as string)).toMatchObject({
 			id: created.id,
 			name: "Mira Dawn",
 			level: 8,
@@ -142,14 +144,14 @@ describe("createCharacterRepository", () => {
 		const anonymousUserId = await createUser();
 		const linkedUserId = await createUser();
 		const repository = createCharacterRepository();
-		const firstCharacter = await repository.createCharacter({
+		const firstCharacter = await createCharacter({
 			userId: anonymousUserId,
 			name: "Mira",
 			className: "Fighter",
 			level: 3,
 			maxHp: 28,
 		});
-		const secondCharacter = await repository.createCharacter({
+		const secondCharacter = await createCharacter({
 			userId: anonymousUserId,
 			name: "Nyx",
 			className: "Rogue",

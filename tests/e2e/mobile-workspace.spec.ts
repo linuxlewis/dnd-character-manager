@@ -1,9 +1,4 @@
 import { expect, test } from "@playwright/test";
-import postgres from "postgres";
-import {
-	cleanupCatalogueJourneyFixture,
-	prepareCatalogueJourneyFixture,
-} from "./catalogue-journey-fixture.js";
 import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-helpers.js";
 import {
 	assertNoOverflow,
@@ -15,20 +10,6 @@ import {
 import { prepareMobileWorkspace } from "./mobile-workspace-fixture.js";
 
 test.use({ locale: "en-US", timezoneId: "UTC", contextOptions: { reducedMotion: "reduce" } });
-
-const database = postgres(process.env.DATABASE_URL ?? "", { max: 1 });
-test.beforeAll(async () => {
-	test.setTimeout(120_000);
-	if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required from owned test stack");
-	await prepareCatalogueJourneyFixture(database);
-});
-test.afterAll(async () => {
-	try {
-		await cleanupCatalogueJourneyFixture(database);
-	} finally {
-		await database.end();
-	}
-});
 
 const viewports = [
 	{ width: 320, height: 740 },

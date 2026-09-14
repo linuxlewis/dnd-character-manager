@@ -1,5 +1,4 @@
-import type { CharacterService } from "../../characters/service/index.js";
-import { CharacterNotFoundError, createCharacterService } from "../../characters/service/index.js";
+import { CharacterNotFoundError, requireOwnedCharacter } from "../../characters/service/index.js";
 import type { CharacterInventoryScopeRepository, CharacterItemRepository } from "../repo/index.js";
 import {
 	createCharacterInventoryScopeRepository,
@@ -70,7 +69,7 @@ export interface CharacterItemService {
 export interface CharacterItemServiceOptions {
 	repository?: CharacterItemRepository;
 	scopeRepository?: CharacterInventoryScopeRepository;
-	characterService?: Pick<CharacterService, "getCharacter">;
+	requireCharacter?: typeof requireOwnedCharacter;
 	catalogueClient?: CharacterItemCatalogueClient;
 }
 
@@ -79,46 +78,46 @@ export function createCharacterItemService(
 ): CharacterItemService {
 	const repository = options.repository ?? createCharacterItemRepository();
 	const scopeRepository = options.scopeRepository ?? createCharacterInventoryScopeRepository();
-	const characterService = options.characterService ?? createCharacterService();
+	const requireCharacter = options.requireCharacter ?? requireOwnedCharacter;
 	const catalogueClient = options.catalogueClient ?? createCatalogueItemClient();
 
 	return {
 		async createCharacterItem(userId, characterId, input) {
 			const request = CreateCharacterItemRequestSchema.parse(input);
-			await authorizeCharacter(userId, characterId, characterService);
+			await authorizeCharacter(userId, characterId, requireCharacter);
 			const createInput = await withCatalogueSnapshot(request, catalogueClient);
 			const item = await repositoryCall("create", () =>
-				repository.createItemForCharacterWithHistory(characterId, createInput, userId),
+				repository.createItemForCharacterWithHistory({ userId, characterId }, createInput),
 			);
 			return CharacterItemResponseSchema.parse({ item });
 		},
 		async listCharacterItems(userId, characterId, input = {}) {
 			const filter = ListCharacterItemsRequestSchema.parse(input);
-			const scopeId = await resolveScope(userId, characterId, characterService, scopeRepository);
+			const scopeId = await resolveScope(userId, characterId, requireCharacter, scopeRepository);
 			if (!scopeId) return ListCharacterItemsResponseSchema.parse({ items: [], total: 0 });
 			const result = await repositoryCall("list", () => repository.listItems(scopeId, filter));
 			return ListCharacterItemsResponseSchema.parse(result);
 		},
 		async getCharacterItem(userId, characterId, itemId) {
-			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
+			const scopeId = await requireScope(userId, characterId, requireCharacter, scopeRepository);
 			const item = await findItem(repository, scopeId, itemId);
 			return CharacterItemResponseSchema.parse({ item });
 		},
 		async updateCharacterItem(userId, characterId, itemId, input) {
 			const request = UpdateCharacterItemRequestSchema.parse(input);
-			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
+			const scopeId = await requireScope(userId, characterId, requireCharacter, scopeRepository);
 			await findItem(repository, scopeId, itemId);
 			const updateInput = await withOptionalCatalogueSnapshot(request, catalogueClient);
 			const item = await repositoryCall("update", () =>
-				repository.updateItemWithHistory(scopeId, itemId, updateInput, userId),
+				repository.updateItemWithHistory({ userId, characterId }, itemId, updateInput),
 			);
 			if (!item) throw new CharacterItemNotFoundError();
 			return CharacterItemResponseSchema.parse({ item });
 		},
 		async deleteCharacterItem(userId, characterId, itemId) {
-			const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
+			await requireScope(userId, characterId, requireCharacter, scopeRepository);
 			const item = await repositoryCall("delete", () =>
-				repository.deleteItemWithHistory(scopeId, itemId, userId),
+				repository.deleteItemWithHistory({ userId, characterId }, itemId),
 			);
 			if (!item) throw new CharacterItemNotFoundError();
 		},
@@ -128,10 +127,9 @@ export function createCharacterItemService(
 				characterId,
 				itemId,
 				true,
-				characterService,
+				requireCharacter,
 				scopeRepository,
 				repository,
-				userId,
 			);
 		},
 
@@ -141,10 +139,9 @@ export function createCharacterItemService(
 				characterId,
 				itemId,
 				false,
-				characterService,
+				requireCharacter,
 				scopeRepository,
 				repository,
-				userId,
 			);
 		},
 	};
@@ -153,10 +150,10 @@ export function createCharacterItemService(
 async function resolveScope(
 	userId: string,
 	characterId: string,
-	characterService: Pick<CharacterService, "getCharacter">,
+	requireCharacter: typeof requireOwnedCharacter,
 	scopeRepository: CharacterInventoryScopeRepository,
 ) {
-	await authorizeCharacter(userId, characterId, characterService);
+	await authorizeCharacter(userId, characterId, requireCharacter);
 	return repositoryCall("scope resolution", () =>
 		scopeRepository.findCharacterScopeId(characterId),
 	);
@@ -165,10 +162,10 @@ async function resolveScope(
 async function requireScope(
 	userId: string,
 	characterId: string,
-	characterService: Pick<CharacterService, "getCharacter">,
+	requireCharacter: typeof requireOwnedCharacter,
 	scopeRepository: CharacterInventoryScopeRepository,
 ) {
-	const scopeId = await resolveScope(userId, characterId, characterService, scopeRepository);
+	const scopeId = await resolveScope(userId, characterId, requireCharacter, scopeRepository);
 	if (!scopeId) throw new CharacterItemNotFoundError();
 	return scopeId;
 }
@@ -176,10 +173,10 @@ async function requireScope(
 async function authorizeCharacter(
 	userId: string,
 	characterId: string,
-	characterService: Pick<CharacterService, "getCharacter">,
+	requireCharacter: typeof requireOwnedCharacter,
 ) {
 	try {
-		await characterService.getCharacter(userId, characterId);
+		await requireCharacter(userId, characterId);
 	} catch (error) {
 		if (error instanceof CharacterNotFoundError) throw error;
 		throw new CharacterItemPersistenceError("Character authorization failed.", error);
@@ -197,14 +194,13 @@ async function setEquipped(
 	characterId: string,
 	itemId: string,
 	isEquipped: boolean,
-	characterService: Pick<CharacterService, "getCharacter">,
+	requireCharacter: typeof requireOwnedCharacter,
 	scopeRepository: CharacterInventoryScopeRepository,
 	repository: CharacterItemRepository,
-	actorUserId: string,
 ) {
-	const scopeId = await requireScope(userId, characterId, characterService, scopeRepository);
+	await requireScope(userId, characterId, requireCharacter, scopeRepository);
 	const item = await repositoryCall("equip", () =>
-		repository.setEquippedWithHistory(scopeId, itemId, isEquipped, actorUserId),
+		repository.setEquippedWithHistory({ userId, characterId }, itemId, isEquipped),
 	);
 	if (!item) throw new CharacterItemNotFoundError();
 	return CharacterItemResponseSchema.parse({ item });

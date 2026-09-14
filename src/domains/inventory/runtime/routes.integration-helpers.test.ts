@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toCookieHeader } from "./routes.integration-helpers.js";
+import { toCookieHeader } from "../../../../tests/support/inventory-route-database.js";
 
 describe("inventory route integration test helpers", () => {
 	it("normalizes set-cookie headers for request injection", () => {

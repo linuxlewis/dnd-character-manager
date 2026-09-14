@@ -4,19 +4,18 @@ import { createOpenApiDocument } from "@providers/openapi/index.js";
 import { createLogger } from "@providers/telemetry/index.js";
 import Fastify from "fastify";
 import { apiRouteContracts } from "./api-contracts.js";
+import { registerCharacterCreationRoute } from "./application/character-detail/handlers/create-character.js";
+import { registerCharacterDetailRoutes } from "./application/character-detail/handlers/detail.js";
 import { registerCatalogueRoutes } from "./domains/catalogue/runtime/index.js";
 import { registerCharacterRoutes } from "./domains/characters/runtime/index.js";
 import { createCharacterService } from "./domains/characters/service/index.js";
+import { registerHealthRoutes } from "./domains/health/runtime/index.js";
 import {
 	registerCharacterHistoryRoutes,
 	registerCharacterItemRoutes,
 	registerCharacterTreasuryRoutes,
 } from "./domains/inventory/runtime/index.js";
-import {
-	createCharacterHistoryService,
-	createCharacterItemService,
-	createCharacterTreasuryService,
-} from "./domains/inventory/service/index.js";
+import { registerSpellcastingRoutes } from "./domains/spellcasting/runtime/index.js";
 import { registerStaticAssetFallback } from "./static-assets.js";
 
 const log = createLogger("app-server");
@@ -64,19 +63,14 @@ export async function buildServer(options: BuildServerOptions = {}) {
 		},
 	);
 	await registerAuthRoutes(app);
+	await registerCharacterCreationRoute(app);
+	await registerCharacterDetailRoutes(app);
+	await registerHealthRoutes(app);
+	await registerSpellcastingRoutes(app);
 	await registerCharacterRoutes(app, { characterService });
-	await registerCharacterTreasuryRoutes(app, {
-		characterService,
-		characterTreasuryService: createCharacterTreasuryService({ characterService }),
-	});
-	await registerCharacterItemRoutes(app, {
-		characterService,
-		characterItemService: createCharacterItemService({ characterService }),
-	});
-	await registerCharacterHistoryRoutes(app, {
-		characterService,
-		characterHistoryService: createCharacterHistoryService({ characterService }),
-	});
+	await registerCharacterTreasuryRoutes(app);
+	await registerCharacterItemRoutes(app);
+	await registerCharacterHistoryRoutes(app);
 	await registerCatalogueRoutes(app);
 
 	if (options.staticRoot) {

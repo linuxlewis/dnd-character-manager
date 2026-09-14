@@ -7,8 +7,8 @@ import type {
 } from "../domains/inventory/types/index.js";
 export const apiQueryKeys = {
 	getCurrentUser: () => ["api", "getCurrentUser"] as const,
-	listCharacters: () => ["api", "listCharacters"] as const,
 	getCharacter: (params: { characterId: string }) => ["api", "getCharacter", params] as const,
+	listCharacters: () => ["api", "listCharacters"] as const,
 	getCharacterSpellSlots: (params: { characterId: string }) =>
 		["api", "getCharacterSpellSlots", params] as const,
 	listCharacterSpells: (params: { characterId: string }) =>

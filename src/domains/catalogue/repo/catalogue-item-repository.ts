@@ -1,6 +1,7 @@
 import { getDb } from "@providers/database/index.js";
 import { and, asc, count, eq, ilike, not, or, sql } from "drizzle-orm";
 import { z } from "zod";
+import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "../schema/index.js";
 import type {
 	CatalogueItemDetails,
 	CatalogueItemSearchQuery,
@@ -21,7 +22,6 @@ import {
 	toCatalogueItemInsert,
 	toCatalogueItemSearchResult,
 } from "./catalogue-item-mappers.js";
-import { catalogueItemSeedAuditsTable, catalogueItemsTable } from "./catalogue-item-table.js";
 
 export interface CatalogueItemRepository {
 	upsertItems(items: CatalogueItemSeed[], audit: CatalogueItemSeedAudit): Promise<number>;

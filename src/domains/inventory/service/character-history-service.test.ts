@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
-import type { CharacterDetail } from "../../characters/types/index.js";
 import type {
 	CharacterInventoryScopeRepository,
 	InventoryHistoryRepository,
@@ -35,7 +34,7 @@ describe("CharacterHistoryService", () => {
 			offset: 1,
 			hasMore: true,
 		});
-		expect(dependencies.characterService.getCharacter).toHaveBeenCalledWith(userId, characterId);
+		expect(dependencies.requireCharacter).toHaveBeenCalledWith(userId, characterId);
 		expect(dependencies.scopeRepository.findCharacterScopeId).toHaveBeenCalledWith(characterId);
 		expect(dependencies.repository.listHistoryEntries).toHaveBeenCalledWith(scopeId, {
 			limit: 2,
@@ -59,13 +58,12 @@ describe("CharacterHistoryService", () => {
 			offset: 10,
 			hasMore: false,
 		});
-		expect(dependencies.scopeRepository.ensureCharacterScopeId).not.toHaveBeenCalled();
 		expect(dependencies.repository.listHistoryEntries).not.toHaveBeenCalled();
 	});
 
 	it("does not resolve scope or history for an inaccessible character", async () => {
 		const dependencies = fakeDependencies();
-		dependencies.characterService.getCharacter.mockRejectedValue(new CharacterNotFoundError());
+		dependencies.requireCharacter.mockRejectedValue(new CharacterNotFoundError());
 		const service = createCharacterHistoryService(dependencies.options);
 
 		await expect(service.listCharacterHistory(userId, characterId)).rejects.toBeInstanceOf(
@@ -106,22 +104,18 @@ function fakeDependencies() {
 	};
 	const scopeRepository = {
 		findCharacterScopeId: vi.fn().mockResolvedValue(scopeId),
-		ensureCharacterScopeId: vi.fn(),
 	} as unknown as CharacterInventoryScopeRepository & {
 		findCharacterScopeId: ReturnType<typeof vi.fn>;
-		ensureCharacterScopeId: ReturnType<typeof vi.fn>;
 	};
-	const characterService = {
-		getCharacter: vi.fn().mockResolvedValue({} as CharacterDetail),
-	};
+	const requireCharacter = vi.fn().mockResolvedValue({});
 	return {
 		repository,
 		scopeRepository,
-		characterService,
+		requireCharacter,
 		options: {
 			repository,
 			scopeRepository,
-			characterService,
+			requireCharacter,
 		} satisfies CharacterHistoryServiceOptions,
 	};
 }

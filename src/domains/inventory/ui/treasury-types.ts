@@ -1,14 +1,14 @@
-import type {
-	CurrencyAmount,
-	CurrencyBalance,
-	CurrencyDelta,
-	CurrencyTotalValue,
-} from "../types/index.js";
 import {
 	CurrencyPlanningOverflowError,
 	calculateSpend,
 	getCurrencyTotalValue,
 	planAdd,
+} from "../config/index.js";
+import type {
+	CurrencyAmount,
+	CurrencyBalance,
+	CurrencyDelta,
+	CurrencyTotalValue,
 } from "../types/index.js";
 
 export type TreasuryDenomination = CurrencyAmount["denomination"];

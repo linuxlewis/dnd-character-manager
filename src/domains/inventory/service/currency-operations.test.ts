@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCurrencyValueInCopper } from "../types/index.js";
+import { getCurrencyValueInCopper } from "../config/index.js";
 import { planAdd, planConversion, planSpend } from "./currency-operations.js";
 import {
 	InsufficientDenominationError,

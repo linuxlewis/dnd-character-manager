@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { getCurrencyTotalValue } from "../config/index.js";
 import type { CharacterTreasury, CurrencyBalance, InventoryScope } from "../types/index.js";
 import {
 	CharacterTreasurySchema,
 	CurrencyBalanceSchema,
-	getCurrencyTotalValue,
 	InventoryCharacterIdSchema,
 	InventoryScopeIdSchema,
 	InventoryScopeSchema,

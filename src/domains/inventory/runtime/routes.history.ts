@@ -1,8 +1,7 @@
 import type { CurrentUserResponse } from "@providers/auth/current-user.js";
 import { getOrCreateCurrentUser } from "@providers/auth/session.js";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { CharacterService } from "../../characters/service/index.js";
-import { CharacterNotFoundError, createCharacterService } from "../../characters/service/index.js";
+import { CharacterNotFoundError, requireOwnedCharacter } from "../../characters/service/index.js";
 import type { CharacterHistoryService } from "../service/index.js";
 import {
 	CharacterHistoryPersistenceError,
@@ -14,11 +13,9 @@ import {
 	CharacterHistoryPathParamsSchema,
 } from "./contract-support.js";
 
-const defaultCharacterService = createCharacterService();
-
 export interface RegisterCharacterHistoryRoutesOptions {
 	getCurrentUser?: (request: FastifyRequest, reply: FastifyReply) => Promise<CurrentUserResponse>;
-	characterService?: Pick<CharacterService, "getCharacter">;
+	requireCharacter?: typeof requireOwnedCharacter;
 	characterHistoryService?: CharacterHistoryService;
 }
 
@@ -27,9 +24,9 @@ export async function registerCharacterHistoryRoutes(
 	options: RegisterCharacterHistoryRoutesOptions = {},
 ) {
 	const getCurrentUser = options.getCurrentUser ?? getOrCreateCurrentUser;
-	const characterService = options.characterService ?? defaultCharacterService;
+	const requireCharacter = options.requireCharacter ?? requireOwnedCharacter;
 	const historyService =
-		options.characterHistoryService ?? createCharacterHistoryService({ characterService });
+		options.characterHistoryService ?? createCharacterHistoryService({ requireCharacter });
 
 	app.get("/api/characters/:characterId/history", async (request, reply) => {
 		const params = parseParams(request, reply);

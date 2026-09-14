@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createInventoryRouteDatabaseTracker } from "../../../../tests/support/inventory-route-database.js";
 import { buildServer } from "../../../app-server.js";
-import { createInventoryRouteDatabaseTracker } from "./routes.integration-helpers.js";
 
 let app: Awaited<ReturnType<typeof buildServer>>;
 const database = createInventoryRouteDatabaseTracker();

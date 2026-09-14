@@ -1,38 +1,14 @@
 import { type Browser, expect, type Locator, type Page, test } from "@playwright/test";
-import postgres from "postgres";
-import {
-	type CatalogueJourneyFixture,
-	cleanupCatalogueJourneyFixture,
-	prepareCatalogueJourneyFixture,
-} from "./catalogue-journey-fixture.js";
+import { readCatalogueJourneyFixture } from "../../scripts/catalogue-journey-metadata.js";
 import { openInventoryTab } from "./character-detail-helpers.js";
 
-const databaseUrl = process.env.DATABASE_URL;
-const sql = databaseUrl ? postgres(databaseUrl, { max: 1 }) : null;
-let catalogueFixture: CatalogueJourneyFixture | null = null;
-
 test.setTimeout(90_000);
-
-test.beforeAll(async () => {
-	// The shared catalogue fixture holds its advisory lock for the other inventory journey.
-	test.setTimeout(120_000);
-	if (!sql) throw new Error("DATABASE_URL is required for character activity e2e tests.");
-	catalogueFixture = await prepareCatalogueJourneyFixture(sql);
-});
-
-test.afterAll(async () => {
-	try {
-		if (sql) await cleanupCatalogueJourneyFixture(sql);
-	} finally {
-		await sql?.end();
-	}
-});
 
 test("records, filters, paginates, and persists personal inventory activity", async ({
 	browser,
 	page,
 }) => {
-	const fixture = requireCatalogueFixture();
+	const fixture = readCatalogueJourneyFixture();
 	let previewRequests = 0;
 	await page.route("**/api/characters/*/treasury/preview/*", async (route) => {
 		previewRequests += 1;
@@ -296,11 +272,6 @@ async function addCatalogueItem(page: Page, searchQuery: string, name: string) {
 	await dialog.getByRole("button", { name: "Add item", exact: true }).click();
 	await expect(dialog).toBeHidden();
 	await expect(page.getByRole("button", { name: `View ${name}`, exact: true })).toBeVisible();
-}
-
-function requireCatalogueFixture() {
-	if (!catalogueFixture) throw new Error("Catalogue fixture was not prepared before navigation.");
-	return catalogueFixture;
 }
 
 async function openItemDetails(page: Page, name: string) {

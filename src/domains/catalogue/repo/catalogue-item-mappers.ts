@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { z } from "zod";
+import { catalogueItemsTable } from "../schema/index.js";
 import type {
 	CatalogueItemDetails,
 	CatalogueItemSearchResult,
@@ -15,7 +16,6 @@ import {
 	CatalogueSourceSchema,
 	RulesVersionSchema,
 } from "../types/index.js";
-import { catalogueItemsTable } from "./catalogue-item-table.js";
 
 const CatalogueItemRowSchema = z.object({
 	id: CatalogueItemIdSchema,

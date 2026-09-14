@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { buildServer } from "../../../app-server.js";
-import { getDb } from "../../../providers/database/index.js";
-import { createInventoryHistoryRepository } from "../repo/inventory-history-repository.js";
-import { inventoryScopesTable } from "../repo/inventory-scope-table.js";
 import {
 	createInventoryRouteDatabaseTracker,
 	scopeRowCount,
-} from "./routes.integration-helpers.js";
+} from "../../../../tests/support/inventory-route-database.js";
+import { buildServer } from "../../../app-server.js";
+import { getDb } from "../../../providers/database/index.js";
+import { createInventoryHistoryRepository } from "../repo/inventory-history-repository.js";
+import { inventoryScopesTable } from "../schema/index.js";
 
 let app: Awaited<ReturnType<typeof buildServer>>;
 const database = createInventoryRouteDatabaseTracker();

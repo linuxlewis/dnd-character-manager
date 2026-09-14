@@ -51,3 +51,5 @@ export function shouldHandleCharacterLink(event: {
 		!event.shiftKey
 	);
 }
+
+export type NavigateToCharacterRoute = (route: CharacterRoute) => void;
