@@ -39,13 +39,15 @@ export function SpellSearchResult({
 				onClick={onAdd}
 				aria-label={`Add ${spell.name}`}
 			>
-				<Stack gap={4}>
-					<Text fw={600} lineClamp={1}>
-						{spell.name}
-					</Text>
-					<Text size="sm" c="dimmed">
-						{formatSpellEntryDetail(spell)}
-					</Text>
+				<Stack gap={4} w="100%">
+					<Stack gap={0} className={classes.heading}>
+						<Text fw={600} lineClamp={1}>
+							{spell.name}
+						</Text>
+						<Text size="sm" c="dimmed">
+							{formatSpellEntryDetail(spell)}
+						</Text>
+					</Stack>
 					<Text size="sm" lineClamp={2}>
 						{query.data?.desc[0] ?? (query.isError ? "Preview unavailable." : "Loading preview...")}
 					</Text>

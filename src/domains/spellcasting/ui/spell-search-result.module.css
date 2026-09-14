@@ -1,13 +1,14 @@
 .result {
 	position: relative;
-	height: 11rem;
+	height: 7.5rem;
 	flex-shrink: 0;
 }
 .result .addTarget {
-	display: block;
+	display: flex;
+	align-items: flex-start;
 	width: 100%;
 	height: 100%;
-	padding: 12px 12px 56px;
+	padding: 10px 12px;
 	border-radius: inherit;
 	overflow: hidden;
 }
@@ -20,8 +21,11 @@
 }
 .result .seeMore {
 	position: absolute;
-	bottom: 4px;
-	left: 0;
+	top: 0;
+	right: 0;
+}
+.heading {
+	padding-right: 6.5rem;
 }
 .results {
 	max-height: 60dvh;
