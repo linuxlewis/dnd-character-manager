@@ -64,6 +64,33 @@ describe("character spell routes with local catalogue data", () => {
 				],
 			});
 
+			const previewUrl = `/api/characters/${character.id}/spell-search-details?spellIndex=staggering-smite-test&source=spell`;
+			const preview = await app.inject({ method: "GET", url: previewUrl, headers: { cookie } });
+			expect(preview.statusCode).toBe(200);
+			expect(preview.json()).toMatchObject({
+				desc: ["You empower your strike with mind-rattling force."],
+				metadata: [{ label: "Casting Time", value: "Bonus Action" }],
+			});
+			const unsaved = await app.inject({
+				method: "GET",
+				url: `/api/characters/${character.id}/spells`,
+				headers: { cookie },
+			});
+			expect(unsaved.json()).toEqual({ spells: [] });
+			const otherCookie = await createSessionCookie(app);
+			const denied = await app.inject({
+				method: "GET",
+				url: previewUrl,
+				headers: { cookie: otherCookie },
+			});
+			expect(denied.statusCode).toBe(404);
+			const invalid = await app.inject({
+				method: "GET",
+				url: `/api/characters/${character.id}/spell-search-details?spellIndex=bad/index&source=spell`,
+				headers: { cookie },
+			});
+			expect(invalid.statusCode).toBe(400);
+
 			const saveResponse = await app.inject({
 				method: "POST",
 				url: `/api/characters/${character.id}/spells`,

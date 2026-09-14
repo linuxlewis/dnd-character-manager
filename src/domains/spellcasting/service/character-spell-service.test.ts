@@ -1,11 +1,31 @@
 import { describe, expect, it, vi } from "vitest";
 import { CharacterNotFoundError } from "../../characters/service/index.js";
 import type { CharacterSpellRepository, DndApiSpellClient } from "../repo/index.js";
-import { SpellSlotUnavailableError } from "../types/errors.js";
+import { DndApiSpellClientError } from "../repo/index.js";
+import { SpellSearchUnavailableError, SpellSlotUnavailableError } from "../types/errors.js";
 import type { CharacterSpell } from "../types/index.js";
 import { createCharacterSpellService } from "./character-spell-service.js";
 
 describe("createCharacterSpellService", () => {
+	it("checks ownership before loading an unsaved preview and translates upstream failures", async () => {
+		const repository = fakeRepository();
+		const client = fakeSpellsClient();
+		const service = createCharacterSpellService(repository, client);
+		const input = { spellIndex: "light", source: "spell" as const };
+		repository.characterExists.mockResolvedValue(false);
+		await expect(service.getSpellSearchDetails("user-2", "character-1", input)).rejects.toThrow(
+			CharacterNotFoundError,
+		);
+		expect(client.getSpellDetails).not.toHaveBeenCalled();
+		repository.characterExists.mockResolvedValue(true);
+		client.getSpellDetails.mockRejectedValue(new DndApiSpellClientError());
+		await expect(service.getSpellSearchDetails("user-1", "character-1", input)).rejects.toThrow(
+			SpellSearchUnavailableError,
+		);
+		expect(client.getSpellDetails).toHaveBeenCalledWith("light", "spell");
+		expect(repository.saveCharacterSpell).not.toHaveBeenCalled();
+	});
+
 	it("searches D&D spells for an owned character and selected slot level", async () => {
 		const repository = fakeRepository();
 		const spellsClient = fakeSpellsClient();

@@ -19,6 +19,7 @@ describe("apiRouteContracts", () => {
 			"useCharacterSpellSlot",
 			"restoreCharacterSpellSlot",
 			"applyCharacterSpellSlotDefaults",
+			"getSpellSearchDetails",
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",

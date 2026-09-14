@@ -8,6 +8,7 @@ describe("health dialogs", () => {
 		const amountHtml = renderToString(
 			<MantineProvider>
 				<HealthAmountModal
+					health={{ currentHp: 10, maxHp: 20, temporaryHp: 0, effectiveMaxHp: 20 }}
 					amountDraft=""
 					preview={null}
 					withinPortal={false}

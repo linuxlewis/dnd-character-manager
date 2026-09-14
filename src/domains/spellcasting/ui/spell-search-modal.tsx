@@ -1,9 +1,10 @@
-import { Alert, Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
+import { Alert, Button, Modal, Stack, Text, TextInput } from "@mantine/core";
 import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiClient, apiMutations, apiQueryKeys } from "../../../generated/api-client.generated.js";
-import { formatSpellEntryDetail, formatSpellLevel } from "./spell-slot-format.js";
+import { SpellSearchResult } from "./spell-search-result.js";
+import { formatSpellLevel } from "./spell-slot-format.js";
 
 export function SpellSearchModal({
 	characterId,
@@ -109,27 +110,18 @@ export function SpellSearchModal({
 						</Text>
 					) : (
 						results.map((spell) => (
-							<Button
-								mih={44}
-								h="auto"
-								py="sm"
-								styles={{ label: { whiteSpace: "normal" } }}
+							<SpellSearchResult
 								key={`${spell.source}:${spell.index}`}
-								color="gray"
+								characterId={characterId}
+								spell={spell}
 								disabled={pending}
-								onClick={() =>
+								onAdd={() =>
 									save.mutate({
 										params: { characterId },
 										body: { slotLevel, spellIndex: spell.index, source: spell.source },
 									})
 								}
-								variant="default"
-							>
-								<Group justify="space-between" wrap="wrap" w="100%">
-									<span>{spell.name}</span>
-									<span>{formatSpellEntryDetail(spell)}</span>
-								</Group>
-							</Button>
+							/>
 						))
 					)}
 				</Stack>

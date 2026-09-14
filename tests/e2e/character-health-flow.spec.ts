@@ -106,10 +106,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
 	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeVisible();
 	await page.getByLabel("Search cantrips and features").fill("light");
-	await expect(page.getByRole("button", { name: /^Light\b/ })).toBeVisible({
+	await expect(page.getByRole("button", { name: "Add Light", exact: true })).toBeVisible({
 		timeout: spellApiTimeoutMs,
 	});
-	await page.getByRole("button", { name: /^Light\b/ }).click();
+	await page.getByRole("button", { name: "Add Light", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden({
 		timeout: spellApiTimeoutMs,
 	});
@@ -117,10 +117,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByText("Cantrip", { exact: true })).toBeVisible();
 	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
 	await page.getByLabel("Search cantrips and features").fill("lay on hands");
-	await expect(page.getByRole("button", { name: /^Lay on Hands\b/ })).toBeVisible({
+	await expect(page.getByRole("button", { name: "Add Lay on Hands", exact: true })).toBeVisible({
 		timeout: spellApiTimeoutMs,
 	});
-	await page.getByRole("button", { name: /^Lay on Hands\b/ }).click();
+	await page.getByRole("button", { name: "Add Lay on Hands", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden({
 		timeout: spellApiTimeoutMs,
 	});
@@ -156,10 +156,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await expect(page.getByLabel("Search spells")).toBeFocused();
 	await expect(page.getByLabel("Search spells")).toHaveCSS("font-size", "16px");
 	await page.getByLabel("Search spells").fill("divine smite");
-	await expect(page.getByRole("button", { name: /^Divine Smite\b/ })).toBeVisible({
+	await expect(page.getByRole("button", { name: "Add Divine Smite", exact: true })).toBeVisible({
 		timeout: spellApiTimeoutMs,
 	});
-	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
+	await page.getByRole("button", { name: "Add Divine Smite", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "Add spell to 3rd-level" })).toBeHidden({
 		timeout: spellApiTimeoutMs,
 	});
@@ -206,10 +206,10 @@ test("configures spell slots and tracks spell usage on detail", async ({ page })
 	await page.getByRole("button", { name: "Add spell to 3rd-level" }).click();
 	addSpellDialog = page.getByRole("dialog", { name: "Add spell to 3rd-level" });
 	await page.getByLabel("Search spells").fill("divine smite");
-	await expect(page.getByRole("button", { name: /^Divine Smite\b/ })).toBeVisible({
+	await expect(page.getByRole("button", { name: "Add Divine Smite", exact: true })).toBeVisible({
 		timeout: spellApiTimeoutMs,
 	});
-	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
+	await page.getByRole("button", { name: "Add Divine Smite", exact: true }).click();
 	await expect(addSpellDialog).toBeHidden({ timeout: spellApiTimeoutMs });
 	await page.getByRole("button", { name: "Done" }).click();
 	await expect(page.getByRole("button", { name: "Remove Divine Smite" })).toBeHidden();

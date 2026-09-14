@@ -9,6 +9,7 @@ describe("spellcastingRouteContracts", () => {
 			"useCharacterSpellSlot",
 			"restoreCharacterSpellSlot",
 			"applyCharacterSpellSlotDefaults",
+			"getSpellSearchDetails",
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
@@ -21,6 +22,7 @@ describe("spellcastingRouteContracts", () => {
 			"useCharacterSpellSlot",
 			"restoreCharacterSpellSlot",
 			"applyCharacterSpellSlotDefaults",
+			"getSpellSearchDetails",
 			"listCharacterSpells",
 			"getCharacterSpellDetails",
 			"searchCharacterSpells",
@@ -32,7 +34,7 @@ describe("spellcastingRouteContracts", () => {
 	it("uses path params for character detail and update routes", () => {
 		const routeWithParams = spellcastingRouteContracts.filter((route) => route.path.includes(":"));
 
-		expect(routeWithParams).toHaveLength(10);
+		expect(routeWithParams).toHaveLength(11);
 		expect(routeWithParams.every((route) => "pathParams" in route)).toBe(true);
 	});
 });

@@ -96,6 +96,31 @@ explicit retries. Real browser scenarios cover pending guards, no automatic repl
 stale search isolation, original-character cache writes, and newer-dialog retention.
 Slot failure survives unrelated view changes. See [evidence](./domain-spell-workflows.md).
 
+## HP And Spell Search Previews (2026-09-14)
+
+Healing and damage now show current/resulting HP, comparable bars, the actual delta,
+the effective maximum including temporary HP, and zero/cap states. Spell search
+results have separate Add and expandable detail controls. Details load on demand
+through an owned-character read endpoint without saving the spell.
+
+Validation on the working candidate based on `52b6bf3`: 711 unit, 98 integration,
+and 52 browser tests pass. Lint (including strict boundaries), generated API
+freshness, build, documentation links and whitespace checks pass. Coverage includes
+preview ownership, invalid queries, no save side effects, keyboard expansion,
+detail failure/retry, health failure retention and capped healing. Actual healing,
+damage and expanded spell screenshots were reviewed at 320, 390 and 1280 px;
+the existing enlarged-text and numeric-extreme journeys also pass. Captures are
+in the ignored `test-results/` outputs of `character-mobile-health.spec.ts` and
+`mobile-spells.spec.ts`; they are review evidence, not pixel baselines.
+
+The host's nearly full `/tmp` caused Chromium resource errors in two mobile tests,
+also reproduced on unchanged `52b6bf3`. The successful full run used
+`TMPDIR=/home/sbolgert/.cache/dnd-hp-preview-tmp pnpm test` after creating that
+directory on disk. Docker also required an unused explicit subnet for the owned
+test network because its default pool was exhausted; normal test cleanup removed
+that network. No shared networks or production services were changed.
+Physical-device keyboard and installed-mode checks remain unverified.
+
 ## Known Gaps
 
 The character-action follow-up passed 599 unit, 68 integration and 40 browser tests at clean

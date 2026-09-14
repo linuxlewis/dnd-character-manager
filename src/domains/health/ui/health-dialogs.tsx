@@ -1,4 +1,6 @@
-import { Alert, Box, Button, Group, Modal, NumberInput, Stack, Text } from "@mantine/core";
+import { Alert, Box, Button, Group, Modal, NumberInput, Stack } from "@mantine/core";
+import type { CharacterHealth } from "../types/index.js";
+import { HealthPreview } from "./health-preview.js";
 
 export type NumberDraft = "" | number;
 
@@ -12,6 +14,7 @@ export function HealthAmountModal({
 	pending,
 	title,
 	preview,
+	health,
 	error,
 	withinPortal = true,
 }: {
@@ -24,6 +27,7 @@ export function HealthAmountModal({
 	pending: boolean;
 	title: string;
 	preview: number | null;
+	health: CharacterHealth;
 	error?: boolean;
 	withinPortal?: boolean;
 }) {
@@ -63,11 +67,7 @@ export function HealthAmountModal({
 						onChange={(value) => onChangeAmount(toDraft(value))}
 						value={amountDraft}
 					/>
-					<Text role="status">
-						{preview === null
-							? "Enter an amount to preview HP."
-							: `Resulting HP: ${preview} (preview)`}
-					</Text>
+					<HealthPreview health={health} preview={preview} color={color} />
 					{error && (
 						<Alert color="red" title="Health update failed">
 							Your amount is kept. Try again.

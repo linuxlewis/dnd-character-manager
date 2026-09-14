@@ -42,11 +42,37 @@ test("mobile spells keep play actions visible and configuration recoverable", as
 	await expect(page.getByRole("dialog", { name: "Configure spell slots" })).toBeHidden();
 	await page.getByRole("button", { name: "Add cantrip or feature" }).click();
 	await page.getByLabel("Search cantrips and features").fill("light");
-	await page.getByRole("button", { name: /^Light\b/ }).click();
+	const previewToggle = page.getByRole("button", { name: /^Light.*View details/ });
+	await expect(previewToggle).toHaveAttribute("aria-expanded", "false");
+	let detailAttempts = 0;
+	await page.route("**/spell-search-details?*", async (route) => {
+		detailAttempts++;
+		if (detailAttempts === 1) return route.fulfill({ status: 502, json: { error: "Unavailable" } });
+		return route.continue();
+	});
+	await previewToggle.focus();
+	await page.keyboard.press("Enter");
+	await expect(page.getByText("Spell details unavailable", { exact: true })).toBeVisible();
+	expect(detailAttempts).toBe(1);
+	await expect(page.getByRole("button", { name: "Add Light", exact: true })).toBeEnabled();
+	await page.getByRole("button", { name: "Retry details", exact: true }).click();
+	await expect(page.getByRole("dialog").getByText("Range", { exact: true })).toBeVisible();
+	expect(detailAttempts).toBe(2);
+	const beforeAdd = await page.request.get(`/api/characters/${characterId}/spells`);
+	expect((await beforeAdd.json()).spells).toEqual([]);
+	await page.unroute("**/spell-search-details?*");
+	await expect(page.getByRole("dialog")).toBeVisible();
+	for (const width of [320, 390, 1280]) {
+		await page.setViewportSize({ width, height: 900 });
+		await expect(page.getByRole("button", { name: "Add Light", exact: true })).toBeInViewport();
+		await page.screenshot({ path: testInfo.outputPath(`spell-preview-${width}.png`) });
+	}
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.getByRole("button", { name: "Add Light", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "Add cantrip or feature" })).toBeHidden();
 	await page.getByRole("button", { name: "Add spell to 1st-level", exact: true }).click();
 	await page.getByLabel("Search spells").fill("divine smite");
-	await page.getByRole("button", { name: /^Divine Smite\b/ }).click();
+	await page.getByRole("button", { name: "Add Divine Smite", exact: true }).click();
 	await expect(page.getByRole("dialog", { name: "Add spell to 1st-level" })).toBeHidden();
 	await page.getByRole("button", { name: "Use 1st-level", exact: true }).click();
 	await expect(page.getByText("3 / 4 remaining")).toBeVisible();

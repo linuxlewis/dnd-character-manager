@@ -150,6 +150,7 @@ export function CharacterHealthPanel({
 			</Modal>
 
 			<HealthAmountModal
+				health={health}
 				amountDraft={amountDraft}
 				color="green"
 				onChangeAmount={setAmountDraft}
@@ -162,6 +163,7 @@ export function CharacterHealthPanel({
 				title="Heal"
 			/>
 			<HealthAmountModal
+				health={health}
 				amountDraft={amountDraft}
 				color="red"
 				onChangeAmount={setAmountDraft}
