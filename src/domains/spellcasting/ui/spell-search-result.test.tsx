@@ -26,7 +26,8 @@ it("separates inspecting a search result from adding it and defers detail reques
 		</MantineProvider>,
 	);
 	expect(html).not.toContain("aria-expanded");
-	expect(html).toContain("See more");
+	expect(html).toContain('aria-label="View details for Light"');
+	expect(html).not.toContain("See more");
 	expect(html).toContain('aria-label="Add Light"');
 	expect(client.isFetching()).toBe(0);
 	client.clear();

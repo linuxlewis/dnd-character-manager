@@ -52,7 +52,10 @@ test("spell search rows stay fixed, retain scroll on return, and add only when t
 	await expect(first).toContainText("This is a long description.");
 	const firstHeight = (await first.boundingBox())?.height;
 	expect(firstHeight).toBeLessThanOrEqual(120);
-	const more = page.getByRole("button", { name: `See more about ${spells[7].name}`, exact: true });
+	const more = page.getByRole("button", {
+		name: `View details for ${spells[7].name}`,
+		exact: true,
+	});
 	await more.scrollIntoViewIfNeeded();
 	const results = page.getByTestId("spell-search-results");
 	const scrollTop = await results.evaluate((element) => element.scrollTop);

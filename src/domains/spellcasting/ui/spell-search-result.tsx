@@ -1,6 +1,7 @@
-import { Button, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
+import { ActionIcon, Paper, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
+import { Info } from "lucide-react";
 import type { MouseEvent } from "react";
 import { apiQueries } from "../../../generated/api-client.generated.js";
 import type { DndSpellSearchResult } from "../types/index.js";
@@ -53,17 +54,19 @@ export function SpellSearchResult({
 					</Text>
 				</Stack>
 			</UnstyledButton>
-			<Button
-				className={classes.seeMore}
-				variant="transparent"
-				color="bloodstone.3"
-				mih={44}
-				disabled={disabled}
-				onClick={onSeeMore}
-				aria-label={`See more about ${spell.name}`}
-			>
-				See more
-			</Button>
+			<Tooltip label="View spell details" events={{ hover: true, focus: true, touch: false }}>
+				<ActionIcon
+					className={classes.seeMore}
+					variant="transparent"
+					color="bloodstone.3"
+					size={44}
+					disabled={disabled}
+					onClick={onSeeMore}
+					aria-label={`View details for ${spell.name}`}
+				>
+					<Info size={20} aria-hidden="true" />
+				</ActionIcon>
+			</Tooltip>
 		</Paper>
 	);
 }

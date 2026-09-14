@@ -101,7 +101,7 @@ Slot failure survives unrelated view changes. See [evidence](./domain-spell-work
 Healing and damage now show current/resulting HP, comparable bars, the actual delta,
 the effective maximum including temporary HP, and zero/cap states. Spell search
 results use fixed-height rows with two-line previews. Tapping a row adds the spell;
-See more opens a full detail view, and Back restores the query, result scroll and
+An info icon opens a full detail view, and Back restores the query, result scroll and
 focus. Preview descriptions load only for visible rows through an owned-character
 read endpoint. Full spell content is shared with the saved-spell detail view. The
 spell-add flow has no instructional helper text.

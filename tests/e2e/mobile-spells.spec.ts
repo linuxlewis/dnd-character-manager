@@ -49,7 +49,7 @@ test("mobile spells keep play actions visible and configuration recoverable", as
 	});
 	await page.getByLabel("Search cantrips and features").fill("light");
 	await expect(page.getByText("Preview unavailable.")).toBeVisible();
-	const more = page.getByRole("button", { name: "See more about Light", exact: true });
+	const more = page.getByRole("button", { name: "View details for Light", exact: true });
 	const row = page.getByRole("button", { name: "Add Light", exact: true });
 	const initialHeight = (await row.boundingBox())?.height;
 	await more.focus();
