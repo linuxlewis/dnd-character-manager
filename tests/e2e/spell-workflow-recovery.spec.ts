@@ -73,7 +73,7 @@ test("search and save fail locally, retry explicitly, and guard pending dismissa
 	expect(searches).toBe(2);
 	expect(saves).toBe(2);
 	await page.waitForLoadState("networkidle");
-	expect(reads).toEqual([]);
+	expect(reads.every((url) => new URL(url).pathname.endsWith("/spell-search-details"))).toBe(true);
 });
 
 test("details retry and remove cancellation, failure and pending confirmation stay in their dialogs", async ({

@@ -100,15 +100,19 @@ Slot failure survives unrelated view changes. See [evidence](./domain-spell-work
 
 Healing and damage now show current/resulting HP, comparable bars, the actual delta,
 the effective maximum including temporary HP, and zero/cap states. Spell search
-results have separate Add and expandable detail controls. Details load on demand
-through an owned-character read endpoint without saving the spell.
+results use fixed-height rows with two-line previews. Tapping a row adds the spell;
+See more opens a full detail view, and Back restores the query, result scroll and
+focus. Preview descriptions load only for visible rows through an owned-character
+read endpoint. Full spell content is shared with the saved-spell detail view. The
+spell-add flow has no instructional helper text.
 
-Validation on the working candidate based on `52b6bf3`: 711 unit, 98 integration,
-and 52 browser tests pass. Lint (including strict boundaries), generated API
+Validation on the revised working candidate based on `4b09c36`: 713 unit and 98
+integration tests pass. Browser validation includes the existing 52 journeys plus
+a dedicated fixed-row, scroll-return and tap-to-add journey. Lint (including strict boundaries), generated API
 freshness, build, documentation links and whitespace checks pass. Coverage includes
-preview ownership, invalid queries, no save side effects, keyboard expansion,
-detail failure/retry, health failure retention and capped healing. Actual healing,
-damage and expanded spell screenshots were reviewed at 320, 390 and 1280 px;
+preview ownership, invalid queries, no save side effects when opening details,
+keyboard navigation, detail failure/retry, health failure retention and capped healing. Actual healing,
+damage, spell search and full detail screenshots were reviewed at 320, 390 and 1280 px;
 the existing enlarged-text and numeric-extreme journeys also pass. Captures are
 in the ignored `test-results/` outputs of `character-mobile-health.spec.ts` and
 `mobile-spells.spec.ts`; they are review evidence, not pixel baselines.

@@ -2,14 +2,14 @@ import { MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderToString } from "react-dom/server";
 import { expect, it, vi } from "vitest";
-import { SpellSearchResult } from "./spell-search-result.js";
+import { SpellSearchDetails } from "./spell-search-details.js";
 
-it("separates inspecting a search result from adding it and defers detail requests", () => {
+it("keeps a way back available while details load and does not offer an add action", () => {
 	const client = new QueryClient();
 	const html = renderToString(
 		<MantineProvider>
 			<QueryClientProvider client={client}>
-				<SpellSearchResult
+				<SpellSearchDetails
 					characterId="character-1"
 					spell={{
 						index: "light",
@@ -18,16 +18,13 @@ it("separates inspecting a search result from adding it and defers detail reques
 						source: "spell",
 						url: "/api/2014/spells/light",
 					}}
-					disabled={false}
-					onAdd={vi.fn()}
-					onSeeMore={vi.fn()}
+					onBack={vi.fn()}
 				/>
 			</QueryClientProvider>
 		</MantineProvider>,
 	);
-	expect(html).not.toContain("aria-expanded");
-	expect(html).toContain("See more");
-	expect(html).toContain('aria-label="Add Light"');
-	expect(client.isFetching()).toBe(0);
+	expect(html).toContain("Back to search");
+	expect(html).toContain("Loading details...");
+	expect(html).not.toContain("Add Light");
 	client.clear();
 });
