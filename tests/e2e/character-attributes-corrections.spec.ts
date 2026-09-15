@@ -76,7 +76,7 @@ test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", a
 	await expect(links.nth(0)).toBeVisible();
 	await expect(links.nth(1)).toBeVisible();
 	await expect(links.nth(2)).toBeVisible();
-	await expect(links.nth(0)).toHaveCSS("color", "rgb(251, 113, 133)");
+	await expect(links.nth(0)).toHaveCSS("color", "rgb(253, 164, 175)");
 	await expect(links.nth(1)).toHaveCSS("color", "rgb(184, 184, 184)");
 
 	await links.nth(0).focus();

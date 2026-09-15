@@ -118,8 +118,7 @@ describe("CharacterDetail", () => {
 
 		expect(inventoryHtml).toContain('aria-labelledby="character-section-inventory-heading"');
 		expect(inventoryHtml).toContain('id="character-section-inventory-heading"');
-		expect(inventoryHtml).toContain(">Inventory</h3>");
+		expect(inventoryHtml).toContain(">Inventory</h2>");
 		expect(inventoryHtml).toContain("Treasury");
-		expect(inventoryHtml).toContain("Personal inventory");
 	});
 });

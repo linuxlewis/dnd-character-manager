@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Paper, Stack, Text, VisuallyHidden } from "@mantine/core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import type { ReactNode, RefCallback } from "react";
 import {
 	CharacterAttributesPanel,
 	CharacterRibbon,
@@ -26,6 +26,7 @@ interface CharacterDetailProps {
 	renderApplicationMenu?: () => ReactNode;
 	inventoryView?: InventoryViewState;
 	onInventoryViewChange?: (state: InventoryViewState) => void;
+	sectionHeadingRef?: RefCallback<HTMLHeadingElement>;
 }
 
 export function CharacterDetail({
@@ -35,6 +36,7 @@ export function CharacterDetail({
 	renderApplicationMenu,
 	inventoryView,
 	onInventoryViewChange,
+	sectionHeadingRef,
 }: CharacterDetailProps) {
 	const queryClient = useQueryClient();
 	const characterQuery = useQuery(apiQueries.getCharacter({ characterId: id }));
@@ -44,6 +46,8 @@ export function CharacterDetail({
 			: section === "spells"
 				? "Spells & Abilities"
 				: "Inventory";
+	const sectionId = `character-section-${section}`;
+	const sectionHeadingId = `${sectionId}-heading`;
 
 	return (
 		<Stack gap="md" className="character-workspace">
@@ -93,21 +97,28 @@ export function CharacterDetail({
 						/>
 					</section>
 					<CharacterSectionNavigation characterId={id} section={section} onNavigate={onNavigate} />
-					<section className="character-section-content" aria-label={sectionLabel}>
+					<section
+						id={sectionId}
+						className="character-section-content"
+						aria-labelledby={sectionHeadingId}
+					>
 						{section === "attributes" ? (
 							<CharacterAttributesPanel
 								characterId={id}
 								characterLevel={characterQuery.data.character.level}
+								sectionHeadingRef={sectionHeadingRef}
 							/>
 						) : section === "spells" ? (
 							<CharacterSpellSlotsPanel
 								characterId={id}
 								level={characterQuery.data.character.level}
+								sectionHeadingRef={sectionHeadingRef}
 							/>
 						) : (
 							<CharacterInventoryWorkspace
 								characterId={id}
 								characterName={characterQuery.data.character.name}
+								sectionHeadingRef={sectionHeadingRef}
 								viewState={inventoryView}
 								onViewStateChange={onInventoryViewChange}
 							/>
