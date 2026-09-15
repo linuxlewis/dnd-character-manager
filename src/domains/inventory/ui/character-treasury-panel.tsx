@@ -174,6 +174,7 @@ export function CharacterTreasuryPanel({
 				data: query.data ? toTreasuryData(query.data) : undefined,
 				error: query.error,
 				isLoading: query.isLoading,
+				onRetry: () => void query.refetch(),
 			}}
 			scopeLabel={scopeLabel}
 			spend={{

@@ -21,6 +21,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await expect(page.getByRole("link", { name: "Inventory", exact: true })).not.toHaveAttribute(
 		"aria-current",
 	);
+	await expect(page.getByRole("link", { name: "Attributes & Rolls", exact: true })).toBeVisible();
 	await expect(page.getByTestId("personal-inventory")).toHaveCount(0);
 	await expect(page.getByRole("button", { name: "Edit health: 10 / 10 HP" })).toBeVisible();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeHidden();

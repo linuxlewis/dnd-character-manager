@@ -1,14 +1,27 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
+import { z } from "zod";
 import {
 	CharacterAttributesResponseSchema,
 	CharacterAttributesUpdateRequestSchema,
+	CharacterIdSchema,
 } from "../types/index.js";
-import {
-	CharacterPathParamsSchema,
-	characterSchemaImports,
-	characterTypeImports,
-	ErrorResponseSchema,
-} from "./contract-support.js";
+
+const CharacterPathParamsSchema = z.object({ characterId: CharacterIdSchema });
+const ErrorResponseSchema = z.object({ error: z.string() });
+const characterTypeImports = [
+	{
+		kind: "type",
+		module: "../domains/characters/types/index.js",
+		names: ["CharacterAttributesResponse", "CharacterAttributesUpdateRequest"],
+	},
+] as const;
+const characterSchemaImports = [
+	{
+		kind: "value",
+		module: "../domains/characters/types/index.js",
+		names: ["CharacterAttributesResponseSchema"],
+	},
+] as const;
 
 export const characterAttributesRouteContracts = [
 	{

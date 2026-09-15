@@ -1,13 +1,22 @@
 import type { z } from "zod";
 import {
+	type AbilityKey,
 	CHARACTER_ABILITIES,
 	CHARACTER_SKILLS,
 	type ProficiencyRank,
 } from "./character-attributes.js";
-import type { RollBreakdownComponentType, RollReferenceEntry } from "./character-rolls.js";
+
+type ValidatableRollReferenceEntry = {
+	id: string;
+	label: string;
+	category: string;
+	ability: AbilityKey;
+	proficiencyRank: ProficiencyRank | null;
+	components: readonly { type: "base" | "ability" | "proficiency"; label: string }[];
+};
 
 export function validateRollReference(
-	entries: readonly RollReferenceEntry[],
+	entries: readonly ValidatableRollReferenceEntry[],
 	context: z.RefinementCtx,
 ) {
 	const expected = [
@@ -128,8 +137,11 @@ export function validateRollReference(
 }
 
 function hasComponents(
-	entry: RollReferenceEntry,
-	components: readonly { type: RollBreakdownComponentType; label: string }[],
+	entry: ValidatableRollReferenceEntry,
+	components: readonly {
+		type: ValidatableRollReferenceEntry["components"][number]["type"];
+		label: string;
+	}[],
 ) {
 	return (
 		entry.components.length === components.length &&

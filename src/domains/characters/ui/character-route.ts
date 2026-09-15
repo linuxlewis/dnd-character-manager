@@ -1,4 +1,4 @@
-export type CharacterSection = "spells" | "inventory";
+export type CharacterSection = "attributes" | "spells" | "inventory";
 
 export type CharacterRoute =
 	| { screen: "create" }
@@ -10,9 +10,11 @@ export const createCharacterRoute: CharacterRoute = { screen: "create" };
 
 export function parseCharacterRoute(pathname: string): CharacterRoute {
 	if (pathname === "/" || pathname === "/characters") return characterListRoute;
-	if (pathname === "/characters/new") return createCharacterRoute;
+	if (pathname === "/characters/new" || pathname === "/characters/new/") {
+		return createCharacterRoute;
+	}
 
-	const detailMatch = pathname.match(/^\/characters\/([^/]+)(?:\/(spells|inventory))?$/);
+	const detailMatch = pathname.match(/^\/characters\/([^/]+)(?:\/(attributes|spells|inventory))?\/?$/);
 	if (detailMatch?.[1]) {
 		try {
 			const route: CharacterRoute = { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
