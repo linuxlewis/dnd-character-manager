@@ -6,12 +6,17 @@ import type {
 } from "../application/character-detail/types/index.js";
 import { CharacterDetailResponseSchema } from "../application/character-detail/types/index.js";
 import type {
+	CharacterAttributesResponse,
+	CharacterAttributesUpdateRequest,
 	ListCharactersResponse,
 	UpdateCharacterExperienceRequest,
 	UpdateCharacterLevelRequest,
 	UpdateCharacterNameRequest,
 } from "../domains/characters/types/index.js";
-import { ListCharactersResponseSchema } from "../domains/characters/types/index.js";
+import {
+	CharacterAttributesResponseSchema,
+	ListCharactersResponseSchema,
+} from "../domains/characters/types/index.js";
 import type {
 	UpdateCharacterHealthRequest,
 	UpdateCharacterHealthResponse,
@@ -123,6 +128,33 @@ export function createCharactersApiClient(runtime: ApiClientRuntime) {
 				options,
 				undefined,
 				(body: unknown) => ListCharactersResponseSchema.parse(body),
+			);
+		},
+
+		getCharacterAttributes(
+			params: { characterId: string },
+			options: ApiRequestOptions = {},
+		): Promise<CharacterAttributesResponse> {
+			return runtime.request<CharacterAttributesResponse>(
+				"GET",
+				`/api/characters/${params.characterId}/attributes`,
+				options,
+				undefined,
+				(body: unknown) => CharacterAttributesResponseSchema.parse(body),
+			);
+		},
+
+		updateCharacterAttributes(
+			params: { characterId: string },
+			body: CharacterAttributesUpdateRequest,
+			options: ApiRequestOptions = {},
+		): Promise<CharacterAttributesResponse> {
+			return runtime.request<CharacterAttributesResponse>(
+				"PUT",
+				`/api/characters/${params.characterId}/attributes`,
+				options,
+				body,
+				(body: unknown) => CharacterAttributesResponseSchema.parse(body),
 			);
 		},
 

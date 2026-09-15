@@ -1,9 +1,12 @@
+import type { DatabaseTransaction } from "@providers/database/index.js";
 import { getDb } from "@providers/database/index.js";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { findOwnedCharacter, lockOwnedCharacter } from "../access/index.js";
 import {
 	type CharacterAttributesUpdateRequest,
 	CharacterAttributesUpdateRequestSchema,
 	CharacterIdSchema,
+	CharacterLevelSchema,
 	CharacterUserIdSchema,
 	PersistedCharacterProficienciesSchema,
 } from "../types/index.js";
@@ -14,7 +17,6 @@ import {
 import {
 	characterAttributesTable,
 	characterProficienciesTable,
-	charactersTable,
 } from "../schema/index.js";
 
 export type { CharacterAttributesPersistenceState } from "./character-attributes-mappers.js";
@@ -30,13 +32,18 @@ export interface CharacterAttributesRepository {
 	findCharacterAttributes(
 		userId: string,
 		characterId: string,
-	): Promise<CharacterAttributesPersistenceState | null>;
+	): Promise<CharacterAttributesPersistenceSnapshot | null>;
 	replaceCharacterAttributes(
 		userId: string,
 		characterId: string,
 		input: CharacterAttributesUpdateRequest,
-	): Promise<CharacterAttributesPersistenceState | null>;
+	): Promise<CharacterAttributesPersistenceSnapshot | null>;
 }
+
+export type CharacterAttributesPersistenceSnapshot = {
+	level: number;
+	state: CharacterAttributesPersistenceState;
+};
 
 type Db = ReturnType<typeof getDb>;
 
@@ -48,13 +55,7 @@ export function createCharacterAttributesRepository(
 			const ids = parseScope(userId, characterId);
 			return db.transaction(
 				async (tx) => {
-					const [ownedCharacter] = await tx
-						.select({ id: charactersTable.id })
-						.from(charactersTable)
-						.where(
-							and(eq(charactersTable.id, ids.characterId), eq(charactersTable.userId, ids.userId)),
-						)
-						.limit(1);
+					const ownedCharacter = await findOwnedCharacter(ids.userId, ids.characterId, tx);
 					if (!ownedCharacter) return null;
 
 					const [attributes] = await tx
@@ -68,7 +69,10 @@ export function createCharacterAttributesRepository(
 						.select(proficiencyColumns())
 						.from(characterProficienciesTable)
 						.where(eq(characterProficienciesTable.characterId, ids.characterId));
-					return toCharacterAttributesPersistenceState(attributes, proficiencies);
+					return {
+						level: CharacterLevelSchema.parse(ownedCharacter.level),
+						state: toCharacterAttributesPersistenceState(attributes, proficiencies),
+					};
 				},
 				{ isolationLevel: "repeatable read", accessMode: "read only" },
 			);
@@ -85,15 +89,9 @@ export function createCharacterAttributesRepository(
 			});
 
 			return db.transaction(async (tx) => {
-				const [ownedCharacter] = await tx
-					.select({ id: charactersTable.id })
-					.from(charactersTable)
-					.where(
-						and(eq(charactersTable.id, ids.characterId), eq(charactersTable.userId, ids.userId)),
-					)
-					.limit(1)
-					.for("update");
+				const ownedCharacter = await lockOwnedCharacter(ids.userId, ids.characterId, tx);
 				if (!ownedCharacter) return null;
+				const level = CharacterLevelSchema.parse(ownedCharacter.level);
 
 				const [existingAttributes] = await tx
 					.select(attributeColumns())
@@ -102,6 +100,18 @@ export function createCharacterAttributesRepository(
 					.limit(1)
 					.for("update");
 				if (!existingAttributes) throw new CharacterAttributesMissingError();
+				const existingProficiencies = await tx
+					.select(proficiencyColumns())
+					.from(characterProficienciesTable)
+					.where(eq(characterProficienciesTable.characterId, ids.characterId))
+					.for("update");
+				const existingState = toCharacterAttributesPersistenceState(
+					existingAttributes,
+					existingProficiencies,
+				);
+				if (isSameCompleteState(existingState, parsedInput)) {
+					return { level, state: existingState };
+				}
 
 				await tx
 					.update(characterAttributesTable)
@@ -137,10 +147,22 @@ export function createCharacterAttributesRepository(
 					.select(proficiencyColumns())
 					.from(characterProficienciesTable)
 					.where(eq(characterProficienciesTable.characterId, ids.characterId));
-				return toCharacterAttributesPersistenceState(updatedAttributes, updatedProficiencies);
+				return {
+					level,
+					state: toCharacterAttributesPersistenceState(updatedAttributes, updatedProficiencies),
+				};
 			});
 		},
 	};
+}
+
+export function insertInitialCharacterAttributes(
+	characterId: string,
+	transaction: DatabaseTransaction,
+) {
+	return transaction
+		.insert(characterAttributesTable)
+		.values({ characterId: CharacterIdSchema.parse(characterId) });
 }
 
 function parseScope(userId: string, characterId: string) {
@@ -148,6 +170,30 @@ function parseScope(userId: string, characterId: string) {
 		userId: CharacterUserIdSchema.parse(userId),
 		characterId: CharacterIdSchema.parse(characterId),
 	};
+}
+
+function isSameCompleteState(
+	existing: CharacterAttributesPersistenceState,
+	input: CharacterAttributesUpdateRequest,
+) {
+	return (
+		Object.keys(existing.scores).every(
+			(key) =>
+				existing.scores[key as keyof typeof existing.scores] ===
+				input.scores[key as keyof typeof input.scores],
+		) &&
+		matchingRanks(existing.savingThrowProficiencies, input.savingThrowProficiencies) &&
+		matchingRanks(existing.skillProficiencies, input.skillProficiencies)
+	);
+}
+
+function matchingRanks(
+	existing: readonly { key: string; rank: string }[],
+	input: readonly { key: string; rank: string }[],
+) {
+	return existing.every((entry) =>
+		input.some((candidate) => candidate.key === entry.key && candidate.rank === entry.rank),
+	);
 }
 
 function attributeColumns() {

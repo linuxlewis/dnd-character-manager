@@ -14,6 +14,8 @@ describe("apiRouteContracts", () => {
 			"updateCharacterExperience",
 			"updateCharacterHealth",
 			"listCharacters",
+			"getCharacterAttributes",
+			"updateCharacterAttributes",
 			"getCharacterSpellSlots",
 			"updateCharacterSpellSlots",
 			"useCharacterSpellSlot",
