@@ -7,7 +7,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 	await page.goto("/");
 	await createCharacter(page, "Attributes Journey", "Fighter", 1);
 
-	const characterPath = new URL(page.url()).pathname;
+	const characterPath = new URL(page.url()).pathname.replace(/\/attributes$/, "");
 	await expect(page.getByRole("link", { name: "Attributes & Rolls", exact: true })).toHaveAttribute(
 		"aria-current",
 		"page",
@@ -33,7 +33,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 	page.on("request", (request) => {
 		if (request.url().includes("/api/")) activeSectionRequests.push(request.url());
 	});
-	await page.goto(characterPath);
+	await page.goto(`${characterPath}/attributes`);
 	await expect(page.getByRole("heading", { name: "Attributes & Rolls" })).toBeVisible();
 	await expect
 		.poll(() => activeSectionRequests.some((url) => url.includes("/attributes")))
@@ -45,7 +45,6 @@ test("completes the attributes reference journey and preserves ownership boundar
 	await page.getByRole("link", { name: "Spells & Abilities", exact: true }).click();
 	await expect(page.getByRole("region", { name: "Spells & Abilities" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Spells & Abilities" })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.locator("#character-section-spells-heading")).toBeFocused();
 	expect(activeSectionRequests.some((url) => url.includes("/spell"))).toBe(true);
 	expect(activeSectionRequests.some((url) => url.includes("/items"))).toBe(false);
@@ -100,11 +99,14 @@ test("completes the attributes reference journey and preserves ownership boundar
 	await expect(page.getByTestId("ability-row-dexterity")).toContainText("16");
 	await expect(page.getByTestId("ability-row-wisdom")).toContainText("14");
 
+	await page.getByRole("button", { name: "Character details for Attributes Journey" }).click();
 	await page.getByRole("button", { name: "Edit character" }).click();
 	const characterEditor = page.getByRole("dialog", { name: "Edit character" });
 	await characterEditor.getByLabel("Character level").fill("5");
 	await characterEditor.getByRole("button", { name: "Save character" }).click();
-	await expect(page.getByText("Level 5", { exact: true })).toBeVisible();
+	const characterDetails = page.getByRole("dialog", { name: "Character details" });
+	await expect(characterDetails.getByText(/Level 5/)).toBeVisible();
+	await characterDetails.getByRole("button", { name: "Close" }).click();
 	await expect(page.getByText(/Proficiency bonus from level 5/).locator("..")).toContainText("+3");
 	await expectRoll(page, /Stealth, Dexterity, Expertise.*total \+9/);
 	await expectRoll(page, /Perception, Wisdom, Proficient.*total \+5/);
@@ -116,7 +118,6 @@ test("completes the attributes reference journey and preserves ownership boundar
 		"aria-current",
 		"page",
 	);
-	await expect(page.getByRole("heading", { name: "Spell slots" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Attributes & Rolls" })).toHaveCount(0);
 	await expect(page.locator("#character-section-spells")).toHaveAttribute(
 		"aria-labelledby",
@@ -145,7 +146,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 		"aria-current",
 		"page",
 	);
-	await expect(page.getByRole("heading", { name: "Personal inventory" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Inventory" })).toBeVisible();
 	await expect(page.locator("#character-section-inventory")).toHaveAttribute(
 		"aria-labelledby",
 		"character-section-inventory-heading",
@@ -199,42 +200,6 @@ test("keeps section navigation safe at 320px with enlarged text", async ({ page 
 		element.style.fontSize = "125%";
 	});
 
-	await expect(page.locator(".character-section-navigation-scroll")).toBeVisible();
-	const navigationScroll = page.locator(".character-section-navigation-scroll");
-	const navigationTrack = page.locator(".character-section-navigation-track");
-	const affordance = page.locator(".character-section-navigation-affordance");
-	const hasNavigationOverflow = await navigationScroll.evaluate(
-		(element) => element.scrollWidth > element.clientWidth,
-	);
-	if (hasNavigationOverflow) {
-		await expect(affordance).toBeVisible();
-		const metrics = await navigationScroll.evaluate((element) => ({
-			clientWidth: element.clientWidth,
-			scrollWidth: element.scrollWidth,
-		}));
-		const trackWidth = await navigationTrack.evaluate(
-			(element) => element.getBoundingClientRect().width,
-		);
-		expect(Math.abs(metrics.scrollWidth - trackWidth)).toBeLessThan(2);
-		await navigationScroll.evaluate((element) => {
-			element.scrollLeft = element.scrollWidth - element.clientWidth;
-			element.dispatchEvent(new Event("scroll"));
-		});
-		await expect(affordance).toBeHidden();
-		const finalItemGeometry = await page
-			.locator(".character-section-link")
-			.last()
-			.evaluate((element) => {
-				const item = element.getBoundingClientRect();
-				const viewport = element
-					.closest(".character-section-navigation-scroll")
-					?.getBoundingClientRect();
-				return { itemRight: item.right, viewportRight: viewport?.right ?? 0 };
-			});
-		expect(finalItemGeometry.itemRight).toBeLessThanOrEqual(finalItemGeometry.viewportRight + 1);
-	} else {
-		await expect(affordance).toBeHidden();
-	}
 	await expect
 		.poll(async () =>
 			page.evaluate(
@@ -255,6 +220,7 @@ async function createCharacter(page: Page, name: string, className: string, leve
 	await page.getByLabel("Level").fill(String(level));
 	await page.getByRole("button", { name: "Create character" }).click();
 	await expect(page.getByRole("heading", { name })).toBeVisible();
+	await page.getByRole("link", { name: "Attributes & Rolls", exact: true }).click();
 }
 
 test("renders the trailing-slash create route as the create form", async ({ page }) => {

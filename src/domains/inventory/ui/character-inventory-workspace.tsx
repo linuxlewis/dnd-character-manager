@@ -1,6 +1,6 @@
 import { Button, Group, Stack, Title } from "@mantine/core";
 import { History } from "lucide-react";
-import { useState } from "react";
+import { type RefCallback, useState } from "react";
 import { CharacterActivityDrawer } from "./character-activity-drawer.js";
 import { CharacterInventory } from "./character-inventory.js";
 import { CharacterTreasuryPanel } from "./character-treasury-panel.js";
@@ -12,17 +12,25 @@ export function CharacterInventoryWorkspace({
 	characterName,
 	viewState,
 	onViewStateChange,
+	sectionHeadingRef,
 }: {
 	characterId: string;
 	characterName: string;
 	viewState?: InventoryViewState;
 	onViewStateChange?: (state: InventoryViewState) => void;
+	sectionHeadingRef?: RefCallback<HTMLHeadingElement>;
 }) {
 	const [historyOpened, setHistoryOpened] = useState(false);
 	return (
 		<Stack gap="md">
 			<Group justify="space-between" wrap="wrap">
-				<Title order={2} size="h4">
+				<Title
+					id="character-section-inventory-heading"
+					order={2}
+					ref={sectionHeadingRef}
+					size="h4"
+					tabIndex={-1}
+				>
 					Inventory
 				</Title>
 				<Button
