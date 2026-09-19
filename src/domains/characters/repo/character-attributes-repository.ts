@@ -5,7 +5,6 @@ import { findOwnedCharacter, lockOwnedCharacter } from "../access/index.js";
 import {
 	characterAttributesTable,
 	characterProficienciesTable,
-	charactersTable,
 } from "../schema/index.js";
 import {
 	type CharacterAttributesUpdateRequest,
