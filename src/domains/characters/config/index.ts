@@ -1,7 +1,3 @@
-export {
-	DND_5E_EXPERIENCE_THRESHOLDS,
-	getCharacterExperienceProgress,
-} from "./character-experience.js";
 export type { CharacterAbilityConfig, CharacterSkillConfig } from "./character-attributes.js";
 export {
 	ABILITY_CONFIG,
@@ -13,4 +9,8 @@ export {
 	SKILL_CONFIG,
 	SKILL_TO_ABILITY,
 } from "./character-attributes.js";
+export {
+	DND_5E_EXPERIENCE_THRESHOLDS,
+	getCharacterExperienceProgress,
+} from "./character-experience.js";
 export { buildCharacterAttributes, buildRollReference } from "./character-rolls.js";
