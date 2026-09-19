@@ -2,6 +2,7 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { createCharacter as createCharacterWorkflow } from "../../../application/character-detail/workflows/create-character.js";
 import { ABILITY_KEYS, SKILL_KEYS } from "../types/index.js";
 import { createCharacterAttributesRepository } from "./character-attributes-repository.js";
 import {
@@ -9,7 +10,6 @@ import {
 	releaseActiveReadGates,
 	withReadGate,
 } from "./character-attributes-repository-concurrency-helpers.js";
-import { createCharacterRepository } from "./character-repository.js";
 
 const createdUserIds: string[] = [];
 
@@ -113,7 +113,7 @@ function validInput(overrides: {
 
 async function createCharacter() {
 	const userId = await createUser();
-	const character = await createCharacterRepository().createCharacter({
+	const character = await createCharacterWorkflow({
 		userId,
 		name: "Mira",
 		className: "Fighter",

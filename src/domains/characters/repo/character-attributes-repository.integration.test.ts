@@ -3,17 +3,17 @@ import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
 import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
-import { ABILITY_KEYS, type CharacterAttributesUpdateRequest, SKILL_KEYS } from "../types/index.js";
-import {
-	CharacterAttributesMissingError,
-	createCharacterAttributesRepository,
-} from "./character-attributes-repository.js";
-import { createCharacterRepository } from "./character-repository.js";
+import { createCharacter as createCharacterWorkflow } from "../../../application/character-detail/workflows/create-character.js";
 import {
 	characterAttributesTable,
 	characterProficienciesTable,
 	charactersTable,
 } from "../schema/index.js";
+import { ABILITY_KEYS, type CharacterAttributesUpdateRequest, SKILL_KEYS } from "../types/index.js";
+import {
+	CharacterAttributesMissingError,
+	createCharacterAttributesRepository,
+} from "./character-attributes-repository.js";
 
 const createdUserIds: string[] = [];
 
@@ -240,7 +240,7 @@ function validInput(
 
 async function createCharacter() {
 	const userId = await createUser();
-	const character = await createCharacterRepository().createCharacter({
+	const character = await createCharacterWorkflow({
 		userId,
 		name: "Mira",
 		className: "Fighter",
