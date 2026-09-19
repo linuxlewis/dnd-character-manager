@@ -168,7 +168,7 @@ function CharacterFolio() {
 						<Text className="landing-folio-kicker">Ranger / level 7</Text>
 						<Title order={2}>Aster Vale</Title>
 					</div>
-						<span className="landing-live-mark">Quest in progress</span>
+					<span className="landing-live-mark">Quest in progress</span>
 				</header>
 
 				<div className="landing-vitals">
