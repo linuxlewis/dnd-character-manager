@@ -2,10 +2,7 @@ import type { DatabaseTransaction } from "@providers/database/index.js";
 import { getDb } from "@providers/database/index.js";
 import { eq } from "drizzle-orm";
 import { findOwnedCharacter, lockOwnedCharacter } from "../access/index.js";
-import {
-	characterAttributesTable,
-	characterProficienciesTable,
-} from "../schema/index.js";
+import { characterAttributesTable, characterProficienciesTable } from "../schema/index.js";
 import {
 	type CharacterAttributesUpdateRequest,
 	CharacterAttributesUpdateRequestSchema,
