@@ -5,7 +5,7 @@ test("mobile spells keep play actions visible and configuration recoverable", as
 }, testInfo) => {
 	test.setTimeout(90_000);
 	await page.setViewportSize({ width: 390, height: 844 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Mira Thorn");
 	await page.getByRole("combobox", { name: "Class" }).click();

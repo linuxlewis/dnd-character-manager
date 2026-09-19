@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 for (const width of [320, 390, 1280]) {
 	test(`compact identity and health recovery at ${width}px`, async ({ page }, testInfo) => {
 		await page.setViewportSize({ width, height: width === 320 ? 740 : 900 });
-		await page.goto("/");
+		await page.goto("/characters");
 		await page.getByText("Create character").first().click();
 		await page.getByLabel("Name").fill("Mira Thorn");
 		await page.getByRole("combobox", { name: "Class" }).click();

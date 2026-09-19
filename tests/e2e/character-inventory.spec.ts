@@ -5,7 +5,7 @@ import { openInventoryTab, openSpellsAndAbilitiesTab } from "./character-detail-
 test("completes the M2 personal inventory journey", async ({ page }) => {
 	test.setTimeout(60_000);
 	const fixture = readCatalogueJourneyFixture();
-	await page.goto("/");
+	await page.goto("/characters");
 	const firstCharacterName = `A7 Inventory Hero ${Date.now()}`;
 	await createCharacter(page, firstCharacterName, "Fighter");
 	const firstCharacterUrl = page.url();
@@ -209,7 +209,7 @@ test("keeps character details visible when personal inventory fails", async ({ p
 		}
 		await route.continue();
 	});
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `A7 Inventory Failure ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await expect(page.getByText("Personal inventory unavailable")).toBeVisible();

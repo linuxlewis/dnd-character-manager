@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("creates and reuses the browser session on reload", async ({ page }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 
 	const firstSession = await page.request.get("/api/current-user");
 	expect(firstSession.ok()).toBe(true);

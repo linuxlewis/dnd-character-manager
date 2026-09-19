@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("keeps failed health edits unchanged and updates only detail after explicit retry", async ({
 	page,
 }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Health cache isolation");
 	await page.getByRole("combobox", { name: "Class" }).click();

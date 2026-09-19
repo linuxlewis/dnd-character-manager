@@ -161,7 +161,7 @@ for (const operation of ["configuration", "defaults", "use", "restore"] as const
 }
 
 async function mountFixture(page: Page, firstId: string, secondId: string) {
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.evaluate(
 		async ({ modulePath, firstId, secondId }) => {
 			const { mountSpellPanel } = await import(modulePath);
