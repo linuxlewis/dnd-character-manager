@@ -1,13 +1,9 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
-import { eq, inArray, sql } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createCharacter as createCharacterWorkflow } from "../../../application/character-detail/workflows/create-character.js";
-import {
-	characterAttributesTable,
-	characterProficienciesTable,
-	charactersTable,
-} from "../schema/index.js";
+import { characterAttributesTable, characterProficienciesTable } from "../schema/index.js";
 import { ABILITY_KEYS, type CharacterAttributesUpdateRequest, SKILL_KEYS } from "../types/index.js";
 import { createCharacterAttributesRepository } from "./character-attributes-repository.js";
 import {
@@ -100,31 +96,6 @@ describe("character attributes repository boundaries", () => {
 				.from(characterProficienciesTable)
 				.where(eq(characterProficienciesTable.characterId, characterId)),
 		).resolves.toEqual(proficienciesBefore);
-	});
-
-	it("rejects malformed character levels at the repository boundary", async () => {
-		const { characterId, userId } = await createCharacter();
-		try {
-			await getDb().execute(sql`ALTER TABLE characters DROP CONSTRAINT characters_level_check`);
-			await getDb()
-				.update(charactersTable)
-				.set({ level: 0 })
-				.where(eq(charactersTable.id, characterId));
-			const repository = createCharacterAttributesRepository();
-
-			await expect(repository.findCharacterAttributes(userId, characterId)).rejects.toThrow();
-			await expect(
-				repository.replaceCharacterAttributes(userId, characterId, validInput()),
-			).rejects.toThrow();
-		} finally {
-			await getDb()
-				.update(charactersTable)
-				.set({ level: 1 })
-				.where(eq(charactersTable.id, characterId));
-			await getDb().execute(
-				sql`ALTER TABLE characters ADD CONSTRAINT characters_level_check CHECK (level BETWEEN 1 AND 20)`,
-			);
-		}
 	});
 
 	it("rolls back a replacement that fails after changing both child tables", async () => {

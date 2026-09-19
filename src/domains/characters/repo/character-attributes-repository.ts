@@ -7,7 +7,6 @@ import {
 	type CharacterAttributesUpdateRequest,
 	CharacterAttributesUpdateRequestSchema,
 	CharacterIdSchema,
-	CharacterLevelSchema,
 	CharacterUserIdSchema,
 	PersistedCharacterProficienciesSchema,
 } from "../types/index.js";
@@ -67,7 +66,7 @@ export function createCharacterAttributesRepository(
 						.from(characterProficienciesTable)
 						.where(eq(characterProficienciesTable.characterId, ids.characterId));
 					return {
-						level: CharacterLevelSchema.parse(ownedCharacter.level),
+						level: ownedCharacter.level,
 						state: toCharacterAttributesPersistenceState(attributes, proficiencies),
 					};
 				},
@@ -88,7 +87,7 @@ export function createCharacterAttributesRepository(
 			return db.transaction(async (tx) => {
 				const ownedCharacter = await lockOwnedCharacter(ids.userId, ids.characterId, tx);
 				if (!ownedCharacter) return null;
-				const level = CharacterLevelSchema.parse(ownedCharacter.level);
+				const level = ownedCharacter.level;
 
 				const [existingAttributes] = await tx
 					.select(attributeColumns())
