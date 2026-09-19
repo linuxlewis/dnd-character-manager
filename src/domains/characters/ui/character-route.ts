@@ -14,7 +14,9 @@ export function parseCharacterRoute(pathname: string): CharacterRoute {
 		return createCharacterRoute;
 	}
 
-	const detailMatch = pathname.match(/^\/characters\/([^/]+)(?:\/(attributes|spells|inventory))?\/?$/);
+	const detailMatch = pathname.match(
+		/^\/characters\/([^/]+)(?:\/(attributes|spells|inventory))?\/?$/,
+	);
 	if (detailMatch?.[1]) {
 		try {
 			const route: CharacterRoute = { screen: "detail", id: decodeURIComponent(detailMatch[1]) };
