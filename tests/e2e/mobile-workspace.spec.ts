@@ -31,7 +31,19 @@ test("mobile workspace visual geometry and responsive boundaries", async ({ page
 		for (const section of ["spells", "inventory"]) {
 			await page.goto(`${fixture.path}/${section}`);
 			const nav = page.getByRole("navigation", { name: "Character sections" });
-			await expect(nav.getByRole("link")).toHaveCount(2);
+			await expect(nav.getByRole("link")).toHaveCount(3);
+			await expect(nav.getByRole("link", { name: "Attributes & Rolls" })).toHaveAttribute(
+				"href",
+				`${fixture.path}/attributes`,
+			);
+			await expect(nav.getByRole("link", { name: "Spells & Abilities" })).toHaveAttribute(
+				"href",
+				`${fixture.path}/spells`,
+			);
+			await expect(nav.getByRole("link", { name: "Inventory" })).toHaveAttribute(
+				"href",
+				`${fixture.path}/inventory`,
+			);
 			await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
 			await expect(page.locator("footer")).toHaveCount(0);
 			await expect(page.getByText("72% to Lv 4", { exact: true })).toBeVisible();

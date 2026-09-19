@@ -13,10 +13,14 @@ test("mobile workspace keeps real section routes, browsing state, and reachable 
 	await expect(page.getByRole("heading", { name: "Mira Navigation" })).toBeVisible();
 	const characterPath = new URL(page.url()).pathname;
 	const navigation = page.getByRole("navigation", { name: "Character sections" });
+	const attributes = navigation.getByRole("link", { name: "Attributes & Rolls" });
 	const spells = navigation.getByRole("link", { name: "Spells & Abilities" });
 	const inventory = navigation.getByRole("link", { name: "Inventory" });
 	await expect(page.locator("footer")).toHaveCount(0);
-	await expect(navigation.getByRole("link")).toHaveCount(2);
+	await expect(navigation.getByRole("link")).toHaveCount(3);
+	await expect(attributes).toHaveAttribute("href", `${characterPath}/attributes`);
+	await expect(spells).toHaveAttribute("href", `${characterPath}/spells`);
+	await expect(inventory).toHaveAttribute("href", `${characterPath}/inventory`);
 	await inventory.click();
 	await expect(page).toHaveURL(`${process.env.WEB_URL}${characterPath}/inventory`);
 	await page.getByRole("textbox", { name: "Search personal inventory" }).fill("retained search");
