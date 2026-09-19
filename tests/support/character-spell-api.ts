@@ -4,7 +4,7 @@ import type {
 	CharacterSpellDetails,
 	DndSpellDetails,
 	DndSpellSearchResult,
-} from "../../src/domains/characters/types/index.js";
+} from "../../src/domains/spellcasting/types/index.js";
 
 export async function mockCharacterSpellApi(page: Page) {
 	const savedSpells: CharacterSpell[] = [];
