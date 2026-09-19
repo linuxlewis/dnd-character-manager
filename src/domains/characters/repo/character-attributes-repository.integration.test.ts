@@ -13,6 +13,7 @@ import { ABILITY_KEYS, type CharacterAttributesUpdateRequest, SKILL_KEYS } from 
 import {
 	CharacterAttributesMissingError,
 	createCharacterAttributesRepository,
+	insertInitialCharacterAttributes,
 } from "./character-attributes-repository.js";
 
 const createdUserIds: string[] = [];
@@ -247,6 +248,9 @@ async function createCharacter() {
 		level: 1,
 		maxHp: 10,
 	});
+	await getDb().transaction((transaction) =>
+		insertInitialCharacterAttributes(character.id, transaction),
+	);
 	return { userId, characterId: character.id };
 }
 

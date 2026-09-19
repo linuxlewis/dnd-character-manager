@@ -4,7 +4,10 @@ import { inArray } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createCharacter as createCharacterWorkflow } from "../../../application/character-detail/workflows/create-character.js";
 import { ABILITY_KEYS, type CharacterAttributesUpdateRequest, SKILL_KEYS } from "../types/index.js";
-import { createCharacterAttributesRepository } from "./character-attributes-repository.js";
+import {
+	createCharacterAttributesRepository,
+	insertInitialCharacterAttributes,
+} from "./character-attributes-repository.js";
 import {
 	withTransactionFailure,
 	withTransactionObserver,
@@ -122,6 +125,9 @@ async function createCharacter() {
 		level: 1,
 		maxHp: 10,
 	});
+	await getDb().transaction((transaction) =>
+		insertInitialCharacterAttributes(character.id, transaction),
+	);
 	return { userId, characterId: character.id };
 }
 

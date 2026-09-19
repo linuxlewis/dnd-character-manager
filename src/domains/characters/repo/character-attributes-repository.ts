@@ -1,3 +1,4 @@
+import type { DatabaseTransaction } from "@providers/database/index.js";
 import { getDb } from "@providers/database/index.js";
 import { and, eq } from "drizzle-orm";
 import {
@@ -141,6 +142,15 @@ export function createCharacterAttributesRepository(
 			});
 		},
 	};
+}
+
+export function insertInitialCharacterAttributes(
+	characterId: string,
+	transaction: DatabaseTransaction,
+) {
+	return transaction
+		.insert(characterAttributesTable)
+		.values({ characterId: CharacterIdSchema.parse(characterId) });
 }
 
 function parseScope(userId: string, characterId: string) {
