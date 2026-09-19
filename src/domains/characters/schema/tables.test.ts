@@ -17,10 +17,7 @@ it("maps attribute tables and their database constraints", () => {
 	expect(getTableName(characterProficienciesTable)).toBe("character_proficiencies");
 	expectChecks(characterAttributesTable, dialect, [
 		["character_attributes_strength_check", '"character_attributes"."strength" BETWEEN 1 AND 30'],
-		[
-			"character_attributes_dexterity_check",
-			'"character_attributes"."dexterity" BETWEEN 1 AND 30',
-		],
+		["character_attributes_dexterity_check", '"character_attributes"."dexterity" BETWEEN 1 AND 30'],
 		[
 			"character_attributes_constitution_check",
 			'"character_attributes"."constitution" BETWEEN 1 AND 30',

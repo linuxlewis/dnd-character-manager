@@ -179,7 +179,6 @@ describe("createCharacterRepository", () => {
 			},
 		]);
 	});
-
 });
 
 async function createUser() {

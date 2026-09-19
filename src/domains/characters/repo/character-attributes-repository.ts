@@ -1,6 +1,11 @@
 import { getDb } from "@providers/database/index.js";
 import { and, eq } from "drizzle-orm";
 import {
+	characterAttributesTable,
+	characterProficienciesTable,
+	charactersTable,
+} from "../schema/index.js";
+import {
 	type CharacterAttributesUpdateRequest,
 	CharacterAttributesUpdateRequestSchema,
 	CharacterIdSchema,
@@ -11,11 +16,6 @@ import {
 	type CharacterAttributesPersistenceState,
 	toCharacterAttributesPersistenceState,
 } from "./character-attributes-mappers.js";
-import {
-	characterAttributesTable,
-	characterProficienciesTable,
-	charactersTable,
-} from "../schema/index.js";
 
 export type { CharacterAttributesPersistenceState } from "./character-attributes-mappers.js";
 
