@@ -24,6 +24,7 @@ export function CharacterWorkspace({
 
 	const [inventoryViews, setInventoryViews] = useState<Record<string, InventoryViewState>>({});
 	const scrollPositions = useRef(new Map<string, number>());
+	const pendingSectionFocus = useRef<string | null>(null);
 	const sectionKey =
 		route.screen === "detail" ? `${route.id}/${route.section ?? "spells"}` : route.screen;
 	const scrollRef = useCallback(
@@ -38,8 +39,16 @@ export function CharacterWorkspace({
 
 	function navigate(route: CharacterRoute) {
 		if (typeof window === "undefined") return;
+		pendingSectionFocus.current = route.screen === "detail" && route.section ? route.section : null;
 		navigateBrowserPath(characterRoutePath(route));
 	}
+
+	const focusSectionHeading = useCallback((node: HTMLHeadingElement | null) => {
+		if (!node || !pendingSectionFocus.current) return;
+		if (node.id !== `character-section-${pendingSectionFocus.current}-heading`) return;
+		pendingSectionFocus.current = null;
+		node.focus({ preventScroll: true });
+	}, []);
 
 	if (route.screen === "create") return <CreateCharacterForm onNavigate={navigate} />;
 	if (route.screen === "detail") {
@@ -49,6 +58,7 @@ export function CharacterWorkspace({
 					key={route.id}
 					id={route.id}
 					section={route.section ?? "spells"}
+					sectionHeadingRef={focusSectionHeading}
 					onNavigate={navigate}
 					renderApplicationMenu={renderApplicationMenu}
 					inventoryView={inventoryViews[route.id] ?? { searchInput: "", activeType: "all" }}

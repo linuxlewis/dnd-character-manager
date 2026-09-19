@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mockCharacterSpellApi } from "../support/character-spell-api.js";
 
 const spellApiTimeoutMs = 30_000;
 
@@ -20,6 +21,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 	await expect(page.getByRole("link", { name: "Inventory", exact: true })).not.toHaveAttribute(
 		"aria-current",
 	);
+	await expect(page.getByRole("link", { name: "Attributes & Rolls", exact: true })).toBeVisible();
 	await expect(page.getByTestId("personal-inventory")).toHaveCount(0);
 	await expect(page.getByRole("button", { name: "Edit health: 10 / 10 HP" })).toBeVisible();
 	await expect(page.getByText("HP +5, Temp HP +5")).toBeHidden();
@@ -82,6 +84,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 
 test("configures spell slots and tracks spell usage on detail", async ({ page }) => {
 	test.setTimeout(120_000);
+	await mockCharacterSpellApi(page);
 	await page.goto("/");
 
 	await page.getByText("Create character").first().click();

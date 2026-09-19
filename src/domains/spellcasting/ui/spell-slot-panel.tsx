@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Stack, Text, Title } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { type RefCallback, useRef, useState } from "react";
 import type {
 	CharacterSpellSlotsResponse,
 	CharacterSpellsResponse,
@@ -24,9 +24,11 @@ type SpellDialog = { characterId: string } & (
 export function CharacterSpellSlotsPanel({
 	characterId,
 	level,
+	sectionHeadingRef,
 }: {
 	characterId: string;
 	level: number;
+	sectionHeadingRef?: RefCallback<HTMLHeadingElement>;
 }) {
 	const spellSlotsQuery = useQuery(apiQueries.getCharacterSpellSlots({ characterId }));
 	const characterSpellsQuery = useQuery(apiQueries.listCharacterSpells({ characterId }));
@@ -83,7 +85,13 @@ export function CharacterSpellSlotsPanel({
 	return (
 		<Stack gap="md">
 			<Group justify="space-between" gap="xs" wrap="wrap">
-				<Title order={2} size={18}>
+				<Title
+					id="character-section-spells-heading"
+					order={2}
+					ref={sectionHeadingRef}
+					size={18}
+					tabIndex={-1}
+				>
 					Spells &amp; Abilities
 				</Title>
 				<Button mih={44} variant="subtle" onClick={() => setIsEditing((editing) => !editing)}>

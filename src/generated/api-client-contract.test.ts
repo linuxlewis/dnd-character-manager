@@ -73,13 +73,16 @@ describe("generated API client", () => {
 	it("preserves the public client, query, mutation, type, and error surfaces", () => {
 		expect(createApiClient).toBeTypeOf("function");
 		expect(apiClient.getCharacterTreasury).toBeTypeOf("function");
+		expect(apiClient.getCharacterAttributes).toBeTypeOf("function");
 		expect(apiQueryKeys.getCharacterTreasury({ characterId: "character-1" })).toEqual([
 			"api",
 			"getCharacterTreasury",
 			{ characterId: "character-1" },
 		]);
 		expect(apiQueries.getCharacterTreasury).toBeTypeOf("function");
+		expect(apiQueries.getCharacterAttributes).toBeTypeOf("function");
 		expect(apiMutations.spendCharacterTreasury).toBeTypeOf("function");
+		expect(apiMutations.updateCharacterAttributes).toBeTypeOf("function");
 		expect(createApiQueryOptions).toBeTypeOf("function");
 		expect(createApiMutationOptions).toBeTypeOf("function");
 		expect(new ApiClientError(404, { error: "missing" })).toMatchObject({
