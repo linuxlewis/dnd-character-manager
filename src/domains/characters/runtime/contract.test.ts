@@ -8,8 +8,8 @@ it("keeps identity and attribute operations", () => {
 		"updateCharacterAttributes",
 	]);
 	expect(
-		characterRouteContracts.filter((route) => route.path.includes(":")).every((route) =>
-			Object.hasOwn(route, "pathParams"),
-		),
+		characterRouteContracts
+			.filter((route) => route.path.includes(":"))
+			.every((route) => Object.hasOwn(route, "pathParams")),
 	).toBe(true);
 });

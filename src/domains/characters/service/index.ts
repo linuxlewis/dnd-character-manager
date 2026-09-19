@@ -1,4 +1,3 @@
-export { CharacterNotFoundError } from "./character-errors.js";
 export type {
 	CharacterAttributesService,
 	CharacterAttributesServiceOptions,
@@ -7,6 +6,7 @@ export {
 	createCharacterAttributesService,
 	initializeCharacterAttributes,
 } from "./character-attributes-service.js";
+export { CharacterNotFoundError } from "./character-errors.js";
 export type { CharacterService } from "./character-service.js";
 export {
 	createCharacterService,

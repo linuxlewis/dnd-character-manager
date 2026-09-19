@@ -1,11 +1,13 @@
-import { buildCharacterAttributes } from "../config/index.js";
 import type { DatabaseTransaction } from "@providers/database/index.js";
+import { buildCharacterAttributes } from "../config/index.js";
 import type {
 	CharacterAttributesPersistenceState,
 	CharacterAttributesRepository,
 } from "../repo/index.js";
-import { createCharacterAttributesRepository } from "../repo/index.js";
-import { insertInitialCharacterAttributes } from "../repo/index.js";
+import {
+	createCharacterAttributesRepository,
+	insertInitialCharacterAttributes,
+} from "../repo/index.js";
 import {
 	type CharacterAttributesResponse,
 	CharacterAttributesResponseSchema,
