@@ -60,7 +60,7 @@ test("opens activity, filters pages, and rebuilds loaded pages after an item mut
 		return route.fulfill({ response });
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity Mutation ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	const preview = page.getByRole("button", { name: "View inventory activity" });
@@ -277,7 +277,7 @@ test("retains the ledger and retries a failed loaded page refresh", async ({ pag
 		return route.fulfill({ response });
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity Refresh Error ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	const preview = page.getByRole("button", { name: "View inventory activity" });
@@ -378,7 +378,7 @@ test("shows an activity retry when a previously empty history refetch fails", as
 		return route.fulfill({ response });
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity Empty Refresh ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	const preview = page.getByRole("button", { name: "View inventory activity" });
@@ -439,7 +439,7 @@ test("keeps loaded activity during a failed page and retries the page boundary",
 		return fulfillHistory(route, entries, 21, limit, offset, offset === 0);
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity Retry ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "View inventory activity" }).click();
@@ -467,7 +467,7 @@ test("retries on-demand history and resets the filter for another character", as
 		return fulfillHistory(route, [itemEntry(0)], 1, limit, 0, false);
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity First ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "View inventory activity" }).click();
@@ -496,7 +496,7 @@ test("keeps full drawer details readable while clamping long notes", async ({ pa
 		return fulfillHistory(route, [longUpdatedEntry()], 1, limit, 0, false);
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, `Activity Detail ${Date.now()}`, "Fighter");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "View inventory activity" }).click();

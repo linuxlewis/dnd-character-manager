@@ -49,7 +49,7 @@ test("reconciles committed add and spend operations after lost responses", async
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Reconciliation Recovery", "Fighter");
 	await openInventoryTab(page);
 	await addFunds(page, 5);
@@ -127,7 +127,7 @@ test("requires balance review when a lost add response is overtaken before recon
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Indeterminate Recovery", "Fighter");
 	await openInventoryTab(page);
 	await addFunds(page, 5);

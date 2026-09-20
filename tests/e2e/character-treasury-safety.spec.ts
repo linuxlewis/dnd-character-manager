@@ -26,7 +26,7 @@ test("recovers a failed reconciliation without replaying the mutation", async ({
 		return route.fulfill({ response });
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Reconciliation Retry", "Fighter");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "Add funds", exact: true }).click();
@@ -61,7 +61,7 @@ test("rejects a stale add mutation and allows a fresh one-step submit", async ({
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Add Freshness", "Fighter");
 	await openInventoryTab(page);
 	const characterId = characterIdFromPage(page);
@@ -102,7 +102,7 @@ test("rejects a stale spend mutation and allows a fresh one-step submit", async 
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Spend Freshness", "Fighter");
 	await openInventoryTab(page);
 	const characterId = characterIdFromPage(page);

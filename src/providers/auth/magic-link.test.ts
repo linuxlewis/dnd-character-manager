@@ -138,7 +138,7 @@ describe("createResendMagicLinkSender", () => {
 		await sender({
 			email: "player@example.com",
 			token: "secret-token",
-			url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/",
+			url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
 		});
 
 		expect(send).toHaveBeenCalledOnce();
@@ -147,10 +147,10 @@ describe("createResendMagicLinkSender", () => {
 			to: ["player@example.com"],
 			subject: "Your D&D Character Manager sign-in link",
 			html: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&amp;callbackURL=/",
+				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&amp;callbackURL=/characters",
 			),
 			text: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/",
+				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
 			),
 			replyTo: "support@dndinventorymanager.com",
 		});
