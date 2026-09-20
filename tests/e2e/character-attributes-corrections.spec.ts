@@ -3,7 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 test("searches and filters every attributes roll group, including the empty state", async ({
 	page,
 }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Filters", "Fighter", 5);
 
 	const search = page.getByRole("textbox", { name: "Search rolls" });
@@ -49,7 +49,7 @@ test("searches and filters every attributes roll group, including the empty stat
 
 test("keeps the Ribbon-and-Ledger shell safe at md, 320px, and enlarged text", async ({ page }) => {
 	await page.setViewportSize({ width: 1024, height: 900 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Geometry", "Fighter", 5);
 
 	const desktopLedgerColumns = await page
