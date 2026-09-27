@@ -4,7 +4,7 @@ import postgres from "postgres";
 test("signs in with a magic link and keeps anonymous characters", async ({ page }) => {
 	const email = `player-${Date.now()}@example.test`;
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Linkward Bard");
 	await page.getByRole("combobox", { name: "Class" }).click();
@@ -19,9 +19,9 @@ test("signs in with a magic link and keeps anonymous characters", async ({ page 
 	await expect(page.getByText("Sign-in link sent")).toBeVisible();
 
 	const token = await readMagicLinkToken(email);
-	await page.goto(`/api/auth/magic-link/verify?token=${token}&callbackURL=/`);
+	await page.goto(`/api/auth/magic-link/verify?token=${token}&callbackURL=/characters`);
 
-	await expect(page).toHaveURL(/\/$/);
+	await expect(page).toHaveURL(/\/characters$/);
 	await expect(page.getByRole("button", { name: "Open account menu" })).toBeVisible();
 	await expect(page.getByRole("link", { name: "Linkward Bard" })).toBeVisible();
 

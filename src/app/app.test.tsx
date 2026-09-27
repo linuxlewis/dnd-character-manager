@@ -16,8 +16,18 @@ describe("App", () => {
 		const html = renderApp("/");
 
 		expect(html).toContain("D&amp;D Character Manager");
+		expect(html).toContain("Stay in the story. Your character is ready.");
+		expect(html).toContain('href="/characters"');
+		expect(html).not.toContain("Starting session");
 		expect(html).toContain('href="/privacy"');
 		expect(html).toContain("Privacy Policy");
+	});
+
+	it("keeps the character workspace on the characters route", () => {
+		const html = renderApp("/characters");
+
+		expect(html).toContain("Starting session");
+		expect(html).not.toContain("Stay in the story. Your character is ready.");
 	});
 
 	it("renders the privacy policy route", () => {

@@ -4,7 +4,7 @@ test("mobile workspace keeps real section routes, browsing state, and reachable 
 	page,
 }, testInfo) => {
 	await page.setViewportSize({ width: 390, height: 844 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Mira Navigation");
 	await page.getByRole("combobox", { name: "Class" }).click();

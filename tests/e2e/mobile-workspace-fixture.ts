@@ -4,7 +4,7 @@ export const mobileFixtureVersion = "F2-main-v1";
 export const mobileFixtureName = "Mira Thorn";
 
 export async function prepareMobileWorkspace(page: Page) {
-	await page.goto("/");
+	await page.goto("/characters");
 	await expect(
 		page.getByRole("link", { name: "Create character", exact: true }).first(),
 	).toBeVisible();

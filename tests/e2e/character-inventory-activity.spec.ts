@@ -15,7 +15,7 @@ test("records, filters, paginates, and persists personal inventory activity", as
 		await route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	const characterName = `Activity Hero ${Date.now()}`;
 	const bladeName = fixture.mundaneName;
 	const potionName = `Activity Potion ${Date.now()}`;
@@ -350,7 +350,7 @@ async function assertCharacterIsNotVisibleToAnotherUser(browser: Browser, charac
 	const context = await browser.newContext({ baseURL: process.env.WEB_URL });
 	try {
 		const page = await context.newPage();
-		await page.goto("/");
+		await page.goto("/characters");
 		const response = await page.request.get(`/api/characters/${characterId}/history`);
 		expect(response.status()).toBe(404);
 	} finally {

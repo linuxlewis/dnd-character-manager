@@ -4,7 +4,7 @@ import { mockCharacterSpellApi } from "../support/character-spell-api.js";
 const spellApiTimeoutMs = 30_000;
 
 test("creates a character and tracks health changes on detail", async ({ page }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Mira");
@@ -85,7 +85,7 @@ test("creates a character and tracks health changes on detail", async ({ page })
 test("configures spell slots and tracks spell usage on detail", async ({ page }) => {
 	test.setTimeout(120_000);
 	await mockCharacterSpellApi(page);
-	await page.goto("/");
+	await page.goto("/characters");
 
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Tamsin");

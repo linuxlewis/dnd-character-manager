@@ -12,7 +12,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 		});
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Treasury One", "Fighter");
 	await openInventoryTab(page);
 
@@ -77,7 +77,7 @@ test("completes the M1 personal treasury journey with live client previews", asy
 test("normalizes the entire balance after spending when an exact coin is available", async ({
 	page,
 }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Legacy Currency", "Fighter");
 	await openInventoryTab(page);
 
@@ -109,7 +109,7 @@ test("isolates and recovers from treasury load failures", async ({ page }) => {
 		});
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Load Recovery", "Fighter");
 	await openInventoryTab(page);
 	await expect(page.getByRole("heading", { name: "Load Recovery" })).toBeVisible();
@@ -142,7 +142,7 @@ test("uses a single mutation after a failed add response and keeps the recovery 
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Mutation Recovery", "Fighter");
 	await openInventoryTab(page);
 	await page.getByRole("button", { name: "Add funds" }).click();
@@ -168,7 +168,7 @@ test("uses a single mutation after a failed add response and keeps the recovery 
 
 test("keeps treasury controls within the mobile viewport", async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Mobile Treasury", "Fighter");
 	await openInventoryTab(page);
 	await expectNoHorizontalOverflow(page);

@@ -4,7 +4,7 @@ test("completes the attributes reference journey and preserves ownership boundar
 	browser,
 	page,
 }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Journey", "Fighter", 1);
 
 	const characterPath = new URL(page.url()).pathname.replace(/\/attributes$/, "");
@@ -176,7 +176,7 @@ test("retains a failed attributes draft and resets the stale error on reopen", a
 		return route.continue();
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Failure", "Fighter", 1);
 	await page.getByRole("button", { name: "Edit attributes" }).click();
 	let editor = page.getByRole("dialog", { name: "Edit attributes" });
@@ -194,7 +194,7 @@ test("retains a failed attributes draft and resets the stale error on reopen", a
 
 test("keeps section navigation safe at 320px with enlarged text", async ({ page }) => {
 	await page.setViewportSize({ width: 320, height: 900 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Narrow Attributes", "Fighter", 1);
 	await page.locator("html").evaluate((element) => {
 		element.style.fontSize = "125%";
@@ -236,7 +236,7 @@ test("updates the attributes preview before saving a draft", async ({ page }) =>
 		if (request.method() === "PUT" && request.url().includes("/attributes")) updateAttempts += 1;
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Preview", "Fighter", 1);
 	await page.getByRole("button", { name: "Edit attributes" }).click();
 	const editor = page.getByRole("dialog", { name: "Edit attributes" });
@@ -263,7 +263,7 @@ test("keeps attributes editing hidden until the initial load recovers", async ({
 		});
 	});
 
-	await page.goto("/");
+	await page.goto("/characters");
 	await createCharacter(page, "Attributes Load Recovery", "Fighter", 1);
 	await expect(page.getByRole("button", { name: "Edit attributes" })).toHaveCount(0);
 	await expect(page.getByRole("button", { name: "Retry attributes" })).toBeVisible();

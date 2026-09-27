@@ -33,6 +33,7 @@ import { useBrowserPathname } from "../providers/navigation/index.js";
 import { parseAppRoute } from "./app-route.js";
 import { ApplicationMenu } from "./application-menu.js";
 import { CurrentUserProvider, useCurrentUser } from "./current-user-provider.js";
+import { HomePage } from "./home-page.js";
 import { MagicLinkLoginForm } from "./magic-link-login.js";
 import { PrivacyPolicy } from "./privacy-policy.js";
 import { SiteFooter } from "./site-footer.js";
@@ -45,6 +46,15 @@ export function App({ pathname }: AppProps) {
 	const browserPathname = useBrowserPathname();
 	const currentPathname = pathname ?? browserPathname;
 	const route = parseAppRoute(currentPathname);
+
+	if (route.screen === "home") {
+		return (
+			<Box className="app-shell landing-shell">
+				<HomePage />
+				<SiteFooter />
+			</Box>
+		);
+	}
 
 	if (route.screen === "privacy") {
 		return (

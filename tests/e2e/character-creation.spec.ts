@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("creates a character, lists it, opens detail, and persists across reloads", async ({
 	page,
 }) => {
-	await page.goto("/");
+	await page.goto("/characters");
 
 	await expect(page.getByRole("heading", { exact: true, name: "Characters" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "No characters yet" })).toBeVisible();

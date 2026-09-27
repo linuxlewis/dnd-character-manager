@@ -150,7 +150,7 @@ export async function requestMagicLinkSignIn(request: FastifyRequest, reply: Fas
 		body: {
 			email: result.data.email,
 			name: getMagicLinkDisplayName(result.data.email),
-			callbackURL: "/",
+			callbackURL: "/characters",
 		},
 		headers: fromNodeHeaders(request.headers),
 	});

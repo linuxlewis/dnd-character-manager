@@ -61,14 +61,14 @@ Magic-link sign-in is intentionally split between app-owned and Better Auth-owne
 
 1. The browser posts an email address to `POST /api/magic-link-requests`.
 2. The route trims and lowercases the email address with a Zod boundary schema.
-3. The route calls `auth.api.signInMagicLink` with a root callback URL.
+3. The route calls `auth.api.signInMagicLink` with the character roster callback URL.
 4. Better Auth stores a single-use verification token in the `verification` table.
 5. Local development delivery writes the generated URL through structured logging under the
    `auth.magic-link` logger. In production, log delivery is disabled unless
    `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly.
 6. The user opens the generated `/api/auth/magic-link/verify` link.
 7. Better Auth verifies and consumes the token, creates a session for the email account, sets the
-   session cookie, and redirects to `/`.
+   session cookie, and redirects to `/characters`.
 8. If the browser had an anonymous session, the anonymous-link callback transfers owned characters
    from the anonymous user ID to the linked account ID before Better Auth deletes the anonymous user.
 

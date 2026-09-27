@@ -3,7 +3,7 @@ import { openInventoryTab } from "./character-detail-helpers.js";
 
 test("mobile item editor keeps actions reachable and focuses invalid fields", async ({ page }) => {
 	await page.setViewportSize({ width: 320, height: 740 });
-	await page.goto("/");
+	await page.goto("/characters");
 	await page.getByText("Create character").first().click();
 	await page.getByLabel("Name").fill("Mobile inventory editor");
 	await page.getByRole("combobox", { name: "Class" }).click();
