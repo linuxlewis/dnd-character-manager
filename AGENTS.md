@@ -77,3 +77,17 @@ pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · Postg
 3. Run `git diff --check && pnpm check:docs` for documentation-only changes
 4. Update [docs/quality.md](./docs/quality.md) if you improved coverage or fixed gaps
 5. If you made architectural decisions, add focused docs under `docs/`
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues on `linuxlewis/dnd-character-manager` via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Uses the default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one root `GLOSSARY.md` plus `docs/adr/`, both created lazily. See `docs/agents/domain.md`.
