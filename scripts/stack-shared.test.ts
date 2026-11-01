@@ -7,7 +7,6 @@ import {
 	findFreePort,
 	getOwnedDatabaseUrl,
 	getStackPaths,
-	isFetchBlockedPort,
 	readMetadata,
 	type StackMetadata,
 	writeMetadata,
@@ -105,16 +104,9 @@ describe("owned stack metadata", () => {
 });
 
 describe("stack port allocation", () => {
-	it("recognizes ports that fetch refuses to connect to", () => {
-		expect(isFetchBlockedPort(4045)).toBe(true);
-		expect(isFetchBlockedPort(3659)).toBe(true);
-		expect(isFetchBlockedPort(4046)).toBe(false);
-	});
-
 	it("skips fetch-blocked ports when choosing a stack port", async () => {
 		const port = await findFreePort(4045);
 
 		expect(port).toBeGreaterThan(4045);
-		expect(isFetchBlockedPort(port)).toBe(false);
 	});
 });

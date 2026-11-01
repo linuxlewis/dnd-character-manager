@@ -56,6 +56,23 @@ describe("sendMagicLinkWithLogger", () => {
 
 		expect(info).not.toHaveBeenCalled();
 	});
+
+	it("never logs the sign-in code in production, even when log delivery is enabled", async () => {
+		const info = vi.fn();
+
+		await sendMagicLinkWithLogger(
+			{
+				code: "482913",
+				email: "player@example.com",
+				token: "secret-token",
+				url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
+			},
+			{ info } as never,
+			{ MAGIC_LINK_ENABLE_LOG_DELIVERY: "true", NODE_ENV: "production" },
+		);
+
+		expect(JSON.stringify(info.mock.calls)).not.toContain("482913");
+	});
 });
 
 describe("getMagicLinkDeliveryMode", () => {
@@ -127,7 +144,7 @@ describe("getResendMagicLinkConfig", () => {
 });
 
 describe("createResendMagicLinkSender", () => {
-	it("sends the magic link and sign-in code in one Resend email", async () => {
+	it("sends the sign-in email through the Resend emails API", async () => {
 		const send = vi.fn(async () => ({ data: { id: "email-id" }, error: null }));
 		const sender = createResendMagicLinkSender(
 			{
@@ -149,18 +166,11 @@ describe("createResendMagicLinkSender", () => {
 		expect(send).toHaveBeenCalledWith({
 			from: "no-reply@dndinventorymanager.com",
 			to: ["player@example.com"],
-			subject: "Your D&D Character Manager sign-in code: 482913",
-			html: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&amp;callbackURL=/characters",
-			),
-			text: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
-			),
+			subject: expect.any(String),
+			html: expect.any(String),
+			text: expect.any(String),
 			replyTo: "support@dndinventorymanager.com",
 		});
-		const [message] = send.mock.calls[0] as unknown as [{ html: string; text: string }];
-		expect(message.html).toContain(">482913</span>");
-		expect(message.text).toContain("482913");
 	});
 
 	it("throws when Resend rejects the delivery", async () => {

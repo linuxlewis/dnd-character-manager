@@ -64,26 +64,53 @@ the browser.
 Magic-link sign-in is intentionally split between app-owned and Better Auth-owned routes:
 
 1. The browser posts an email address to `POST /api/magic-link-requests`.
-2. The route trims and lowercases the email address with a Zod boundary schema.
+2. The route trims and lowercases the email address with a Zod boundary schema, then applies the
+   sign-in rate limits (see [Rate limits](#rate-limits)).
 3. The route calls `auth.api.signInMagicLink` with the character roster callback URL.
 4. Better Auth stores a single-use verification token in the `verification` table.
 5. The magic-link sender (`src/providers/auth/auth.ts`) calls the email-OTP plugin's server-only
-   `createVerificationOTP` for the same email, storing a `sign-in-otp-<email>` verification row,
-   and `src/providers/auth/sign-in-email.ts` renders one email containing both the code and the
-   link. Both expire after `SIGN_IN_EMAIL_EXPIRES_IN_SECONDS` (5 minutes).
+   `createVerificationOTP` for the same email, storing a hashed code in a `sign-in-otp-<email>`
+   verification row, and `src/providers/auth/sign-in-email.ts` renders one email containing both
+   the code and the link. Both expire after `SIGN_IN_EMAIL_EXPIRES_IN_SECONDS` (5 minutes).
 6. Local development delivery writes the generated URL through structured logging under the
    `auth.magic-link` logger. In production, log delivery is disabled unless
-   `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly. Log delivery includes the code.
+   `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly. Log delivery includes the code outside
+   production only; production logs never contain it.
 7. The user either opens the generated `/api/auth/magic-link/verify` link, or types the code into
    the sign-in dialog, which posts to `POST /api/sign-in-code-verifications`. That route calls
-   `auth.api.signInEmailOTP`, which allows three attempts per code, and returns one generic 401
-   for wrong, expired, reused, or exhausted codes.
+   `auth.api.signInEmailOTP`, which allows three attempts per code. Wrong, expired, reused, and
+   exhausted codes return one generic 401. Other failures are logged under `auth.sign-in-code`
+   and surface as 500s.
 8. For the link, Better Auth verifies and consumes the token, creates a session for the email account, sets the
    session cookie, and redirects to `/characters`. For the code, the route forwards the new session
    cookie and the dialog refreshes the current user in place.
 9. On either path, if the browser had an anonymous session, the anonymous plugin's `/sign-in/*` and
    `/magic-link/verify` hook transfers owned characters from the anonymous user ID to the linked
    account ID before Better Auth deletes the anonymous user.
+
+A home-screen app can be reloaded while the user is in Mail. The dialog keeps the requested email
+in `localStorage` for five minutes, scoped to the anonymous user that requested it, and reopens
+on the code step. "I already have a code" on the email step also jumps straight to code entry.
+
+### Rate Limits
+
+The app-owned routes call Better Auth server-side, so Better Auth's per-path HTTP rate limiter does
+not apply. `src/providers/auth/rate-limit.ts` adds in-memory fixed-window limits per server
+instance (production runs one app container):
+
+| Route | Per email | Per client IP |
+| ------- | ----------- | --------------- |
+| `POST /api/magic-link-requests` | 5 per 15 minutes | 20 per 15 minutes |
+| `POST /api/sign-in-code-verifications` | 10 per 15 minutes | 30 per 15 minutes |
+
+Requests over a limit get a 429 with `Retry-After` and
+`{ "error": "Too many sign-in attempts. Wait a few minutes and try again." }`, which the dialog
+shows. Production traffic arrives through Cloudflare Tunnel and Docker, so `request.ip` is the same
+for every user. `AUTH_CLIENT_IP_HEADER=cf-connecting-ip` (the Compose default) keys the per-IP
+limit on Cloudflare's client address instead. Trust that header only while the app port stays bound
+to loopback behind the tunnel.
+
+### Sign-In Email
 
 The email is email-safe HTML (table layout, inline styles, brand colors from `src/app/theme.ts` and
 the landing tokens in `src/app/theme.css`, dark color scheme) with a plain-text alternative that also
@@ -175,6 +202,8 @@ The current behavior is:
 | `RESEND_FROM_EMAIL` | Verified sender address for Resend magic-link delivery |
 | `RESEND_REPLY_TO_EMAIL` | Optional reply-to address for Resend messages |
 | `HOST` / `PORT` | Used only to build a local default auth URL when `BETTER_AUTH_URL` is not set |
+| `AUTH_CLIENT_IP_HEADER` | Trusted header carrying the client IP for sign-in rate limits; `cf-connecting-ip` in production Compose, unset locally |
+| `AUTH_EMAIL_OUTBOX_FILE` | Local stacks only: JSON-lines file that records every sent sign-in email for tests; ignored in production |
 
 Local development uses a built-in development secret when `BETTER_AUTH_SECRET` is absent. Production
 must provide a real secret through the deployment environment.
@@ -233,18 +262,24 @@ Current coverage includes:
 - Auth route adapter tests in `src/providers/auth/routes.test.ts`.
 - Magic-link schema and delivery unit tests in `src/providers/auth/magic-link-types.test.ts` and
   `src/providers/auth/magic-link.test.ts`.
-- Sign-in email rendering tests in `src/providers/auth/sign-in-email.test.ts`.
-- Sign-in code schema and route adapter tests in `src/providers/auth/sign-in-code-types.test.ts` and
-  `src/providers/auth/sign-in-code.test.ts`.
+- Sign-in email content and HTML escaping tests in `src/providers/auth/sign-in-email.test.ts`.
+- Rate-limit window tests in `src/providers/auth/rate-limit.test.ts`.
 - Sign-out response schema tests in `src/providers/auth/sign-out.test.ts`.
-- Magic-link and sign-in code route integration tests, including anonymous character transfer,
-  wrong and reused codes, and blocked native endpoints, in
-  `src/providers/auth/routes.integration.test.ts`.
+- Auth route integration tests (sign-in email contents, per-email rate limit, blocked native
+  endpoints, sign-out) in `src/providers/auth/routes.integration.test.ts`.
+- Sign-in code integration tests in `src/providers/auth/sign-in-code.integration.test.ts`: code
+  sign-in with anonymous character transfer, returning accounts merging new anonymous characters by
+  code and by link, wrong, reused, exhausted, and expired codes, and the per-IP rate limit.
 - Current-user provider UI tests in `src/app/current-user-provider.test.tsx`.
 - Magic-link login panel UI tests in `src/app/magic-link-login.test.tsx`.
 - Session reuse e2e coverage in `tests/e2e/session-flow.spec.ts`.
-- Magic-link and sign-in code e2e coverage, each with anonymous character transfer, in
-  `tests/e2e/magic-link-login.spec.ts`.
+- Magic-link and sign-in code e2e coverage, each with anonymous character transfer and the code path
+  surviving a reload, in `tests/e2e/magic-link-login.spec.ts`.
+
+Integration and e2e tests read the code and link from the email that was actually sent:
+`pnpm start` points the API at `.stack/<worktree>/email-outbox.jsonl` through `AUTH_EMAIL_OUTBOX_FILE`,
+the test runner passes the same path to Vitest and Playwright, and
+`tests/support/email-outbox.ts` returns the newest email for an address.
 - Character route integration coverage proving another session user's character is not exposed.
 
 ## Known Limitations
@@ -260,11 +295,10 @@ Current coverage includes:
   workspace through normal app flows.
 - There is no user-facing way to inspect, revoke, or transfer sessions.
 - The generated API client assumes same-origin browser requests today.
-- The app-owned email request and code verification routes call Better Auth server-side, so Better
-  Auth's per-path HTTP rate limits do not apply. Codes are limited to three attempts and five
-  minutes, but there is no per-IP limit on requesting emails or verifying codes yet.
-- Sign-in codes are stored as plain text in `verification`, matching the magic-link tokens they are
-  emailed with. Using one does not revoke the other; both expire after five minutes.
+- Sign-in rate limits live in process memory. They reset on restart and would need shared storage
+  if production ever runs more than one app instance.
+- Magic-link tokens are stored as plain text in `verification`; sign-in codes are hashed. Using one
+  does not revoke the other; both expire after five minutes.
 - Installed-app behavior is not covered by automated tests: Playwright cannot emulate iOS
   standalone mode or the Mail-to-Safari hand-off. The e2e test proves the code path signs in the
   browser context that typed it.

@@ -91,6 +91,9 @@
 					},
 					"400": {
 						"description": "Invalid request body"
+					},
+					"429": {
+						"description": "Too many sign-in emails requested"
 					}
 				}
 			}
@@ -147,6 +150,9 @@
 					},
 					"401": {
 						"description": "Invalid or expired sign-in code"
+					},
+					"429": {
+						"description": "Too many sign-in code attempts"
 					}
 				}
 			}

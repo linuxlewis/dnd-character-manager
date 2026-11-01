@@ -1,5 +1,4 @@
-/** Lifetime shared by the magic link and the one-time code delivered in the same email. */
-export const SIGN_IN_EMAIL_EXPIRES_IN_SECONDS = 5 * 60;
+import { SIGN_IN_EMAIL_EXPIRES_IN_SECONDS } from "./magic-link-types.js";
 
 export interface SignInEmailInput {
 	code: string;

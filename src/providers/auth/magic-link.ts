@@ -1,3 +1,4 @@
+import { appendFileSync } from "node:fs";
 import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { Resend } from "resend";
@@ -5,6 +6,7 @@ import { z } from "zod";
 import { createLogger, type Logger } from "../telemetry/index.js";
 import { getAuth } from "./auth.js";
 import { type MagicLinkRequestResponse, MagicLinkRequestSchema } from "./magic-link-types.js";
+import type { SignInRateLimiter } from "./rate-limit.js";
 import { buildSignInEmail } from "./sign-in-email.js";
 
 /** One sign-in email carries both the magic link and a one-time code for the same address. */
@@ -52,11 +54,13 @@ export async function sendMagicLinkWithLogger(
 		throw new Error("Magic link log delivery is disabled in production.");
 	}
 
+	// Production log delivery is an explicit opt-in for the link only; codes never reach those logs.
+	const signInCode = env.NODE_ENV === "production" ? {} : { signInCode: delivery.code };
 	logger.info(
 		{
 			email: delivery.email,
 			magicLinkUrl: delivery.url,
-			signInCode: delivery.code,
+			...signInCode,
 		},
 		"Magic link login URL generated",
 	);
@@ -132,23 +136,43 @@ export async function sendMagicLink(
 	const mode = getMagicLinkDeliveryMode(env);
 	if (mode === "log") {
 		await sendMagicLinkWithLogger(delivery, dependencies.logger ?? magicLinkLogger, env);
-		return;
 	}
 
-	const config = getResendMagicLinkConfig(env);
-	const createResendClient = dependencies.createResendClient ?? createDefaultResendClient;
-	await createResendMagicLinkSender(config, createResendClient(config))(delivery);
+	if (mode === "resend") {
+		const config = getResendMagicLinkConfig(env);
+		const createResendClient = dependencies.createResendClient ?? createDefaultResendClient;
+		await createResendMagicLinkSender(config, createResendClient(config))(delivery);
+	}
+	recordOutboxEmail(delivery, env);
+}
+
+/**
+ * Local stacks set `AUTH_EMAIL_OUTBOX_FILE` so integration and browser tests can read the sign-in
+ * email that was sent (see tests/support/email-outbox.ts). Never written in production.
+ */
+function recordOutboxEmail(delivery: MagicLinkDelivery, env: MagicLinkDeliveryEnv) {
+	const outboxFile = optionalEnvValue(env.AUTH_EMAIL_OUTBOX_FILE);
+	if (!outboxFile || env.NODE_ENV === "production") return;
+
+	const email = buildSignInEmail({ code: delivery.code, url: delivery.url });
+	const message = { to: delivery.email, ...email, sentAt: new Date().toISOString() };
+	appendFileSync(outboxFile, `${JSON.stringify(message)}\n`);
 }
 
 export function getMagicLinkDisplayName(email: string) {
 	return email;
 }
 
-export async function requestMagicLinkSignIn(request: FastifyRequest, reply: FastifyReply) {
+export async function requestMagicLinkSignIn(
+	request: FastifyRequest,
+	reply: FastifyReply,
+	rateLimiter: SignInRateLimiter,
+) {
 	const result = MagicLinkRequestSchema.safeParse(request.body);
 	if (!result.success) {
 		return reply.status(400).send({ error: "Invalid request body." });
 	}
+	if (rateLimiter.reject("emailRequests", result.data.email, request, reply)) return reply;
 
 	await getAuth().api.signInMagicLink({
 		body: {

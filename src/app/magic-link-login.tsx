@@ -1,8 +1,8 @@
 import { Alert, Box, Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { apiMutations, apiQueries } from "../generated/api-client.generated.js";
+import { ApiClientError, apiMutations, apiQueries } from "../generated/api-client.generated.js";
 
 interface MagicLinkFormValues {
 	email: string;
@@ -16,8 +16,21 @@ interface MagicLinkLoginFormProps {
 	onSignedIn?: () => void;
 }
 
+interface PendingSignIn {
+	email: string;
+	requestedAt: number;
+	requesterId: string;
+}
+
+// An installed iOS app can be reloaded while the user is in Mail, so the requested email survives
+// in localStorage for as long as the emailed code is valid, scoped to the anonymous session.
+const pendingSignInKey = "dnd-character-manager.pending-sign-in";
+const pendingSignInMaxAgeMs = 5 * 60 * 1000;
+const rateLimitedMessage = "Too many sign-in attempts. Wait a few minutes and try again.";
+
 export function MagicLinkLoginForm({ onSignedIn }: MagicLinkLoginFormProps) {
-	const [requestedEmail, setRequestedEmail] = useState<string | null>(null);
+	const requesterId = useQuery(apiQueries.getCurrentUser()).data?.user.id;
+	const [requestedEmail, setRequestedEmail] = useState(() => readPendingSignIn(requesterId));
 	const form = useForm<MagicLinkFormValues>({
 		mode: "controlled",
 		initialValues: { email: "" },
@@ -25,20 +38,26 @@ export function MagicLinkLoginForm({ onSignedIn }: MagicLinkLoginFormProps) {
 			email: validateEmail,
 		},
 	});
+	const showCodeStep = (email: string) => {
+		savePendingSignIn(email, requesterId);
+		setRequestedEmail(email);
+		form.reset();
+	};
 	const requestMagicLinkMutation = useMutation({
 		...apiMutations.requestMagicLinkSignIn(),
-		onSuccess: (_response, variables) => {
-			setRequestedEmail(variables.email);
-			form.reset();
-		},
+		onSuccess: (_response, variables) => showCodeStep(variables.email),
 	});
 
 	if (requestedEmail) {
 		return (
 			<SignInCodeForm
 				email={requestedEmail}
-				onSignedIn={onSignedIn}
+				onSignedIn={() => {
+					clearPendingSignIn();
+					onSignedIn?.();
+				}}
 				onUseDifferentEmail={() => {
+					clearPendingSignIn();
 					requestMagicLinkMutation.reset();
 					setRequestedEmail(null);
 				}}
@@ -53,7 +72,9 @@ export function MagicLinkLoginForm({ onSignedIn }: MagicLinkLoginFormProps) {
 			</Text>
 			{requestMagicLinkMutation.error && (
 				<Alert color="red" title="Sign-in link unavailable" variant="light">
-					Check the email address and try again.
+					{isRateLimited(requestMagicLinkMutation.error)
+						? rateLimitedMessage
+						: "Check the email address and try again."}
 				</Alert>
 			)}
 			<Box
@@ -76,13 +97,24 @@ export function MagicLinkLoginForm({ onSignedIn }: MagicLinkLoginFormProps) {
 					</Button>
 				</Stack>
 			</Box>
+			<Group justify="center">
+				<Button
+					onClick={() => {
+						if (!form.validateField("email").hasError) showCodeStep(form.values.email.trim());
+					}}
+					size="compact-sm"
+					variant="subtle"
+				>
+					I already have a code
+				</Button>
+			</Group>
 		</Stack>
 	);
 }
 
 interface SignInCodeFormProps {
 	email: string;
-	onSignedIn?: () => void;
+	onSignedIn: () => void;
 	onUseDifferentEmail: () => void;
 }
 
@@ -100,7 +132,7 @@ function SignInCodeForm({ email, onSignedIn, onUseDifferentEmail }: SignInCodeFo
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["api"] });
 			await queryClient.ensureQueryData(apiQueries.getCurrentUser());
-			onSignedIn?.();
+			onSignedIn();
 		},
 	});
 
@@ -111,7 +143,9 @@ function SignInCodeForm({ email, onSignedIn, onUseDifferentEmail }: SignInCodeFo
 			</Alert>
 			{verifySignInCodeMutation.error && (
 				<Alert color="red" title="Code not accepted" variant="light">
-					That code is incorrect or expired. Check the latest email or use a different email.
+					{isRateLimited(verifySignInCodeMutation.error)
+						? rateLimitedMessage
+						: "That code is incorrect or expired. Check the latest email or use a different email."}
 				</Alert>
 			)}
 			<Box
@@ -151,7 +185,7 @@ export function validateEmail(value: string) {
 	return null;
 }
 
-export function normalizeSignInCode(value: string) {
+function normalizeSignInCode(value: string) {
 	return value.replace(/[\s-]/g, "");
 }
 
@@ -160,4 +194,42 @@ export function validateSignInCode(value: string) {
 	if (code.length === 0) return "Code is required";
 	if (!/^\d{6}$/.test(code)) return "Enter the 6-digit code";
 	return null;
+}
+
+function isRateLimited(error: Error) {
+	return error instanceof ApiClientError && error.status === 429;
+}
+
+function readPendingSignIn(requesterId: string | undefined): string | null {
+	if (!requesterId || typeof window === "undefined") return null;
+	try {
+		const pending = JSON.parse(
+			window.localStorage.getItem(pendingSignInKey) ?? "null",
+		) as PendingSignIn | null;
+		const isCurrent =
+			pending?.requesterId === requesterId &&
+			Date.now() - pending.requestedAt < pendingSignInMaxAgeMs;
+		return isCurrent && typeof pending.email === "string" ? pending.email : null;
+	} catch {
+		return null;
+	}
+}
+
+function savePendingSignIn(email: string, requesterId: string | undefined) {
+	if (!requesterId || typeof window === "undefined") return;
+	const pending: PendingSignIn = { email, requestedAt: Date.now(), requesterId };
+	try {
+		window.localStorage.setItem(pendingSignInKey, JSON.stringify(pending));
+	} catch {
+		// Storage can be unavailable (private mode, quota); the code step still works until reload.
+	}
+}
+
+function clearPendingSignIn() {
+	if (typeof window === "undefined") return;
+	try {
+		window.localStorage.removeItem(pendingSignInKey);
+	} catch {
+		// Nothing to clear when storage is unavailable.
+	}
 }

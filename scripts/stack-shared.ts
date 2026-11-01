@@ -47,6 +47,7 @@ export function getStackPaths(root = getRoot()) {
 		dir,
 		metadataPath: join(dir, "metadata.json"),
 		logDir: join(dir, "logs"),
+		emailOutboxPath: join(dir, "email-outbox.jsonl"),
 	};
 }
 
@@ -110,13 +111,9 @@ const fetchBlockedPorts = new Set([
 	6669, 6679, 6697, 10080,
 ]);
 
-export function isFetchBlockedPort(port: number) {
-	return fetchBlockedPorts.has(port);
-}
-
 export async function findFreePort(start: number) {
 	for (let port = start; port < start + 1000; port++) {
-		if (isFetchBlockedPort(port)) continue;
+		if (fetchBlockedPorts.has(port)) continue;
 		if (await isPortFree(port)) return port;
 	}
 	throw new Error(`No free port found starting at ${start}.`);

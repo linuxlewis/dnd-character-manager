@@ -56,8 +56,8 @@ value-contract cycles produce deterministic witness traces.
 Browser roots include UI, app composition, generated clients, application response
 types/contracts, and domain value types. Their transitive imports may not reach
 server layers or unapproved modules, including through type-only barrels. Approved
-browser auth provider leaves are `current-user.ts`, `magic-link-types.ts`,
-`sign-in-code-types.ts`, and `sign-out-types.ts`; the mixed auth `index.ts` is server-only. Application contract
+browser auth provider leaves are `current-user.ts`, `magic-link-types.ts`, and
+`sign-out-types.ts`; the mixed auth `index.ts` is server-only. Application contract
 metadata may use the currently pure `openapi/index.ts` and `openapi/document.ts`;
 their full closures are still checked. This does not grant UI direct access to
 OpenAPI generation infrastructure.

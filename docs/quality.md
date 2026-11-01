@@ -34,7 +34,7 @@ and [final integrated acceptance](./domain-refactor-acceptance.md).
 
 | Provider | Grade | Notes |
 | ---------- | ------- | ------- |
-| auth | B | Better Auth anonymous sessions, magic-link plus one-time-code sign-in (works from an installed iOS home-screen app), sign-out, anonymous character transfer on both paths, Resend delivery wiring, Postgres-backed tables, and current-state documentation are wired; the Resend sender domain must be verified before emails reach user inboxes |
+| auth | B | Better Auth anonymous sessions, magic-link plus hashed one-time-code sign-in (works from an installed iOS home-screen app) with per-email and per-IP rate limits, sign-out, anonymous character transfer on both paths, Resend delivery wiring, Postgres-backed tables, and current-state documentation are wired; the Resend sender domain must be verified before emails reach user inboxes |
 | database | B | Postgres provider wired through Docker Compose stack |
 | telemetry | B | Pino logger, request IDs, route timings, and stack log files are wired; metrics/traces are future work |
 | openapi | B | Route contracts generate `openapi.generated.json` and a typed frontend client; broader coverage should grow as domains are added |

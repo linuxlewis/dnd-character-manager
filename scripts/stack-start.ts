@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
 import {
@@ -76,7 +76,9 @@ const metadata: StackMetadata = {
 	startedAt: new Date().toISOString(),
 };
 
+writeFileSync(paths.emailOutboxPath, "");
 metadata.pids.api = await spawnLogged("pnpm", ["exec", "tsx", "src/server.ts"], metadata.logs.api, {
+	AUTH_EMAIL_OUTBOX_FILE: paths.emailOutboxPath,
 	BETTER_AUTH_TRUSTED_ORIGINS: `http://${host}:${ports.web}`,
 	BETTER_AUTH_URL: `http://${host}:${ports.web}`,
 	DATABASE_URL: databaseUrl,

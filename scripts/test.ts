@@ -5,6 +5,7 @@ import { createCleanupStack } from "./cleanup-stack.js";
 import {
 	assertNoExternalDatabaseUrl,
 	getOwnedDatabaseUrl,
+	getStackPaths,
 	isProcessAlive,
 	readMetadata,
 	runCommand,
@@ -83,6 +84,7 @@ try {
 			throw new Error("Stack start completed without metadata.");
 		}
 		const databaseUrl = getOwnedDatabaseUrl(metadata);
+		const emailOutboxFile = getStackPaths().emailOutboxPath;
 
 		if (suites.integration) {
 			const integrationTests = collectIntegrationTests(join(process.cwd(), "src"));
@@ -90,6 +92,7 @@ try {
 				console.log("No integration test files found.");
 			} else {
 				await runCommandAsync("pnpm", ["exec", "vitest", "run", ...integrationTests], {
+					AUTH_EMAIL_OUTBOX_FILE: emailOutboxFile,
 					DATABASE_URL: databaseUrl,
 				});
 			}
@@ -98,6 +101,7 @@ try {
 		if (suites.e2e) {
 			await runCommandAsync("pnpm", ["exec", "playwright", "test"], {
 				API_ORIGIN: metadata.urls.api,
+				AUTH_EMAIL_OUTBOX_FILE: emailOutboxFile,
 				WEB_URL: metadata.urls.web,
 				DATABASE_URL: databaseUrl,
 			});

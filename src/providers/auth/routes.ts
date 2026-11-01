@@ -2,6 +2,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { getAuth } from "./auth.js";
 import { requestMagicLinkSignIn } from "./magic-link.js";
+import { createSignInRateLimiter } from "./rate-limit.js";
 import { getOrCreateCurrentUser, getSetCookieHeaders } from "./session.js";
 import { verifySignInCode } from "./sign-in-code.js";
 import { signOutCurrentUser } from "./sign-out.js";
@@ -16,12 +17,14 @@ const blockedBetterAuthRoutes = [
 ];
 
 export async function registerAuthRoutes(app: FastifyInstance) {
+	const signInRateLimiter = createSignInRateLimiter();
+
 	app.post("/api/magic-link-requests", async (request, reply) => {
-		return requestMagicLinkSignIn(request, reply);
+		return requestMagicLinkSignIn(request, reply, signInRateLimiter);
 	});
 
 	app.post("/api/sign-in-code-verifications", async (request, reply) => {
-		return verifySignInCode(request, reply);
+		return verifySignInCode(request, reply, signInRateLimiter);
 	});
 
 	app.post("/api/sign-out", async (request, reply) => {

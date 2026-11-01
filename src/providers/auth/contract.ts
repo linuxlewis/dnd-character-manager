@@ -1,10 +1,11 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import { CurrentUserResponseSchema } from "./current-user.js";
-import { MagicLinkRequestResponseSchema, MagicLinkRequestSchema } from "./magic-link-types.js";
 import {
+	MagicLinkRequestResponseSchema,
+	MagicLinkRequestSchema,
 	SignInCodeVerificationResponseSchema,
 	SignInCodeVerificationSchema,
-} from "./sign-in-code-types.js";
+} from "./magic-link-types.js";
 import { SignOutResponseSchema } from "./sign-out-types.js";
 
 const currentUserImports = [
@@ -36,12 +37,12 @@ const magicLinkImports = [
 const signInCodeImports = [
 	{
 		kind: "type",
-		module: "../providers/auth/sign-in-code-types.js",
+		module: "../providers/auth/magic-link-types.js",
 		names: ["SignInCodeVerification", "SignInCodeVerificationResponse"],
 	},
 	{
 		kind: "value",
-		module: "../providers/auth/sign-in-code-types.js",
+		module: "../providers/auth/magic-link-types.js",
 		names: ["SignInCodeVerificationResponseSchema"],
 	},
 ] as const;
@@ -87,6 +88,7 @@ export const authRouteContracts = [
 				schema: MagicLinkRequestResponseSchema,
 			},
 			400: { description: "Invalid request body" },
+			429: { description: "Too many sign-in emails requested" },
 		},
 		summary: "Request magic link sign-in",
 		tags: ["auth"],
@@ -110,6 +112,7 @@ export const authRouteContracts = [
 			},
 			400: { description: "Invalid request body" },
 			401: { description: "Invalid or expired sign-in code" },
+			429: { description: "Too many sign-in code attempts" },
 		},
 		summary: "Sign in with an emailed one-time code",
 		tags: ["auth"],

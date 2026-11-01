@@ -4,8 +4,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, emailOTP, magicLink } from "better-auth/plugins";
 import { handleAnonymousAccountLinked } from "./account-linking.js";
 import { sendMagicLink } from "./magic-link.js";
+import { SIGN_IN_EMAIL_EXPIRES_IN_SECONDS } from "./magic-link-types.js";
 import { authTables } from "./schema.js";
-import { SIGN_IN_EMAIL_EXPIRES_IN_SECONDS } from "./sign-in-email.js";
 
 const LOCAL_AUTH_SECRET = "local-development-auth-secret-for-dnd-character-manager";
 
@@ -47,6 +47,7 @@ function createAuth() {
 				expiresIn: SIGN_IN_EMAIL_EXPIRES_IN_SECONDS,
 				otpLength: 6,
 				sendVerificationOTP: rejectStandaloneSignInCodeDelivery,
+				storeOTP: "hashed",
 			}),
 		],
 		trustedOrigins: getTrustedOrigins(),
@@ -71,7 +72,7 @@ async function createSignInCode(email: string): Promise<string> {
 	return getAuth().api.createVerificationOTP({ body: { email, type: "sign-in" } });
 }
 
-export async function rejectStandaloneSignInCodeDelivery(): Promise<void> {
+async function rejectStandaloneSignInCodeDelivery(): Promise<void> {
 	throw new Error("Sign-in codes are only delivered inside the magic-link sign-in email.");
 }
 

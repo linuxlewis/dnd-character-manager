@@ -5,13 +5,13 @@ import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
 import type {
 	MagicLinkRequest,
 	MagicLinkRequestResponse,
-} from "../providers/auth/magic-link-types.js";
-import { MagicLinkRequestResponseSchema } from "../providers/auth/magic-link-types.js";
-import type {
 	SignInCodeVerification,
 	SignInCodeVerificationResponse,
-} from "../providers/auth/sign-in-code-types.js";
-import { SignInCodeVerificationResponseSchema } from "../providers/auth/sign-in-code-types.js";
+} from "../providers/auth/magic-link-types.js";
+import {
+	MagicLinkRequestResponseSchema,
+	SignInCodeVerificationResponseSchema,
+} from "../providers/auth/magic-link-types.js";
 import type { SignOutResponse } from "../providers/auth/sign-out-types.js";
 import { SignOutResponseSchema } from "../providers/auth/sign-out-types.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
