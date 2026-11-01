@@ -64,6 +64,7 @@ Ports are allocated dynamically per worktree. The stack computes stable seed por
 - Close database clients in `afterAll`.
 - Parse database rows before asserting domain values.
 - Keep integration tests narrower than e2e tests. They should prove real adapters and runtime boundaries, not browser behavior.
+- Read sign-in emails from the stack's email outbox with `readLatestSignInEmail` from `tests/support/email-outbox.ts` instead of querying auth tables. The test runner sets `AUTH_EMAIL_OUTBOX_FILE` for both integration and e2e runs. See [auth.md](./auth.md#tests).
 
 ## Catalogue Browser Fixture
 

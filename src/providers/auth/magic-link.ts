@@ -1,3 +1,4 @@
+import { appendFileSync } from "node:fs";
 import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { Resend } from "resend";
@@ -5,8 +6,12 @@ import { z } from "zod";
 import { createLogger, type Logger } from "../telemetry/index.js";
 import { getAuth } from "./auth.js";
 import { type MagicLinkRequestResponse, MagicLinkRequestSchema } from "./magic-link-types.js";
+import type { SignInRateLimiter } from "./rate-limit.js";
+import { buildSignInEmail } from "./sign-in-email.js";
 
+/** One sign-in email carries both the magic link and a one-time code for the same address. */
 export interface MagicLinkDelivery {
+	code: string;
 	email: string;
 	token: string;
 	url: string;
@@ -39,7 +44,6 @@ const ResendMagicLinkConfigSchema = z.object({
 });
 
 const magicLinkLogger = createLogger("auth.magic-link");
-const magicLinkSubject = "Your D&D Character Manager sign-in link";
 
 export async function sendMagicLinkWithLogger(
 	delivery: MagicLinkDelivery,
@@ -50,10 +54,13 @@ export async function sendMagicLinkWithLogger(
 		throw new Error("Magic link log delivery is disabled in production.");
 	}
 
+	// Production log delivery is an explicit opt-in for the link only; codes never reach those logs.
+	const signInCode = env.NODE_ENV === "production" ? {} : { signInCode: delivery.code };
 	logger.info(
 		{
 			email: delivery.email,
 			magicLinkUrl: delivery.url,
+			...signInCode,
 		},
 		"Magic link login URL generated",
 	);
@@ -105,12 +112,13 @@ export function createResendMagicLinkSender(
 	client: ResendEmailClient,
 ) {
 	return async (delivery: MagicLinkDelivery) => {
+		const email = buildSignInEmail({ code: delivery.code, url: delivery.url });
 		const { error } = await client.send({
 			from: config.fromEmail,
 			to: [delivery.email],
-			subject: magicLinkSubject,
-			html: buildMagicLinkHtmlEmail(delivery.url),
-			text: buildMagicLinkTextEmail(delivery.url),
+			subject: email.subject,
+			html: email.html,
+			text: email.text,
 			replyTo: config.replyToEmail,
 		});
 
@@ -128,23 +136,43 @@ export async function sendMagicLink(
 	const mode = getMagicLinkDeliveryMode(env);
 	if (mode === "log") {
 		await sendMagicLinkWithLogger(delivery, dependencies.logger ?? magicLinkLogger, env);
-		return;
 	}
 
-	const config = getResendMagicLinkConfig(env);
-	const createResendClient = dependencies.createResendClient ?? createDefaultResendClient;
-	await createResendMagicLinkSender(config, createResendClient(config))(delivery);
+	if (mode === "resend") {
+		const config = getResendMagicLinkConfig(env);
+		const createResendClient = dependencies.createResendClient ?? createDefaultResendClient;
+		await createResendMagicLinkSender(config, createResendClient(config))(delivery);
+	}
+	recordOutboxEmail(delivery, env);
+}
+
+/**
+ * Local stacks set `AUTH_EMAIL_OUTBOX_FILE` so integration and browser tests can read the sign-in
+ * email that was sent (see tests/support/email-outbox.ts). Never written in production.
+ */
+function recordOutboxEmail(delivery: MagicLinkDelivery, env: MagicLinkDeliveryEnv) {
+	const outboxFile = optionalEnvValue(env.AUTH_EMAIL_OUTBOX_FILE);
+	if (!outboxFile || env.NODE_ENV === "production") return;
+
+	const email = buildSignInEmail({ code: delivery.code, url: delivery.url });
+	const message = { to: delivery.email, ...email, sentAt: new Date().toISOString() };
+	appendFileSync(outboxFile, `${JSON.stringify(message)}\n`);
 }
 
 export function getMagicLinkDisplayName(email: string) {
 	return email;
 }
 
-export async function requestMagicLinkSignIn(request: FastifyRequest, reply: FastifyReply) {
+export async function requestMagicLinkSignIn(
+	request: FastifyRequest,
+	reply: FastifyReply,
+	rateLimiter: SignInRateLimiter,
+) {
 	const result = MagicLinkRequestSchema.safeParse(request.body);
 	if (!result.success) {
 		return reply.status(400).send({ error: "Invalid request body." });
 	}
+	if (rateLimiter.reject("emailRequests", result.data.email, request, reply)) return reply;
 
 	await getAuth().api.signInMagicLink({
 		body: {
@@ -165,32 +193,4 @@ function createDefaultResendClient(config: ResendMagicLinkConfig): ResendEmailCl
 function optionalEnvValue(value: string | undefined) {
 	const trimmed = value?.trim();
 	return trimmed ? trimmed : undefined;
-}
-
-function buildMagicLinkTextEmail(url: string) {
-	return [
-		"Open this link to sign in to D&D Character Manager:",
-		"",
-		url,
-		"",
-		"If you did not request this link, you can ignore this email.",
-	].join("\n");
-}
-
-function buildMagicLinkHtmlEmail(url: string) {
-	const escapedUrl = escapeHtml(url);
-	return [
-		"<p>Open this link to sign in to D&amp;D Character Manager:</p>",
-		`<p><a href="${escapedUrl}">Sign in to D&amp;D Character Manager</a></p>`,
-		"<p>If you did not request this link, you can ignore this email.</p>",
-	].join("");
-}
-
-function escapeHtml(value: string) {
-	return value
-		.replaceAll("&", "&amp;")
-		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;")
-		.replaceAll('"', "&quot;")
-		.replaceAll("'", "&#39;");
 }

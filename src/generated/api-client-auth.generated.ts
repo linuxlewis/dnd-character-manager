@@ -5,8 +5,13 @@ import { CurrentUserResponseSchema } from "../providers/auth/current-user.js";
 import type {
 	MagicLinkRequest,
 	MagicLinkRequestResponse,
+	SignInCodeVerification,
+	SignInCodeVerificationResponse,
 } from "../providers/auth/magic-link-types.js";
-import { MagicLinkRequestResponseSchema } from "../providers/auth/magic-link-types.js";
+import {
+	MagicLinkRequestResponseSchema,
+	SignInCodeVerificationResponseSchema,
+} from "../providers/auth/magic-link-types.js";
 import type { SignOutResponse } from "../providers/auth/sign-out-types.js";
 import { SignOutResponseSchema } from "../providers/auth/sign-out-types.js";
 import type { ApiClientRuntime, ApiRequestOptions } from "./api-client-core.generated.js";
@@ -33,6 +38,19 @@ export function createAuthApiClient(runtime: ApiClientRuntime) {
 				options,
 				body,
 				(body: unknown) => MagicLinkRequestResponseSchema.parse(body),
+			);
+		},
+
+		verifySignInCode(
+			body: SignInCodeVerification,
+			options: ApiRequestOptions = {},
+		): Promise<SignInCodeVerificationResponse> {
+			return runtime.request<SignInCodeVerificationResponse>(
+				"POST",
+				"/api/sign-in-code-verifications",
+				options,
+				body,
+				(body: unknown) => SignInCodeVerificationResponseSchema.parse(body),
 			);
 		},
 

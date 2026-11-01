@@ -171,7 +171,7 @@ function SiteHeader({
 				A free workspace for your tabletop characters.
 			</Text>
 			<Modal opened={loginOpen} onClose={() => setLoginOpen(false)} title="Sign in" centered>
-				<MagicLinkLoginForm />
+				<MagicLinkLoginForm onSignedIn={() => setLoginOpen(false)} />
 			</Modal>
 		</Stack>
 	);

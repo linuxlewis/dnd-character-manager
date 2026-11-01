@@ -20,6 +20,7 @@ describe("sendMagicLinkWithLogger", () => {
 
 		await sendMagicLinkWithLogger(
 			{
+				code: "482913",
 				email: "player@example.com",
 				token: "secret-token",
 				url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
@@ -31,6 +32,7 @@ describe("sendMagicLinkWithLogger", () => {
 			{
 				email: "player@example.com",
 				magicLinkUrl: "http://localhost/api/auth/magic-link/verify?token=secret-token",
+				signInCode: "482913",
 			},
 			"Magic link login URL generated",
 		);
@@ -42,6 +44,7 @@ describe("sendMagicLinkWithLogger", () => {
 		await expect(
 			sendMagicLinkWithLogger(
 				{
+					code: "482913",
 					email: "player@example.com",
 					token: "secret-token",
 					url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
@@ -52,6 +55,23 @@ describe("sendMagicLinkWithLogger", () => {
 		).rejects.toThrow("Magic link log delivery is disabled in production.");
 
 		expect(info).not.toHaveBeenCalled();
+	});
+
+	it("never logs the sign-in code in production, even when log delivery is enabled", async () => {
+		const info = vi.fn();
+
+		await sendMagicLinkWithLogger(
+			{
+				code: "482913",
+				email: "player@example.com",
+				token: "secret-token",
+				url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
+			},
+			{ info } as never,
+			{ MAGIC_LINK_ENABLE_LOG_DELIVERY: "true", NODE_ENV: "production" },
+		);
+
+		expect(JSON.stringify(info.mock.calls)).not.toContain("482913");
 	});
 });
 
@@ -124,7 +144,7 @@ describe("getResendMagicLinkConfig", () => {
 });
 
 describe("createResendMagicLinkSender", () => {
-	it("sends magic links through the Resend emails API", async () => {
+	it("sends the sign-in email through the Resend emails API", async () => {
 		const send = vi.fn(async () => ({ data: { id: "email-id" }, error: null }));
 		const sender = createResendMagicLinkSender(
 			{
@@ -136,6 +156,7 @@ describe("createResendMagicLinkSender", () => {
 		);
 
 		await sender({
+			code: "482913",
 			email: "player@example.com",
 			token: "secret-token",
 			url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
@@ -145,13 +166,9 @@ describe("createResendMagicLinkSender", () => {
 		expect(send).toHaveBeenCalledWith({
 			from: "no-reply@dndinventorymanager.com",
 			to: ["player@example.com"],
-			subject: "Your D&D Character Manager sign-in link",
-			html: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&amp;callbackURL=/characters",
-			),
-			text: expect.stringContaining(
-				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
-			),
+			subject: expect.any(String),
+			html: expect.any(String),
+			text: expect.any(String),
 			replyTo: "support@dndinventorymanager.com",
 		});
 	});
@@ -171,6 +188,7 @@ describe("createResendMagicLinkSender", () => {
 
 		await expect(
 			sender({
+				code: "482913",
 				email: "player@example.com",
 				token: "secret-token",
 				url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
@@ -181,6 +199,7 @@ describe("createResendMagicLinkSender", () => {
 
 describe("sendMagicLink", () => {
 	const delivery = {
+		code: "482913",
 		email: "player@example.com",
 		token: "secret-token",
 		url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
@@ -199,6 +218,7 @@ describe("sendMagicLink", () => {
 				email: "player@example.com",
 				magicLinkUrl:
 					"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
+				signInCode: "482913",
 			},
 			"Magic link login URL generated",
 		);

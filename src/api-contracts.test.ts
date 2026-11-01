@@ -6,6 +6,7 @@ describe("apiRouteContracts", () => {
 		expect(apiRouteContracts.map((route) => route.operationId)).toEqual([
 			"getCurrentUser",
 			"requestMagicLinkSignIn",
+			"verifySignInCode",
 			"signOutCurrentUser",
 			"createCharacter",
 			"getCharacter",

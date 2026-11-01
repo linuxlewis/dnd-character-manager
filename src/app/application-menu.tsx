@@ -83,7 +83,7 @@ export function ApplicationMenu({
 				centered
 			>
 				{dialog === "login" ? (
-					<MagicLinkLoginForm />
+					<MagicLinkLoginForm onSignedIn={() => setDialog(null)} />
 				) : (
 					<Stack>
 						<Text fw={700}>D&amp;D Character Manager</Text>
