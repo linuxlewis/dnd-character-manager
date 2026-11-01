@@ -1,6 +1,10 @@
 import type { ApiRouteContract } from "@providers/openapi/index.js";
 import { CurrentUserResponseSchema } from "./current-user.js";
 import { MagicLinkRequestResponseSchema, MagicLinkRequestSchema } from "./magic-link-types.js";
+import {
+	SignInCodeVerificationResponseSchema,
+	SignInCodeVerificationSchema,
+} from "./sign-in-code-types.js";
 import { SignOutResponseSchema } from "./sign-out-types.js";
 
 const currentUserImports = [
@@ -26,6 +30,19 @@ const magicLinkImports = [
 		kind: "value",
 		module: "../providers/auth/magic-link-types.js",
 		names: ["MagicLinkRequestResponseSchema"],
+	},
+] as const;
+
+const signInCodeImports = [
+	{
+		kind: "type",
+		module: "../providers/auth/sign-in-code-types.js",
+		names: ["SignInCodeVerification", "SignInCodeVerificationResponse"],
+	},
+	{
+		kind: "value",
+		module: "../providers/auth/sign-in-code-types.js",
+		names: ["SignInCodeVerificationResponseSchema"],
 	},
 ] as const;
 
@@ -79,6 +96,29 @@ export const authRouteContracts = [
 			requestBodyType: "MagicLinkRequest",
 			responseParser: "MagicLinkRequestResponseSchema",
 			responseType: "MagicLinkRequestResponse",
+		},
+	},
+	{
+		method: "post",
+		operationId: "verifySignInCode",
+		path: "/api/sign-in-code-verifications",
+		requestBody: SignInCodeVerificationSchema,
+		responses: {
+			200: {
+				description: "Signed in with the emailed one-time code",
+				schema: SignInCodeVerificationResponseSchema,
+			},
+			400: { description: "Invalid request body" },
+			401: { description: "Invalid or expired sign-in code" },
+		},
+		summary: "Sign in with an emailed one-time code",
+		tags: ["auth"],
+		client: {
+			functionName: "verifySignInCode",
+			imports: signInCodeImports,
+			requestBodyType: "SignInCodeVerification",
+			responseParser: "SignInCodeVerificationResponseSchema",
+			responseType: "SignInCodeVerificationResponse",
 		},
 	},
 	{

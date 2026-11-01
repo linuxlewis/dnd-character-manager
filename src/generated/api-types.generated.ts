@@ -62,4 +62,8 @@ export type {
 	MagicLinkRequest,
 	MagicLinkRequestResponse,
 } from "../providers/auth/magic-link-types.js";
+export type {
+	SignInCodeVerification,
+	SignInCodeVerificationResponse,
+} from "../providers/auth/sign-in-code-types.js";
 export type { SignOutResponse } from "../providers/auth/sign-out-types.js";

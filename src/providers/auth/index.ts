@@ -6,5 +6,9 @@ export { CurrentUserResponseSchema, CurrentUserSchema } from "./current-user.js"
 export type { MagicLinkRequest, MagicLinkRequestResponse } from "./magic-link-types.js";
 export { registerAuthRoutes } from "./routes.js";
 export { getOrCreateCurrentUser } from "./session.js";
+export type {
+	SignInCodeVerification,
+	SignInCodeVerificationResponse,
+} from "./sign-in-code-types.js";
 export type { SignOutResponse } from "./sign-out-types.js";
 export { SignOutResponseSchema } from "./sign-out-types.js";

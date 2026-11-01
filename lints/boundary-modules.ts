@@ -50,6 +50,7 @@ const entrypoints = new Set([
 export const browserProviders = new Set([
 	"src/providers/auth/current-user.ts",
 	"src/providers/auth/magic-link-types.ts",
+	"src/providers/auth/sign-in-code-types.ts",
 	"src/providers/auth/sign-out-types.ts",
 	"src/providers/navigation/index.ts",
 	"src/providers/navigation/browser-navigation.ts",

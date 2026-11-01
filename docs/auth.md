@@ -1,21 +1,24 @@
 # Authentication
 
-Last verified: 2026-08-23
+Last verified: 2026-11-01
 
 This document describes the authentication system as it exists today. It is not a future account
 roadmap.
 
 ## Current State
 
-Authentication is implemented as an anonymous browser-session baseline with a visible magic-link
-account flow layered on top:
+Authentication is implemented as an anonymous browser-session baseline with a visible email
+sign-in flow layered on top. One sign-in email carries both a magic link and a six-digit one-time
+code; either signs the user in:
 
 - The server uses Better Auth with the anonymous plugin.
 - The server uses Better Auth's magic-link plugin for passwordless email sign-in.
+- The server uses Better Auth's email-OTP plugin only to create and verify the sign-in code that rides
+  along in the magic-link email.
 - Session and user records are stored in Postgres through the Drizzle adapter.
 - The browser receives a server-owned session cookie from Better Auth.
 - The React app bootstraps the current user with `GET /api/current-user`.
-- User-visible magic-link sign-in and sign-out exist.
+- User-visible email sign-in (link or code) and sign-out exist.
 - Passwords, external identity providers, account recovery, profile settings, and session management
   UI do not exist yet.
 
@@ -29,7 +32,8 @@ The server registers auth routes from `src/providers/auth/routes.ts`:
 | Route | Purpose |
 | ------- | --------- |
 | `/api/auth/*` | Pass-through route for Better Auth handlers |
-| `POST /api/magic-link-requests` | App-owned route that validates an email address and asks Better Auth to create a magic link |
+| `POST /api/magic-link-requests` | App-owned route that validates an email address and asks Better Auth to create a magic link and sign-in code |
+| `POST /api/sign-in-code-verifications` | App-owned route that signs in with the emailed six-digit code |
 | `POST /api/sign-out` | App-owned route that signs out the current Better Auth session |
 | `GET /api/current-user` | App bootstrap route that returns or creates the current anonymous user |
 
@@ -63,14 +67,44 @@ Magic-link sign-in is intentionally split between app-owned and Better Auth-owne
 2. The route trims and lowercases the email address with a Zod boundary schema.
 3. The route calls `auth.api.signInMagicLink` with the character roster callback URL.
 4. Better Auth stores a single-use verification token in the `verification` table.
-5. Local development delivery writes the generated URL through structured logging under the
+5. The magic-link sender (`src/providers/auth/auth.ts`) calls the email-OTP plugin's server-only
+   `createVerificationOTP` for the same email, storing a `sign-in-otp-<email>` verification row,
+   and `src/providers/auth/sign-in-email.ts` renders one email containing both the code and the
+   link. Both expire after `SIGN_IN_EMAIL_EXPIRES_IN_SECONDS` (5 minutes).
+6. Local development delivery writes the generated URL through structured logging under the
    `auth.magic-link` logger. In production, log delivery is disabled unless
-   `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly.
-6. The user opens the generated `/api/auth/magic-link/verify` link.
-7. Better Auth verifies and consumes the token, creates a session for the email account, sets the
-   session cookie, and redirects to `/characters`.
-8. If the browser had an anonymous session, the anonymous-link callback transfers owned characters
-   from the anonymous user ID to the linked account ID before Better Auth deletes the anonymous user.
+   `MAGIC_LINK_ENABLE_LOG_DELIVERY=true` is set explicitly. Log delivery includes the code.
+7. The user either opens the generated `/api/auth/magic-link/verify` link, or types the code into
+   the sign-in dialog, which posts to `POST /api/sign-in-code-verifications`. That route calls
+   `auth.api.signInEmailOTP`, which allows three attempts per code, and returns one generic 401
+   for wrong, expired, reused, or exhausted codes.
+8. For the link, Better Auth verifies and consumes the token, creates a session for the email account, sets the
+   session cookie, and redirects to `/characters`. For the code, the route forwards the new session
+   cookie and the dialog refreshes the current user in place.
+9. On either path, if the browser had an anonymous session, the anonymous plugin's `/sign-in/*` and
+   `/magic-link/verify` hook transfers owned characters from the anonymous user ID to the linked
+   account ID before Better Auth deletes the anonymous user.
+
+The email is email-safe HTML (table layout, inline styles, brand colors from `src/app/theme.ts` and
+the landing tokens in `src/app/theme.css`, dark color scheme) with a plain-text alternative that also
+carries both the code and the link. The subject line includes the code so it can be read from a
+notification without leaving the installed app.
+
+![Sign-in email preview](./assets/sign-in-email-preview.png)
+
+Better Auth's native `/api/auth/sign-in/magic-link`, `/api/auth/sign-in/email-otp`,
+`/api/auth/email-otp/*`, and `/api/auth/forget-password/email-otp` endpoints return 404 so emails
+are requested and codes are verified only through the app-owned routes.
+
+### Why the code exists: installed home-screen apps
+
+On iOS, a link tapped in Mail always opens in Safari, never in a home-screen web app, and the
+installed app keeps its own cookies and storage separate from Safari. A magic link opened from Mail
+therefore signs Safari in and moves Safari's anonymous characters, while the installed app keeps
+its own anonymous session. The code is typed inside the app that asked for it, so the session cookie
+and the character transfer land in that app. Desktop and regular mobile browsers can keep using the
+link. Android usually opens links in Chrome or a Chrome custom tab, which shares cookies with the
+installed app, but the code works there too.
 
 ## Frontend Flow
 
@@ -82,7 +116,10 @@ The UI treats an anonymous session as a browser-local workspace:
 - While the query is loading, the app shows a session startup state.
 - If the query fails, the app shows a recoverable session error.
 - If the query succeeds, child UI can assume a current user exists.
-- Anonymous users see an email form for requesting a magic link.
+- Anonymous users see an email form for requesting a sign-in email. After a request succeeds, the
+  dialog switches to a sign-in code field (`autocomplete="one-time-code"`, numeric keyboard) with a
+  "Use a different email" escape hatch. A successful code sign-in invalidates API queries and
+  closes the dialog.
 - Signed-in users see the account name and a sign-out action.
 
 The generated API client currently relies on same-origin requests. Development uses the Vite `/api`
@@ -161,13 +198,13 @@ Production configuration is documented in [production.md](./production.md) and
 
 ## Account Management
 
-Account management is limited to magic-link sign-in and sign-out.
+Account management is limited to email sign-in (link or code) and sign-out.
 
 There is currently:
 
-- a magic-link email form for anonymous users
+- an email sign-in form with a one-time-code step for anonymous users
 - a sign-out button for signed-in users
-- automatic anonymous-to-account character transfer during magic-link verification
+- automatic anonymous-to-account character transfer during link or code verification
 - Resend-backed magic-link delivery when `MAGIC_LINK_DELIVERY=resend`
 
 There is not currently:
@@ -196,12 +233,17 @@ Current coverage includes:
 - Auth route adapter tests in `src/providers/auth/routes.test.ts`.
 - Magic-link schema and delivery unit tests in `src/providers/auth/magic-link-types.test.ts` and
   `src/providers/auth/magic-link.test.ts`.
+- Sign-in email rendering tests in `src/providers/auth/sign-in-email.test.ts`.
+- Sign-in code schema and route adapter tests in `src/providers/auth/sign-in-code-types.test.ts` and
+  `src/providers/auth/sign-in-code.test.ts`.
 - Sign-out response schema tests in `src/providers/auth/sign-out.test.ts`.
-- Magic-link route integration tests in `src/providers/auth/routes.integration.test.ts`.
+- Magic-link and sign-in code route integration tests, including anonymous character transfer,
+  wrong and reused codes, and blocked native endpoints, in
+  `src/providers/auth/routes.integration.test.ts`.
 - Current-user provider UI tests in `src/app/current-user-provider.test.tsx`.
 - Magic-link login panel UI tests in `src/app/magic-link-login.test.tsx`.
 - Session reuse e2e coverage in `tests/e2e/session-flow.spec.ts`.
-- Magic-link sign-in and anonymous character transfer e2e coverage in
+- Magic-link and sign-in code e2e coverage, each with anonymous character transfer, in
   `tests/e2e/magic-link-login.spec.ts`.
 - Character route integration coverage proving another session user's character is not exposed.
 
@@ -218,6 +260,14 @@ Current coverage includes:
   workspace through normal app flows.
 - There is no user-facing way to inspect, revoke, or transfer sessions.
 - The generated API client assumes same-origin browser requests today.
+- The app-owned email request and code verification routes call Better Auth server-side, so Better
+  Auth's per-path HTTP rate limits do not apply. Codes are limited to three attempts and five
+  minutes, but there is no per-IP limit on requesting emails or verifying codes yet.
+- Sign-in codes are stored as plain text in `verification`, matching the magic-link tokens they are
+  emailed with. Using one does not revoke the other; both expire after five minutes.
+- Installed-app behavior is not covered by automated tests: Playwright cannot emulate iOS
+  standalone mode or the Mail-to-Safari hand-off. The e2e test proves the code path signs in the
+  browser context that typed it.
 - Visible account features need an explicit product and migration design before implementation.
 
 ## When Changing Auth

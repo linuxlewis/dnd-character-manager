@@ -20,6 +20,7 @@ describe("sendMagicLinkWithLogger", () => {
 
 		await sendMagicLinkWithLogger(
 			{
+				code: "482913",
 				email: "player@example.com",
 				token: "secret-token",
 				url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
@@ -31,6 +32,7 @@ describe("sendMagicLinkWithLogger", () => {
 			{
 				email: "player@example.com",
 				magicLinkUrl: "http://localhost/api/auth/magic-link/verify?token=secret-token",
+				signInCode: "482913",
 			},
 			"Magic link login URL generated",
 		);
@@ -42,6 +44,7 @@ describe("sendMagicLinkWithLogger", () => {
 		await expect(
 			sendMagicLinkWithLogger(
 				{
+					code: "482913",
 					email: "player@example.com",
 					token: "secret-token",
 					url: "http://localhost/api/auth/magic-link/verify?token=secret-token",
@@ -124,7 +127,7 @@ describe("getResendMagicLinkConfig", () => {
 });
 
 describe("createResendMagicLinkSender", () => {
-	it("sends magic links through the Resend emails API", async () => {
+	it("sends the magic link and sign-in code in one Resend email", async () => {
 		const send = vi.fn(async () => ({ data: { id: "email-id" }, error: null }));
 		const sender = createResendMagicLinkSender(
 			{
@@ -136,6 +139,7 @@ describe("createResendMagicLinkSender", () => {
 		);
 
 		await sender({
+			code: "482913",
 			email: "player@example.com",
 			token: "secret-token",
 			url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&callbackURL=/characters",
@@ -145,7 +149,7 @@ describe("createResendMagicLinkSender", () => {
 		expect(send).toHaveBeenCalledWith({
 			from: "no-reply@dndinventorymanager.com",
 			to: ["player@example.com"],
-			subject: "Your D&D Character Manager sign-in link",
+			subject: "Your D&D Character Manager sign-in code: 482913",
 			html: expect.stringContaining(
 				"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token&amp;callbackURL=/characters",
 			),
@@ -154,6 +158,9 @@ describe("createResendMagicLinkSender", () => {
 			),
 			replyTo: "support@dndinventorymanager.com",
 		});
+		const [message] = send.mock.calls[0] as unknown as [{ html: string; text: string }];
+		expect(message.html).toContain(">482913</span>");
+		expect(message.text).toContain("482913");
 	});
 
 	it("throws when Resend rejects the delivery", async () => {
@@ -171,6 +178,7 @@ describe("createResendMagicLinkSender", () => {
 
 		await expect(
 			sender({
+				code: "482913",
 				email: "player@example.com",
 				token: "secret-token",
 				url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
@@ -181,6 +189,7 @@ describe("createResendMagicLinkSender", () => {
 
 describe("sendMagicLink", () => {
 	const delivery = {
+		code: "482913",
 		email: "player@example.com",
 		token: "secret-token",
 		url: "https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
@@ -199,6 +208,7 @@ describe("sendMagicLink", () => {
 				email: "player@example.com",
 				magicLinkUrl:
 					"https://characters.dndinventorymanager.com/api/auth/magic-link/verify?token=secret-token",
+				signInCode: "482913",
 			},
 			"Magic link login URL generated",
 		);

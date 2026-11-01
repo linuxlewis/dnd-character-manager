@@ -5,8 +5,11 @@ import { z } from "zod";
 import { createLogger, type Logger } from "../telemetry/index.js";
 import { getAuth } from "./auth.js";
 import { type MagicLinkRequestResponse, MagicLinkRequestSchema } from "./magic-link-types.js";
+import { buildSignInEmail } from "./sign-in-email.js";
 
+/** One sign-in email carries both the magic link and a one-time code for the same address. */
 export interface MagicLinkDelivery {
+	code: string;
 	email: string;
 	token: string;
 	url: string;
@@ -39,7 +42,6 @@ const ResendMagicLinkConfigSchema = z.object({
 });
 
 const magicLinkLogger = createLogger("auth.magic-link");
-const magicLinkSubject = "Your D&D Character Manager sign-in link";
 
 export async function sendMagicLinkWithLogger(
 	delivery: MagicLinkDelivery,
@@ -54,6 +56,7 @@ export async function sendMagicLinkWithLogger(
 		{
 			email: delivery.email,
 			magicLinkUrl: delivery.url,
+			signInCode: delivery.code,
 		},
 		"Magic link login URL generated",
 	);
@@ -105,12 +108,13 @@ export function createResendMagicLinkSender(
 	client: ResendEmailClient,
 ) {
 	return async (delivery: MagicLinkDelivery) => {
+		const email = buildSignInEmail({ code: delivery.code, url: delivery.url });
 		const { error } = await client.send({
 			from: config.fromEmail,
 			to: [delivery.email],
-			subject: magicLinkSubject,
-			html: buildMagicLinkHtmlEmail(delivery.url),
-			text: buildMagicLinkTextEmail(delivery.url),
+			subject: email.subject,
+			html: email.html,
+			text: email.text,
 			replyTo: config.replyToEmail,
 		});
 
@@ -165,32 +169,4 @@ function createDefaultResendClient(config: ResendMagicLinkConfig): ResendEmailCl
 function optionalEnvValue(value: string | undefined) {
 	const trimmed = value?.trim();
 	return trimmed ? trimmed : undefined;
-}
-
-function buildMagicLinkTextEmail(url: string) {
-	return [
-		"Open this link to sign in to D&D Character Manager:",
-		"",
-		url,
-		"",
-		"If you did not request this link, you can ignore this email.",
-	].join("\n");
-}
-
-function buildMagicLinkHtmlEmail(url: string) {
-	const escapedUrl = escapeHtml(url);
-	return [
-		"<p>Open this link to sign in to D&amp;D Character Manager:</p>",
-		`<p><a href="${escapedUrl}">Sign in to D&amp;D Character Manager</a></p>`,
-		"<p>If you did not request this link, you can ignore this email.</p>",
-	].join("");
-}
-
-function escapeHtml(value: string) {
-	return value
-		.replaceAll("&", "&amp;")
-		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;")
-		.replaceAll('"', "&quot;")
-		.replaceAll("'", "&#39;");
 }

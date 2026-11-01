@@ -25,6 +25,16 @@ describe("authRouteContracts", () => {
 			},
 			{
 				method: "post",
+				operationId: "verifySignInCode",
+				path: "/api/sign-in-code-verifications",
+				client: {
+					functionName: "verifySignInCode",
+					requestBodyType: "SignInCodeVerification",
+					responseType: "SignInCodeVerificationResponse",
+				},
+			},
+			{
+				method: "post",
 				operationId: "signOutCurrentUser",
 				path: "/api/sign-out",
 				client: {

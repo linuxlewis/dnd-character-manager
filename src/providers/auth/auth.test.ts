@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getAuthBaseUrl, getAuthSecret, getTrustedOrigins } from "./auth.js";
+import {
+	getAuthBaseUrl,
+	getAuthSecret,
+	getTrustedOrigins,
+	rejectStandaloneSignInCodeDelivery,
+} from "./auth.js";
 
 const originalEnv = { ...process.env };
 
@@ -34,5 +39,13 @@ describe("auth configuration helpers", () => {
 		process.env.BETTER_AUTH_TRUSTED_ORIGINS = "http://localhost:3000, https://app.example.com ";
 
 		expect(getTrustedOrigins()).toEqual(["http://localhost:3000", "https://app.example.com"]);
+	});
+});
+
+describe("rejectStandaloneSignInCodeDelivery", () => {
+	it("refuses to send a sign-in code without the magic-link email", async () => {
+		await expect(rejectStandaloneSignInCodeDelivery()).rejects.toThrow(
+			"Sign-in codes are only delivered inside the magic-link sign-in email.",
+		);
 	});
 });

@@ -95,6 +95,62 @@
 				}
 			}
 		},
+		"/api/sign-in-code-verifications": {
+			"post": {
+				"operationId": "verifySignInCode",
+				"summary": "Sign in with an emailed one-time code",
+				"tags": ["auth"],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": {
+										"type": "string",
+										"format": "email",
+										"pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+									},
+									"code": {
+										"type": "string",
+										"pattern": "^\\d{6}$"
+									}
+								},
+								"required": ["email", "code"],
+								"additionalProperties": false
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Signed in with the emailed one-time code",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"signedIn": {
+											"type": "boolean",
+											"const": true
+										}
+									},
+									"required": ["signedIn"],
+									"additionalProperties": false
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid request body"
+					},
+					"401": {
+						"description": "Invalid or expired sign-in code"
+					}
+				}
+			}
+		},
 		"/api/sign-out": {
 			"post": {
 				"operationId": "signOutCurrentUser",
