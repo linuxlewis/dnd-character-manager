@@ -1,0 +1,9 @@
+{
+	"name": "dnd-character-manager",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"user": "ubuntu",
+	"install": "pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium",
+	"start": "sudo service docker status >/dev/null 2>&1 || sudo service docker start; timeout 120 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done' && docker info --format 'docker ready: {{.ServerVersion}} ({{.Driver}})'"
+}
