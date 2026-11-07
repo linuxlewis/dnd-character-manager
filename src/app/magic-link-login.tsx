@@ -2,6 +2,7 @@ import { Alert, Box, Button, Group, Stack, Text, TextInput } from "@mantine/core
 import { useForm } from "@mantine/form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { z } from "zod";
 import { ApiClientError, apiMutations, apiQueries } from "../generated/api-client.generated.js";
 
 interface MagicLinkFormValues {
@@ -16,11 +17,11 @@ interface MagicLinkLoginFormProps {
 	onSignedIn?: () => void;
 }
 
-interface PendingSignIn {
-	email: string;
-	requestedAt: number;
-	requesterId: string;
-}
+const PendingSignInSchema = z.object({
+	email: z.string(),
+	requestedAt: z.number(),
+	requesterId: z.string(),
+});
 
 // An installed iOS app can be reloaded while the user is in Mail, so the requested email survives
 // in localStorage for as long as the emailed code is valid, scoped to the anonymous session.
@@ -203,13 +204,14 @@ function isRateLimited(error: Error) {
 function readPendingSignIn(requesterId: string | undefined): string | null {
 	if (!requesterId || typeof window === "undefined") return null;
 	try {
-		const pending = JSON.parse(
-			window.localStorage.getItem(pendingSignInKey) ?? "null",
-		) as PendingSignIn | null;
+		const parsed = PendingSignInSchema.safeParse(
+			JSON.parse(window.localStorage.getItem(pendingSignInKey) ?? "null"),
+		);
+		const pending = parsed.data;
 		const isCurrent =
 			pending?.requesterId === requesterId &&
 			Date.now() - pending.requestedAt < pendingSignInMaxAgeMs;
-		return isCurrent && typeof pending.email === "string" ? pending.email : null;
+		return isCurrent ? pending.email : null;
 	} catch {
 		return null;
 	}
@@ -217,7 +219,11 @@ function readPendingSignIn(requesterId: string | undefined): string | null {
 
 function savePendingSignIn(email: string, requesterId: string | undefined) {
 	if (!requesterId || typeof window === "undefined") return;
-	const pending: PendingSignIn = { email, requestedAt: Date.now(), requesterId };
+	const pending: z.infer<typeof PendingSignInSchema> = {
+		email,
+		requestedAt: Date.now(),
+		requesterId,
+	};
 	try {
 		window.localStorage.setItem(pendingSignInKey, JSON.stringify(pending));
 	} catch {

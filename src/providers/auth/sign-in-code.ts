@@ -51,7 +51,7 @@ export async function verifySignInCode(
 			{ error: error instanceof Error ? error.message : String(error) },
 			"Sign-in code verification failed",
 		);
-		throw error;
+		return reply.status(500).send({ error: "Sign-in code verification failed." });
 	}
 
 	return reply.status(200).send({ signedIn: true } satisfies SignInCodeVerificationResponse);

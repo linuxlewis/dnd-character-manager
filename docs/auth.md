@@ -1,6 +1,6 @@
 # Authentication
 
-Last verified: 2026-11-01
+Last verified: 2026-11-07
 
 This document describes the authentication system as it exists today. It is not a future account
 roadmap.
@@ -164,7 +164,7 @@ Auth tables are defined in `src/providers/auth/schema.ts` and created by
 | `user` | Better Auth user record, including `is_anonymous` |
 | `session` | Server-side session records keyed by Better Auth token |
 | `account` | Provider account records for future linked accounts or credentials |
-| `verification` | Future verification tokens such as email or recovery flows |
+| `verification` | Magic-link tokens and hashed sign-in codes |
 
 The schema already supports account rows, provider IDs, tokens, and verification records because it
 uses Better Auth's table shape. Magic-link requests now use `verification` rows as Better Auth's
@@ -269,9 +269,10 @@ Current coverage includes:
   endpoints, sign-out) in `src/providers/auth/routes.integration.test.ts`.
 - Sign-in code integration tests in `src/providers/auth/sign-in-code.integration.test.ts`: code
   sign-in with anonymous character transfer, returning accounts merging new anonymous characters by
-  code and by link, wrong, reused, exhausted, and expired codes, and the per-IP rate limit.
+  code, wrong, reused, exhausted, and expired codes, and the per-IP rate limit.
 - Current-user provider UI tests in `src/app/current-user-provider.test.tsx`.
 - Magic-link login panel UI tests in `src/app/magic-link-login.test.tsx`.
+- Character route integration coverage proving another session user's character is not exposed.
 - Session reuse e2e coverage in `tests/e2e/session-flow.spec.ts`.
 - Magic-link and sign-in code e2e coverage, each with anonymous character transfer and the code path
   surviving a reload, in `tests/e2e/magic-link-login.spec.ts`.
@@ -280,7 +281,6 @@ Integration and e2e tests read the code and link from the email that was actuall
 `pnpm start` points the API at `.stack/<worktree>/email-outbox.jsonl` through `AUTH_EMAIL_OUTBOX_FILE`,
 the test runner passes the same path to Vitest and Playwright, and
 `tests/support/email-outbox.ts` returns the newest email for an address.
-- Character route integration coverage proving another session user's character is not exposed.
 
 ## Known Limitations
 

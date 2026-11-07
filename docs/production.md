@@ -55,7 +55,7 @@ default values are for local smoke testing only.
 
 | Variable | Default | Purpose |
 | ---------- | --------- | --------- |
-| `APP_PORT` | `8080` | Host port exposed for the app container |
+| `APP_PORT` | `127.0.0.1:8080` | Host port exposed for the app container |
 | `BETTER_AUTH_SECRET` | `change-me-change-me-change-me-change-me` | Secret used to sign Better Auth cookies |
 | `AUTH_CLIENT_IP_HEADER` | `cf-connecting-ip` | Trusted header with the client IP for sign-in rate limits; keep the app port on loopback behind Cloudflare Tunnel |
 | `BETTER_AUTH_URL` | `http://localhost:8080` | Public app URL used by Better Auth |
