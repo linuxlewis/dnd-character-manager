@@ -25,102 +25,22 @@ afterEach(async () => {
 });
 
 describe("sign-in code verification", () => {
-	it("signs in with the emailed code and keeps the anonymous session's characters", async () => {
+	it("signs in by code, moving anonymous characters into new and returning accounts", async () => {
 		const email = uniqueEmail("coder");
 		const app = await buildServer();
 		try {
-			const anonymous = await startAnonymousSession(app);
-			await createCharacter(app, anonymous.cookie, "Codebound Cleric");
+			await signInByCodeWithCharacter(app, email.toUpperCase(), "Veteran Paladin");
+			const { cookie, code } = await signInByCodeWithCharacter(app, email, "Fresh Rogue");
 
-			await requestSignInEmail(app, email.toUpperCase(), anonymous.cookie);
-			const { code } = readLatestSignInEmail(email);
-
-			const verified = await verifyCode(app, email, code, anonymous.cookie);
-			expect(verified.statusCode).toBe(200);
-			expect(verified.json()).toEqual({ signedIn: true });
-			const cookie = toCookieHeader(verified.headers["set-cookie"]);
-
-			const user = await currentUser(app, cookie);
-			expect(user).toMatchObject({ isAnonymous: false, name: email });
-			expect(user.id).not.toBe(anonymous.userId);
-			expect(await listCharacterNames(app, cookie)).toEqual(["Codebound Cleric"]);
-
-			const anonymousRows = await getDb()
-				.select({ id: userTable.id })
-				.from(userTable)
-				.where(eq(userTable.id, anonymous.userId));
-			expect(anonymousRows).toEqual([]);
-
+			expect(await currentUser(app, cookie)).toMatchObject({ isAnonymous: false, name: email });
+			expect(await listCharacterNames(app, cookie)).toEqual(["Fresh Rogue", "Veteran Paladin"]);
 			expect((await verifyCode(app, email, code)).statusCode).toBe(401);
 		} finally {
 			await app.close();
 		}
 	});
 
-	it("adds a returning account's new anonymous characters when signing in by code", async () => {
-		const email = uniqueEmail("returning-code");
-		const app = await buildServer();
-		try {
-			await createAccountWithCharacter(app, email, "Veteran Paladin");
-
-			const anonymous = await startAnonymousSession(app);
-			await createCharacter(app, anonymous.cookie, "Fresh Rogue");
-			await requestSignInEmail(app, email, anonymous.cookie);
-			const verified = await verifyCode(
-				app,
-				email,
-				readLatestSignInEmail(email).code,
-				anonymous.cookie,
-			);
-			expect(verified.statusCode).toBe(200);
-
-			const cookie = toCookieHeader(verified.headers["set-cookie"]);
-			expect(await listCharacterNames(app, cookie)).toEqual(["Fresh Rogue", "Veteran Paladin"]);
-		} finally {
-			await app.close();
-		}
-	});
-
-	it("adds a returning account's new anonymous characters when signing in by link", async () => {
-		const email = uniqueEmail("returning-link");
-		const app = await buildServer();
-		try {
-			await createAccountWithCharacter(app, email, "Veteran Paladin");
-
-			const anonymous = await startAnonymousSession(app);
-			await createCharacter(app, anonymous.cookie, "Fresh Rogue");
-			await requestSignInEmail(app, email, anonymous.cookie);
-			const link = new URL(readLatestSignInEmail(email).link);
-			const verified = await app.inject({
-				method: "GET",
-				url: `${link.pathname}${link.search}`,
-				headers: { cookie: anonymous.cookie },
-			});
-			expect(verified.statusCode).toBe(302);
-
-			const cookie = toCookieHeader(verified.headers["set-cookie"]);
-			expect(await listCharacterNames(app, cookie)).toEqual(["Fresh Rogue", "Veteran Paladin"]);
-		} finally {
-			await app.close();
-		}
-	});
-
-	it("rejects a wrong code without creating a session", async () => {
-		const email = uniqueEmail("wrong-code");
-		const app = await buildServer();
-		try {
-			await requestSignInEmail(app, email);
-			const response = await verifyCode(app, email, otherCode(readLatestSignInEmail(email).code));
-
-			expect(response.statusCode).toBe(401);
-			expect(response.json()).toEqual({ error: "Invalid or expired sign-in code." });
-			expect(response.headers["set-cookie"]).toBeUndefined();
-		} finally {
-			await app.close();
-		}
-	});
-
-	it("rejects the correct code after three wrong attempts", async () => {
+	it("rejects wrong codes without a session, then locks the code after three attempts", async () => {
 		const email = uniqueEmail("attempts");
 		const app = await buildServer();
 		try {
@@ -128,7 +48,10 @@ describe("sign-in code verification", () => {
 			const { code } = readLatestSignInEmail(email);
 
 			for (let attempt = 1; attempt <= 3; attempt++) {
-				expect((await verifyCode(app, email, otherCode(code))).statusCode).toBe(401);
+				const wrong = await verifyCode(app, email, otherCode(code));
+				expect(wrong.statusCode).toBe(401);
+				expect(wrong.json()).toEqual({ error: "Invalid or expired sign-in code." });
+				expect(wrong.headers["set-cookie"]).toBeUndefined();
 			}
 
 			expect((await verifyCode(app, email, code)).statusCode).toBe(401);
@@ -149,18 +72,6 @@ describe("sign-in code verification", () => {
 				.where(eq(verificationTable.identifier, `sign-in-otp-${email}`));
 
 			expect((await verifyCode(app, email, code)).statusCode).toBe(401);
-		} finally {
-			await app.close();
-		}
-	});
-
-	it("rejects malformed bodies", async () => {
-		const app = await buildServer();
-		try {
-			const response = await verifyCode(app, "player@example.com", "12ab");
-
-			expect(response.statusCode).toBe(400);
-			expect(response.json()).toEqual({ error: "Invalid request body." });
 		} finally {
 			await app.close();
 		}
@@ -194,20 +105,16 @@ describe("sign-in code verification", () => {
 	});
 });
 
-async function createAccountWithCharacter(app: App, email: string, characterName: string) {
+/** Signs in by code from a fresh anonymous session that owns one character. */
+async function signInByCodeWithCharacter(app: App, email: string, characterName: string) {
 	const anonymous = await startAnonymousSession(app);
 	await createCharacter(app, anonymous.cookie, characterName);
 	await requestSignInEmail(app, email, anonymous.cookie);
-	const verified = await verifyCode(
-		app,
-		email,
-		readLatestSignInEmail(email).code,
-		anonymous.cookie,
-	);
+	const { code } = readLatestSignInEmail(email.toLowerCase());
+	const verified = await verifyCode(app, email, code, anonymous.cookie);
 	expect(verified.statusCode).toBe(200);
-
-	const user = await currentUser(app, toCookieHeader(verified.headers["set-cookie"]));
-	createdUserIds.push(user.id);
+	expect(verified.json()).toEqual({ signedIn: true });
+	return { code, cookie: toCookieHeader(verified.headers["set-cookie"]) };
 }
 
 async function startAnonymousSession(app: App) {

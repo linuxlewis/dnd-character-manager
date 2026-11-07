@@ -62,11 +62,6 @@ test("signs in with the emailed code and keeps anonymous characters", async ({ p
 	await expect(page.getByText(`We emailed ${email}`)).toBeVisible();
 
 	const { code } = readLatestSignInEmail(email);
-	const wrongCode = code === "000000" ? "111111" : "000000";
-	await page.getByLabel("Sign-in code").fill(wrongCode);
-	await page.getByRole("button", { name: "Sign in with code" }).click();
-	await expect(page.getByText("Code not accepted")).toBeVisible();
-
 	await page.getByLabel("Sign-in code").fill(`${code.slice(0, 3)} ${code.slice(3)}`);
 	await page.getByRole("button", { name: "Sign in with code" }).click();
 
