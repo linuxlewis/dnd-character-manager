@@ -8,6 +8,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      AUTH_CLIENT_IP_HEADER: ${AUTH_CLIENT_IP_HEADER:-cf-connecting-ip}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env.production}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:8080}
       DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-app}
@@ -20,7 +21,7 @@ services:
       RESEND_REPLY_TO_EMAIL: ${RESEND_REPLY_TO_EMAIL:-}
       STATIC_ROOT: /app/dist/app
     ports:
-      - "${APP_PORT:-8080}:4000"
+      - "${APP_PORT:-127.0.0.1:8080}:4000"
     command: sh -c "node dist/server/db-migrate.mjs && node dist/server/prod-server.mjs"
     healthcheck:
       test:

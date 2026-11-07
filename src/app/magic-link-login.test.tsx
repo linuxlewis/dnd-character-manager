@@ -2,7 +2,7 @@ import { MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { MagicLinkLoginForm } from "./magic-link-login.js";
+import { MagicLinkLoginForm, validateSignInCode } from "./magic-link-login.js";
 
 describe("MagicLinkLoginForm", () => {
 	it("renders the magic link request form", () => {
@@ -10,6 +10,13 @@ describe("MagicLinkLoginForm", () => {
 
 		expect(html).toContain("Email");
 		expect(html).toContain("Email sign-in link");
+	});
+});
+
+describe("validateSignInCode", () => {
+	it("accepts pasted six-digit codes with separators and rejects anything else", () => {
+		expect(validateSignInCode("482-913")).toBeNull();
+		expect(validateSignInCode("48291a")).toBe("Enter the 6-digit code");
 	});
 });
 

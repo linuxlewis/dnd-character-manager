@@ -2,25 +2,44 @@ import { fromNodeHeaders } from "better-auth/node";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { getAuth } from "./auth.js";
 import { requestMagicLinkSignIn } from "./magic-link.js";
+import { createSignInRateLimiter } from "./rate-limit.js";
 import { getOrCreateCurrentUser, getSetCookieHeaders } from "./session.js";
+import { verifySignInCode } from "./sign-in-code.js";
 import { signOutCurrentUser } from "./sign-out.js";
 
+// Sign-in emails are requested and codes verified only through the app-owned routes above, so
+// Better Auth's native magic-link request and email-OTP endpoints stay unreachable from browsers.
+const blockedBetterAuthRoutes = [
+	"/api/auth/sign-in/magic-link",
+	"/api/auth/sign-in/email-otp",
+	"/api/auth/email-otp/*",
+	"/api/auth/forget-password/email-otp",
+];
+
 export async function registerAuthRoutes(app: FastifyInstance) {
+	const signInRateLimiter = createSignInRateLimiter();
+
 	app.post("/api/magic-link-requests", async (request, reply) => {
-		return requestMagicLinkSignIn(request, reply);
+		return requestMagicLinkSignIn(request, reply, signInRateLimiter);
+	});
+
+	app.post("/api/sign-in-code-verifications", async (request, reply) => {
+		return verifySignInCode(request, reply, signInRateLimiter);
 	});
 
 	app.post("/api/sign-out", async (request, reply) => {
 		return signOutCurrentUser(request, reply);
 	});
 
-	app.route({
-		method: ["GET", "POST"],
-		url: "/api/auth/sign-in/magic-link",
-		handler: async (_request, reply) => {
-			return reply.status(404).send({ error: "Not found" });
-		},
-	});
+	for (const url of blockedBetterAuthRoutes) {
+		app.route({
+			method: ["GET", "POST"],
+			url,
+			handler: async (_request, reply) => {
+				return reply.status(404).send({ error: "Not found" });
+			},
+		});
+	}
 
 	app.route({
 		method: ["GET", "POST"],

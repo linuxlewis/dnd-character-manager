@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
 	assertNoExternalDatabaseUrl,
+	findFreePort,
 	getOwnedDatabaseUrl,
 	getStackPaths,
 	readMetadata,
@@ -99,5 +100,13 @@ describe("owned stack metadata", () => {
 		const serialized = readFileSync(paths.metadataPath, "utf8");
 		expect(serialized).not.toContain("legacy-secret");
 		expect(serialized).not.toContain("databaseUrl");
+	});
+});
+
+describe("stack port allocation", () => {
+	it("skips fetch-blocked ports when choosing a stack port", async () => {
+		const port = await findFreePort(4045);
+
+		expect(port).toBeGreaterThan(4045);
 	});
 });

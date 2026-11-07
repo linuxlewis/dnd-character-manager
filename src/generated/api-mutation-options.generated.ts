@@ -12,6 +12,7 @@ import type {
 	RestoreCharacterSpellSlotRequest,
 	SaveCharacterSpellRequest,
 	SearchCharacterSpellsRequest,
+	SignInCodeVerification,
 	SpendCharacterTreasuryPreviewRequest,
 	SpendCharacterTreasuryRequest,
 	UpdateCharacterExperienceRequest,
@@ -28,6 +29,12 @@ export function createApiMutationOptions(client: ApiClient = apiClient) {
 			mutationOptions({
 				mutationKey: ["api", "requestMagicLinkSignIn"] as const,
 				mutationFn: (body: MagicLinkRequest) => client.requestMagicLinkSignIn(body, options),
+			}),
+
+		verifySignInCode: (options: ApiRequestOptions = {}) =>
+			mutationOptions({
+				mutationKey: ["api", "verifySignInCode"] as const,
+				mutationFn: (body: SignInCodeVerification) => client.verifySignInCode(body, options),
 			}),
 
 		signOutCurrentUser: (options: ApiRequestOptions = {}) =>
