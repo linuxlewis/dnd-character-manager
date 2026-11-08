@@ -35,4 +35,39 @@ describe("item activity formatter", () => {
 			tone: "negative",
 		});
 	});
+
+	it("formats a description-only edit instead of a malformed entry", () => {
+		const snapshot = {
+			id: "00000000-0000-4000-8000-000000000002",
+			name: "Writ of commerce",
+			type: "consumable",
+			category: "Consumables",
+			rarity: "legendary",
+			quantity: 1,
+			weight: null,
+			estimatedValue: 10000,
+			isEquipped: false,
+		};
+		const entry = {
+			id: "00000000-0000-4000-8000-000000000001",
+			entityId: snapshot.id,
+			entityName: snapshot.name,
+			entityType: "item",
+			action: "item_updated",
+			actorUserId: null,
+			createdAt: "2026-08-30T12:00:00.000Z",
+			details: {
+				version: 1,
+				before: snapshot,
+				after: snapshot,
+				changedFields: ["description"],
+			},
+		} as CharacterHistoryEntry;
+
+		expect(formatItemHistoryEntry(entry)).toMatchObject({
+			detail: "Description updated",
+			summary: "Updated Writ of commerce",
+			tone: "neutral",
+		});
+	});
 });

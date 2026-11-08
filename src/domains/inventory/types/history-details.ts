@@ -212,9 +212,15 @@ function getChangedFields(
 		"isEquipped",
 		"notes",
 	] as const;
-	const changedFields = fields.filter((field) => before[field] !== after[field]);
+	const changedFields: InventoryHistoryItemChangedField[] = fields.filter(
+		(field) => before[field] !== after[field],
+	);
 	if (legacyBefore.notes !== legacyAfter.notes && !changedFields.includes("notes")) {
 		changedFields.push("notes");
+	}
+	// Descriptions are not kept in history snapshots, so record only that the text changed.
+	if ((legacyBefore.description ?? null) !== (legacyAfter.description ?? null)) {
+		changedFields.push("description");
 	}
 	return changedFields;
 }
