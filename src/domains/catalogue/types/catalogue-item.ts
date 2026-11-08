@@ -23,6 +23,24 @@ export const CatalogueItemKindSchema = z.enum([
 ]);
 export type CatalogueItemKind = z.infer<typeof CatalogueItemKindSchema>;
 
+/** Categories assigned to seeded catalogue items; owned items may still use custom text. */
+export const CATALOGUE_ITEM_CATEGORIES = [
+	"Adventuring Gear",
+	"Armor",
+	"Consumables",
+	"Potions",
+	"Rings",
+	"Rods",
+	"Scrolls",
+	"Tools",
+	"Traps",
+	"Wands",
+	"Weapons",
+	"Wondrous Items",
+	"Other",
+] as const;
+export type CatalogueItemCategory = (typeof CATALOGUE_ITEM_CATEGORIES)[number];
+
 export const CatalogueItemRaritySchema = z.enum([
 	"common",
 	"uncommon",
