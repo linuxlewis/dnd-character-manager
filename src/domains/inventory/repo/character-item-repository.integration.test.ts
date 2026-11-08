@@ -1,6 +1,6 @@
 import { userTable } from "@providers/auth/schema.js";
 import { closeDb, getDb } from "@providers/database/index.js";
-import { count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { inventoryHistoryEntriesTable, inventoryScopesTable } from "../schema/index.js";
 import type { InventoryItemHistoryWriter } from "./character-item-repository.js";
@@ -142,6 +142,36 @@ describe("character item persistence", () => {
 		expect(entries.filter((entry) => entry.action === "item_updated")).toHaveLength(3);
 		expect(entries.filter((entry) => entry.action === "item_added")).toHaveLength(1);
 		expect(entries.filter((entry) => entry.action === "item_removed")).toHaveLength(1);
+	});
+
+	it("records a description-only edit as a description change", async () => {
+		const { characterId, scopeId, userId } = await createScope();
+		const repository = createCharacterItemRepository();
+		const created = await repository.createItemForCharacterWithHistory(
+			{ characterId, userId },
+			{
+				name: "Described Item",
+				type: "misc",
+				category: "Gear",
+				description: "Plain",
+				properties: {},
+			},
+		);
+
+		await repository.updateItemWithHistory({ characterId, userId }, created.id, {
+			description: "Engraved with a moon symbol",
+		});
+
+		const [entry] = await getDb()
+			.select({ details: inventoryHistoryEntriesTable.details })
+			.from(inventoryHistoryEntriesTable)
+			.where(
+				and(
+					eq(inventoryHistoryEntriesTable.inventoryScopeId, scopeId),
+					eq(inventoryHistoryEntriesTable.action, "item_updated"),
+				),
+			);
+		expect(entry?.details).toMatchObject({ version: 1, changedFields: ["description"] });
 	});
 
 	it("does not update or write history when submitted fields have not changed", async () => {

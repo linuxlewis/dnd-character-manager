@@ -21,6 +21,7 @@ type ItemSnapshot = {
 
 const FIELD_LABELS: Record<string, string> = {
 	category: "Category",
+	description: "Description",
 	estimatedValue: "Value",
 	isEquipped: "Equipped",
 	name: "Name",
@@ -111,6 +112,7 @@ function formatItemSnapshot(item: ItemSnapshot) {
 
 function formatChangedField(field: ItemField, before: ItemSnapshot, after: ItemSnapshot) {
 	if (field === "notes") return "Notes updated";
+	if (field === "description") return "Description updated";
 	const label = FIELD_LABELS[field];
 	const beforeValue = formatItemFieldValue(field, before[field as keyof ItemSnapshot]);
 	const afterValue = formatItemFieldValue(field, after[field as keyof ItemSnapshot]);
@@ -186,6 +188,7 @@ function isItemType(value: unknown): value is ItemType {
 
 type ItemField =
 	| "category"
+	| "description"
 	| "estimatedValue"
 	| "isEquipped"
 	| "name"
@@ -198,6 +201,7 @@ type ItemField =
 function isItemField(value: unknown): value is ItemField {
 	return (
 		value === "category" ||
+		value === "description" ||
 		value === "estimatedValue" ||
 		value === "isEquipped" ||
 		value === "name" ||

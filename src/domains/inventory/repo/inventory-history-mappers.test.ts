@@ -86,6 +86,42 @@ describe("inventory history mappers", () => {
 		expect(entry.details).toMatchObject({ version: 1, changedFields: ["quantity"] });
 	});
 
+	it("records a description-only edit as a description change", () => {
+		const entry = toInventoryHistoryEntry({
+			id: entryId,
+			inventoryScopeId: scopeId,
+			action: "item_updated",
+			entityType: "item",
+			entityId: itemId,
+			entityName: "Rope",
+			actorUserId: null,
+			details: {
+				before: item,
+				after: { ...item, description: "Fifty feet of hempen rope" },
+				item: null,
+			},
+			createdAt: "2026-08-29T12:00:00.000Z",
+		});
+
+		expect(entry.details).toMatchObject({ version: 1, changedFields: ["description"] });
+	});
+
+	it("records a cleared description as a description change", () => {
+		const entry = toInventoryHistoryEntry({
+			id: entryId,
+			inventoryScopeId: scopeId,
+			action: "item_updated",
+			entityType: "item",
+			entityId: itemId,
+			entityName: "Rope",
+			actorUserId: null,
+			details: { before: item, after: { ...item, description: null }, item: null },
+			createdAt: "2026-08-29T12:00:00.000Z",
+		});
+
+		expect(entry.details).toMatchObject({ version: 1, changedFields: ["description"] });
+	});
+
 	it("retains a notes changed marker when long note content is redacted", () => {
 		const beforeNotes = "a".repeat(501);
 		const afterNotes = "b".repeat(501);
