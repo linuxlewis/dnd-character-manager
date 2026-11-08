@@ -132,6 +132,27 @@ describe("parseFoundryItemSource", () => {
 		});
 	});
 
+	it.each([
+		["equipment/rings/ring-of-protection.yml", "ring", "Rings"],
+		["supplemental/ring.yml", "ring", "Rings"],
+		["equipment/rods/rod-of-lordly-might.yml", "simpleM", "Rods"],
+		["equipment/wands/wand-of-fireballs.yml", "wand", "Wands"],
+		["equipment/cloak-of-protection.yml", "wondrous", "Wondrous Items"],
+		["equipment/mysterious-deck-cards/balance.yml", "trinket", "Wondrous Items"],
+		["containers/bag-of-holding/_container.yml", "", "Wondrous Items"],
+		["traps/hidden-pit.yml", "", "Traps"],
+		["supplemental/scroll.yml", "scroll", "Scrolls"],
+		["supplemental/unarmed-strike.yml", "natural", "Weapons"],
+		["supplemental/unknown.yml", "", "Other"],
+		["adventuring-gear/spellcasting-focuses/arcane-focus.yml", "wand", "Adventuring Gear"],
+	])("categorizes %s (type %s) as %s", (path, type, category) => {
+		const item = parseFoundryItemSource({
+			path: `packs/_source/equipment24/${path}`,
+			yaml: fixture({ type, rarity: "rare", properties: "[mgc]" }),
+		});
+		expect(item.category).toBe(category);
+	});
+
 	it("rejects source files outside the pinned equipment pack", () => {
 		expect(() =>
 			parseFoundryItemSource({ path: "packs/_source/spells24/light.yml", yaml: fixture() }),
