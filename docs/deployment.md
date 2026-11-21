@@ -153,9 +153,10 @@ unavailable.
 
 1. Pull or checkout the intended revision in `/home/sbolgert/workspace/dnd-character-manager`.
 2. Run validation locally.
-3. Restart the production service:
+3. Rebuild the production image, then restart the production service:
 
 ```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml build
 sudo systemctl restart dnd-character-manager-prod.service
 ```
 
@@ -167,8 +168,9 @@ curl http://127.0.0.1:8090/healthz
 curl -I https://characters.dndinventorymanager.com
 ```
 
-The service unit runs `docker compose ... up -d --build`, so restart rebuilds the production image
-from the current workspace revision and starts the updated containers.
+The service unit runs `docker compose ... up -d --no-build`, so it starts from the existing
+`dnd-character-manager:production` image and never rebuilds at boot. Building at boot failed when
+DNS was not ready yet, so builds happen only in the deploy workflow or the manual build step above.
 
 ## Data And Migrations
 
