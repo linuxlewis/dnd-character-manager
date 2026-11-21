@@ -2,7 +2,11 @@ import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 import { FOUNDRY_DND5E_SOURCE, foundryDnd5eSourceUrl } from "../config/index.js";
 import { CATALOGUE_SOURCE_MANIFEST } from "../config/manifest.js";
-import type { CatalogueItemKind, CatalogueItemSeed } from "../types/index.js";
+import type {
+	CatalogueItemCategory,
+	CatalogueItemKind,
+	CatalogueItemSeed,
+} from "../types/index.js";
 import {
 	CatalogueItemRaritySchema,
 	CatalogueItemSeedSchema,
@@ -86,7 +90,7 @@ export function parseFoundryItemSource(input: FoundryItemSourceInput): Catalogue
 		identifier: sourcePayload.system.identifier,
 		name: sourcePayload.name,
 		kind,
-		category: categoryForPath(relativePath),
+		category: categoryForPath(relativePath, sourcePayload.system.type?.value),
 		description: htmlToText(sourcePayload.system.description.value),
 		isMagical,
 		rarity,
@@ -121,7 +125,9 @@ function normalizeKind(kind: CatalogueItemKind, isMagical: boolean): CatalogueIt
 	return isMagical && !["potion", "scroll"].includes(kind) ? "magic-item" : kind;
 }
 
-function categoryForPath(path: string) {
+// Magic items outside the mundane folders use the DMG magic item categories.
+// migrations/0016_catalogue_item_categories.sql applies the same rules to seeded rows.
+function categoryForPath(path: string, itemType: string | null | undefined): CatalogueItemCategory {
 	if (path.startsWith("adventuring-gear/")) return "Adventuring Gear";
 	if (path.startsWith("consumables/potions/")) return "Potions";
 	if (path.startsWith("consumables/scrolls/")) return "Scrolls";
@@ -129,6 +135,14 @@ function categoryForPath(path: string) {
 	if (path.startsWith("weapons/")) return "Weapons";
 	if (path.startsWith("armor/")) return "Armor";
 	if (path.startsWith("tools/")) return "Tools";
+	if (path.startsWith("traps/")) return "Traps";
+	if (path.startsWith("containers/")) return "Wondrous Items";
+	if (path.startsWith("equipment/rings/") || itemType === "ring") return "Rings";
+	if (path.startsWith("equipment/rods/") || itemType === "rod") return "Rods";
+	if (path.startsWith("equipment/wands/") || itemType === "wand") return "Wands";
+	if (path.startsWith("equipment/")) return "Wondrous Items";
+	if (itemType === "scroll") return "Scrolls";
+	if (itemType === "natural") return "Weapons";
 	return "Other";
 }
 

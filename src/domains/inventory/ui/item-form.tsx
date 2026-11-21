@@ -1,6 +1,7 @@
 import "./inventory.css";
 import {
 	Alert,
+	Autocomplete,
 	Box,
 	Button,
 	Divider,
@@ -21,7 +22,10 @@ import type {
 	UpdateCharacterItemRequest,
 } from "../../../generated/api-client.generated.js";
 import { apiQueries } from "../../../generated/api-client.generated.js";
-import type { CatalogueItemSearchResult } from "../../catalogue/types/index.js";
+import {
+	CATALOGUE_ITEM_CATEGORIES,
+	type CatalogueItemSearchResult,
+} from "../../catalogue/types/index.js";
 import type { InventoryItem } from "../types/index.js";
 import { CatalogueItemSearch } from "./catalogue-item-search.js";
 import type { ItemFormValues } from "./item-form-values.js";
@@ -165,7 +169,12 @@ export function ItemForm({
 							placeholder="Unrated"
 						/>
 					</Group>
-					<TextInput {...form.getInputProps("category")} label="Category" required />
+					<Autocomplete
+						{...form.getInputProps("category")}
+						data={CATALOGUE_ITEM_CATEGORIES}
+						label="Category"
+						required
+					/>
 					<Group align="flex-start" grow wrap="wrap">
 						<NumberInput
 							hideControls

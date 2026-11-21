@@ -48,7 +48,9 @@ test("completes the M2 personal inventory journey", async ({ page }) => {
 	await customDialog.getByLabel("Name").fill("Sage's Elixir");
 	await selectOption(page, customDialog, "Type", "Potion");
 	await selectOption(page, customDialog, "Rarity", "Rare");
-	await customDialog.getByLabel("Category").fill("Potions");
+	await customDialog.getByLabel("Category").fill("Pot");
+	await page.getByRole("option", { name: "Potions", exact: true }).click();
+	await expect(customDialog.getByLabel("Category")).toHaveValue("Potions");
 	await customDialog.getByLabel("Quantity").fill("3");
 	await customDialog.getByLabel("Weight (lb)").fill("0.5");
 	await customDialog.getByRole("button", { name: "Add item", exact: true }).click();

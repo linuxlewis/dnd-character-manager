@@ -23,6 +23,7 @@ export {
 export type {
 	CatalogueCapabilityStatus,
 	CatalogueItemAuditCategoryCounts,
+	CatalogueItemCategory,
 	CatalogueItemDetailPort,
 	CatalogueItemDetails,
 	CatalogueItemId,
@@ -41,6 +42,7 @@ export type {
 	CatalogueStatusResponse,
 } from "./catalogue-item.js";
 export {
+	CATALOGUE_ITEM_CATEGORIES,
 	CatalogueCapabilityStatusSchema,
 	CatalogueItemAuditCategoryCountsSchema,
 	CatalogueItemDetailsSchema,
