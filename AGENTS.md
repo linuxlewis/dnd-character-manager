@@ -78,6 +78,12 @@ pnpm · TypeScript · Fastify + React/Vite · Mantine · TanStack Query · Postg
 4. Update [docs/quality.md](./docs/quality.md) if you improved coverage or fixed gaps
 5. If you made architectural decisions, add focused docs under `docs/`
 
+## Cloud agents and pstack
+
+- [`.cursor/environment.json`](./.cursor/environment.json) and [`.cursor/Dockerfile`](./.cursor/Dockerfile) define the Cursor cloud-agent VM: Node 24, pnpm, Docker, Playwright Chromium, `gh`, and `bun`. `install` runs `pnpm install` and the Chromium download; `start` only brings up the Docker daemon. Use `pnpm start` and `pnpm test` as usual.
+- Cursor puts its own older `node` first on the agent's `PATH`. Run Node through `pnpm` (`pnpm exec`, `pnpm <script>`), which the image pins to Node 24; a bare `node` or `npx` is not the repo's version.
+- [`.cursor/settings.json`](./.cursor/settings.json) enables the [pstack](https://github.com/cursor/plugins/tree/main/pstack) plugin for this project.
+
 ## Agent skills
 
 ### Issue tracker
